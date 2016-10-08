@@ -4,8 +4,10 @@ pod_state_t gPodState = Boot;
 
 /**
  * Determines if the new state is a valid state
+ *
+ * @return whether the new state is valid knowing the gPodState
  */
-bool validPodState(pod_state_t new_state) {
+bool validPodState(pod_state_t current_state, pod_state_t new_state) {
   if (new_state == Emergency) {
     return true;
   }
@@ -21,12 +23,12 @@ bool validPodState(pod_state_t new_state) {
   };
 
   // Ensure that the pod's current state can always transition to itself
-  assert(transitions[gPodState][0] == gPodState);
+  assert(transitions[current_state][0] == current_state);
 
   pod_state_t i_state;
   int i = 0;
 
-  while ((i_state = transitions[gPodState][i]) != _nil) {
+  while ((i_state = transitions[current_state][i]) != _nil) {
     if (i_state == new_state) {
       return true;
     }
@@ -40,7 +42,7 @@ pod_state_t getPodState(void) {
 }
 
 int setPodState(pod_state_t new_state) {
-  if (validPodState(new_state)) {
+  if (validPodState(gPodState, new_state)) {
     gPodState = new_state;
     return 0;
   } else {
