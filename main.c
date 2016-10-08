@@ -221,7 +221,7 @@ int main() {
   setPriority(state->logging_thread, 15);
 
   while (1) {
-    debug("Clock Tick");
+    debug("Clock Ticked at %ld", getTime());
     usleep(1000000);
     fflush(stdout);
   }

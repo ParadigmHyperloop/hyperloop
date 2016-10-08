@@ -17,7 +17,7 @@
 #define DISTANCE_THREAD_SLEEP 5000
 #define KALMAN_THREAD_SLEEP 5000
 #define LATERAL_THREAD_SLEEP 5000
-#define LOGGING_THREAD_SLEEP 5000000 // Half Second
+#define LOGGING_THREAD_SLEEP 500000 // Half Second
 #define PHOTOELECTRIC_THREAD_SLEEP 5000
 
 #define output(prefix_, fmt_, ...) printf((prefix_ fmt_ "\n"), ##__VA_ARGS__)
