@@ -1,7 +1,7 @@
 #include "pod.h"
 
-#define LOGGING_INTERVAL 500000 // Half Second
 void* loggingMain(void *arg) {
+  debug("[loggingMain] Thread Start");
 
   while (1) {
     debug("Logging System -> Dumping State");
@@ -22,6 +22,6 @@ void* loggingMain(void *arg) {
             state->position_y.value,
             state->position_z.value);
 
-    usleep(LOGGING_INTERVAL);
+    usleep(LOGGING_THREAD_SLEEP);
   }
 }

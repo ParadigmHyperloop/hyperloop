@@ -15,6 +15,7 @@ long readLateralSensor(int sensorno) {
 }
 
 void *lateralMain(void *arg) {
+    debug("[lateralMain] Thread Start");
     long leftLateralDistance = 0;
     long rightLateralDistance = 0;
     while(1) {
@@ -22,5 +23,7 @@ void *lateralMain(void *arg) {
         rightLateralDistance = readLateralSensor(1); //CHANGE ME! use proper sensor ids
         checkTolerance(leftLateralDistance);
         checkTolerance(rightLateralDistance);
+
+        usleep(LATERAL_THREAD_SLEEP);
     }
 }

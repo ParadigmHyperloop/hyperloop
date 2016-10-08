@@ -44,8 +44,10 @@ void brakingChecks() {
 }
 
 
-void *imuMain(void *arg) {
-    while (1) {
+void * imuMain(void *arg) {
+    debug("[imuMain] Thread Start");
+
+    while (getPodState()->mode != Shutdown) {
         // TODO: initializing hackery
         if (lastCheckTime == 0) {
           lastCheckTime = getTime();
@@ -74,5 +76,7 @@ void *imuMain(void *arg) {
             default :
                 break;
         }
+
+        usleep(IMU_THREAD_SLEEP);
     }
 }
