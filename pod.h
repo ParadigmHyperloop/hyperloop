@@ -118,6 +118,6 @@ void initializePodState(void);
  *
  * @return The current timestamp in microseconds
  */
-unsigned long getTime(void);
+unsigned long long getTime(void);
 
 #endif
