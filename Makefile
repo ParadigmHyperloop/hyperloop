@@ -8,7 +8,7 @@
 #
 
 CC=gcc
-DEPS = libBBB.c
+DEPS = photoelectric.c imu.c braking.c lateral.c logging.c kalman.c distance.c pod.c
 SOURCES= main.c
 EXECUTABLE = main
 
@@ -19,4 +19,3 @@ main: main.c $(DEPS)
 
 clean:
 	rm -f *.o *~ $(EXECUTABLE)
-

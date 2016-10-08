@@ -1,16 +1,6 @@
-#include "libBBB.h"
+#include "pod.h"
 #include <pthread.h>
 #include <sys/time.h>
-
-typedef enum podState {
-  boot,     // initializing systems, establishing network connections, ect
-  ready,    // idle, stationary, ready for push
-  pushing,  // pusher engaged,
-  coasting, // pusher disengaged, just coasting
-  braking,  // normal braking mode
-  shutdown, // pod stationary and in a safe state
-  emergency // emergency braking
-} pod_state_t;
 
 // locks sensor data (imu, distance, photoelectric)
 pthread_mutex_t sensorDataMutex;
