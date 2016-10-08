@@ -4,50 +4,68 @@ long maximumSafeForwardVelocity = 25; //CHANGE ME! ARBITRARY!
 long standardDistanceBeforeBraking = 75; //CHANGE ME! ARBITRARY!
 long maximumSafeDistanceBeforeBraking = 125;
 
+#define PRIMARY_BRAKING_ACCEL_X_MIN -2.0
+#define PRIMARY_BRAKING_ACCEL_X_MAX -1.0
+
+// TODO: I'm assuming you can get all 6 values in one datagram
+typedef struct {
+  // 32-Bit
+  unsigned long x;
+  unsigned long y;
+  unsigned long z;
+  unsigned long wx;
+  unsigned long wy;
+  unsigned long wz;
+} imu_datagram_t;
+
 long acceleration = 0; //In m/s^2
 long forwardVelocity = 0; //In m/s
 long totalDistanceTraveled = 0; //In m
 long lastCheckTime = 0; //Should be the method from main to get the current system time, assume milliseconds.
 long timeSinceLast = 0; //In milliseconds
 
-long accelToVelocity() {
-    return (acceleration * timeSinceLast / 1000);
-}
-
-long velocityToDistance() {
-    return (forwardVelocity * timeSinceLast / 1000);
-}
-
+/**
+ * Checks to be performed when the pod's state is Pushing
+ */
 void pushingChecks() {
     if (totalDistanceTraveled > maximumSafeDistanceBeforeBraking || forwardVelocity > maximumSafeForwardVelocity) {
-        //CHANGE ME!!! Make state Emergency
+        setPodMode(Emergency);
     }
     else if (acceleration <= 0) {
-        //CHANGE ME!!! Make state Coasting
+        setPodMode(Coasting);
     }
 }
 
+/**
+ * Checks to be performed when the pod's state is Coasting
+ */
 void coastingChecks() {
     if (totalDistanceTraveled > maximumSafeDistanceBeforeBraking || forwardVelocity > maximumSafeForwardVelocity) {
-        //CHANGE ME!!! Make state Emergency
+        setPodMode(Emergency);
     }
     else if (totalDistanceTraveled > standardDistanceBeforeBraking) {
-        //CHANGE ME!! Make state Braking
+        setPodMode(Braking);
     }
 }
 
+/**
+ * Checks to be performed when the pod's state is Braking
+ */
 void brakingChecks() {
-    //QUESTION: Are there emergency state criteria for Braking state?
+    if (outside(PRIMARY_BRAKING_ACCEL_X_MIN, acceleration, PRIMARY_BRAKING_ACCEL_X_MAX)) {
+        setPodMode(Emergency);
+    }
+
     if (forwardVelocity <= 0) {
-        //CHANGE ME!! Make state Shutdown
+        setPodMode(Shutdown);
     }
 }
+
 
 void * imuMain(void *arg) {
     debug("[imuMain] Thread Start");
 
     while (getPodState()->mode != Shutdown) {
-        // TODO: initializing hackery
         if (lastCheckTime == 0) {
           lastCheckTime = getTime();
         }
@@ -57,7 +75,7 @@ void * imuMain(void *arg) {
         lastCheckTime = currentCheckTime;
 
         acceleration = 0; //CHANGE ME!!! Get acceleration from Sensor assume m/s^2. Assume long.
-        forwardVelocity = accelToVelocity();
+        forwardVelocity =
         totalDistanceTraveled += velocityToDistance();
 
         pod_mode_t podState = getPodMode(); //CHANGE ME!!! Should read from the pthread.

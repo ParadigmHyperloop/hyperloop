@@ -13,4 +13,9 @@
 
 #include <sys/time.h>
 
+
+#define within(low, val, high) ((low <= val) && (val <= high))
+#define outside(low, val, high) (!(within((low), (val), (high))))
+
+
 #endif
