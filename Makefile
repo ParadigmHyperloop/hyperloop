@@ -15,7 +15,6 @@ EXECUTABLE = main
 all: $(EXECUTABLE)
 
 main: main.c $(DEPS)
-	$(CC) -o $@ $^ -lpthread
 
 clean:
 	rm -f *.o *~ $(EXECUTABLE)

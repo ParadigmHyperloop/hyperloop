@@ -1,4 +1,4 @@
-# hyperloop-code
+# hyperloop-core
 
 The c code to run the OpenLoop HyperLoop pod. Runs on the BeagleBone Black board.
 
@@ -83,3 +83,50 @@ might go about it's control decisions
 At this time... we are just running a vanilla Linux on the BBB, this will
 cause many issues with the standard scheduler that comes with Debian or
 Angstrom.
+
+
+# Contributing
+
+The Basics for how this all works
+
+## Compiling
+
+```
+$ make clean all
+$ ./pod
+```
+
+Currently we are doing development on 64-Bit Apple MacBook Pro's with the
+standard Xcode Toolkit (8.1 Beta-2) Apple LLVM version 8.0.0 (clang-800.0.42)
+
+This should be irrelevant because we also are constantly testing and Compiling
+on BBB hardware using gcc version 4.6.3 (Debian 4.6.3-14)
+
+Basically, we are getting semi-broad coverage possible platforms in our
+development, which can be painful at times, but it is much better to deal with
+the cross platform issues now rather than later.
+
+## Developer Notes
+
+> I've Jotted down a lot of notes in this section that may seem trivial, but
+I am putting them here anyways to hopefully save even the experienced developer a few minutes of head scratching and googling
+
+### long vs. long long
+
+The main cross platform issue you will find between your dev machine and a BBB
+will likely be 32/64-Bit issues. A quick refresher:
+
+  * `unsigned long foo;` guarantees that you will have at least 32 bits in
+    `foo`, you will actually probably 64 on 64 bit systems, but only 32 on
+    32-Bit systems.
+  * `unsigned long long foo` guarantees that you will have at least 64 bits
+    regardless of the architecture, even if it's a 32-Bit chip.
+
+### Run in 32-Bit mode on a 64-Bit machine
+You can force your 64-Bit system to compile and run a program in 32-Bit mode
+with the following:
+
+```
+$ CFLAGS="-arch i386" make clean all
+$ arch -i386 ./main
+```
