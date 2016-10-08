@@ -105,6 +105,8 @@ int setPodMode(pod_mode_t new_mode) {
 // TODO: Make nanoseconds
 unsigned long getTime() {
   struct timeval currentTime;
-  gettimeofday(&currentTime, NULL);
-  return (currentTime.tv_sec * (int)1e6 + currentTime.tv_usec);
+
+  assert(gettimeofday(&currentTime, NULL) == 0);
+
+  return (currentTime.tv_sec * (int)1e6);
 }
