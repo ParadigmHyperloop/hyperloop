@@ -4,18 +4,15 @@ long maximumSafeForwardVelocity = 25; //CHANGE ME! ARBITRARY!
 long standardDistanceBeforeBraking = 75; //CHANGE ME! ARBITRARY!
 long maximumSafeDistanceBeforeBraking = 125;
 
-long acceleration = 0; //In m/s^2
-long forwardVelocity = 0; //In m/s
-long totalDistanceTraveled = 0; //In m
 long lastCheckTime = 0; //Should be the method from main to get the current system time, assume milliseconds.
 long timeSinceLast = 0; //In milliseconds
 
-long accelToVelocity() {
-    return (acceleration * timeSinceLast / 1000);
+long accelToVelocity(pod_state_t *podState) {
+    return (getPodField(&(podState.accel_x)) * timeSinceLast / 1000);
 }
 
-long velocityToDistance() {
-    return (forwardVelocity * timeSinceLast / 1000);
+long velocityToDistance(pod_state_t *podState) {
+    return (getPodField(&(podState.velocity_x)) * timeSinceLast / 1000);
 }
 
 void pushingChecks() {
@@ -46,8 +43,11 @@ void brakingChecks() {
 
 void * imuMain(void *arg) {
     debug("[imuMain] Thread Start");
+    
+    pod_state_t *podState = getPodState();
+    pod_mode_t podMode = getPodMode();
 
-    while (getPodState()->mode != Shutdown) {
+    while (getPodMode() != Shutdown) {
         // TODO: initializing hackery
         if (lastCheckTime == 0) {
           lastCheckTime = getTime();
@@ -57,13 +57,13 @@ void * imuMain(void *arg) {
         timeSinceLast = lastCheckTime - currentCheckTime;
         lastCheckTime = currentCheckTime;
 
-        acceleration = 0; //CHANGE ME!!! Get acceleration from Sensor assume m/s^2. Assume long.
-        forwardVelocity = accelToVelocity();
-        totalDistanceTraveled += velocityToDistance();
+        setPodField(&(podState.accel_x), 0); //CHANGE ME!!! Get acceleration from Sensor assume m/s^2. Assume long.
+        setPodField(&(podState.velocity_x), accelToVelocity(podState));
+        setPodField(&(podState.position_x), getPodField(&(podState.position_x)) + velocityToDistance(podState))
 
-        pod_mode_t podState = Ready; //CHANGE ME!!! Should read from the pthread.
+        podMode = getPodMode();
 
-        switch (podState) {
+        switch (podMode) {
             case Pushing :
                 pushingChecks();
                 break;
