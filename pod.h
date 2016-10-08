@@ -19,10 +19,10 @@ typedef enum {
 
 typedef struct pod_value {
   unsigned long value; // TODO: either make this a union or more structs
-  pthread_mutex_t mutex;
+  pthread_rwlock_t lock;
 } pod_value_t;
 
-#define POD_VALUE_INITIALIZER(name) { .value = 0 }; pthread_mutex_init(&((name)->mutex), NULL)
+#define POD_VALUE_INITIALIZER { 0, PTHREAD_RWLOCK_INITIALIZER }
 
 /**
  * Defines the master state of the pod
@@ -64,13 +64,13 @@ typedef struct pod_state {
   pthread_t logging_thread;
 
   pod_mode_t mode;
+  pthread_rwlock_t mode_mutex;
 
   bool initialized;
 } pod_state_t;
 
-
 /**
- * @brief Set the new state of the pod's control algorithms.  Setting the state
+ * @brief Set the new state of the pod's control algorithms.
  *
  * If the state given is a legal state that can be transitioned to, then the
  * controller's state is changed. If the new state is an illegal state, then
@@ -87,11 +87,10 @@ typedef struct pod_state {
  */
 int setPodMode(pod_mode_t new_state);
 
-
 /**
- * @brief Set the new state of the pod's control algorithms.  Setting the state
+ * @brief Get the mode of the pod's control algorithms.
  *
- * The pod state generally defines the way each of the separate modules
+ * The pod mode generally defines the way each of the separate modules
  * (braking, skates, ect) make decisions.  For example, each module may check
  * the pod state on each loop, if the the imu module changes the state to
  * braking. The IMU will also continue it's loop and if it notices that
@@ -101,8 +100,17 @@ int setPodMode(pod_mode_t new_state);
  *
  * @return the current pod state as of calling
  */
-pod_state_t * getPodState(void);
+pod_mode_t getPodMode(void);
 
+/**
+ * @brief Gets a pointer to the pod state structure
+ *
+ * The pod state struct contains all the current state information for the pod
+ * as well as mutexes for locking the values for reading and writing
+ *
+ * @return the current pod state as of calling
+ */
+pod_state_t * getPodState(void);
 
 /**
  * Intiializes the pod's pod_state_t returned by getPodState()
@@ -112,22 +120,12 @@ void initializePodState(void);
 /**
  * Helper method to read value from pod_state
  */
-unsigned long getPodField(pod_value_t *pod_field) {
-    pthread_rwlock_rdlock(&(pod_field->lock));
-    unsigned long value = pod_field->value;
-    pthread_rwlock_unlock(&(pod_field->lock));
-    return value;
-}
+unsigned long getPodField(pod_value_t *pod_field);
 
 /**
  * Helper method to change a value from pod_state
  */
-void setPodField(pod_value_t *pod_field, unsigned long newValue) {
-    pthread_rw_lock_wrlock(&(pod_field->lock));
-    &(pod_field->value) = newValue;
-    pthread_rwlock_unlock(&(pod_field->lock));
-}
-
+void setPodField(pod_value_t *pod_field, unsigned long newValue);
 
 /**
  * Get the current time of the pod in microseconds
