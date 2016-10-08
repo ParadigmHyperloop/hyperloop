@@ -17,26 +17,26 @@ long velocityToDistance(pod_state_t *podState) {
 
 void pushingChecks(pod_state_t *podState) {
     if (getPodField(&(podState->position_x)) > maximumSafeDistanceBeforeBraking || getPodField(&(podState->velocity_x)) > maximumSafeForwardVelocity) {
-        //CHANGE ME!!! Make state Emergency
+        setPodMode(Emergency);
     }
     else if (getPodField(&(podState->accel_x)) <= 0) {
-        //CHANGE ME!!! Make state Coasting
+        setPodMode(Coasting);
     }
 }
 
 void coastingChecks(pod_state_t *podState) {
     if (getPodField(&(podState->position_x)) > maximumSafeDistanceBeforeBraking || getPodField(&(podState->velocity_x)) > maximumSafeForwardVelocity) {
-        //CHANGE ME!!! Make state Emergency
+        setPodMode(Emergency);
     }
     else if (getPodField(&(podState->position_x)) > standardDistanceBeforeBraking) {
-        //CHANGE ME!! Make state Braking
+        setPodMode(Braking);
     }
 }
 
 void brakingChecks(pod_state_t *podState) {
     //QUESTION: Are there emergency state criteria for Braking state?
     if (getPodField(&(podState->velocity_x)) <= 0) {
-        //CHANGE ME!! Make state Shutdown
+        setPodMode(Shutdown);
     }
 }
 
@@ -60,7 +60,7 @@ void * imuMain(void *arg) {
         setPodField(&(podState->velocity_x), accelToVelocity(podState));
         setPodField(&(podState->position_x), getPodField(&(podState->position_x)) + velocityToDistance(podState));
 
-        podMode = getPodMode(); //CHANGE ME!!! Should read from the pthread.
+        podMode = getPodMode();
 
         switch (podMode) {
             case Pushing :

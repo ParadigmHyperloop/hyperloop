@@ -5,7 +5,7 @@ long minSafeDistanceAwayFromRail = 5; //CHANGE ME!! ARBITRARY In mm
 
 void checkTolerance(long distance) {
     if(distance > maxSafeDistanceAwayFromRail || distance < minSafeDistanceAwayFromRail) {
-        //CHANGE ME! Change state to Emergency!
+        setPodMode(Emergency);
     }
 }
 
@@ -16,13 +16,12 @@ long readLateralSensor(int sensorno) {
 
 void *lateralMain(void *arg) {
     debug("[lateralMain] Thread Start");
-    long leftLateralDistance = 0;
-    long rightLateralDistance = 0;
+    pod_state_t *podState = getPodState();
     while(1) {
-        leftLateralDistance = readLateralSensor(0); //CHANGE ME! use proper sensor ids
-        rightLateralDistance = readLateralSensor(1); //CHANGE ME! use proper sensor ids
-        checkTolerance(leftLateralDistance);
-        checkTolerance(rightLateralDistance);
+        setPodField(&(podState->lateral_left), readLateralSensor(0));
+        setPodField(&(podState->lateral_right), readLateralSensor(1));
+        checkTolerance(getPodField(&(podState->lateral_left)));
+        checkTolerance(getPodField(&(podState->lateral_left)));
 
         usleep(LATERAL_THREAD_SLEEP);
     }
