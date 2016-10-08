@@ -2,11 +2,15 @@
 #include <pthread.h>
 #include <sys/time.h>
 
-// methods of pod control
-const int TEST_MODE = 1;
-const int PUSHER_PHASE = 2;
-const int COASTING_PHASE = 3;
-const int BRAKING_PHASE = 4;
+typedef enum podState {
+  boot,     // initializing systems, establishing network connections, ect
+  ready,    // idle, stationary, ready for push
+  pushing,  // pusher engaged,
+  coasting, // pusher disengaged, just coasting
+  braking,  // normal braking mode
+  shutdown, // pod stationary and in a safe state
+  emergency // emergency braking
+} pod_state_t;
 
 // locks sensor data (imu, distance, photoelectric)
 pthread_mutex_t sensorDataMutex;
@@ -38,10 +42,11 @@ long brakingPeriod = 10000;
 long dataDisplayPeriod = 20000;
 
 // returns the time in microseconds
+// TODO: Make nanoseconds
 long getTime() {
   struct timeval currentTime;
   gettimeofday(&currentTime, NULL);
-  return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
+  return (currentTime.tv_sec * (int)1e6 + currentTime.tv_usec);
 }
 
 // pos, vel, quaternions
