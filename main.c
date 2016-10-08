@@ -1,6 +1,5 @@
 #include "pod.h"
 #include <pthread.h>
-#include <sys/time.h>
 
 // locks sensor data (imu, distance, photoelectric)
 pthread_mutex_t sensorDataMutex;
@@ -30,14 +29,6 @@ long imuPeriod = 1000;
 long lateralControlPeriod = 15000;
 long brakingPeriod = 10000;
 long dataDisplayPeriod = 20000;
-
-// returns the time in microseconds
-// TODO: Make nanoseconds
-long getTime() {
-  struct timeval currentTime;
-  gettimeofday(&currentTime, NULL);
-  return (currentTime.tv_sec * (int)1e6 + currentTime.tv_usec);
-}
 
 // pos, vel, quaternions
 double states[10];
@@ -123,24 +114,6 @@ void *distanceSensorFunction(void *arg) {
   }
 }
 
-void *imuDataFunction(void *arg) {
-  long timespent = 0;
-  while (1) {
-    imuStart = getTime();
-    // get IMU data
-    pthread_mutex_lock(&sensorDataMutex);
-    imuSet = 1;
-    pthread_mutex_unlock(&sensorDataMutex);
-
-    timespent = getTime() - imuStart;
-    if (timespent > imuPeriod)
-      printf("Error: imu failed to meet Deadline by %li nanosecons\n",
-             timespent);
-    else
-      usleep(imuPeriod - timespent);
-  }
-}
-
 void *lateralControlFunction(void *arg) {
   long timespent = 0;
   while (1) {
@@ -213,6 +186,8 @@ void setPriority(pthread_t task, int priority) {
   }
 }
 
+void *imuMain(void *arg);
+
 int main() {
   pthread_mutex_init(&sensorDataMutex, NULL);
   pthread_mutex_init(&statesMutex, NULL);
@@ -230,7 +205,7 @@ int main() {
 
   pthread_create(&kalman, NULL, kalmanFunction, NULL);
   pthread_create(&photoelectric, NULL, photoelectricFunction, NULL);
-  pthread_create(&imu, NULL, imuDataFunction, NULL);
+  pthread_create(&imu, NULL, imuMain, NULL);
   pthread_create(&distance, NULL, distanceSensorFunction, NULL);
   pthread_create(&braking, NULL, brakingFunction, NULL);
   pthread_create(&lateralControl, NULL, lateralControlFunction, NULL);

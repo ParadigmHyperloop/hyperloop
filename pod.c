@@ -5,7 +5,7 @@ pod_state_t gPodState = Boot;
 /**
  * Determines if the new state is a valid state
  */
-bool valid_state(pod_state_t new_state) {
+bool validPodState(pod_state_t new_state) {
   if (new_state == Emergency) {
     return true;
   }
@@ -35,15 +35,23 @@ bool valid_state(pod_state_t new_state) {
   return false;
 }
 
-pod_state_t get_pod_state(void) {
+pod_state_t getPodState(void) {
   return gPodState;
 }
 
-int set_pod_state(pod_state_t new_state) {
-  if (valid_state(new_state)) {
+int setPodState(pod_state_t new_state) {
+  if (validPodState(new_state)) {
     gPodState = new_state;
     return 0;
   } else {
     return -1;
   }
+}
+
+// returns the time in microseconds
+// TODO: Make nanoseconds
+long getTime() {
+  struct timeval currentTime;
+  gettimeofday(&currentTime, NULL);
+  return (currentTime.tv_sec * (int)1e6 + currentTime.tv_usec);
 }

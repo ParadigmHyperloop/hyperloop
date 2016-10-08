@@ -31,7 +31,7 @@ typedef enum {
  *
  * @return Returns 0 in the event of a sucessful state change, -1 on error
  */
-int set_pod_state(pod_state_t new_state);
+int setPodState(pod_state_t new_state);
 
 
 /**
@@ -47,6 +47,17 @@ int set_pod_state(pod_state_t new_state);
  *
  * @return the current pod state as of calling
  */
-pod_state_t get_pod_state(void);
+pod_state_t getPodState(void);
+
+/**
+ * Get the current time of the pod in microseconds
+ *
+ * TODO: Make this function return nanosecond precision
+ * TODO: Make this function return a uint64_t
+ * TODO: Make this function actually specify the timezone/base of the timestamp
+ *
+ * @return The current timestamp in microseconds
+ */
+long getTime(void);
 
 #endif
