@@ -4,7 +4,7 @@ void *brakingMain(void *arg) {
     debug("[brakingMain] Thread Start");
     pod_mode_t podState;
     while(1) {
-        podState = getPodState()->mode; //CHANGE ME! Get current pod state
+        podState = getPodMode();
         switch (podState) {
             case Braking:
                 // MAKE THE BRAKES BRAKE!?!?

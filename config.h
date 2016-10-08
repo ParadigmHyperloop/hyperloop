@@ -20,8 +20,17 @@
 #define LOGGING_THREAD_SLEEP 500000 // Half Second
 #define PHOTOELECTRIC_THREAD_SLEEP 5000
 
+// --------------
+// Debug Printing
+// --------------
 #define output(prefix_, fmt_, ...) printf((prefix_ fmt_ "\n"), ##__VA_ARGS__)
 #define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
 #define warn(fmt_, ...) output("[WARN] ", fmt_, ##__VA_ARGS__)
+
+// ------------------
+// Braking Thresholds
+// ------------------
+#define PRIMARY_BRAKING_ACCEL_X_MIN -280
+#define PRIMARY_BRAKING_ACCEL_X_MAX -40
 
 #endif
