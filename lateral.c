@@ -1,5 +1,4 @@
 #include "pod.h"
-#include "main.c"
 
 long maxSafeDistanceAwayFromRail = 7; //CHANGE ME!! ARBITRARY In mm
 long minSafeDistanceAwayFromRail = 5; //CHANGE ME!! ARBITRARY In mm
