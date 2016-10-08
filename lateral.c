@@ -9,12 +9,17 @@ void checkTolerance(long distance) {
     }
 }
 
+long read_lateral_sensor(int sensorno) {
+  //CHANGE ME! Read in value assume units in mm
+  return 0;
+}
+
 void *lateralMain(void *arg) {
-    long leftLateral;
-    long rightLateral;
+    long leftLateralDistance = 0;
+    long rightLateralDistance = 0;
     while(1) {
-        leftLateralDistance = 0; //CHANGE ME! Read in value assume units in mm
-        rightLateralDistance = 0; //CHANGE ME! Read in value assume units in mm
+        leftLateralDistance = read_lateral_sensor(0); //CHANGE ME! use proper sensor ids
+        rightLateralDistance = read_lateral_sensor(1); //CHANGE ME! use proper sensor ids
         checkTolerance(leftLateralDistance);
         checkTolerance(rightLateralDistance);
     }
