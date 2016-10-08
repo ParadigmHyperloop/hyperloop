@@ -1,5 +1,4 @@
 #include "pod.h"
-#include <pthread.h>
 
 // locks sensor data (imu, distance, photoelectric)
 pthread_mutex_t sensorDataMutex;

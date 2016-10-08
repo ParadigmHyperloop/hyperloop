@@ -1,18 +1,18 @@
 #include "pod.h"
 
-pod_state_t gPodState = Boot;
+pod_mode_t gPodState = Boot;
 
 /**
  * Determines if the new state is a valid state
  *
  * @return whether the new state is valid knowing the gPodState
  */
-bool validPodState(pod_state_t current_state, pod_state_t new_state) {
+bool validPodState(pod_mode_t current_state, pod_mode_t new_state) {
   if (new_state == Emergency) {
     return true;
   }
 
-  const static pod_state_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
+  const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
     {Boot, Ready, Emergency, Shutdown, _nil}, // Boot
     {Ready, Pushing, Emergency, _nil}, // Ready
     {Pushing, Coasting, Braking, Emergency, _nil}, // Pushing
@@ -25,7 +25,7 @@ bool validPodState(pod_state_t current_state, pod_state_t new_state) {
   // Ensure that the pod's current state can always transition to itself
   assert(transitions[current_state][0] == current_state);
 
-  pod_state_t i_state;
+  pod_mode_t i_state;
   int i = 0;
 
   while ((i_state = transitions[current_state][i]) != _nil) {
@@ -37,11 +37,11 @@ bool validPodState(pod_state_t current_state, pod_state_t new_state) {
   return false;
 }
 
-pod_state_t getPodState(void) {
+pod_mode_t getPodState(void) {
   return gPodState;
 }
 
-int setPodState(pod_state_t new_state) {
+int setPodState(pod_mode_t new_state) {
   if (validPodState(gPodState, new_state)) {
     gPodState = new_state;
     return 0;

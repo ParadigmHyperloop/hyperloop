@@ -1,7 +1,7 @@
 #include "pod.h"
 
 void *brakingMain(void *arg) {
-    pod_state_t podState;
+    pod_mode_t podState;
     while(1) {
         podState = getPodState(); //CHANGE ME! Get current pod state
         switch (podState) {

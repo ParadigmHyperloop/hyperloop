@@ -1,4 +1,6 @@
 #include "cdefs.h"
+#include "config.h"
+#include <pthread.h>
 
 #ifndef OPENLOOP_POD_H
 #define OPENLOOP_POD_H
@@ -13,7 +15,48 @@ typedef enum {
   Shutdown  = 5, // pod stationary and in a safe state
   Emergency = 6, // emergency braking
   _nil      = 7  // NULL STATE, not a valid state, used to terminate arrays
+} pod_mode_t;
+
+typedef struct pod_value {
+  unsigned long value; // TODO: either make this a union or more structs
+  pthread_mutex_t mutex;
+} pod_value_t;
+
+/**
+ * Defines the master state of the pod
+ */
+typedef struct pod_state {
+  struct pod_value accel_x;
+  struct pod_value accel_y;
+  struct pod_value accel_z;
+
+  struct pod_value velocity_x;
+  struct pod_value velocity_z;
+  struct pod_value velocity_y;
+
+  struct pod_value position_x;
+  struct pod_value position_y;
+  struct pod_value position_z;
+
+  struct pod_value lateral_left;
+  struct pod_value lateral_right;
+
+  struct pod_value skate_left_z;
+  struct pod_value skate_right_z;
+
+  struct pod_value photoelectric_r; // TODO: No Idea
+  struct pod_value photoelectric_g; // TODO: No Idea
+  struct pod_value photoelectric_b; // TODO: No Idea
+
+  struct pod_value skate_solonoids[N_SKATE_SOLONOIDS];
+  struct pod_value ebrake_solonoids[N_EBRAKE_SOLONOIDS];
+  struct pod_value wheel_solonoids[N_WHEEL_SOLONOIDS];
+  struct pod_value lateral_solonoids[N_LATERAL_SOLONOIDS];
+
+
+  pod_mode_t mode;
 } pod_state_t;
+
 
 /**
  * @brief Set the new state of the pod's control algorithms.  Setting the state
@@ -31,7 +74,7 @@ typedef enum {
  *
  * @return Returns 0 in the event of a sucessful state change, -1 on error
  */
-int setPodState(pod_state_t new_state);
+int setPodState(pod_mode_t new_state);
 
 
 /**
@@ -47,7 +90,7 @@ int setPodState(pod_state_t new_state);
  *
  * @return the current pod state as of calling
  */
-pod_state_t getPodState(void);
+pod_mode_t getPodState(void);
 
 /**
  * Get the current time of the pod in microseconds

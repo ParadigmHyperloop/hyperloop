@@ -59,7 +59,7 @@ void *imuMain(void *arg) {
         forwardVelocity = accelToVelocity();
         totalDistanceTraveled += velocityToDistance();
 
-        pod_state_t podState = Ready; //CHANGE ME!!! Should read from the pthread.
+        pod_mode_t podState = Ready; //CHANGE ME!!! Should read from the pthread.
 
         switch (podState) {
             case Pushing :
