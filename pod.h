@@ -110,6 +110,26 @@ pod_state_t * getPodState(void);
 void initializePodState(void);
 
 /**
+ * Helper method to read value from pod_state
+ */
+unsigned long getPodField(pod_value_t *pod_field) {
+    pthread_rwlock_rdlock(&(pod_field->lock));
+    unsigned long value = pod_field->value;
+    pthread_rwlock_unlock(&(pod_field->lock));
+    return value;
+}
+
+/**
+ * Helper method to change a value from pod_state
+ */
+void setPodField(pod_value_t *pod_field, unsigned long newValue) {
+    pthread_rw_lock_wrlock(&(pod_field->lock));
+    &(pod_field->value) = newValue;
+    pthread_rwlock_unlock(&(pod_field->lock));
+}
+
+
+/**
  * Get the current time of the pod in microseconds
  *
  * TODO: Make this function return nanosecond precision
