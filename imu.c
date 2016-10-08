@@ -43,7 +43,6 @@ void brakingChecks() {
     }
 }
 
-
 void * imuMain(void *arg) {
     debug("[imuMain] Thread Start");
 
@@ -61,7 +60,7 @@ void * imuMain(void *arg) {
         forwardVelocity = accelToVelocity();
         totalDistanceTraveled += velocityToDistance();
 
-        pod_mode_t podState = Ready; //CHANGE ME!!! Should read from the pthread.
+        pod_mode_t podState = getPodMode(); //CHANGE ME!!! Should read from the pthread.
 
         switch (podState) {
             case Pushing :
@@ -79,4 +78,6 @@ void * imuMain(void *arg) {
 
         usleep(IMU_THREAD_SLEEP);
     }
+
+    return NULL;
 }

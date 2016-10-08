@@ -1,6 +1,5 @@
 #include "pod.h"
 
-
 /**
  * Determines if the new state is a valid state
  *
@@ -42,51 +41,64 @@ void initializePodState(void) {
   debug("initializing State");
   debug("%p", state);
 
-  pthread_mutex_init(&(state->accel_x.mutex), NULL);
-
-  pthread_mutex_init(&(state->accel_y.mutex), NULL);
-  pthread_mutex_init(&(state->accel_z.mutex), NULL);
-  pthread_mutex_init(&(state->velocity_x.mutex), NULL);
-  pthread_mutex_init(&(state->velocity_z.mutex), NULL);
-  pthread_mutex_init(&(state->velocity_y.mutex), NULL);
-  pthread_mutex_init(&(state->position_x.mutex), NULL);
-  pthread_mutex_init(&(state->position_y.mutex), NULL);
-  pthread_mutex_init(&(state->position_z.mutex), NULL);
-  pthread_mutex_init(&(state->lateral_left.mutex), NULL);
-  pthread_mutex_init(&(state->lateral_right.mutex), NULL);
-  pthread_mutex_init(&(state->skate_left_z.mutex), NULL);
-  pthread_mutex_init(&(state->skate_right_z.mutex), NULL);
-  pthread_mutex_init(&(state->photoelectric_r.mutex), NULL);
-  pthread_mutex_init(&(state->photoelectric_g.mutex), NULL);
-  pthread_mutex_init(&(state->photoelectric_b.mutex), NULL);
+  pthread_rwlock_init(&(state->mode_mutex), NULL);
 
   int i;
   for (i=0; i<N_SKATE_SOLONOIDS; i++) {
-    pthread_mutex_init(&(state->skate_solonoids[i].mutex), NULL);
+    pthread_rwlock_init(&(state->skate_solonoids[i].lock), NULL);
   }
 
   for (i=0; i<N_EBRAKE_SOLONOIDS; i++) {
-    pthread_mutex_init(&(state->ebrake_solonoids[i].mutex), NULL);
+    pthread_rwlock_init(&(state->ebrake_solonoids[i].lock), NULL);
   }
 
   for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
-    pthread_mutex_init(&(state->wheel_solonoids[i].mutex), NULL);
+    pthread_rwlock_init(&(state->wheel_solonoids[i].lock), NULL);
   }
 
   for (i=0; i<N_LATERAL_SOLONOIDS; i++) {
-    pthread_mutex_init(&(state->lateral_solonoids[i].mutex), NULL);
+    pthread_rwlock_init(&(state->lateral_solonoids[i].lock), NULL);
   }
 
   state->initialized = true;
 }
 
 pod_state_t * getPodState(void) {
-  static pod_state_t state = { .mode = Boot, .initialized = false };
+  static pod_state_t state = {
+    .mode = Boot,
+    .initialized = false,
+    .accel_x = POD_VALUE_INITIALIZER,
+    .accel_y = POD_VALUE_INITIALIZER,
+    .accel_z = POD_VALUE_INITIALIZER,
+    .velocity_x = POD_VALUE_INITIALIZER,
+    .velocity_z = POD_VALUE_INITIALIZER,
+    .velocity_y = POD_VALUE_INITIALIZER,
+    .position_x = POD_VALUE_INITIALIZER,
+    .position_y = POD_VALUE_INITIALIZER,
+    .position_z = POD_VALUE_INITIALIZER,
+    .lateral_left = POD_VALUE_INITIALIZER,
+    .lateral_right = POD_VALUE_INITIALIZER,
+    .skate_left_z = POD_VALUE_INITIALIZER,
+    .skate_right_z = POD_VALUE_INITIALIZER,
+    .photoelectric_r = POD_VALUE_INITIALIZER,
+    .photoelectric_g = POD_VALUE_INITIALIZER,
+    .photoelectric_b = POD_VALUE_INITIALIZER
+  };
 
   if (!state.initialized) {
     warn("Pod State is not initialized");
   }
   return &state;
+}
+
+pod_mode_t getPodMode(void) {
+  pthread_rwlock_rdlock(&(getPodState()->mode_mutex));
+
+  pod_mode_t mode = getPodState()->mode;
+
+  pthread_rwlock_unlock(&(getPodState()->mode_mutex));
+
+  return mode;
 }
 
 int setPodMode(pod_mode_t new_mode) {
