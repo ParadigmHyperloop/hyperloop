@@ -253,7 +253,6 @@ int main() {
   setPriority(dataDisplay, 15);
 
   while (1) {
-
     usleep(1000);
     fflush(stdout);
   }
