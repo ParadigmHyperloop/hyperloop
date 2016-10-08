@@ -108,5 +108,5 @@ unsigned long getTime() {
 
   assert(gettimeofday(&currentTime, NULL) == 0);
 
-  return (currentTime.tv_sec * (int)1e6);
+  return (currentTime.tv_sec * 1000000UL);
 }
