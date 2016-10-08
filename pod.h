@@ -5,14 +5,14 @@
 
 #define N_POD_STATES 7
 typedef enum {
-  BOOT      = 0, // initializing systems, establishing network connections, ect
-  READY     = 1, // idle, stationary, ready for push
-  PUSHING   = 2, // pusher engaged,
-  COASTING  = 3, // pusher disengaged, just coasting
-  BRAKING   = 4, // normal braking mode
-  SHUTDOWN  = 5, // pod stationary and in a safe state
-  EMERGENCY = 6,  // emergency braking
-  _NIL      = 7  // NULL STATE, not a valid state, used to terminate arrays
+  Boot      = 0, // initializing systems, establishing network connections, ect
+  Ready     = 1, // idle, stationary, ready for push
+  Pushing   = 2, // pusher engaged,
+  Coasting  = 3, // pusher disengaged, just coasting
+  Braking   = 4, // normal braking mode
+  Shutdown  = 5, // pod stationary and in a safe state
+  Emergency = 6, // emergency braking
+  _nil      = 7  // NULL STATE, not a valid state, used to terminate arrays
 } pod_state_t;
 
 /**
