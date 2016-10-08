@@ -186,8 +186,13 @@ void setPriority(pthread_t task, int priority) {
 }
 
 void *imuMain(void *arg);
+void *brakingMain(void *arg);
+void *lateralMain(void *arg);
+void *loggingMain(void *arg);
 
 int main() {
+
+  initializePodState();
   pthread_mutex_init(&sensorDataMutex, NULL);
   pthread_mutex_init(&statesMutex, NULL);
   pthread_mutex_init(&podPhaseMutex, NULL);
@@ -206,9 +211,9 @@ int main() {
   pthread_create(&photoelectric, NULL, photoelectricFunction, NULL);
   pthread_create(&imu, NULL, imuMain, NULL);
   pthread_create(&distance, NULL, distanceSensorFunction, NULL);
-  pthread_create(&braking, NULL, brakingFunction, NULL);
-  pthread_create(&lateralControl, NULL, lateralControlFunction, NULL);
-  pthread_create(&dataDisplay, NULL, DataDisplayFunction, NULL);
+  pthread_create(&braking, NULL, brakingMain, NULL);
+  pthread_create(&lateralControl, NULL, lateralMain, NULL);
+  pthread_create(&dataDisplay, NULL, loggingMain, NULL);
 
   // we're using the built-in linux Round Roboin scheduling
   // priorities are 1-99, higher is more important
@@ -222,8 +227,8 @@ int main() {
   setPriority(dataDisplay, 15);
 
   while (1) {
-
-    usleep(1000);
+    debug("Clock Tick");
+    usleep(1000000);
     fflush(stdout);
   }
 

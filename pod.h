@@ -22,39 +22,42 @@ typedef struct pod_value {
   pthread_mutex_t mutex;
 } pod_value_t;
 
+#define POD_VALUE_INITIALIZER(name) { .value = 0 }; pthread_mutex_init(&((name)->mutex), NULL)
+
 /**
  * Defines the master state of the pod
  */
 typedef struct pod_state {
-  struct pod_value accel_x;
-  struct pod_value accel_y;
-  struct pod_value accel_z;
+  pod_value_t accel_x;
+  pod_value_t accel_y;
+  pod_value_t accel_z;
 
-  struct pod_value velocity_x;
-  struct pod_value velocity_z;
-  struct pod_value velocity_y;
+  pod_value_t velocity_x;
+  pod_value_t velocity_z;
+  pod_value_t velocity_y;
 
-  struct pod_value position_x;
-  struct pod_value position_y;
-  struct pod_value position_z;
+  pod_value_t position_x;
+  pod_value_t position_y;
+  pod_value_t position_z;
 
-  struct pod_value lateral_left;
-  struct pod_value lateral_right;
+  pod_value_t lateral_left;
+  pod_value_t lateral_right;
 
-  struct pod_value skate_left_z;
-  struct pod_value skate_right_z;
+  pod_value_t skate_left_z;
+  pod_value_t skate_right_z;
 
-  struct pod_value photoelectric_r; // TODO: No Idea
-  struct pod_value photoelectric_g; // TODO: No Idea
-  struct pod_value photoelectric_b; // TODO: No Idea
+  pod_value_t photoelectric_r; // TODO: No Idea
+  pod_value_t photoelectric_g; // TODO: No Idea
+  pod_value_t photoelectric_b; // TODO: No Idea
 
-  struct pod_value skate_solonoids[N_SKATE_SOLONOIDS];
-  struct pod_value ebrake_solonoids[N_EBRAKE_SOLONOIDS];
-  struct pod_value wheel_solonoids[N_WHEEL_SOLONOIDS];
-  struct pod_value lateral_solonoids[N_LATERAL_SOLONOIDS];
-
+  pod_value_t skate_solonoids[N_SKATE_SOLONOIDS];
+  pod_value_t ebrake_solonoids[N_EBRAKE_SOLONOIDS];
+  pod_value_t wheel_solonoids[N_WHEEL_SOLONOIDS];
+  pod_value_t lateral_solonoids[N_LATERAL_SOLONOIDS];
 
   pod_mode_t mode;
+
+  bool initialized;
 } pod_state_t;
 
 
@@ -74,7 +77,7 @@ typedef struct pod_state {
  *
  * @return Returns 0 in the event of a sucessful state change, -1 on error
  */
-int setPodState(pod_mode_t new_state);
+int setPodMode(pod_mode_t new_state);
 
 
 /**
@@ -90,7 +93,13 @@ int setPodState(pod_mode_t new_state);
  *
  * @return the current pod state as of calling
  */
-pod_mode_t getPodState(void);
+pod_state_t * getPodState(void);
+
+
+/**
+ * Intiializes the pod's pod_state_t returned by getPodState()
+ */
+void initializePodState(void);
 
 /**
  * Get the current time of the pod in microseconds
