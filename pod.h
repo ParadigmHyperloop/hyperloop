@@ -55,6 +55,14 @@ typedef struct pod_state {
   pod_value_t wheel_solonoids[N_WHEEL_SOLONOIDS];
   pod_value_t lateral_solonoids[N_LATERAL_SOLONOIDS];
 
+  pthread_t kalman_thread;
+  pthread_t photoelectric_thread;
+  pthread_t imu_thread;
+  pthread_t distance_thread;
+  pthread_t braking_thread;
+  pthread_t lateral_thread;
+  pthread_t logging_thread;
+
   pod_mode_t mode;
 
   bool initialized;

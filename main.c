@@ -191,40 +191,34 @@ void *lateralMain(void *arg);
 void *loggingMain(void *arg);
 
 int main() {
-
-  initializePodState();
+  // TODO: Remove this
   pthread_mutex_init(&sensorDataMutex, NULL);
   pthread_mutex_init(&statesMutex, NULL);
   pthread_mutex_init(&podPhaseMutex, NULL);
   pthread_mutex_init(&plantCommandMutex, NULL);
   pthread_mutex_init(&emergencyFlagMutex, NULL);
 
-  pthread_t kalman;
-  pthread_t photoelectric;
-  pthread_t imu;
-  pthread_t distance;
-  pthread_t braking;
-  pthread_t lateralControl;
-  pthread_t dataDisplay;
+  initializePodState();
+  pod_state_t * state = getPodState();
 
-  pthread_create(&kalman, NULL, kalmanFunction, NULL);
-  pthread_create(&photoelectric, NULL, photoelectricFunction, NULL);
-  pthread_create(&imu, NULL, imuMain, NULL);
-  pthread_create(&distance, NULL, distanceSensorFunction, NULL);
-  pthread_create(&braking, NULL, brakingMain, NULL);
-  pthread_create(&lateralControl, NULL, lateralMain, NULL);
-  pthread_create(&dataDisplay, NULL, loggingMain, NULL);
+  pthread_create(&(state->kalman_thread), NULL, kalmanFunction, NULL);
+  pthread_create(&(state->photoelectric_thread), NULL, photoelectricFunction, NULL);
+  pthread_create(&(state->imu_thread), NULL, imuMain, NULL);
+  pthread_create(&(state->distance_thread), NULL, distanceSensorFunction, NULL);
+  pthread_create(&(state->braking_thread), NULL, brakingMain, NULL);
+  pthread_create(&(state->lateral_thread), NULL, lateralMain, NULL);
+  pthread_create(&(state->logging_thread), NULL, loggingMain, NULL);
 
   // we're using the built-in linux Round Roboin scheduling
   // priorities are 1-99, higher is more important
   // important not: this is not hard real-time
-  setPriority(kalman, 30);
-  setPriority(photoelectric, 30);
-  setPriority(imu, 30);
-  setPriority(distance, 25);
-  setPriority(braking, 30);
-  setPriority(lateralControl, 25);
-  setPriority(dataDisplay, 15);
+  setPriority(state->kalman_thread, 30);
+  setPriority(state->photoelectric_thread, 30);
+  setPriority(state->imu_thread, 30);
+  setPriority(state->distance_thread, 25);
+  setPriority(state->braking_thread, 30);
+  setPriority(state->lateral_thread, 25);
+  setPriority(state->logging_thread, 15);
 
   while (1) {
     debug("Clock Tick");
@@ -232,6 +226,7 @@ int main() {
     fflush(stdout);
   }
 
+  // TODO: Remove
   pthread_mutex_destroy(&sensorDataMutex);
   pthread_mutex_destroy(&statesMutex);
   pthread_mutex_destroy(&podPhaseMutex);
