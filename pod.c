@@ -103,7 +103,7 @@ int setPodMode(pod_mode_t new_mode) {
 
 // returns the time in microseconds
 // TODO: Make nanoseconds
-long getTime() {
+unsigned long getTime() {
   struct timeval currentTime;
   gettimeofday(&currentTime, NULL);
   return (currentTime.tv_sec * (int)1e6 + currentTime.tv_usec);
