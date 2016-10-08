@@ -122,3 +122,16 @@ unsigned long long getTime() {
 
   return (currentTime.tv_sec * 1000000ULL) + currentTime.tv_usec;
 }
+
+unsigned long getPodField(pod_value_t *pod_field) {
+    pthread_rwlock_rdlock(&(pod_field->lock));
+    unsigned long value = pod_field->value;
+    pthread_rwlock_unlock(&(pod_field->lock));
+    return value;
+}
+
+void setPodField(pod_value_t *pod_field, unsigned long newValue) {
+    pthread_rwlock_wrlock(&(pod_field->lock));
+    pod_field->value = newValue;
+    pthread_rwlock_unlock(&(pod_field->lock));
+}
