@@ -1,6 +1,6 @@
 #include "pod.h"
 
-long readPhotoelectricSensor(int sensorno) {
+uint32_t readPhotoelectricSensor(uint8_t sensorno) {
     //TODO: Actually read in phoeletric value
     return 0;
 }
@@ -16,9 +16,9 @@ void *photoelectricMain(void *arg) {
         setPodField(&(podState->photoelectric_r), readPhotoelectricSensor(0)); //TODO: read in photoElectric value
         setPodField(&(podState->photoelectric_g), readPhotoelectricSensor(1));
         setPodField(&(podState->photoelectric_b), readPhotoelectricSensor(2));
-        
+
         photoelectricCheck(podState);
-        
+
         usleep(PHOTOELECTRIC_THREAD_SLEEP);
     }
 }

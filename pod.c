@@ -115,7 +115,7 @@ int setPodMode(pod_mode_t new_mode) {
 
 // returns the time in microseconds
 // TODO: Make nanoseconds
-unsigned long long getTime() {
+uint64_t getTime() {
   struct timeval currentTime;
 
   assert(gettimeofday(&currentTime, NULL) == 0);
@@ -123,14 +123,14 @@ unsigned long long getTime() {
   return (currentTime.tv_sec * 1000000ULL) + currentTime.tv_usec;
 }
 
-unsigned long getPodField(pod_value_t *pod_field) {
+uint32_t getPodField(pod_value_t *pod_field) {
     pthread_rwlock_rdlock(&(pod_field->lock));
-    unsigned long value = pod_field->value;
+    uint32_t value = pod_field->value;
     pthread_rwlock_unlock(&(pod_field->lock));
     return value;
 }
 
-void setPodField(pod_value_t *pod_field, unsigned long newValue) {
+void setPodField(pod_value_t *pod_field, uint32_t newValue) {
     pthread_rwlock_wrlock(&(pod_field->lock));
     pod_field->value = newValue;
     pthread_rwlock_unlock(&(pod_field->lock));

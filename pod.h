@@ -18,7 +18,7 @@ typedef enum {
 } pod_mode_t;
 
 typedef struct pod_value {
-  unsigned long value; // TODO: either make this a union or more structs
+  uint32_t value; // TODO: either make this a union or more structs
   pthread_rwlock_t lock;
 } pod_value_t;
 
@@ -120,12 +120,12 @@ void initializePodState(void);
 /**
  * Helper method to read value from pod_state
  */
-unsigned long getPodField(pod_value_t *pod_field);
+uint32_t getPodField(pod_value_t *pod_field);
 
 /**
  * Helper method to change a value from pod_state
  */
-void setPodField(pod_value_t *pod_field, unsigned long newValue);
+void setPodField(pod_value_t *pod_field, uint32_t newValue);
 
 /**
  * Get the current time of the pod in microseconds
@@ -136,6 +136,6 @@ void setPodField(pod_value_t *pod_field, unsigned long newValue);
  *
  * @return The current timestamp in microseconds
  */
-unsigned long long getTime(void);
+uint64_t getTime(void);
 
 #endif

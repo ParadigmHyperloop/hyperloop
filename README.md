@@ -122,6 +122,10 @@ will likely be 32/64-Bit issues. A quick refresher:
   * `unsigned long long foo` guarantees that you will have at least 64 bits
     regardless of the architecture, even if it's a 32-Bit chip.
 
+To combat this nonsense... we use the `uint32_t` types to
+explicitly state how many bytes are required for the given
+variable
+
 ### Run in 32-Bit mode on a 64-Bit machine
 You can force your 64-Bit system to compile and run a program in 32-Bit mode
 with the following:

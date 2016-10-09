@@ -1,15 +1,15 @@
 #include "pod.h"
 
-long maxSafeDistanceAwayFromRail = 7; //CHANGE ME!! ARBITRARY In mm
-long minSafeDistanceAwayFromRail = 5; //CHANGE ME!! ARBITRARY In mm
+uint32_t maxSafeDistanceAwayFromRail = 7; //CHANGE ME!! ARBITRARY In mm
+uint32_t minSafeDistanceAwayFromRail = 5; //CHANGE ME!! ARBITRARY In mm
 
-void checkTolerance(long distance) {
+void checkTolerance(uint32_t distance) {
     if(distance > maxSafeDistanceAwayFromRail || distance < minSafeDistanceAwayFromRail) {
         setPodMode(Emergency);
     }
 }
 
-long readLateralSensor(int sensorno) {
+uint32_t readLateralSensor(uint8_t sensorno) {
   //CHANGE ME! Read in value assume units in mm
   return 6;
 }

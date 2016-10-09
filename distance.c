@@ -1,6 +1,6 @@
 #include "pod.h"
 
-long readDistanceSensor(int sensorno) {
+uint32_t readDistanceSensor(int sensorno) {
     //TODO: Actually read in distance value
     return 0;
 }
@@ -15,9 +15,9 @@ void *distanceMain(void *arg) {
     while(1) {
         setPodField(&(podState->skate_left_z), readDistanceSensor(0));
         setPodField(&(podState->skate_right_z), readDistanceSensor(0));
-        
+
         distanceCheck(podState);
-        
+
         usleep(DISTANCE_THREAD_SLEEP);
     }
 }

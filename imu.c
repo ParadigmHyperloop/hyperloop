@@ -1,25 +1,22 @@
 #include "pod.h"
 
-long maximumSafeForwardVelocity = 25; //CHANGE ME! ARBITRARY!
-long standardDistanceBeforeBraking = 75; //CHANGE ME! ARBITRARY!
-long maximumSafeDistanceBeforeBraking = 125;
+uint32_t maximumSafeForwardVelocity = 25; //CHANGE ME! ARBITRARY!
+uint32_t standardDistanceBeforeBraking = 75; //CHANGE ME! ARBITRARY!
+uint32_t maximumSafeDistanceBeforeBraking = 125;
 
 // TODO: I'm assuming you can get all 6 values in one datagram
 typedef struct {
   // 32-Bit
-  unsigned long x;
-  unsigned long y;
-  unsigned long z;
-  unsigned long wx;
-  unsigned long wy;
-  unsigned long wz;
+  uint32_t x;
+  uint32_t y;
+  uint32_t z;
+  uint32_t wx;
+  uint32_t wy;
+  uint32_t wz;
 } imu_datagram_t;
 
-long acceleration = 0; //In m/s^2
-long forwardVelocity = 0; //In m/s
-long totalDistanceTraveled = 0; //In m
-
 imu_datagram_t readIMUDatagram() {
+  // TODO: Implement proper reading from the IMU serial data feed
   return (imu_datagram_t){ 1UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 }
 
@@ -68,25 +65,23 @@ void * imuMain(void *arg) {
     pod_state_t *podState = getPodState();
     pod_mode_t podMode = getPodMode();
 
-    unsigned long long lastCheckTime = getTime();
+    uint64_t lastCheckTime = getTime();
 
     while (getPodMode() != Shutdown) {
 
         imu_datagram_t imu_reading = readIMUDatagram();
 
-        unsigned long long currentCheckTime = getTime(); //Same as above, assume milliseconds
-        unsigned long long t = lastCheckTime - currentCheckTime;
+        uint64_t currentCheckTime = getTime(); //Same as above, assume milliseconds
+        uint64_t t = lastCheckTime - currentCheckTime;
         lastCheckTime = currentCheckTime;
 
-
-        unsigned long position = getPodField(&(podState->position_x));
-        unsigned long velocity = getPodField(&(podState->velocity_x));
-        unsigned long acceleration = getPodField(&(podState->accel_x));
+        uint32_t position = getPodField(&(podState->position_x));
+        uint32_t velocity = getPodField(&(podState->velocity_x));
+        uint32_t acceleration = getPodField(&(podState->accel_x));
 
         // Calculate the new_velocity (oldv + (olda + newa) / 2)
-
-        unsigned long new_velocity = (velocity + (t * ((acceleration + imu_reading.x) / 2)));
-        unsigned long new_position = (position + (t * ((new_velocity + imu_reading.x) / 2)));
+        uint32_t new_velocity = (velocity + (t * ((acceleration + imu_reading.x) / 2)));
+        uint32_t new_position = (position + (t * ((new_velocity + imu_reading.x) / 2)));
 
         setPodField(&(podState->position_x), new_position);
         setPodField(&(podState->velocity_x), new_velocity);
