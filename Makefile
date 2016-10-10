@@ -18,3 +18,6 @@ main: main.c $(DEPS)
 
 clean:
 	rm -f *.o *~ $(EXECUTABLE)
+
+clean-all: clean
+	rm -f *.log *.csv
