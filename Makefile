@@ -8,13 +8,16 @@
 #
 
 CC=gcc
-DEPS = photoelectric.c imu.c braking.c lateral.c logging.c kalman.c distance.c pod.c
+DEPS = photoelectric.c imu.c braking.c lateral.c logging.c kalman.c distance.c pod.c command.c
 SOURCES= main.c
 EXECUTABLE = main
 
-all: $(EXECUTABLE)
+all: clean $(EXECUTABLE) run
 
 main: main.c $(DEPS)
+
+run:
+	./$(EXECUTABLE)
 
 clean:
 	rm -f *.o *~ $(EXECUTABLE)
