@@ -23,7 +23,7 @@
 // --------------
 // Debug Printing
 // --------------
-#define output(prefix_, fmt_, ...) printf((prefix_ fmt_ "\n"), ##__VA_ARGS__)
+#define output(prefix_, fmt_, ...) podLog((prefix_ fmt_ "\n"), ##__VA_ARGS__)
 #define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
 #define warn(fmt_, ...) output("[WARN] ", fmt_, ##__VA_ARGS__)
 
@@ -32,5 +32,28 @@
 // ------------------
 #define PRIMARY_BRAKING_ACCEL_X_MIN -280
 #define PRIMARY_BRAKING_ACCEL_X_MAX -40
+
+
+// ---------------------
+// Logging Configuration
+// ---------------------
+#define LOG_FILE_PATH "./hyperloop-core.log"
+#define LOG_FILE_MODE S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
+#define MAX_PACKET_SIZE 1024
+#define LOG_SVR_NAME "pod-server.openloop.com"
+#define LOG_SVR_PORT 7778
+
+// ---------------
+// Command Control
+// ---------------
+#define CMD_SVR_PORT 7779
+#define CMD_EBRAKE "ebrake"
+
+#define CMD_PING "ping"
+#define CMD_PING_RES "PONG"
+
+#define CMD_UNKNOWN_RES "UNKNOWN COMMAND"
+
+#define MAX_CMD_CLIENTS 16
 
 #endif

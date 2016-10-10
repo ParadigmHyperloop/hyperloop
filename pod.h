@@ -1,6 +1,7 @@
 #include "cdefs.h"
 #include "config.h"
 #include <pthread.h>
+#include <sys/queue.h>
 
 #ifndef OPENLOOP_POD_H
 #define OPENLOOP_POD_H
@@ -62,12 +63,43 @@ typedef struct pod_state {
   pthread_t braking_thread;
   pthread_t lateral_thread;
   pthread_t logging_thread;
+  pthread_t cmd_thread;
 
   pod_mode_t mode;
   pthread_rwlock_t mode_mutex;
 
   bool initialized;
 } pod_state_t;
+
+typedef enum {
+  Message,
+  Telemetry
+} log_type_t;
+
+typedef struct {
+  char *tag;
+  uint32_t data;
+} log_data_t;
+
+
+union log_content {
+  char * message;
+  log_data_t data;
+};
+
+typedef struct log {
+  log_type_t type;
+  union {
+    char * message;
+    log_data_t data;
+  } content;
+//  STAILQ_ENTRY(struct log) entries;
+} log_t;
+
+/**
+ * Sends the given message to all logging destinations
+ */
+int podLog(char * fmt, ...);
 
 /**
  * @brief Set the new state of the pod's control algorithms.

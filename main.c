@@ -28,6 +28,7 @@ void *distanceMain(void *arg);
 void *brakingMain(void *arg);
 void *lateralMain(void *arg);
 void *loggingMain(void *arg);
+void *commandMain(void *arg);
 
 int main() {
   // TODO: Remove this
@@ -47,6 +48,7 @@ int main() {
   pthread_create(&(state->braking_thread), NULL, brakingMain, NULL);
   pthread_create(&(state->lateral_thread), NULL, lateralMain, NULL);
   pthread_create(&(state->logging_thread), NULL, loggingMain, NULL);
+  pthread_create(&(state->cmd_thread), NULL, commandMain, NULL);
 
   // we're using the built-in linux Round Roboin scheduling
   // priorities are 1-99, higher is more important
@@ -58,6 +60,7 @@ int main() {
   setPriority(state->braking_thread, 30);
   setPriority(state->lateral_thread, 25);
   setPriority(state->logging_thread, 15);
+  setPriority(state->cmd_thread, 15);
 
   while (1) {
     debug("Clock Ticked at %lld", getTime());
