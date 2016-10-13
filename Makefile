@@ -8,7 +8,7 @@
 #
 
 CC=gcc
-DEPS = photoelectric.c imu.c braking.c lateral.c logging.c kalman.c distance.c pod.c command.c
+DEPS = photoelectric.c imu.c braking.c lateral.c logging.c kalman.c height.c pod.c command.c
 SOURCES= main.c
 EXECUTABLE = main
 

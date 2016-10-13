@@ -1,4 +1,7 @@
 #include "pod.h"
+/**
+ * TODO: Do Not Need to do anything with this anymore
+ */
 
 uint32_t maxSafeDistanceAwayFromRail = 7; //CHANGE ME!! ARBITRARY In mm
 uint32_t minSafeDistanceAwayFromRail = 5; //CHANGE ME!! ARBITRARY In mm

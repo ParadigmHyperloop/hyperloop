@@ -31,13 +31,6 @@ void *loggingMain(void *arg);
 void *commandMain(void *arg);
 
 int main() {
-  // TODO: Remove this
-  pthread_mutex_init(&sensorDataMutex, NULL);
-  pthread_mutex_init(&statesMutex, NULL);
-  pthread_mutex_init(&podPhaseMutex, NULL);
-  pthread_mutex_init(&plantCommandMutex, NULL);
-  pthread_mutex_init(&emergencyFlagMutex, NULL);
-
   initializePodState();
   pod_state_t * state = getPodState();
 
@@ -68,7 +61,6 @@ int main() {
     fflush(stdout);
   }
 
-  // TODO: Remove
   pthread_mutex_destroy(&sensorDataMutex);
   pthread_mutex_destroy(&statesMutex);
   pthread_mutex_destroy(&podPhaseMutex);

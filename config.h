@@ -6,6 +6,18 @@
 #define N_WHEEL_SOLONOIDS 3
 #define N_LATERAL_SOLONOIDS 4
 
+// Taken from interface.c
+#define COND 2
+#define COUNT 4
+#define PUSH_ACC 16
+#define TRACK_LENGTH 100 // meters
+#define ACC_LENGTH 250
+#define POD_MASS 750
+#define SIM_TIME 65
+#define LOOP_DURATION 1000;
+
+
+
 // ----------------------
 // Thread Sleep Intervals
 // --------------------------------------------------------------------------
