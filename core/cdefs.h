@@ -22,10 +22,26 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <arpa/inet.h>
+#include <limits.h>
+#include <stdint.h>
+#include <signal.h>
 
 #define within(low, val, high) ((low <= val) && (val <= high))
 #define outside(low, val, high) (!(within((low), (val), (high))))
 
+#define MIN(a,b) \
+  ({ __typeof__ (a) _a = (a); \
+      __typeof__ (b) _b = (b); \
+    _a < _b ? _a : _b; })
+
+#define MAX(a,b) \
+  ({ __typeof__ (a) _a = (a); \
+      __typeof__ (b) _b = (b); \
+    _a > _b ? _a : _b; })
+
 #define __STR__(s) #s
+#define __XSTR__(s) __STR__(s)
+
+#define assertUInt32Addition(a, b) assert(!((a>>31) && (b>>31)) )
 
 #endif

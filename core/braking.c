@@ -3,7 +3,7 @@
 void *brakingMain(void *arg) {
     debug("[brakingMain] Thread Start");
     pod_mode_t podState;
-    while(1) {
+    while (getPodMode() != Shutdown) {
         podState = getPodMode();
         switch (podState) {
             case Braking:
@@ -19,4 +19,5 @@ void *brakingMain(void *arg) {
 
         usleep(BRAKING_THREAD_SLEEP);
     }
+    return NULL;
 }

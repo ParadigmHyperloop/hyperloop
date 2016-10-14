@@ -2,6 +2,7 @@
 import sys
 import socket
 import datetime
+import time
 
 
 def main():
@@ -27,53 +28,56 @@ def server(port, path):
     sock.bind(("localhost", int(port)))
     sock.listen(1)
 
-    connection, addr = sock.accept()
-    currentTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    loggingFile = open(path + "logging" + currentTime + ".csv", 'w+')
-    dataFile = open(path + "data" + currentTime + ".csv", 'w+')
-
-    # Process messages
-    currentBuffer = ""
     while True:
-        try:
-            # Message size arbitrary, adjust if needed.
-            rawMessage = connection.recv(1024)
-            nextBuffer = ""
+        print "Waiting for new connection"
+        connection, addr = sock.accept()
 
-            if rawMessage is None or rawMessage == "":
-                print "Null Message Recieved"
-                break
+        currentTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        loggingFile = open(path + "logging" + currentTime + ".csv", 'w+')
+        dataFile = open(path + "data" + currentTime + ".csv", 'w+')
 
-            print "Recieved Message: {}".format(rawMessage)
-            if rawMessage[-1] != "\n":
-                nextBuffer = rawMessage[rawMessage.rfind("\n")+1:]
-                rawMessage = rawMessage[:rawMessage.rfind("\n")+1]
+        # Process messages
+        currentBuffer = ""
+        while True:
+            try:
+                # Message size arbitrary, adjust if needed.
+                rawMessage = connection.recv(1024)
+                nextBuffer = ""
 
-            for message in rawMessage.splitlines():
-                if len(currentBuffer) > 0:
-                    message = currentBuffer + message
-                    currentBuffer = ""
-                print(message)
+                if rawMessage is None or rawMessage == "":
+                    print "Null Message Recieved"
+                    break
 
-                if not validMessage(message):
-                    print "DROPPING MESSAGE: {}".format(message)
-                    continue
+                print "Recieved Message: {}".format(rawMessage)
+                if rawMessage[-1] != "\n":
+                    nextBuffer = rawMessage[rawMessage.rfind("\n")+1:]
+                    rawMessage = rawMessage[:rawMessage.rfind("\n")+1]
 
-                messageCode = int(message[3])
-                if messageCode == 1:
-                    loggingFile.write(writeLine(message[4:].split("\n")))
-                elif messageCode == 2:
-                    dataFile.write(writeLine(message[4:].split(" ")))
-            currentBuffer = nextBuffer
-        except KeyboardInterrupt:
-            loggingFile.close()
-            dataFile.close()
-            print("Server closing")
-            exit()
+                for message in rawMessage.splitlines():
+                    if len(currentBuffer) > 0:
+                        message = currentBuffer + message
+                        currentBuffer = ""
+                    print(message)
 
-    loggingFile.close()
-    dataFile.close()
-    print("Server is shutting down")
+                    if not validMessage(message):
+                        print "DROPPING MESSAGE: {}".format(message)
+                        continue
+
+                    messageCode = int(message[3])
+                    if messageCode == 1:
+                        loggingFile.write(writeLine(message[4:].split("\n")))
+                    elif messageCode == 2:
+                        dataFile.write(writeLine(message[4:].split(" ")))
+                currentBuffer = nextBuffer
+            except KeyboardInterrupt:
+                loggingFile.close()
+                dataFile.close()
+                print("Server closing")
+                exit()
+
+        loggingFile.close()
+        dataFile.close()
+
     sock.close()
 
     return 0

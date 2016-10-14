@@ -1,10 +1,7 @@
 #include "pod.h"
 
-
-void error(char *err) {
-  printf("%s\n", err);
-  exit(102);
-}
+// Much of this code is based on this CMU TCP client example
+// http://www.cs.cmu.edu/afs/cs/academic/class/15213-f99/www/class26/tcpclient.c
 
 int connectLogger() {
   int sockfd, portno;
@@ -75,6 +72,7 @@ int podLog(char *fmt, ...) {
   va_end(arg);
 
   printf("%s", msg);
+  fflush(stdout);
 
   FILE *log_file = fopen(LOG_FILE_PATH, "a+");
   if (!log_file) {
@@ -89,25 +87,31 @@ int podLog(char *fmt, ...) {
   return logSend(&l);
 }
 
+void logDump(pod_state_t * state) {
+  debug("Logging System -> Dumping");
+
+  // TODO: Use the freaking Mutexes
+  debug("acl mm/s/s: x: %d, y: %d, z: %d", getPodField(&(state->accel_x)),
+        getPodField(&(state->accel_y)), getPodField(&(state->accel_z)));
+
+  debug("vel mm/s  : x: %d, y: %d, z: %d", getPodField(&(state->velocity_x)),
+        getPodField(&(state->velocity_y)), getPodField(&(state->velocity_z)));
+
+  debug("pos mm    : x: %d, y: %d, z: %d", getPodField(&(state->position_x)),
+        getPodField(&(state->velocity_y)), getPodField(&(state->velocity_z)));
+
+}
+
 void *loggingMain(void *arg) {
   debug("[loggingMain] Thread Start");
 
   pod_state_t *state = getPodState();
 
-  while (1) {
+  while (getPodMode() != Shutdown) {
 
-    debug("Logging System -> Dumping");
-
-    // TODO: Use the freaking Mutexes
-    debug("acl: x: %d, y: %d, z: %d", getPodField(&(state->accel_x)),
-          getPodField(&(state->accel_x)), getPodField(&(state->accel_x)));
-
-    debug("vel: x: %d, y: %d, z: %d", getPodField(&(state->velocity_x)),
-          getPodField(&(state->velocity_y)), getPodField(&(state->velocity_z)));
-
-    debug("pos: x: %d, y: %d, z: %d", getPodField(&(state->position_x)),
-          getPodField(&(state->velocity_y)), getPodField(&(state->velocity_z)));
-
+    // logDump(state);
     usleep(LOGGING_THREAD_SLEEP);
   }
+  
+  return NULL;
 }

@@ -8,7 +8,7 @@
 #
 
 CC=gcc
-DEPS = photoelectric.c imu.c braking.c lateral.c logging.c kalman.c height.c pod.c command.c
+DEPS = imu.c braking.c lateral.c logging.c height.c pod.c pod-helpers.c commands.c commander.c
 SOURCES= main.c
 EXECUTABLE = main
 
@@ -21,6 +21,3 @@ run:
 
 clean:
 	rm -f *.o *~ $(EXECUTABLE)
-
-clean-all: clean
-	rm -f *.log *.csv
