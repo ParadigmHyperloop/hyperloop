@@ -106,6 +106,37 @@ Basically, we are getting semi-broad coverage possible platforms in our
 development, which can be painful at times, but it is much better to deal with
 the cross platform issues now rather than later.
 
+## Let's get on the same page
+
+We have made some decisions on our own for naming things
+
+### Pod Layout
+
+The code is written with the following Physical layout in mind
+
+  * Imagine the pod is in a tube running North-South.  The pod is traveling
+    **North**.  We call the **North** end of the pod the **Front**, and the
+    **South** end, the **rear**.  
+  * We call the **West** side of the pod, the **Left**, and the **East** side
+    of the pod the **Right**.
+  * We call the **Top** the face farther from the Track, and the bottom, the
+    face closer to the track (Also the face with the skates on it)
+
+Cool! That wasn't so hard, was it? Ok so now assigning X, Y, and Z vectors.
+
+  * Our Pod's direction of travel down this _strait_ **North-South** track is
+    is called the **Positive X** direction.  If the pod were to reverse and
+    start traveling backwards, we would have a negative Velocity **X** value.
+  * If our pod shifts on the track a few milimeters to the **East** this would
+    be a **Positive Y** movement in the code.  Likewise a shift in the **West**
+    direction would be a **Negative Y** movement
+  * Finally, as the pod turns on it's skates, it lifts off the track slightly,
+    this is a **Positive Z** movement, and likewise, when the pod's skates turn
+    off, this is a **Negative Z** movement.
+
+Hopefully that was not too hard, I just wanted to make the frame of reference
+we have been using for this code incredibly clear.
+
 ## Developer Notes
 
 > I've Jotted down a lot of notes in this section that may seem trivial, but

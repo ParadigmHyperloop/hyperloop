@@ -12,12 +12,15 @@ void distanceCheck(pod_state_t *podState) {
 void *distanceMain(void *arg) {
     debug("[photoelectricMain] Thread Start");
     pod_state_t *podState = getPodState();
-    while(1) {
-        setPodField(&(podState->skate_left_z), readDistanceSensor(0));
-        setPodField(&(podState->skate_right_z), readDistanceSensor(0));
+    while (getPodMode() != Shutdown) {
+        setPodField(&(podState->skate_front_left_z), readDistanceSensor(0));
+        setPodField(&(podState->skate_front_right_z), readDistanceSensor(1));
+        setPodField(&(podState->skate_rear_left_z), readDistanceSensor(2));
+        setPodField(&(podState->skate_rear_right_z), readDistanceSensor(3));
 
         distanceCheck(podState);
 
         usleep(DISTANCE_THREAD_SLEEP);
     }
+    return NULL;
 }

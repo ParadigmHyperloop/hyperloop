@@ -1,15 +1,29 @@
 #include "pod.h"
 
+pod_state_t __state = {
+  .mode = Boot,
+  .initialized = false,
+  .accel_x = POD_VALUE_INITIALIZER,
+  .accel_y = POD_VALUE_INITIALIZER,
+  .accel_z = POD_VALUE_INITIALIZER,
+  .velocity_x = POD_VALUE_INITIALIZER,
+  .velocity_z = POD_VALUE_INITIALIZER,
+  .velocity_y = POD_VALUE_INITIALIZER,
+  .position_x = POD_VALUE_INITIALIZER,
+  .position_y = POD_VALUE_INITIALIZER,
+  .position_z = POD_VALUE_INITIALIZER,
+  .skate_front_left_z = POD_VALUE_INITIALIZER,
+  .skate_front_right_z = POD_VALUE_INITIALIZER,
+  .skate_rear_left_z = POD_VALUE_INITIALIZER,
+  .skate_rear_right_z = POD_VALUE_INITIALIZER,
+};
+
 /**
  * Determines if the new state is a valid state
  *
  * @return whether the new state is valid knowing the gPodState
  */
 bool validPodState(pod_mode_t current_state, pod_mode_t new_state) {
-  if (new_state == Emergency) {
-    return true;
-  }
-
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
     {Boot, Ready, Emergency, Shutdown, _nil}, // Boot
     {Ready, Pushing, Emergency, _nil}, // Ready
@@ -36,7 +50,6 @@ bool validPodState(pod_mode_t current_state, pod_mode_t new_state) {
 }
 
 void initializePodState(void) {
-
   pod_state_t * state = getPodState();
   debug("initializing State");
   debug("%p", state);
@@ -56,39 +69,15 @@ void initializePodState(void) {
     pthread_rwlock_init(&(state->wheel_solonoids[i].lock), NULL);
   }
 
-  for (i=0; i<N_LATERAL_SOLONOIDS; i++) {
-    pthread_rwlock_init(&(state->lateral_solonoids[i].lock), NULL);
-  }
-
   state->initialized = true;
 }
 
 pod_state_t * getPodState(void) {
-  static pod_state_t state = {
-    .mode = Boot,
-    .initialized = false,
-    .accel_x = POD_VALUE_INITIALIZER,
-    .accel_y = POD_VALUE_INITIALIZER,
-    .accel_z = POD_VALUE_INITIALIZER,
-    .velocity_x = POD_VALUE_INITIALIZER,
-    .velocity_z = POD_VALUE_INITIALIZER,
-    .velocity_y = POD_VALUE_INITIALIZER,
-    .position_x = POD_VALUE_INITIALIZER,
-    .position_y = POD_VALUE_INITIALIZER,
-    .position_z = POD_VALUE_INITIALIZER,
-    .lateral_left = POD_VALUE_INITIALIZER,
-    .lateral_right = POD_VALUE_INITIALIZER,
-    .skate_left_z = POD_VALUE_INITIALIZER,
-    .skate_right_z = POD_VALUE_INITIALIZER,
-    .photoelectric_r = POD_VALUE_INITIALIZER,
-    .photoelectric_g = POD_VALUE_INITIALIZER,
-    .photoelectric_b = POD_VALUE_INITIALIZER
-  };
-
-  if (!state.initialized) {
+  if (!__state.initialized) {
     warn("Pod State is not initialized");
   }
-  return &state;
+
+  return &__state;
 }
 
 pod_mode_t getPodMode(void) {
@@ -123,15 +112,31 @@ uint64_t getTime() {
   return (currentTime.tv_sec * 1000000ULL) + currentTime.tv_usec;
 }
 
-uint32_t getPodField(pod_value_t *pod_field) {
+int32_t getPodField(pod_value_t *pod_field) {
     pthread_rwlock_rdlock(&(pod_field->lock));
-    uint32_t value = pod_field->value;
+    int32_t value = pod_field->value;
     pthread_rwlock_unlock(&(pod_field->lock));
     return value;
 }
 
-void setPodField(pod_value_t *pod_field, uint32_t newValue) {
+void setPodField(pod_value_t *pod_field, int32_t newValue) {
     pthread_rwlock_wrlock(&(pod_field->lock));
     pod_field->value = newValue;
     pthread_rwlock_unlock(&(pod_field->lock));
+}
+
+/**
+ * Trigger a full controller panic and kill everything.  This is a forced dumb
+ * EBRAKE.
+ */
+void podInterruptPanic(int subsystem, char * file, int line, char * notes, ...) {
+  static char msg[MAX_LOG_LINE];
+  va_list arg;
+  va_start(arg, notes);
+  vsnprintf(&msg[0], MAX_LOG_LINE, notes, arg);
+  va_end(arg);
+
+  fprintf(stderr, "[PANIC] %s:%d -> %s\n", file, line, msg);
+
+  kill(getpid(), POD_SIGPANIC);
 }

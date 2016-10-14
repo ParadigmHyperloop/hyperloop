@@ -19,9 +19,10 @@ typedef enum {
 } pod_mode_t;
 
 typedef struct pod_value {
-  uint32_t value; // TODO: either make this a union or more structs
+  int32_t value; // TODO: either make this a union or more structs
   pthread_rwlock_t lock;
 } pod_value_t;
+
 
 #define POD_VALUE_INITIALIZER { 0, PTHREAD_RWLOCK_INITIALIZER }
 
@@ -41,23 +42,33 @@ typedef struct pod_state {
   pod_value_t position_y;
   pod_value_t position_z;
 
-  pod_value_t lateral_left;
-  pod_value_t lateral_right;
+  // Lateral Sensors
+  pod_value_t lateral_front_left;
+  pod_value_t lateral_front_right;
+  pod_value_t lateral_rear_left;
+  pod_value_t lateral_rear_right;
 
-  pod_value_t skate_left_z;
-  pod_value_t skate_right_z;
+  // Distance From Tube Bottom
+  pod_value_t skate_front_left_z;
+  pod_value_t skate_front_right_z;
+  pod_value_t skate_rear_left_z;
+  pod_value_t skate_rear_right_z;
 
-  pod_value_t photoelectric_r; // TODO: No Idea
-  pod_value_t photoelectric_g; // TODO: No Idea
-  pod_value_t photoelectric_b; // TODO: No Idea
-
+  // Skate Sensors and Solonoids
   pod_value_t skate_solonoids[N_SKATE_SOLONOIDS];
-  pod_value_t ebrake_solonoids[N_EBRAKE_SOLONOIDS];
-  pod_value_t wheel_solonoids[N_WHEEL_SOLONOIDS];
-  pod_value_t lateral_solonoids[N_LATERAL_SOLONOIDS];
+  pod_value_t skate_thermocouples[N_SKATE_SOLONOIDS];
 
-  pthread_t kalman_thread;
-  pthread_t photoelectric_thread;
+  // EBrake Senors and Solonoids
+  pod_value_t ebrake_solonoids[N_EBRAKE_SOLONOIDS];
+  pod_value_t ebrake_pressures[N_EBRAKE_PRESSURES];
+  pod_value_t ebrake_thermocouples[N_EBRAKE_SOLONOIDS];
+
+  // Wheel Brake Sensors and Solonoids
+  pod_value_t wheel_solonoids[N_WHEEL_SOLONOIDS];
+  pod_value_t wheel_pressures[N_WHEEL_PRESSURES];
+  pod_value_t wheel_thermocouples[N_WHEEL_THERMOCOUPLES];
+
+  // Thread Tracking
   pthread_t imu_thread;
   pthread_t distance_thread;
   pthread_t braking_thread;
@@ -65,6 +76,7 @@ typedef struct pod_state {
   pthread_t logging_thread;
   pthread_t cmd_thread;
 
+  // Current Overall Pod Mode (Goal of the System)
   pod_mode_t mode;
   pthread_rwlock_t mode_mutex;
 
@@ -152,12 +164,12 @@ void initializePodState(void);
 /**
  * Helper method to read value from pod_state
  */
-uint32_t getPodField(pod_value_t *pod_field);
+int32_t getPodField(pod_value_t *pod_field);
 
 /**
  * Helper method to change a value from pod_state
  */
-void setPodField(pod_value_t *pod_field, uint32_t newValue);
+void setPodField(pod_value_t *pod_field, int32_t newValue);
 
 /**
  * Get the current time of the pod in microseconds
@@ -169,5 +181,9 @@ void setPodField(pod_value_t *pod_field, uint32_t newValue);
  * @return The current timestamp in microseconds
  */
 uint64_t getTime(void);
+
+void logDump(pod_state_t * state);
+
+void podInterruptPanic(int subsystem, char *file, int line, char *notes, ...);
 
 #endif
