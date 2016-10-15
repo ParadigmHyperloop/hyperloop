@@ -11,6 +11,7 @@ CC=gcc
 DEPS = imu.c braking.c lateral.c logging.c height.c pod.c pod-helpers.c commands.c commander.c
 SOURCES= main.c
 EXECUTABLE = main
+CFLAGS= -std=c99
 
 all: clean $(EXECUTABLE) run
 
