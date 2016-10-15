@@ -86,7 +86,7 @@ int doCommand(int inputc, char *input, int outputc, char output[]) {
   argv[0] = input;
   int ci, argc = 1;
 
-  for (ci = 0; ci < (inputc - 1) && argc < ARG_MAX; ci++) {
+  for (ci = 0; ci < (inputc - 1) && argc < CMD_MAX_ARGS; ci++) {
     if (input[ci] == ' ') {
       input[ci] = '\0';
       argv[argc] = input + ci + 1;
