@@ -82,7 +82,7 @@ int doCommand(int inputc, char *input, int outputc, char output[]) {
     return count;
   }
 
-  char *argv[ARG_MAX];
+  char *argv[CMD_MAX_ARGS];
   argv[0] = input;
   int ci, argc = 1;
 
@@ -124,9 +124,6 @@ int processClient(int serverfd) {
   // http://stackoverflow.com/questions/31426420/configuring-tcp-keepalive-after-accept
   int yes = 1;
   setsockopt(clientfd, SOL_SOCKET, SO_KEEPALIVE, &yes, sizeof(int));
-
-  int idle = 1;
-  setsockopt(clientfd, IPPROTO_TCP, TCP_KEEPALIVE, &idle, sizeof(int));
 
   int interval = 1;
   setsockopt(clientfd, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(int));

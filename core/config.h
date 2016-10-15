@@ -130,6 +130,7 @@
 #define POD_CLI_VERSION "0.0.1-alpha"
 #define POD_COPY_YEAR "2016"
 #define CMD_SVR_PORT 7779
+#define CMD_MAX_ARGS 32
 
 #define POD_ETOOMANYCLIENTS_TXT "Too Many Clients are connected"
 
