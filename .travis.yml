@@ -22,7 +22,7 @@ addons:
      - libncurses5-dev
      - libmicrohttpd-dev
      - g++-6
-     - clang-3.8
+     - clang-3.6
  
 script:
   - $CC --version
