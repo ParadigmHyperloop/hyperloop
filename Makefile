@@ -1,5 +1,5 @@
 default:
-	cd core && $(MAKE) clean all
+	cd core && $(MAKE) clean main
 
 clean:
 	rm -f *.o *.csv *.log
