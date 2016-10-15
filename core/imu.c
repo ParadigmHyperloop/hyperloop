@@ -25,7 +25,7 @@ imu_datagram_t readIMUDatagram(uint64_t t) {
     ax = -100;
   }
 
-  printf("%lu\n", i);
+  printf("%llu\n", i);
   i++;
   switch ((i << 4) & 0x1) {
     case 0:
