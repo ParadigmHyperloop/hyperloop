@@ -2,5 +2,8 @@ language: c
 compiler:
   - clang
   - gcc
+ 
 script:
+  - $CC --version
   - make
+  
