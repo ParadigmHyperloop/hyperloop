@@ -54,19 +54,32 @@ void sigpipe_handler(int sig) {
 }
 
 int main() {
+  info("POD Booting...");
+  info("Initializing Pod State");
   initializePodState();
+
+  info("Loading POD state struct for the first time");
   pod_state_t * state = getPodState();
 
+  info("Registering POSIX signal handlers");
   signal(POD_SIGPANIC, signal_handler);
-
   signal(SIGPIPE, sigpipe_handler);
 
+  info("Starting the logging client connection");
+  pthread_create(&(state->logging_thread), NULL, loggingMain, NULL);
+  // TODO: semaphore_wait
+  
+  info("Booting Command and control system");
+  pthread_create(&(state->cmd_thread), NULL, commandMain, NULL);
+  // TODO: semaphore_wait
+  
+  info("Booting Core Controller Logic");
   pthread_create(&(state->imu_thread), NULL, imuMain, NULL);
+
+  // TODO: Slash these threads
   pthread_create(&(state->distance_thread), NULL, distanceMain, NULL);
   pthread_create(&(state->braking_thread), NULL, brakingMain, NULL);
   pthread_create(&(state->lateral_thread), NULL, lateralMain, NULL);
-  pthread_create(&(state->logging_thread), NULL, loggingMain, NULL);
-  pthread_create(&(state->cmd_thread), NULL, commandMain, NULL);
 
   // we're using the built-in linux Round Roboin scheduling
   // priorities are 1-99, higher is more important
