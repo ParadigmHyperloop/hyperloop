@@ -2,6 +2,28 @@ language: c
 compiler:
   - clang
   - gcc
+  
+addons:
+  apt:
+    packages: 
+     - ccache
+     - libcppunit-dev
+     - bison
+     - flex
+     - uuid-dev
+     - libprotobuf-dev
+     - protobuf-compiler
+     - libprotoc-dev
+     - libftdi-dev
+     - libftdi1
+     - libusb-1.0-0-dev
+     - liblo-dev
+     - libavahi-glib1
+     - libncurses5-dev
+     - libmicrohttpd-dev
+     - g++-6
+     - clang-3.8
+ 
 script:
   - $CC --version
   - make
