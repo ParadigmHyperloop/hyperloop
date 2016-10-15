@@ -2,3 +2,4 @@ main
 /pod
 *.o
 *.dSYM
+*.log
