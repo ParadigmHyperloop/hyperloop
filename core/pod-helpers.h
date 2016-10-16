@@ -6,14 +6,14 @@
 /**
  * Determine if the Emergency Brakes are engaged based on their braking presure
  */
-bool emergencyBrakesEngaged(pod_state_t * state);
+bool emergencyBrakesEngaged(pod_state_t *state);
 
 /**
  * Determine if the Primary Brakes are engaged based on their braking presure
  */
-bool primaryBrakesEngaged(pod_state_t * state);
+bool primaryBrakesEngaged(pod_state_t *state);
 
 /**
  * Determine if the pod is stopped
  */
-bool podIsStopped(pod_state_t * state);
+bool podIsStopped(pod_state_t *state);

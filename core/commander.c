@@ -29,7 +29,6 @@ static char cmdbuffer[CMD_OUT_BUF];
 
 bool first_client = true;
 
-
 // Much of this code is based on this UTAH tcpserver example, thanks!
 // https://www.cs.utah.edu/~swalton/listings/sockets/programs/part2/chap6/simple-server.c
 
@@ -77,7 +76,8 @@ int doCommand(int inputc, char *input, int outputc, char output[]) {
 
   int i = 0;
   while (commands[i].name != NULL) {
-    if (strncmp(commands[i].name, input, MIN(inputc, strlen(commands[i].name))) == 0) {
+    if (strncmp(commands[i].name, input,
+                MIN(inputc, strlen(commands[i].name))) == 0) {
       break;
     }
     i++;
@@ -123,7 +123,7 @@ int processClient(int serverfd) {
   // Accept the connection
   clientfd = accept(serverfd, (struct sockaddr *)&client_addr, &addrlen);
   info("%s:%d connected as %d\n", inet_ntoa(client_addr.sin_addr),
-         ntohs(client_addr.sin_port), clientfd);
+       ntohs(client_addr.sin_port), clientfd);
 
   if (clientfd < 0) {
     return -1;
@@ -168,10 +168,14 @@ int respond(int fd, char *buf, int n) {
     return -1;
   }
   int a = write(fd, buf, n);
-  if (a < 0) { return -1; }
+  if (a < 0) {
+    return -1;
+  }
 
   int b = write(fd, "\n> ", 3);
-  if (b < 0) { return -1; }
+  if (b < 0) {
+    return -1;
+  }
 
   return a + b;
 }
@@ -277,7 +281,6 @@ int commandServer() {
           sem_post(getPodState()->boot_sem);
         }
       }
-
     }
 
     // STDIN
@@ -293,8 +296,8 @@ int commandServer() {
           // remove the client
           close(clients[i]);
           int j;
-          for (j=i+1; j<nclients; j++) {
-            clients[j-1] = clients[j];
+          for (j = i + 1; j < nclients; j++) {
+            clients[j - 1] = clients[j];
           }
           warn("Removed Client %d", i);
           // Backup i once to repeat this index number
@@ -320,11 +323,12 @@ void *commandMain(void *arg) {
 
   if (retval < 0) {
     switch (getPodMode()) {
-      case Boot:
-        setPodMode(Shutdown, "Command Server Failed to start in Boot Stage");
-        break;
-      default:
-        setPodMode(Emergency, "Command Server Failed to start in Post-Boot Stage");
+    case Boot:
+      setPodMode(Shutdown, "Command Server Failed to start in Boot Stage");
+      break;
+    default:
+      setPodMode(Emergency,
+                 "Command Server Failed to start in Post-Boot Stage");
     }
     if (first_client) {
       sem_post(getPodState()->boot_sem);

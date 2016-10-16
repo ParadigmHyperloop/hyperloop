@@ -8,16 +8,15 @@
 
 #define N_POD_STATES 8
 
-
 typedef enum {
-  Boot      = 0, // initializing systems, establishing network connections, ect
-  Ready     = 1, // idle, stationary, ready for push
-  Pushing   = 2, // pusher engaged,
-  Coasting  = 3, // pusher disengaged, just coasting
-  Braking   = 4, // normal braking mode
+  Boot = 0,      // initializing systems, establishing network connections, ect
+  Ready = 1,     // idle, stationary, ready for push
+  Pushing = 2,   // pusher engaged,
+  Coasting = 3,  // pusher disengaged, just coasting
+  Braking = 4,   // normal braking mode
   Emergency = 5, // emergency braking
-  Shutdown  = 6, // pod stationary and in a safe state
-  _nil      = 7  // NULL STATE, not a valid state, used to terminate arrays
+  Shutdown = 6,  // pod stationary and in a safe state
+  _nil = 7       // NULL STATE, not a valid state, used to terminate arrays
 } pod_mode_t;
 
 typedef struct pod_value {
@@ -25,8 +24,8 @@ typedef struct pod_value {
   pthread_rwlock_t lock;
 } pod_value_t;
 
-
-#define POD_VALUE_INITIALIZER { 0, PTHREAD_RWLOCK_INITIALIZER }
+#define POD_VALUE_INITIALIZER                                                  \
+  { 0, PTHREAD_RWLOCK_INITIALIZER }
 
 /**
  * Defines the master state of the pod
@@ -85,14 +84,11 @@ typedef struct pod_state {
   int tmp_skates;
   int tmp_brakes;
 
-  sem_t * boot_sem;
+  sem_t *boot_sem;
   bool initialized;
 } pod_state_t;
 
-typedef enum {
-  Message = 1,
-  Telemetry = 2
-} log_type_t;
+typedef enum { Message = 1, Telemetry = 2 } log_type_t;
 
 typedef struct {
   char name[64];
@@ -111,7 +107,7 @@ typedef struct log {
 /**
  * Sends the given message to all logging destinations
  */
-int podLog(char * fmt, ...);
+int podLog(char *fmt, ...);
 
 /**
  * @brief Set the new state of the pod's control algorithms.
@@ -129,7 +125,7 @@ int podLog(char * fmt, ...);
  *
  * @return Returns 0 in the event of a sucessful state change, -1 on error
  */
-int setPodMode(pod_mode_t new_state, char * reason);
+int setPodMode(pod_mode_t new_state, char *reason);
 
 /**
  * @brief Get the mode of the pod's control algorithms.
@@ -154,7 +150,7 @@ pod_mode_t getPodMode(void);
  *
  * @return the current pod state as of calling
  */
-pod_state_t * getPodState(void);
+pod_state_t *getPodState(void);
 
 /**
  * Intiializes the pod's pod_state_t returned by getPodState()
@@ -182,7 +178,7 @@ void setPodField(pod_value_t *pod_field, int32_t newValue);
  */
 uint64_t getTime(void);
 
-void logDump(pod_state_t * state);
+void logDump(pod_state_t *state);
 
 void podInterruptPanic(int subsystem, char *file, int line, char *notes, ...);
 
@@ -192,7 +188,6 @@ void podInterruptPanic(int subsystem, char *file, int line, char *notes, ...);
  * Returns the fd of the IMU (also stored in global imuFd var) or -1 on fail
  */
 int imuConnect(void);
-
 
 void pod_exit(int code);
 #endif

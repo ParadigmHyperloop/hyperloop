@@ -5,10 +5,10 @@ extern char *pod_mode_names[N_POD_STATES];
 static int logging_socket = -1;
 
 typedef struct ring_buf {
-  void * start;
-  void * end;
-  void * head;
-  void * tail;
+  void *start;
+  void *end;
+  void *head;
+  void *tail;
   int sz;
   bool initialized;
   pthread_mutex_t mutex;
@@ -21,20 +21,23 @@ static ring_buf_t logbuf;
  * Push a value onto the queue
  */
 #define p_push(p, d) d + ((p - d) % sizeof(d));
-int bufAdd(log_t l, struct ring_buf * buf) {
+int bufAdd(log_t l, struct ring_buf *buf) {
   pthread_mutex_lock(&(buf->mutex));
   // Copy the new element into the buffer
 
   memcpy(buf->head, &l, buf->sz);
-  // fprintf(stderr, "\n >>> Pushing %p (%s)\n", buf->head, ((log_t *)buf->head)->content.message);
+  // fprintf(stderr, "\n >>> Pushing %p (%s)\n", buf->head, ((log_t
+  // *)buf->head)->content.message);
 
   buf->head += buf->sz;
   if (buf->head >= buf->end) {
     buf->head = buf->start;
   }
 
-  // &(buf->data[0]) + (((buf->head + sizeof(*buf->head) - buf->data) % sizeof(buf->data)) / sizeof(*buf->head))
-  //  buf->data + ((buf->head + sizeof(*buf->head) - buf->data) % sizeof(buf->data))
+  // &(buf->data[0]) + (((buf->head + sizeof(*buf->head) - buf->data) %
+  // sizeof(buf->data)) / sizeof(*buf->head))
+  //  buf->data + ((buf->head + sizeof(*buf->head) - buf->data) %
+  //  sizeof(buf->data))
   if (buf->head == buf->tail) {
     buf->tail += buf->sz;
     if (buf->tail == buf->end) {
@@ -52,14 +55,15 @@ int bufAdd(log_t l, struct ring_buf * buf) {
 /**
  * Pop the oldest value off the buffer
  */
-int bufPop(log_t * l, struct ring_buf * buf) {
+int bufPop(log_t *l, struct ring_buf *buf) {
   pthread_mutex_lock(&(buf->mutex));
 
   if (buf->tail == buf->head) {
     pthread_mutex_unlock(&(buf->mutex));
     return -1;
   }
-  // fprintf(stderr, "\n <<< Popping %p (%s)\n", buf->tail, ((log_t *)buf->tail)->content.message);
+  // fprintf(stderr, "\n <<< Popping %p (%s)\n", buf->tail, ((log_t
+  // *)buf->tail)->content.message);
   // Copy the new element into the buffer
   memcpy(l, buf->tail, buf->sz);
 
@@ -76,7 +80,7 @@ int bufPop(log_t * l, struct ring_buf * buf) {
 /**
  * Initialize the ring buffer
  */
-void bufInit(struct ring_buf * buf, void *block, int size, int item_sz) {
+void bufInit(struct ring_buf *buf, void *block, int size, int item_sz) {
   buf->head = buf->start = buf->tail = block;
   buf->end = block + size * item_sz;
   buf->sz = item_sz;
@@ -117,19 +121,20 @@ int connectLogger() {
   serveraddr.sin_port = htons(portno);
 
   // Start TCP connection
-  if (connect(sockfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0) {
+  if (connect(sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) {
     error("Connection Refused\n");
     return -1;
   }
 
-  note("Connected to " LOG_SVR_NAME ":" __XSTR__(LOG_SVR_PORT) " on fd %d", sockfd);
+  note("Connected to " LOG_SVR_NAME ":" __XSTR__(LOG_SVR_PORT) " on fd %d",
+       sockfd);
 
   return sockfd;
 }
 
 // Use of any output macro in this function could lead to stack overflow...
 // Do not use output macros within this function
-int logSend(log_t * l) {
+int logSend(log_t *l) {
   if (logging_socket < 0) {
     fprintf(stderr, "Attempt to send before socket open: %d", logging_socket);
     return -1;
@@ -138,15 +143,16 @@ int logSend(log_t * l) {
   char buf[MAX_PACKET_SIZE];
 
   switch (l->type) {
-    case Message:
-      snprintf(&buf[0], MAX_PACKET_SIZE, "POD1%s\n", l->content.message);
-      break;
-    case Telemetry:
-      snprintf(&buf[0], MAX_PACKET_SIZE, "POD2%s %d\n", l->content.data.name, l->content.data.value);
-      break;
-    default:
-      fprintf(stderr, "Unknown Log Type: %d", l->type);
-      return -1;
+  case Message:
+    snprintf(&buf[0], MAX_PACKET_SIZE, "POD1%s\n", l->content.message);
+    break;
+  case Telemetry:
+    snprintf(&buf[0], MAX_PACKET_SIZE, "POD2%s %d\n", l->content.data.name,
+             l->content.data.value);
+    break;
+  default:
+    fprintf(stderr, "Unknown Log Type: %d", l->type);
+    return -1;
   }
 
   /* send the message line to the server */
@@ -161,7 +167,7 @@ int logSend(log_t * l) {
   return 0;
 }
 
-int logEnqueue(log_t * l) {
+int logEnqueue(log_t *l) {
   if (!logbuf.initialized) {
     bufInit(&logbuf, &logbuf_data, LOG_BUF_SIZE, sizeof(log_t));
   }
@@ -172,12 +178,9 @@ int logEnqueue(log_t * l) {
 
 int podLog(char *fmt, ...) {
   va_list arg;
-  log_t l = {
-    .type = Message,
-    .content = { { 0 } }
-  };
+  log_t l = {.type = Message, .content = {{0}}};
 
-  char * msg = l.content.message;
+  char *msg = l.content.message;
   /* Write the error message */
   va_start(arg, fmt);
   vsnprintf(msg, MAX_LOG_LINE, fmt, arg);
@@ -200,14 +203,14 @@ int podLog(char *fmt, ...) {
     fsync(fileno(log_file));
   }
 
-
   return logEnqueue(&l);
 }
 
-void logDump(pod_state_t * state) {
+void logDump(pod_state_t *state) {
   debug("Logging System -> Dumping");
 
-  debug("mode: %s, ready: %d", pod_mode_names[getPodMode()], getPodField(&(state->ready)));
+  debug("mode: %s, ready: %d", pod_mode_names[getPodMode()],
+        getPodField(&(state->ready)));
 
   // TODO: Use the freaking Mutexes
   debug("acl mm/s/s: x: %d, y: %d, z: %d", getPodField(&(state->accel_x)),
@@ -221,13 +224,12 @@ void logDump(pod_state_t * state) {
 
   debug("skates    : %d", state->tmp_skates);
   debug("brakes    : %d", state->tmp_skates);
-
 }
 
 void *loggingMain(void *arg) {
   debug("[loggingMain] Thread Start");
 
-  pod_state_t * state = getPodState();
+  pod_state_t *state = getPodState();
   logging_socket = connectLogger();
 
   if (logging_socket < 0) {

@@ -31,7 +31,7 @@ void *coreMain(void *arg);
 void *loggingMain(void *arg);
 void *commandMain(void *arg);
 
-void digitalWrite(int pin, int val) { }
+void digitalWrite(int pin, int val) {}
 /**
  * Panic Signal Handler.  This is only called if the shit has hit the fan
  * This function fires whenever the controller looses complete control in itself
@@ -50,7 +50,7 @@ void signal_handler(int sig) {
   int ebrake_pins[] = EBRAKE_PINS;
 
   // Set all the ebrake pins to 0
-  for (int i = 0; i < sizeof(ebrake_pins)/sizeof(int); i++) {
+  for (int i = 0; i < sizeof(ebrake_pins) / sizeof(int); i++) {
     fprintf(stderr, "[PANIC] Forcing Pin %d => 0\n", ebrake_pins[i]);
     digitalWrite(ebrake_pins[i], 0);
   }
@@ -58,9 +58,7 @@ void signal_handler(int sig) {
   pod_exit(EXIT_FAILURE);
 }
 
-void sigpipe_handler(int sig) {
-  warn("SIGPIPE Recieved");
-}
+void sigpipe_handler(int sig) { warn("SIGPIPE Recieved"); }
 
 int main() {
   int boot_sem_ret = 0;
@@ -69,7 +67,7 @@ int main() {
   initializePodState();
 
   info("Loading POD state struct for the first time");
-  pod_state_t * state = getPodState();
+  pod_state_t *state = getPodState();
 
   info("Registering POSIX signal handlers");
   signal(POD_SIGPANIC, signal_handler);

@@ -1,42 +1,40 @@
 #include "pod.h"
 #include "commands.h"
 
-
 // You must keep this list in order from Longest String to Shortest,
 // Doesn't matter the order umongst names of equal length.
 // Has to deal with how commands are located, where "e" undercuts any command
 // that starts with "e", like "exit"
-command_t commands[] = {
-  { .name = "emergency", .func = emergencyCommand },
-  { .name = "status", .func = statusCommand },
-  { .name = "skate", .func = skateCommand },
-  { .name = "ready", .func = readyCommand },
-  { .name = "brake", .func = brakeCommand },
-  { .name = "help", .func = helpCommand },
-  { .name = "ping", .func = pingCommand },
-  { .name = "exit", .func = exitCommand },
-  { .name = "kill", .func = killCommand },
-  { .name = "e", .func = emergencyCommand },
-  { .name = NULL }
-};
+command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
+                        {.name = "status", .func = statusCommand},
+                        {.name = "skate", .func = skateCommand},
+                        {.name = "ready", .func = readyCommand},
+                        {.name = "brake", .func = brakeCommand},
+                        {.name = "help", .func = helpCommand},
+                        {.name = "ping", .func = pingCommand},
+                        {.name = "exit", .func = exitCommand},
+                        {.name = "kill", .func = killCommand},
+                        {.name = "e", .func = emergencyCommand},
+                        {.name = NULL}};
 
 int helpCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
-  int count = snprintf(&outbuf[0], outbufc, "%s",
-        "OpenLoop Pod CLI " POD_CLI_VERSION ". Copyright " POD_COPY_YEAR "\n" \
-         "This tool allows you to control various aspects of the pod\n" \
-         " - TCP:" __XSTR__(CMD_SVR_PORT) "\n" \
-         " - STDIN\n" \
-         "\n" \
-         "Available Commands:\n" \
-         " - help\n" \
-         " - ping\n" \
-         " - ready\n" \
-         " - brake\n" \
-         " - skate\n" \
-         " - status\n" \
-         " - emergency (alias: e)\n"
-         " - exit\n"
-         " - kill\n");
+  int count = snprintf(
+      &outbuf[0], outbufc, "%s",
+      "OpenLoop Pod CLI " POD_CLI_VERSION ". Copyright " POD_COPY_YEAR "\n"
+      "This tool allows you to control various aspects of the pod\n"
+      " - TCP:" __XSTR__(CMD_SVR_PORT) "\n"
+                                       " - STDIN\n"
+                                       "\n"
+                                       "Available Commands:\n"
+                                       " - help\n"
+                                       " - ping\n"
+                                       " - ready\n"
+                                       " - brake\n"
+                                       " - skate\n"
+                                       " - status\n"
+                                       " - emergency (alias: e)\n"
+                                       " - exit\n"
+                                       " - kill\n");
   return count;
 }
 
@@ -45,7 +43,7 @@ int pingCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 }
 
 int readyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
-  pod_state_t * state = getPodState();
+  pod_state_t *state = getPodState();
 
   int n;
 
@@ -54,25 +52,25 @@ int readyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
     setPodField(&(state->ready), 1);
     n = snprintf(&outbuf[0], outbufc, "OK: SET POD READY BIT => 1");
   } else {
-    n = snprintf(&outbuf[0], outbufc, "FAIL: POD READY BIT = %d, POD MODE = %d", ready, getPodMode());
+    n = snprintf(&outbuf[0], outbufc, "FAIL: POD READY BIT = %d, POD MODE = %d",
+                 ready, getPodMode());
   }
 
   return n;
 }
 
 int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
-  pod_state_t * state = getPodState();
+  pod_state_t *state = getPodState();
   return snprintf(&outbuf[0], outbufc, "=== STATUS REPORT ===\n"
-    "Mode:\t%d\n"
-    "Ready:\t%d\n"
-    "Ax:\t%d\n"
-    "Vx:\t%d\n"
-    "Px:\t%d\n",
-    getPodMode(),
-    getPodField(&(state->ready)),
-    getPodField(&(state->accel_x)),
-    getPodField(&(state->velocity_x)),
-    getPodField(&(state->position_x)));
+                                       "Mode:\t%d\n"
+                                       "Ready:\t%d\n"
+                                       "Ax:\t%d\n"
+                                       "Vx:\t%d\n"
+                                       "Px:\t%d\n",
+                  getPodMode(), getPodField(&(state->ready)),
+                  getPodField(&(state->accel_x)),
+                  getPodField(&(state->velocity_x)),
+                  getPodField(&(state->position_x)));
 }
 
 int brakeCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
