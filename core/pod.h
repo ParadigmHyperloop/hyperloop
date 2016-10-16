@@ -6,15 +6,17 @@
 #ifndef OPENLOOP_POD_H
 #define OPENLOOP_POD_H
 
-#define N_POD_STATES 7
+#define N_POD_STATES 8
+
+
 typedef enum {
   Boot      = 0, // initializing systems, establishing network connections, ect
   Ready     = 1, // idle, stationary, ready for push
   Pushing   = 2, // pusher engaged,
   Coasting  = 3, // pusher disengaged, just coasting
   Braking   = 4, // normal braking mode
-  Shutdown  = 5, // pod stationary and in a safe state
-  Emergency = 6, // emergency braking
+  Emergency = 5, // emergency braking
+  Shutdown  = 6, // pod stationary and in a safe state
   _nil      = 7  // NULL STATE, not a valid state, used to terminate arrays
 } pod_mode_t;
 

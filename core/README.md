@@ -31,18 +31,22 @@ state. There is no global state variable accessible by other means.
 ### Pod mode
 The pod's mode, `pod_mode_t`, is one of the following:
 
-| V | Enum Name | Description                        |
-|---|-----------|------------------------------------|
-| 0 | Boot      | initializing systems               |
-| 1 | Ready     | idle, stationary, ready for push   |
-| 2 | Pushing   | pusher engaged                     |
-| 3 | Coasting  | pusher disengaged, just coasting   |
-| 4 | Braking   | normal braking mode                |
-| 5 | Shutdown  | pod stationary and in a safe state |
-| 6 | Emergency | emergency braking                  |
+| V | Enum Name | Description                         |
+|---|-----------|-------------------------------------|
+| 0 | Boot      | initializing systems                |
+| 1 | Ready     | idle, stationary, ready for push    |
+| 2 | Pushing   | pusher engaged                      |
+| 3 | Coasting  | pusher disengaged, just coasting    |
+| 4 | Braking   | normal braking mode                 |
+| 5 | Shutdown  | pod is in a safe state, do shutdown |
+| 6 | Emergency | emergency braking                   |
+
+The pod's mode should be retrieved with `pod_mode_t getPodMode(void)`
 
 **Important** Any component wishing to update the `getPodState()->mode` shall
-call `int setPodMode(<new_mode>)` to perform validation of the new state
+call `int setPodMode(pod_mode_t <new_mode>, char * <reason>)` to perform
+validation of the new state. `<reason>` describes why the state is changing
+for better log interpretation.
 
 ### Values
 
