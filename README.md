@@ -2,14 +2,16 @@
 
 The code for the Hyperloop Pod Control systems
 
-* core: the core C control
-* log-server: receive logs from the server over TCP
-* pod-client: client (telnet) for interacting with the pod remotely
+* **Core**: the core C control
+* **ODS**: receive logs from the server over TCP
+* **Client**: client (telnet) for interacting with the pod remotely
 
 # Glossary
 
 * **BBB**: Beagle Bone Black, an ARM microcontroller
 * **IMU**: Inertial Measurement Unit, a really sick accelerometer
+* **ODS**: OpenLoop Data Shuttle: the server that the pod sends telemetry data
+  and logs to.
 
 # Documentation
 

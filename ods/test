@@ -1,7 +1,7 @@
 #!/bin/bash
 set -v
 
-SERVER="./controlpointserver.py"
+SERVER="./server.py"
 SERVER_OUT="server.out"
 SERVER_ERR="server.err"
 PORT=7778
