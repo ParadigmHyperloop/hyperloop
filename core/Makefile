@@ -8,11 +8,11 @@
 #
 
 CC=gcc
-DEPS = imu.c braking.c lateral.c logging.c height.c pod.c pod-helpers.c commands.c commander.c
+DEPS = core.c imu.c braking.c lateral.c logging.c height.c pod.c pod-helpers.c commands.c commander.c
 SOURCES= main.c
 EXECUTABLE = main
-CFLAGS= -std=gnu99
-LDFLAGS= -pthread
+CFLAGS += -std=gnu99
+LDFLAGS += -pthread
 
 all: clean $(EXECUTABLE) run
 
