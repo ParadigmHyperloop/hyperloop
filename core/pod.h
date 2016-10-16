@@ -71,10 +71,7 @@ typedef struct pod_state {
   pod_value_t wheel_thermocouples[N_WHEEL_THERMOCOUPLES];
 
   // Thread Tracking
-  pthread_t imu_thread;
-  pthread_t distance_thread;
-  pthread_t braking_thread;
-  pthread_t lateral_thread;
+  pthread_t core_thread;
   pthread_t logging_thread;
   pthread_t cmd_thread;
 
@@ -82,32 +79,33 @@ typedef struct pod_state {
   pod_mode_t mode;
   pthread_rwlock_t mode_mutex;
 
+  // Holds the pod in a boot state until set to 1 by an operator
+  pod_value_t ready;
+
+  int tmp_skates;
+  int tmp_brakes;
+
+  sem_t * boot_sem;
   bool initialized;
 } pod_state_t;
 
 typedef enum {
-  Message,
-  Telemetry
+  Message = 1,
+  Telemetry = 2
 } log_type_t;
 
 typedef struct {
-  char *tag;
-  uint32_t data;
+  char name[64];
+  uint32_t value;
 } log_data_t;
-
-
-union log_content {
-  char * message;
-  log_data_t data;
-};
 
 typedef struct log {
   log_type_t type;
   union {
-    char * message;
+    char message[MAX_LOG_LINE];
     log_data_t data;
   } content;
-//  STAILQ_ENTRY(struct log) entries;
+  STAILQ_ENTRY(log) entries;
 } log_t;
 
 /**
@@ -188,4 +186,13 @@ void logDump(pod_state_t * state);
 
 void podInterruptPanic(int subsystem, char *file, int line, char *notes, ...);
 
+/**
+ * Open the serial line to the IMU
+ *
+ * Returns the fd of the IMU (also stored in global imuFd var) or -1 on fail
+ */
+int imuConnect(void);
+
+
+void pod_exit(int code);
 #endif

@@ -25,6 +25,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include <signal.h>
+#include <semaphore.h>
 
 #define within(low, val, high) ((low <= val) && (val <= high))
 #define outside(low, val, high) (!(within((low), (val), (high))))
