@@ -25,13 +25,13 @@ pod_state_t __state = {
  */
 bool validPodState(pod_mode_t current_state, pod_mode_t new_state) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
-    {Boot, Ready, Emergency, Shutdown, _nil}, // Boot
-    {Ready, Pushing, Emergency, _nil}, // Ready
-    {Pushing, Coasting, Braking, Emergency, _nil}, // Pushing
-    {Coasting, Braking, Emergency, _nil}, // Coasting
-    {Braking, Shutdown, Emergency, _nil}, // Braking
-    {Emergency, Shutdown, _nil}, // Emergency
-    {Shutdown, _nil} // Shutdown
+    {Boot, Ready, Emergency, Shutdown, _nil}, // 0: Boot
+    {Ready, Pushing, Emergency, _nil}, // 1: Ready
+    {Pushing, Coasting, Braking, Emergency, _nil}, // 2: Pushing
+    {Coasting, Braking, Emergency, _nil}, // 3: Coasting
+    {Braking, Shutdown, Emergency, _nil}, // 4: Braking
+    {Emergency, Shutdown, _nil}, // 5: Emergency
+    {Shutdown, _nil} // 6: Shutdown
   };
 
   // Ensure that the pod's current state can always transition to itself
