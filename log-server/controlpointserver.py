@@ -1,11 +1,12 @@
 #!/usr/bin/env python2.7
-import sys
 import os
 from datetime import datetime
 import logging
 import SocketServer
+import argparse
 from influxdb import InfluxDBClient
 
+# TODO: Take these in on the CLI
 BASE_PATH = '.'
 INFLUX_HOST = 'localhost'
 INFLUX_PORT = 8086
@@ -22,10 +23,6 @@ class LoggingHandler(SocketServer.StreamRequestHandler):
     override the handle() method to implement communication to the
     client.
     """
-    # def __init__(self, data_file, log_file):
-    #     self.data_file = data_file
-    #     self.log_file = log_file
-    #     SocketServer.StreamRequestHandler.__init__(self)
 
     def handle(self):
         startTime = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
@@ -118,21 +115,46 @@ def makeLine(msg):
     return lineToWrite + msg + "\n"
 
 
-def main():
-    args = sys.argv[:]
-    if (len(args) != 3 or not isPositiveInt(args[1])):
-        print("Usage: control-point.py <port> <directory>")
-        sys.exit(1)
+if "__main__" == __name__:
+    parser = argparse.ArgumentParser(description="Openloop Data Shuttle")
 
-    port = args[1]
-    path = args[2]
-    if path[-1] != '/':
-        path = path + '/'
+    parser.add_argument("-v", "--verbose", action="store_true")
 
-    print("Starting TCP Server on 0.0.0.0:{}".format(port))
-    server = SocketServer.TCPServer(("0.0.0.0", int(port)), LoggingHandler)
+    parser.add_argument("-p", "--port", type=int, default=7778,
+                        help="Server listen port")
+
+    parser.add_argument("-d", "--directory",
+                        help="directory to store raw log and data files in")
+
+    # Influx arguments
+    parser.add_argument("--influx-host", default=INFLUX_HOST,
+                        help="Influxdb hostname")
+
+    parser.add_argument("--influx-port", default=INFLUX_PORT,
+                        help="Influxdb port")
+
+    parser.add_argument("--influx-user", default=INFLUX_USER,
+                        help="Influxdb username")
+
+    parser.add_argument("--influx-pass", default=INFLUX_PASS,
+                        help="Influxdb password")
+
+    parser.add_argument("--influx-name", default=INFLUX_NAME,
+                        help="Influxdb database name")
+
+    args = parser.parse_args()
+
+    if args.verbose:
+        logging.setLevel(logging.DEBUG)
+
+    BASE_PATH = args.directory
+    INFLUX_HOST = args.influx_host
+    INFLUX_PORT = args.influx_port
+    INFLUX_USER = args.influx_user
+    INFLUX_PASS = args.influx_pass
+    INFLUX_NAME = args.influx_name
+
+    print("Starting TCP Server on 0.0.0.0:{}".format(args.port))
+    server = SocketServer.TCPServer(("0.0.0.0", args.port), LoggingHandler)
 
     server.serve_forever()
-
-if "__main__" == __name__:
-    main()
