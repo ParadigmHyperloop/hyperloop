@@ -46,11 +46,12 @@ class LoggingHandler(SocketServer.StreamRequestHandler):
 
             # if disconnected, then break
             if not self.data:
+                logging.error("[DISCONNECT]")
                 break
 
             self.data = self.data.strip("\r\n ")
 
-            logging.debug("[DATA] {}".format(self.data))
+            logging.debug("[DATA] '{}'".format(self.data))
 
             response = None
 
@@ -60,6 +61,8 @@ class LoggingHandler(SocketServer.StreamRequestHandler):
                     response = self.handle_log(self.data[4:])
                 elif pkt_type == 2:
                     response = self.handle_data(self.data[4:])
+                else:
+                    logging.error("Unknown Type {}".format(pkt_type))
             else:
                 logging.warn("[DROP] '{}'".format(self.data))
 
@@ -75,7 +78,10 @@ class LoggingHandler(SocketServer.StreamRequestHandler):
         self.data_file.write(makeLine(msg))
         (name, value) = msg.split(' ', 1)
 
-        value = float(value)
+        try:
+            value = float(value)
+        except ValueError:
+            return "ERROR: Bad Value '{}'".format(value)
 
         measurement = [
             {
@@ -93,7 +99,6 @@ class LoggingHandler(SocketServer.StreamRequestHandler):
         return "OK: ({},{})".format(name, value)
 
     def handle_log(self, msg):
-        logging.info("[LOG] {}".format(msg))
         self.log_file.write(makeLine(msg))
 
         return "OK: LOGGED"
@@ -145,7 +150,7 @@ if "__main__" == __name__:
     args = parser.parse_args()
 
     if args.verbose:
-        logging.setLevel(logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG)
 
     BASE_PATH = args.directory
     INFLUX_HOST = args.influx_host
