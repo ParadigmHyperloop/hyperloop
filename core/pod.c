@@ -19,11 +19,11 @@ pod_state_t __state = {
 };
 
 /**
- * Determines if the new state is a valid state
+ * Determines if the new mode is a valid mode
  *
- * @return whether the new state is valid knowing the gPodState
+ * @return whether the new mode is valid knowing the gPodState
  */
-bool validPodState(pod_mode_t current_state, pod_mode_t new_state) {
+bool validPodMode(pod_mode_t current_state, pod_mode_t new_state) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
     {Boot, Ready, Emergency, Shutdown, _nil}, // 0: Boot
     {Ready, Pushing, Emergency, _nil}, // 1: Ready
@@ -90,14 +90,15 @@ pod_mode_t getPodMode(void) {
   return mode;
 }
 
-int setPodMode(pod_mode_t new_mode) {
+int setPodMode(pod_mode_t new_mode, char * reason) {
+  warn("Pod Mode Transition %d => %d. reason: %s", getPodState()->mode, new_mode, reason);
 
-  if (validPodState(getPodState()->mode, new_mode)) {
+  if (validPodMode(getPodState()->mode, new_mode)) {
     getPodState()->mode = new_mode;
-    debug("Request to set mode from %d to %d: approved", getPodState()->mode, new_mode);
+    warn("Request to set mode from %d to %d: approved", getPodState()->mode, new_mode);
     return 0;
   } else {
-    debug("Request to set mode from %d to %d: denied", getPodState()->mode, new_mode);
+    warn("Request to set mode from %d to %d: denied", getPodState()->mode, new_mode);
     return -1;
   }
 }
