@@ -6,16 +6,17 @@
 #ifndef OPENLOOP_POD_H
 #define OPENLOOP_POD_H
 
-#define N_POD_STATES 7
+#define N_POD_STATES 8
+
 typedef enum {
-  Boot      = 0, // initializing systems, establishing network connections, ect
-  Ready     = 1, // idle, stationary, ready for push
-  Pushing   = 2, // pusher engaged,
-  Coasting  = 3, // pusher disengaged, just coasting
-  Braking   = 4, // normal braking mode
-  Shutdown  = 5, // pod stationary and in a safe state
-  Emergency = 6, // emergency braking
-  _nil      = 7  // NULL STATE, not a valid state, used to terminate arrays
+  Boot = 0,      // initializing systems, establishing network connections, ect
+  Ready = 1,     // idle, stationary, ready for push
+  Pushing = 2,   // pusher engaged,
+  Coasting = 3,  // pusher disengaged, just coasting
+  Braking = 4,   // normal braking mode
+  Emergency = 5, // emergency braking
+  Shutdown = 6,  // pod stationary and in a safe state
+  _nil = 7       // NULL STATE, not a valid state, used to terminate arrays
 } pod_mode_t;
 
 typedef struct pod_value {
@@ -23,8 +24,8 @@ typedef struct pod_value {
   pthread_rwlock_t lock;
 } pod_value_t;
 
-
-#define POD_VALUE_INITIALIZER { 0, PTHREAD_RWLOCK_INITIALIZER }
+#define POD_VALUE_INITIALIZER                                                  \
+  { 0, PTHREAD_RWLOCK_INITIALIZER }
 
 /**
  * Defines the master state of the pod
@@ -69,10 +70,7 @@ typedef struct pod_state {
   pod_value_t wheel_thermocouples[N_WHEEL_THERMOCOUPLES];
 
   // Thread Tracking
-  pthread_t imu_thread;
-  pthread_t distance_thread;
-  pthread_t braking_thread;
-  pthread_t lateral_thread;
+  pthread_t core_thread;
   pthread_t logging_thread;
   pthread_t cmd_thread;
 
@@ -80,38 +78,36 @@ typedef struct pod_state {
   pod_mode_t mode;
   pthread_rwlock_t mode_mutex;
 
+  // Holds the pod in a boot state until set to 1 by an operator
+  pod_value_t ready;
+
+  int tmp_skates;
+  int tmp_brakes;
+
+  sem_t *boot_sem;
   bool initialized;
 } pod_state_t;
 
-typedef enum {
-  Message,
-  Telemetry
-} log_type_t;
+typedef enum { Message = 1, Telemetry = 2 } log_type_t;
 
 typedef struct {
-  char *tag;
-  uint32_t data;
+  char name[64];
+  uint32_t value;
 } log_data_t;
-
-
-union log_content {
-  char * message;
-  log_data_t data;
-};
 
 typedef struct log {
   log_type_t type;
   union {
-    char * message;
+    char message[MAX_LOG_LINE];
     log_data_t data;
   } content;
-//  STAILQ_ENTRY(struct log) entries;
+  STAILQ_ENTRY(log) entries;
 } log_t;
 
 /**
  * Sends the given message to all logging destinations
  */
-int podLog(char * fmt, ...);
+int podLog(char *fmt, ...);
 
 /**
  * @brief Set the new state of the pod's control algorithms.
@@ -129,7 +125,7 @@ int podLog(char * fmt, ...);
  *
  * @return Returns 0 in the event of a sucessful state change, -1 on error
  */
-int setPodMode(pod_mode_t new_state);
+int setPodMode(pod_mode_t new_state, char *reason);
 
 /**
  * @brief Get the mode of the pod's control algorithms.
@@ -154,7 +150,7 @@ pod_mode_t getPodMode(void);
  *
  * @return the current pod state as of calling
  */
-pod_state_t * getPodState(void);
+pod_state_t *getPodState(void);
 
 /**
  * Intiializes the pod's pod_state_t returned by getPodState()
@@ -182,8 +178,16 @@ void setPodField(pod_value_t *pod_field, int32_t newValue);
  */
 uint64_t getTime(void);
 
-void logDump(pod_state_t * state);
+void logDump(pod_state_t *state);
 
 void podInterruptPanic(int subsystem, char *file, int line, char *notes, ...);
 
+/**
+ * Open the serial line to the IMU
+ *
+ * Returns the fd of the IMU (also stored in global imuFd var) or -1 on fail
+ */
+int imuConnect(void);
+
+void pod_exit(int code);
 #endif

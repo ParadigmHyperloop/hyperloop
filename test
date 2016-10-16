@@ -1,0 +1,9 @@
+#!/usr/bin/env bats
+
+CORE_MAIN= core/main
+
+@test "launch core without logging server running" {
+  run $CORE_MAIN
+  [ "$status" -eq 1 ]
+  [ "$output" ~= "Connect" ]
+}

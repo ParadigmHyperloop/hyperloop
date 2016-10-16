@@ -1,23 +1,24 @@
 #include "pod.h"
 
-void *brakingMain(void *arg) {
-    debug("[brakingMain] Thread Start");
-    pod_mode_t podState;
-    while (getPodMode() != Shutdown) {
-        podState = getPodMode();
-        switch (podState) {
-            case Braking:
-                // MAKE THE BRAKES BRAKE!?!?
-                break;
-            case Emergency:
-                // DO THE EMERGENCY STOP PROTOCOL
-                break;
+// Read the presure sensors for the brakes
+int readBraking(pod_state_t *state) {
+  debug("[readBraking] Reading presure sensors for brakes");
 
-            default:
-                break;
-        }
+  // TODO: Read in new values and put them into the state struct
 
-        usleep(BRAKING_THREAD_SLEEP);
-    }
-    return NULL;
+  /*
+  int i;
+
+  for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
+    int32_t new_value = 0L; // Read in value for wheel pressure sensor i
+    setPodField(&(state->wheel_pressures[i]), new_value);
+  }
+
+  for (i=0; i<N_EBRAKE_SOLONOIDS; i++) {
+    int32_t new_value = 0L; // Read in value for ebrake pressure sensor i
+    setPodField(&(state->ebrake_pressures[i]), new_value);
+  }
+  */
+
+  return 0;
 }

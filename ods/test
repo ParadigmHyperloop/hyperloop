@@ -1,0 +1,46 @@
+#!/bin/bash
+set -v
+
+SERVER="./server.py"
+SERVER_OUT="server.out"
+SERVER_ERR="server.err"
+PORT=7778
+
+FIFO="./data-fifo"
+N_ENTRIES=1000
+MEASUREMENTS="test test2"
+TEST_DATA_FILE="./test-data.txt"
+
+# start the server in the background
+# ( $SERVER -p $PORT > $SERVER_OUT 2> $SERVER_ERR )&
+( $SERVER -p $PORT )&
+server_pid=$!
+
+sleep 1
+kill -0 $server_pid
+
+if [ $? -eq 0 ]; then
+  function cleanup {
+    echo "cleanup: Sending SIGTERM to pid $server_pid"
+    kill -SIGTERM $server_pid
+  }
+  trap cleanup EXIT
+
+  rm $TEST_DATA_FILE
+  # generate some random data
+  for i in $(seq 1 $N_ENTRIES); do
+    t=2
+    for m in $MEASUREMENTS; do
+      echo "POD$t$m $RANDOM" >> $TEST_DATA_FILE
+    done
+  done
+
+  # Run with the test data
+  cat $TEST_DATA_FILE | nc localhost $PORT
+
+  echo "=== Test Complete ==="
+else
+  echo "Server failed to start!"
+  echo "make sure there isn't one runing in the background"
+  exit 1
+fi
