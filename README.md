@@ -2,8 +2,8 @@
 
 The code for the Hyperloop Pod Control systems
 
-* **Core**: the core C control
-* **ODS**: receive logs from the server over TCP
+* **Core**: the core C controller. 
+* **ODS**: receive logs from the pod over TCP
 * **Client**: client (telnet) for interacting with the pod remotely
 
 # Glossary
