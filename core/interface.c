@@ -97,7 +97,7 @@ int genPhys(
     float t2); // Calculate net force and determine velocity and position of pod
 int readAirSuppSensors(pod *p); // Read signals from air supply pressure
                                 // transducers and thermocouples
-int readTempSensors(pod *p); // Read signals from the temperature sensors
+int readTempSensors(pod *p);    // Read signals from the temperature sensors
 int CCdecision(pod *p); // Make decisions based on whether collected data causes
                         // conditions to be satisfied
 int transmit(pod *p);
@@ -175,13 +175,13 @@ int RUN() {
   poddy.z = 0;
   poddy.mass = POD_MASS;
   poddy.pusherOn = 1; // Pusher is on initially
-  poddy.PBOn = 0; // Brakes are all off initially
+  poddy.PBOn = 0;     // Brakes are all off initially
   poddy.EBOn = 0;
   poddy.skatesOff = 0; // Skates are on initially
   // Create timers for use by genPhys function. These measure time before and
   // after all functions finish
   float t0 = float(millis()) / 1000, t1 = 0,
-        t2 = 0; // to do: change t1 t2 to floats
+        t2 = 0;                    // to do: change t1 t2 to floats
   float timetrack = 0, tinc = 0.5; // tinc determines interval between printing
                                    // pod motion properties
   float simTime = SIM_TIME;
@@ -213,8 +213,8 @@ int RUN() {
     //---------------------------
     readAirSuppSensors(poddypointer);
     readTempSensors(poddypointer);
-    CCdecision(poddypointer); // Make decision
-    t2 = float(millis()) / 1000; // Convert clock cycles 2 into time
+    CCdecision(poddypointer);      // Make decision
+    t2 = float(millis()) / 1000;   // Convert clock cycles 2 into time
     genPhys(poddypointer, t1, t2); // Generate physical data
   }
   if (poddy.x >= TRACK_LENGTH && poddy.vx >= 0) {
@@ -237,8 +237,8 @@ int RUN() {
   }
 }
 int genPhys(pod *p, float t1, float t2) {
-  float Fnet, drag, fric, push; // Forces acting on pod
-  float rho = 0.0422, C = 0.34, A = 1.5; // Constants for aero drag
+  float Fnet, drag, fric, push;           // Forces acting on pod
+  float rho = 0.0422, C = 0.34, A = 1.5;  // Constants for aero drag
   float mu = 0.0005 + p->PBOn * (0.3395); // friction coefficient. Changes
                                           // depending on whether primary brakes
                                           // on
@@ -270,7 +270,7 @@ int genPhys(pod *p, float t1, float t2) {
     sign = 0;
   }
 
-  push = p->pusherOn * pushAcc * p->mass; // Pusher force
+  push = p->pusherOn * pushAcc * p->mass;        // Pusher force
   drag = sign * rho * C * A * p->vx * p->vx / 2; // Drag force
   fric =
       sign * (p->skatesOff * p->mass * g * mu +

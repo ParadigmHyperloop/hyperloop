@@ -17,7 +17,8 @@
 // --------------------------
 // PINS - List of pin numbers
 // --------------------------
-#define EBRAKE_PINS { 0, 1, 2 }
+#define EBRAKE_PINS                                                            \
+  { 0, 1, 2 }
 
 // --------------------------
 // Device Constants
@@ -59,7 +60,6 @@
 // IMU Device
 #define IMU_DEVICE "/dev/cu.usbmodem-00000"
 
-
 // -------------------------
 // Subsystem Identifiers
 // -------------------------
@@ -84,9 +84,12 @@
 // Debug Printing
 // --------------
 #ifdef TESTING
-#define output(prefix_, fmt_, ...) podLog((prefix_ "[%s] {" __FILE__ ":" __XSTR__(__LINE__) "} " fmt_), __FUNCTION__, ##__VA_ARGS__)
+#define output(prefix_, fmt_, ...)                                             \
+  podLog((prefix_ "[%s] {" __FILE__ ":" __XSTR__(__LINE__) "} " fmt_),         \
+         __FUNCTION__, ##__VA_ARGS__)
 #else
-#define output(prefix_, fmt_, ...) podLog((prefix_ fmt_), __FUNCTION__, ##__VA_ARGS__)
+#define output(prefix_, fmt_, ...)                                             \
+  podLog((prefix_ fmt_), __FUNCTION__, ##__VA_ARGS__)
 #endif
 #define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
 #define warn(fmt_, ...) output("[WARN]  ", fmt_, ##__VA_ARGS__)
@@ -94,18 +97,19 @@
 #define info(fmt_, ...) output("[INFO]  ", fmt_, ##__VA_ARGS__)
 #define note(fmt_, ...) output("[NOTE]  ", fmt_, ##__VA_ARGS__)
 #define fatal(fmt_, ...) output("[FATAL] ", fmt_, ##__VA_ARGS__)
-#define panic(subsystem, notes, ...) podInterruptPanic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
+#define panic(subsystem, notes, ...)                                           \
+  podInterruptPanic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 
-
-#define DECLARE_EMERGENCY(message) setPodMode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
+#define DECLARE_EMERGENCY(message)                                             \
+  setPodMode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
 
 // ------------------
 // Primary Braking Thresholds
 // ------------------
 
 /// 0.8 G = 0.8 * 9.8 m/s/s * 1000 mm / m
-#define PRIMARY_BRAKING_ACCEL_X_MIN -5880 // -0.6 G => mm/s/s
-#define PRIMARY_BRAKING_ACCEL_X_NOM -7840 // -0.8 G => mm/s/s
+#define PRIMARY_BRAKING_ACCEL_X_MIN -5880  // -0.6 G => mm/s/s
+#define PRIMARY_BRAKING_ACCEL_X_NOM -7840  // -0.8 G => mm/s/s
 #define PRIMARY_BRAKING_ACCEL_X_MAX -24500 // -2.5 G => mm/s/s
 
 /// TODO: Need Real Values
@@ -118,7 +122,7 @@
 // Emergency Braking Thresholds
 // ------------------
 /// NOMINAL: 1.2 G = 1.2 * 9.8 m/s/s * 1000 mm / m
-#define EBRAKE_BRAKING_ACCEL_X_MIN -7840 // -0.8 G => mm/s/s
+#define EBRAKE_BRAKING_ACCEL_X_MIN -7840  // -0.8 G => mm/s/s
 #define EBRAKE_BRAKING_ACCEL_X_NOM -11760 // -1.2 G => mm/s/s
 #define EBRAKE_BRAKING_ACCEL_X_MAX -49000 // -5.0 G => mm/s/s
 
@@ -128,13 +132,11 @@
 #define EBRAKE_ENGAGED_NOM_F 1000
 #define EBRAKE_ENGAGED_MAX_F 1500
 
-
 // ---------------------
 // Lateral Sensor Config
 // ---------------------
 #define LATERAL_MIN 5
 #define LATERAL_MAX 7
-
 
 // ---------------------
 // Logging Configuration
