@@ -26,6 +26,10 @@
 extern command_t commands[];
 
 static char cmdbuffer[CMD_OUT_BUF];
+
+bool first_client = true;
+
+
 // Much of this code is based on this UTAH tcpserver example, thanks!
 // https://www.cs.utah.edu/~swalton/listings/sockets/programs/part2/chap6/simple-server.c
 
@@ -38,7 +42,7 @@ int startTCPCommandServer(int portno) {
 
   /*---Create streaming socket---*/
   if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    perror("Socket");
+    error("Command Server socket() %s", strerror(errno));
     return -1;
   }
 
@@ -50,15 +54,18 @@ int startTCPCommandServer(int portno) {
 
   /*---Assign a port number to the socket---*/
   if (bind(sockfd, (struct sockaddr *)&self, sizeof(self)) != 0) {
-    perror("socket--bind");
+    error("Command Server Socket bind() %s", strerror(errno));
     return -1;
   }
 
   /*---Make it a "listening socket"---*/
   if (listen(sockfd, 20) != 0) {
-    perror("socket--listen");
+    error("Command Server listen() %s", strerror(errno));
     return -1;
   }
+
+  int option = 1;
+  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 
   return sockfd;
 }
@@ -68,7 +75,6 @@ int startTCPCommandServer(int portno) {
  */
 int doCommand(int inputc, char *input, int outputc, char output[]) {
 
-  printf("Recived Command %s\n", input);
   int i = 0;
   while (commands[i].name != NULL) {
     if (strncmp(commands[i].name, input, MIN(inputc, strlen(commands[i].name))) == 0) {
@@ -78,7 +84,7 @@ int doCommand(int inputc, char *input, int outputc, char output[]) {
   }
 
   if (commands[i].name == NULL) {
-    int count = snprintf(output, outputc, "Unknown Command\n");
+    int count = snprintf(output, outputc, "FAIL: Unknown Command, try 'help'");
     return count;
   }
 
@@ -89,7 +95,9 @@ int doCommand(int inputc, char *input, int outputc, char output[]) {
   for (ci = 0; ci < (inputc - 1) && argc < CMD_MAX_ARGS; ci++) {
     if (input[ci] == ' ') {
       input[ci] = '\0';
-      argv[argc] = input + ci + 1;
+      argv[argc++] = input + ci + 1;
+    } else if (input[ci] == '\r' && ci == inputc - 2) {
+      input[ci] = '\0';
     }
   }
 
@@ -114,7 +122,7 @@ int processClient(int serverfd) {
 
   // Accept the connection
   clientfd = accept(serverfd, (struct sockaddr *)&client_addr, &addrlen);
-  printf("%s:%d connected as %d\n", inet_ntoa(client_addr.sin_addr),
+  info("%s:%d connected as %d\n", inet_ntoa(client_addr.sin_addr),
          ntohs(client_addr.sin_port), clientfd);
 
   if (clientfd < 0) {
@@ -206,14 +214,17 @@ int processRequest(int infd, int outfd) {
  * Muxes all command inputs from the TCP clients and STDIN
  */
 int commandServer() {
-  debug("[commandMain] Command Thread Started");
+  // TODO: There is a minor bug where one of the input/output buffers is not
+  // being cleared or capped with a null terminator
+
+  debug("Starting TCP Network Command Server");
   int serverfd = startTCPCommandServer(CMD_SVR_PORT);
 
   if (serverfd < 0) {
     return -1;
   }
 
-  debug("TCP Network Command Server Started on port: %d", CMD_SVR_PORT);
+  note("TCP Network Command Server Started on port: %d", CMD_SVR_PORT);
 
   int clients[MAX_CMD_CLIENTS];
   int nclients = 0;
@@ -221,6 +232,7 @@ int commandServer() {
   fd_set active_fd_set, read_fd_set;
 
   int cmdbufferc = 0;
+  note("=== Waiting for first commander connection ===", CMD_SVR_PORT);
 
   while (1) {
     // Setup All File Descriptors we are going to read from
@@ -237,8 +249,7 @@ int commandServer() {
     read_fd_set = active_fd_set;
 
     // 1 second timeout allows for a log to ensure thread didn't die
-    struct timeval tv = {1, 0};
-    debug("SELECT WAITING");
+    struct timeval tv = {10, 0};
 
     if (select(FD_SETSIZE, &read_fd_set, NULL, NULL, &tv) < 0) {
       return -1;
@@ -258,6 +269,13 @@ int commandServer() {
         // Fake a command to print a welcome message
         cmdbufferc = doCommand(5, "help\n", CMD_OUT_BUF, cmdbuffer);
         respond(clientfd, cmdbuffer, cmdbufferc);
+
+        // We wait for a client to connect before the pod progresses with it's
+        // boot phase (i.e. it starts up it's core)
+        if (first_client) {
+          first_client = false;
+          sem_post(getPodState()->boot_sem);
+        }
       }
 
     }
@@ -303,10 +321,13 @@ void *commandMain(void *arg) {
   if (retval < 0) {
     switch (getPodMode()) {
       case Boot:
-        setPodMode(Shutdown);
+        setPodMode(Shutdown, "Command Server Failed to start in Boot Stage");
         break;
       default:
-        setPodMode(Emergency);
+        setPodMode(Emergency, "Command Server Failed to start in Post-Boot Stage");
+    }
+    if (first_client) {
+      sem_post(getPodState()->boot_sem);
     }
   }
 

@@ -15,6 +15,16 @@ int helpCommand(int argc, char *argv[], int outbufc, char outbuf[]);
 int pingCommand(int argc, char *argv[], int outbufc, char outbuf[]);
 
 /**
+ * Sets the pod's ready-to-proceed bit to allow it to finish the boot
+ */
+int readyCommand(int argc, char *argv[], int outbufc, char outbuf[]);
+
+/**
+ * Prints the pod's current status
+ */
+int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]);
+
+/**
  * A command that controls the brakes manually
  */
 int brakeCommand(int argc, char *argv[], int outbufc, char outbuf[]);
@@ -28,6 +38,11 @@ int skateCommand(int argc, char *argv[], int outbufc, char outbuf[]);
  * A command that declares an emergency
  */
 int emergencyCommand(int argc, char *argv[], int outbufc, char outbuf[]);
+
+/**
+ * A command that exit the pod program
+ */
+int exitCommand(int argc, char *argv[], int outbufc, char outbuf[]);
 
 /**
  * A command that immediately kills the controller

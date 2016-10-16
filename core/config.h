@@ -2,6 +2,19 @@
 #define _OPENLOOP_POD_CONFIG_
 
 // --------------------------
+// Compiling Switches
+// --------------------------
+
+// For testing on non BBB hardware
+#define TESTING
+
+// --------------------------
+// Branding
+// --------------------------
+#define POD_COPY_OWNER "OpenLoop - Controls Team"
+#define POD_COPY_YEAR "2016"
+
+// --------------------------
 // PINS - List of pin numbers
 // --------------------------
 #define EBRAKE_PINS { 0, 1, 2 }
@@ -43,47 +56,48 @@
 // Signals
 #define POD_SIGPANIC SIGUSR2
 
+// IMU Device
+#define IMU_DEVICE "/dev/cu.usbmodem-00000"
+
+
 // -------------------------
 // Subsystem Identifiers
 // -------------------------
-
 // The Main Thread
 #define POD_MAIN_SUBSYSTEM 1
-
 // The Core Processing Loop
 #define POD_CORE_SUBSYSTEM 2
-
 // The Command Server
 #define POD_COMMAND_SUBSYSTEM 4
-
 // The Logging Client
 #define POD_LOGGING_SUBSYSTEM 8
-
 
 // ----------------------
 // Thread Sleep Intervals
 // --------------------------------------------------------------------------
 // Each thread is a loop, how long should the thread sleep for each iteration
 // --------------------------------------------------------------------------
-
-#define IMU_THREAD_SLEEP 5000
-#define BRAKING_THREAD_SLEEP 5000
-#define DISTANCE_THREAD_SLEEP 5000
-#define KALMAN_THREAD_SLEEP 5000
-#define LATERAL_THREAD_SLEEP 5000
-#define LOGGING_THREAD_SLEEP 500000 // Half Second
-#define PHOTOELECTRIC_THREAD_SLEEP 5000
+#define CORE_THREAD_SLEEP 5000000
+#define LOGGING_THREAD_SLEEP 5000000
 
 // --------------
 // Debug Printing
 // --------------
-#define output(prefix_, fmt_, ...) podLog((prefix_ "{" __FILE__ ":" __XSTR__(__LINE__) "} " fmt_ "\n"), ##__VA_ARGS__)
+#ifdef TESTING
+#define output(prefix_, fmt_, ...) podLog((prefix_ "[%s] {" __FILE__ ":" __XSTR__(__LINE__) "} " fmt_), __FUNCTION__, ##__VA_ARGS__)
+#else
+#define output(prefix_, fmt_, ...) podLog((prefix_ fmt_), __FUNCTION__, ##__VA_ARGS__)
+#endif
 #define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
-#define warn(fmt_, ...) output("[WARN] ", fmt_, ##__VA_ARGS__)
+#define warn(fmt_, ...) output("[WARN]  ", fmt_, ##__VA_ARGS__)
 #define error(fmt_, ...) output("[ERROR] ", fmt_, ##__VA_ARGS__)
-#define info(fmt_, ...) output("[INFO] ", fmt_, ##__VA_ARGS__)
+#define info(fmt_, ...) output("[INFO]  ", fmt_, ##__VA_ARGS__)
+#define note(fmt_, ...) output("[NOTE]  ", fmt_, ##__VA_ARGS__)
 #define fatal(fmt_, ...) output("[FATAL] ", fmt_, ##__VA_ARGS__)
 #define panic(subsystem, notes, ...) podInterruptPanic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
+
+
+#define DECLARE_EMERGENCY(message) setPodMode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
 
 // ------------------
 // Primary Braking Thresholds
@@ -114,6 +128,14 @@
 #define EBRAKE_ENGAGED_NOM_F 1000
 #define EBRAKE_ENGAGED_MAX_F 1500
 
+
+// ---------------------
+// Lateral Sensor Config
+// ---------------------
+#define LATERAL_MIN 5
+#define LATERAL_MAX 7
+
+
 // ---------------------
 // Logging Configuration
 // ---------------------
@@ -123,17 +145,16 @@
 #define LOG_SVR_NAME "pod-server.openloop.com"
 #define LOG_SVR_PORT 7778
 #define MAX_LOG_LINE 4096
+#define LOG_BUF_SIZE 40960
 
 // ---------------
 // Command Control
 // ---------------
 #define POD_CLI_VERSION "0.0.1-alpha"
-#define POD_COPY_YEAR "2016"
 #define CMD_SVR_PORT 7779
 #define CMD_MAX_ARGS 32
 
 #define POD_ETOOMANYCLIENTS_TXT "Too Many Clients are connected"
-
 
 // static buffer that is written to by each of the command functions
 #define CMD_OUT_BUF 4096

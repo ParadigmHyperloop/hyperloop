@@ -1,5 +1,10 @@
 #include "pod.h"
 
+char *pod_mode_names[N_POD_STATES] = {
+  "Boot", "Ready", "Pushing", "Coasting", "Braking", "Emergency", "Shutdown",
+  "(null)"
+};
+
 pod_state_t __state = {
   .mode = Boot,
   .initialized = false,
@@ -41,9 +46,11 @@ bool validPodMode(pod_mode_t current_state, pod_mode_t new_state) {
   int i = 0;
 
   while ((i_state = transitions[current_state][i]) != _nil) {
+    debug("Checking %d == %d", i_state, new_state);
     if (i_state == new_state) {
       return true;
     }
+    i++;
   }
 
   return false;
@@ -51,8 +58,7 @@ bool validPodMode(pod_mode_t current_state, pod_mode_t new_state) {
 
 void initializePodState(void) {
   pod_state_t * state = getPodState();
-  debug("initializing State");
-  debug("%p", state);
+  debug("initializing State at %p", state);
 
   pthread_rwlock_init(&(state->mode_mutex), NULL);
 
@@ -68,6 +74,10 @@ void initializePodState(void) {
   for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
     pthread_rwlock_init(&(state->wheel_solonoids[i].lock), NULL);
   }
+
+  //assert(sem_init(&(state->boot_sem), 0, 0) == 0);
+  state->boot_sem = sem_open("/openloop.pod.boot", O_CREAT, S_IRUSR | S_IWUSR, 0);
+  assert(state->boot_sem != SEM_FAILED);
 
   state->initialized = true;
 }
