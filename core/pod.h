@@ -131,7 +131,7 @@ int podLog(char * fmt, ...);
  *
  * @return Returns 0 in the event of a sucessful state change, -1 on error
  */
-int setPodMode(pod_mode_t new_state);
+int setPodMode(pod_mode_t new_state, char * reason);
 
 /**
  * @brief Get the mode of the pod's control algorithms.
