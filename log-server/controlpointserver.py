@@ -1,90 +1,108 @@
 #!/usr/bin/env python2.7
 import sys
-import socket
-import datetime
-import time
+import os
+from datetime import datetime
+import logging
+import SocketServer
+from influxdb import InfluxDBClient
+
+BASE_PATH = '.'
+INFLUX_HOST = 'localhost'
+INFLUX_PORT = 8086
+INFLUX_USER = 'root'
+INFLUX_PASS = 'root'
+INFLUX_NAME = 'example'
 
 
-def main():
-    # read input
-    args = sys.argv[:]
-    if (len(args) != 3 or not isPositiveInt(args[1])):
-        print("Usage: control-point.py <port> <directory>")
-        sys.exit(1)
+class LoggingHandler(SocketServer.StreamRequestHandler):
+    """
+    The request handler class for our server.
 
-    serverPort = args[1]
-    loggingPath = args[2]
-    if loggingPath[-1] != '/':
-        loggingPath = loggingPath + '/'
+    It is instantiated once per connection to the server, and must
+    override the handle() method to implement communication to the
+    client.
+    """
+    # def __init__(self, data_file, log_file):
+    #     self.data_file = data_file
+    #     self.log_file = log_file
+    #     SocketServer.StreamRequestHandler.__init__(self)
 
-    server(serverPort, loggingPath)
+    def handle(self):
+        startTime = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
+        log_fname = os.path.join(BASE_PATH, "logging" + startTime + ".csv")
+        data_fname = os.path.join(BASE_PATH, "data" + startTime + ".csv")
 
-def server(port, path):
-    # initialize
-    print("Starting server on port {}".format(port))
+        self.influx = InfluxDBClient(INFLUX_HOST, INFLUX_PORT, INFLUX_USER,
+                                     INFLUX_PASS, INFLUX_NAME)
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(("localhost", int(port)))
-    sock.listen(1)
+        self.influx.create_database(INFLUX_NAME)
 
-    while True:
-        print "Waiting for new connection"
-        connection, addr = sock.accept()
+        self.log_file = open(log_fname, 'w+')
+        self.data_file = open(data_fname, 'w+')
 
-        currentTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        loggingFile = open(path + "logging" + currentTime + ".csv", 'w+')
-        dataFile = open(path + "data" + currentTime + ".csv", 'w+')
-
-        # Process messages
-        currentBuffer = ""
+        # self.rfile is a file-like object created by the handler;
+        # we can now use e.g. readline() instead of raw recv() calls
         while True:
-            try:
-                # Message size arbitrary, adjust if needed.
-                rawMessage = connection.recv(1024)
-                nextBuffer = ""
 
-                if rawMessage is None or rawMessage == "":
-                    print "Null Message Recieved"
-                    break
+            self.data = self.rfile.readline()
 
-                print "Recieved Message: {}".format(rawMessage)
-                if rawMessage[-1] != "\n":
-                    nextBuffer = rawMessage[rawMessage.rfind("\n")+1:]
-                    rawMessage = rawMessage[:rawMessage.rfind("\n")+1]
+            # if disconnected, then break
+            if not self.data:
+                break
 
-                for message in rawMessage.splitlines():
-                    if len(currentBuffer) > 0:
-                        message = currentBuffer + message
-                        currentBuffer = ""
-                    print(message)
+            self.data = self.data.strip("\r\n ")
 
-                    if not validMessage(message):
-                        print "DROPPING MESSAGE: {}".format(message)
-                        continue
+            logging.debug("[DATA] {}".format(self.data))
 
-                    messageCode = int(message[3])
-                    if messageCode == 1:
-                        loggingFile.write(writeLine(message[4:].split("\n")))
-                    elif messageCode == 2:
-                        dataFile.write(writeLine(message[4:].split(" ")))
-                currentBuffer = nextBuffer
-            except KeyboardInterrupt:
-                loggingFile.close()
-                dataFile.close()
-                print("Server closing")
-                exit()
+            response = None
 
-        loggingFile.close()
-        dataFile.close()
+            if self.valid(self.data):
+                pkt_type = int(self.data[3])
+                if pkt_type == 1:
+                    response = self.handle_log(self.data[4:])
+                elif pkt_type == 2:
+                    response = self.handle_data(self.data[4:])
+            else:
+                logging.warn("[DROP] '{}'".format(self.data))
 
-    sock.close()
+            # Likewise, self.wfile is a file-like object used to write back
+            # to the client
+            if response is None:
+                self.wfile.write("FAIL: " + self.data + "\n")
+            else:
+                self.wfile.write(response + "\n")
 
-    return 0
+    def handle_data(self, msg):
+        logging.info("[DATA] {}".format(msg))
+        self.data_file.write(makeLine(msg))
+        (name, value) = msg.split(' ', 1)
 
+        value = float(value)
 
-def validMessage(s):
-    return len(s) >= 4 and s[0:3] == "POD" and isPositiveInt(s[3])
+        measurement = [
+            {
+                "measurement": name,
+                "tags": {},
+                "time":  datetime.utcnow().isoformat() + "Z",
+                "fields": {
+                    "value": value
+                }
+            }
+        ]
+
+        self.influx.write_points(measurement)
+
+        return "OK: ({},{})".format(name, value)
+
+    def handle_log(self, msg):
+        logging.info("[LOG] {}".format(msg))
+        self.log_file.write(makeLine(msg))
+
+        return "OK: LOGGED"
+
+    def valid(self, s):
+        return len(s) >= 4 and s[0:3] == "POD" and isPositiveInt(s[3])
 
 
 def isPositiveInt(s):
@@ -94,12 +112,27 @@ def isPositiveInt(s):
         return False
 
 
-def writeLine(strings):
-    lineToWrite = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    for string in strings:
-        lineToWrite = lineToWrite + "," + string.replace(",", "\,")
-    return lineToWrite + "\n"
+def makeLine(msg):
+    """Takes a message and prepends a timestamp to it for logging"""
+    lineToWrite = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return lineToWrite + msg + "\n"
 
+
+def main():
+    args = sys.argv[:]
+    if (len(args) != 3 or not isPositiveInt(args[1])):
+        print("Usage: control-point.py <port> <directory>")
+        sys.exit(1)
+
+    port = args[1]
+    path = args[2]
+    if path[-1] != '/':
+        path = path + '/'
+
+    print("Starting TCP Server on 0.0.0.0:{}".format(port))
+    server = SocketServer.TCPServer(("0.0.0.0", int(port)), LoggingHandler)
+
+    server.serve_forever()
 
 if "__main__" == __name__:
     main()
