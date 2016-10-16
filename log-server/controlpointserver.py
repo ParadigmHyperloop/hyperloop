@@ -123,7 +123,7 @@ if "__main__" == __name__:
     parser.add_argument("-p", "--port", type=int, default=7778,
                         help="Server listen port")
 
-    parser.add_argument("-d", "--directory",
+    parser.add_argument("-d", "--directory", default=BASE_PATH,
                         help="directory to store raw log and data files in")
 
     # Influx arguments
