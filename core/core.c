@@ -6,9 +6,9 @@ int lateralRead(pod_state_t *state);
 int heightRead(pod_state_t *state);
 int brakingRead(pod_state_t *state);
 
-int32_t maximumSafeForwardVelocity = 25;    // TODO: CHANGE ME! ARBITRARY!
-int32_t standardDistanceBeforeBraking = 75; // TODO: CHANGE ME! ARBITRARY!
-int32_t maximumSafeDistanceBeforeBraking = 125;
+float maximumSafeForwardVelocity = 25.0;    // TODO: CHANGE ME! ARBITRARY!
+float standardDistanceBeforeBraking = 75.0; // TODO: CHANGE ME! ARBITRARY!
+float maximumSafeDistanceBeforeBraking = 125.0;
 
 /**
  * Checks to be performed when the pod's state is Boot
@@ -26,7 +26,7 @@ void bootChecks(pod_state_t *state) {
  * Checks to be performed when the pod's state is Boot
  */
 void readyChecks(pod_state_t *state) {
-  if (getPodField_f(&(state->accel_x)) > 0.0) {
+  if (getPodField_f(&(state->accel_x)) > PUSHING_MIN_ACCEL) {
     setPodMode(Pushing, "Detecting Positive Acceleration");
   }
 }
@@ -45,11 +45,11 @@ void emergencyChecks(pod_state_t *state) {
  * Checks to be performed when the pod's state is Pushing
  */
 void pushingChecks(pod_state_t *state) {
-  if (getPodField(&(state->position_x)) > maximumSafeDistanceBeforeBraking) {
+  if (getPodField_f(&(state->position_x)) > maximumSafeDistanceBeforeBraking) {
     setPodMode(Emergency, "Pod Position is > max travel before braking");
-  } else if (getPodField(&(state->velocity_x)) > maximumSafeForwardVelocity) {
+  } else if (getPodField_f(&(state->velocity_x)) > maximumSafeForwardVelocity) {
     setPodMode(Emergency, "Pod is going too fast");
-  } else if (getPodField_f(&(state->accel_x)) <= 0.0) {
+  } else if (getPodField_f(&(state->accel_x)) <= COASTING_MIN_ACCEL_TRIGGER) {
     setPodMode(Coasting, "Pod has negative acceleration in the X dir");
   }
 }
@@ -58,10 +58,10 @@ void pushingChecks(pod_state_t *state) {
  * Checks to be performed when the pod's state is Coasting
  */
 void coastingChecks(pod_state_t *state) {
-  if (getPodField(&(state->position_x)) > maximumSafeDistanceBeforeBraking ||
-      getPodField(&(state->velocity_x)) > maximumSafeForwardVelocity) {
+  if (getPodField_f(&(state->position_x)) > maximumSafeDistanceBeforeBraking ||
+      getPodField_f(&(state->velocity_x)) > maximumSafeForwardVelocity) {
     setPodMode(Emergency, "Pod has travelled too far");
-  } else if (getPodField(&(state->position_x)) >
+  } else if (getPodField_f(&(state->position_x)) >
              standardDistanceBeforeBraking) {
     setPodMode(Braking, "Pod has entered braking range of travel");
   }
@@ -71,13 +71,19 @@ void coastingChecks(pod_state_t *state) {
  * Checks to be performed when the pod's state is Braking
  */
 void brakingChecks(pod_state_t *state) {
-  // TODO: PRIMARY_BRAKING_ACCEL_X_MIN is a negative number (-10 m/s/s)
-  //       PRIMARY_BRAKING_ACCEL_X_MAX is a "bigger" negative number (-20 m/s/s)
-  if (outside(PRIMARY_BRAKING_ACCEL_X_MIN, getPodField_f(&(state->accel_x)),
-              PRIMARY_BRAKING_ACCEL_X_MAX)) {
-    setPodMode(Emergency, "Pod acceleration is NOT nominal");
-  } else if (podIsStopped(state)) {
-    setPodMode(Shutdown, "Pod has stopped");
+  // TODO: This is an issue, Engineers need the look at this
+  //       Do Not Ship without this baking algorithm reviewed
+  if (PRIMARY_BRAKING_ACCEL_X_MAX > getPodField_f(&(state->accel_x))) {
+    setPodMode(Emergency, "Pod decelleration is too high");
+  } else if (PRIMARY_BRAKING_ACCEL_X_MIN < getPodField_f(&(state->accel_x))) {
+    float ax = getPodField_f(&(state->accel_x));
+    float vx = getPodField_f(&(state->velocity_x));
+
+    if (podIsStopped(state)) {
+      setPodMode(Shutdown, "Pod has stopped");
+    } else if (ax > -vx) { // TODO: this calculation is BS.
+      setPodMode(Emergency, "Pod decelleration is too low");
+    }
   }
 }
 
@@ -202,6 +208,10 @@ void *coreMain(void *arg) {
     heightCheck(state);
     lateralCheck(state);
 
+    if (getPodField_f(&(state->velocity_x)) < -V_ERR_X) {
+      setPodMode(Emergency, "Pod rolling backward");
+    }
+
     // Mode Specific Checks
     switch (getPodMode()) {
     case Boot:
@@ -231,6 +241,11 @@ void *coreMain(void *arg) {
 
     adjustSkates(state);
     adjustBrakes(state);
+
+    // -------------------------------------------
+    // SECTION: Telemetry collection
+    // -------------------------------------------
+    logDump(state);
 
     // --------------------------------------------
     // Yield to other threads

@@ -46,12 +46,12 @@
 #define LOOP_DURATION 1000;
 
 // Error Thresholds
-#define A_ERR_X 1
-#define A_ERR_Y 1
-#define A_ERR_Z 1
-#define V_ERR_X 1
-#define V_ERR_Y 1
-#define V_ERR_Z 1
+#define A_ERR_X 0.02
+#define A_ERR_Y 0.02
+#define A_ERR_Z 0.02
+#define V_ERR_X 0.02
+#define V_ERR_Y 0.02
+#define V_ERR_Z 0.02
 
 // Signals
 #define POD_SIGPANIC SIGUSR2
@@ -78,8 +78,8 @@
 // --------------------------------------------------------------------------
 // Each thread is a loop, how long should the thread sleep for each iteration
 // --------------------------------------------------------------------------
-#define CORE_THREAD_SLEEP 5000000
-#define LOGGING_THREAD_SLEEP 5000000
+#define CORE_THREAD_SLEEP 5000
+#define LOGGING_THREAD_SLEEP 500000
 
 // --------------
 // Debug Printing
@@ -128,6 +128,17 @@
 #define EBRAKE_ENGAGED_MIN_F 800
 #define EBRAKE_ENGAGED_NOM_F 1000
 #define EBRAKE_ENGAGED_MAX_F 1500
+
+//----------------------
+// Pushing Thresholds
+//----------------------
+
+// If the accell drops to below this value, the pod will change to Coasting
+// This value should indicate when the pusher has fully detached
+#define PUSHING_MIN_ACCEL 0.2
+// If the accell drops to below this value, the pod will change to Coasting
+// This value should indicate when the pusher has fully detached
+#define COASTING_MIN_ACCEL_TRIGGER -0.1
 
 
 // ---------------------

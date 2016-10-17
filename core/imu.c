@@ -58,28 +58,75 @@ bool atHeader() {
   }
 }
 
+
+extern pod_state_t __state;
+
 int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
 #ifdef TESTING
-  static uint64_t i = 0;
-  int32_t ax = 1.0; // 1 m/s/s
 
-  if (t > 60ULL * 1000ULL * 1000ULL) {
-    ax = -1.0;
+  // Lets have a chat together... this testing simulator... is terrible...
+  // It does not follow the laws of physics to the nail, but it is something
+  // that excersises the system with minimal impact on the __state.
+  // So... I recognize that this is terrible. I will fix it into a proper sim
+  // when there is time
+
+  #define NOISE (float)(rand() - RAND_MAX/2)/(RAND_MAX*100.0)
+  static float base_ax = 0.0; // NOTE: preserved accross calls
+  static uint64_t pushing = 0;
+  static uint64_t coasting = 0;
+  static bool moving = false;
+  float vx = __state.velocity_x.value.fl;
+  // If ready, start pushing at some random time
+  if (getPodMode() == Ready) {
+    if (rand() % 7 == 0) {
+      base_ax = 2.0;
+      pushing = t; // Turn on the pusher for future calls
+    }
+  } else if (pushing > 0) {
+    moving = true;
+    base_ax = 2.0;
+
+    uint64_t q = t - pushing; // The time period after pusher has started to back off
+    debug("[SIM] PUSHER IS ON => usecs: %llu\n", q);
+    if (q > 5 * 1000 * 1000) { // After 5 seconds of pushing
+      base_ax = 6.0 - ((float)q / (1000.0 * 1000.0));
+      if (q > 6 * 1000 * 1000) {
+        pushing = 0; // Turn off the pusher after 6 seconds of pushing
+        coasting = t; // Turn off the pusher after 6 seconds of pushing
+      }
+    }
+  } else if (coasting) { // or braking
+    base_ax = -1.0;
   }
 
-  printf("%llu\n", i);
-  i++;
-  switch ((i << 4) & 0x1) {
-  case 0:
-    *gram = (imu_datagram_t){
-        .x = ax, .y = 8.0, .z = 0.0, .wx = 0.0, .wy = 0.0, .wz = 0.0};
-    return 0;
-  case 1:
-  default:
-    *gram = (imu_datagram_t){
-        .x = ax, .y = -8.0, .z = 0.0, .wx = 0.0, .wy = 0.0, .wz = 0.0};
-    return 0;
+  float ax = base_ax;
+  if (__state.tmp_brakes == 1 && moving) {
+    debug("Brakes applied");
+    ax -= 7.0;
+
+    if (vx < -2*ax) {
+      ax = -(vx/2.0);
+    }
+    if (vx < 0) {
+      error("[SIM] NEGATIVE VELOCITY");
+    }
   }
+
+
+
+
+  ax += NOISE;
+  debug("[SIM] Giving => x: %f, y: **, z: **, wx: **, wy: **, wz: **,\n", ax);
+  *gram = (imu_datagram_t){
+    .x = ax,
+    .y = NOISE,
+    .z = NOISE,
+    .wx = NOISE,
+    .wy = NOISE,
+    .wz = NOISE
+  };
+  return 0;
+
 #else
 
   retries = 0;
@@ -156,11 +203,41 @@ int imuConnect() {
 
   return imuFd;
 }
+
+int calcState(pod_value_t * a,
+              pod_value_t * v,
+              pod_value_t * x,
+              float new_accel,
+              double dt) {
+
+  float acceleration = getPodField_f(a);
+  float velocity = getPodField_f(v);
+  float position = getPodField_f(x);
+
+  // Calculate the new_velocity (oldv + (olda + newa) / 2)
+
+  // float dv = calcDu(dt, acceleration, new_accel);
+  float dv = ((dt * ((acceleration + new_accel) / 2)) / 1000000.0);
+  float new_velocity = (velocity + dv);
+
+  // float dx = calcDu(dt, velocity, new_velocity);
+  float dx = ((dt * ((velocity + new_velocity) / 2)) / 1000000.0);
+  float new_position = (position + dx);
+
+  debug("dt: %lf us, dv: %f m/s, dx: %f m\n", dt, dv, dx);
+
+  setPodField_f(a, new_accel);
+  setPodField_f(v, new_velocity);
+  setPodField_f(x, new_position);
+
+  return 0;
+}
+
 /**
  * Reads data from the IMU, computes the new Acceleration, Velocity, and
  * Position state values
  */
-int imuRead(pod_state_t *state) {
+int imuRead(pod_state_t *p) {
 
   static uint64_t start_time = 0;
   static uint64_t lastCheckTime = 0;
@@ -169,46 +246,30 @@ int imuRead(pod_state_t *state) {
   if (start_time == 0) {
     lastCheckTime = getTime();
     start_time = getTime();
+    usleep(1);
   }
 
   uint64_t currentCheckTime = getTime(); // Same as above, assume milliseconds
 
-  imu_datagram_t imu_reading;
+  imu_datagram_t data;
 
-  if (readIMUDatagram(currentCheckTime - start_time, &imu_reading) < 0) {
+  if (readIMUDatagram(currentCheckTime - start_time, &data) < 0) {
     return -1;
   }
 
   assert((currentCheckTime - lastCheckTime) < INT32_MAX);
 
-  double t_usec = (double)(currentCheckTime - lastCheckTime);
+  double dt = (double)(currentCheckTime - lastCheckTime);
   lastCheckTime = currentCheckTime;
 
-  if (t_usec <= 0.0) {
+  if (dt <= 0.0) {
     error("time scince last check <= 0.0, this should not happen");
     return -1;
   }
 
-  float position = getPodField_f(&(state->position_x));
-  float velocity = getPodField_f(&(state->velocity_x));
-  float acceleration = getPodField_f(&(state->accel_x));
-
-  // Calculate the new_velocity (oldv + (olda + newa) / 2)
-
-  float dv = ((t_usec * ((acceleration + imu_reading.x) / 1000000.0)));
-
-  float new_velocity = (velocity + dv);
-
-  float dx = ((t_usec * ((velocity + new_velocity) / 2)) / 1000000.0);
-  float new_position = (position + dx);
-
-  debug("dt: %lf us, dv: %f m/s, dx: %f m\n", t_usec, dv, dx);
-
-  setPodField_f(&(state->position_x), new_position);
-  setPodField_f(&(state->velocity_x), new_velocity);
-  setPodField_f(&(state->accel_x), imu_reading.x);
-
-  logDump(state);
+  calcState(&(p->accel_x), &(p->velocity_x), &(p->position_x), data.x, dt);
+  calcState(&(p->accel_y), &(p->velocity_y), &(p->position_y), data.y, dt);
+  calcState(&(p->accel_z), &(p->velocity_z), &(p->position_z), data.z, dt);
 
   return 0;
 }

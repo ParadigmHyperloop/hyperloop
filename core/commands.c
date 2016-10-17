@@ -64,13 +64,13 @@ int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   return snprintf(&outbuf[0], outbufc, "=== STATUS REPORT ===\n"
                                        "Mode:\t%d\n"
                                        "Ready:\t%d\n"
-                                       "Ax:\t%d\n"
-                                       "Vx:\t%d\n"
-                                       "Px:\t%d\n",
+                                       "Ax:\t%f\n"
+                                       "Vx:\t%f\n"
+                                       "Px:\t%f\n",
                   getPodMode(), getPodField(&(state->ready)),
-                  getPodField(&(state->accel_x)),
-                  getPodField(&(state->velocity_x)),
-                  getPodField(&(state->position_x)));
+                  getPodField_f(&(state->accel_x)),
+                  getPodField_f(&(state->velocity_x)),
+                  getPodField_f(&(state->position_x)));
 }
 
 int brakeCommand(int argc, char *argv[], int outbufc, char outbuf[]) {

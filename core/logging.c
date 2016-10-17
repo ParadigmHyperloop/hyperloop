@@ -212,18 +212,23 @@ void logDump(pod_state_t *state) {
   debug("mode: %s, ready: %d", pod_mode_names[getPodMode()],
         getPodField(&(state->ready)));
 
-  // TODO: Use the freaking Mutexes
-  debug("acl mm/s/s: x: %f, y: %f, z: %f", getPodField_f(&(state->accel_x)),
-        getPodField_f(&(state->accel_y)), getPodField_f(&(state->accel_z)));
+  debug("acl m/s/s: x: %f, y: %f, z: %f",
+        getPodField_f(&(state->accel_x)),
+        getPodField_f(&(state->accel_y)),
+        getPodField_f(&(state->accel_z)));
 
-  debug("vel mm/s  : x: %f, y: %f, z: %f", getPodField_f(&(state->velocity_x)),
-        getPodField_f(&(state->velocity_y)), getPodField_f(&(state->velocity_z)));
+  debug("vel m/s  : x: %f, y: %f, z: %f",
+        getPodField_f(&(state->velocity_x)),
+        getPodField_f(&(state->velocity_y)),
+        getPodField_f(&(state->velocity_z)));
 
-  debug("pos mm    : x: %f, y: %f, z: %f", getPodField_f(&(state->position_x)),
-        getPodField_f(&(state->velocity_y)), getPodField_f(&(state->velocity_z)));
+  debug("pos m    : x: %f, y: %f, z: %f",
+        getPodField_f(&(state->position_x)),
+        getPodField_f(&(state->position_y)),
+        getPodField_f(&(state->position_z)));
 
-  debug("skates    : %d", state->tmp_skates);
-  debug("brakes    : %d", state->tmp_skates);
+  debug("skates   : %d", state->tmp_skates);
+  debug("brakes   : %d", state->tmp_brakes);
 }
 
 void *loggingMain(void *arg) {
