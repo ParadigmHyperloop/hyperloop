@@ -31,27 +31,67 @@ typedef struct {
 //   0x00, 0x01 // temperature bits (UInt16)
 // };
 
-imu_datagram_t readIMUDatagram(uint64_t t) {
+bool atHeader() {
+  unsigned char firstByte[1] = {0};
+  // TODO: Remove these asserts and log errors instead, Definitely when
+  // O_NONBLOCK is used
+  assert(read(imuFd, firstByte, 1) == 1);
+
+  debug("IMU First Byte%x\n", *firstByte);
+
+  if (*firstByte == 0xFE) {
+    unsigned char restOfHeader[3] = {0};
+    assert(read(imuFd, restOfHeader, 3) == 3);
+
+    unsigned char ideal[3] = {0x81, 0xFF, 0x55};
+
+    int i;
+    for (i = 0; i < 3; i++) {
+      printf("%x\n", restOfHeader[i]);
+      if (restOfHeader[i] != ideal[i]) {
+        return false;
+      }
+    }
+    return true;
+  } else {
+    return false;
+  }
+}
+
+int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
 #ifdef TESTING
   static uint64_t i = 0;
-  int32_t ax = 1000L; // 1 m/s/s
+  int32_t ax = 1.0; // 1 m/s/s
 
   if (t > 60ULL * 1000ULL * 1000ULL) {
-    ax = -100;
+    ax = -1.0;
   }
 
   printf("%llu\n", i);
   i++;
   switch ((i << 4) & 0x1) {
   case 0:
-    return (imu_datagram_t){
-        .x = ax, .y = 8L, .z = 0L, .wx = 0L, .wy = 0L, .wz = 0L};
+    *gram = (imu_datagram_t){
+        .x = ax, .y = 8.0, .z = 0.0, .wx = 0.0, .wy = 0.0, .wz = 0.0};
+    return 0;
   case 1:
   default:
-    return (imu_datagram_t)(imu_datagram_t){
-        .x = ax, .y = -8L, .z = 0L, .wx = 0L, .wy = 0L, .wz = 0L};
+    *gram = (imu_datagram_t){
+        .x = ax, .y = -8.0, .z = 0.0, .wx = 0.0, .wy = 0.0, .wz = 0.0};
+    return 0;
   }
 #else
+
+  retries = 0;
+  bool at_header = false;
+  while (!(at_header = atHeader()) && retries < 33)
+    retries++;
+
+  if (!at_header) {
+    error("Could not find an IMU data header");
+    return -1;
+  }
+
   char buf[32];
 
   int count = 0;
@@ -71,19 +111,17 @@ imu_datagram_t readIMUDatagram(uint64_t t) {
 
   assert(count == 32);
 
-  imu_datagram_t gram = {
-      .header = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24),
-      .wx = buf[4] | (buf[5] << 8) | (buf[6] << 16) | (buf[7] << 24),
-      .wy = buf[8] | (buf[9] << 8) | (buf[10] << 16) | (buf[11] << 24),
-      .wz = buf[12] | (buf[13] << 8) | (buf[14] << 16) | (buf[15] << 24),
-      .x = buf[16] | (buf[17] << 8) | (buf[18] << 16) | (buf[19] << 24),
-      .y = buf[20] | (buf[21] << 8) | (buf[22] << 16) | (buf[23] << 24),
-      .z = buf[24] | (buf[25] << 8) | (buf[26] << 16) | (buf[27] << 24),
-      .status = buf[28],
-      .sequence = buf[29],
-      .temperature = buf[30] | (buf[31] << 8)};
-
-  return gram;
+  *gram = {.header = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24),
+           .wx = buf[4] | (buf[5] << 8) | (buf[6] << 16) | (buf[7] << 24),
+           .wy = buf[8] | (buf[9] << 8) | (buf[10] << 16) | (buf[11] << 24),
+           .wz = buf[12] | (buf[13] << 8) | (buf[14] << 16) | (buf[15] << 24),
+           .x = buf[16] | (buf[17] << 8) | (buf[18] << 16) | (buf[19] << 24),
+           .y = buf[20] | (buf[21] << 8) | (buf[22] << 16) | (buf[23] << 24),
+           .z = buf[24] | (buf[25] << 8) | (buf[26] << 16) | (buf[27] << 24),
+           .status = buf[28],
+           .sequence = buf[29],
+           .temperature = buf[30] | (buf[31] << 8)};
+  return 0;
 #endif
 }
 
@@ -133,35 +171,42 @@ int imuRead(pod_state_t *state) {
     start_time = getTime();
   }
 
-  debug("[imuMain] Thread Start");
-
   uint64_t currentCheckTime = getTime(); // Same as above, assume milliseconds
-  // if (currentCheckTime - start_time > 9000000ULL) { sleep(120); exit(121); }
-  imu_datagram_t imu_reading = readIMUDatagram(currentCheckTime - start_time);
+
+  imu_datagram_t imu_reading;
+
+  if (readIMUDatagram(currentCheckTime - start_time, &imu_reading) < 0) {
+    return -1;
+  }
 
   assert((currentCheckTime - lastCheckTime) < INT32_MAX);
 
-  int32_t t_usec = (int32_t)(currentCheckTime - lastCheckTime);
+  double t_usec = (double)(currentCheckTime - lastCheckTime);
   lastCheckTime = currentCheckTime;
 
-  int32_t position = getPodField(&(state->position_x));
-  int32_t velocity = getPodField(&(state->velocity_x));
-  int32_t acceleration = getPodField(&(state->accel_x));
+  if (t_usec <= 0.0) {
+    error("time scince last check <= 0.0, this should not happen");
+    return -1;
+  }
+
+  float position = getPodField_f(&(state->position_x));
+  float velocity = getPodField_f(&(state->velocity_x));
+  float acceleration = getPodField_f(&(state->accel_x));
 
   // Calculate the new_velocity (oldv + (olda + newa) / 2)
 
-  int32_t dv = ((t_usec * ((acceleration + imu_reading.x) / 2)) / 1000000LL);
+  float dv = ((t_usec * ((acceleration + imu_reading.x) / 1000000.0)));
 
-  printf("%d\n", dv);
-  assertUInt32Addition(velocity, dv);
-  int32_t new_velocity = (velocity + dv);
+  float new_velocity = (velocity + dv);
 
-  int32_t dx = ((t_usec * ((velocity + new_velocity) / 2)) / 1000000LL);
-  int32_t new_position = (position + dx);
+  float dx = ((t_usec * ((velocity + new_velocity) / 2)) / 1000000.0);
+  float new_position = (position + dx);
 
-  setPodField(&(state->position_x), new_position);
-  setPodField(&(state->velocity_x), new_velocity);
-  setPodField(&(state->accel_x), imu_reading.x);
+  debug("dt: %lf us, dv: %f m/s, dx: %f m\n", t_usec, dv, dx);
+
+  setPodField_f(&(state->position_x), new_position);
+  setPodField_f(&(state->velocity_x), new_velocity);
+  setPodField_f(&(state->accel_x), imu_reading.x);
 
   logDump(state);
 

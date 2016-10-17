@@ -213,14 +213,14 @@ void logDump(pod_state_t *state) {
         getPodField(&(state->ready)));
 
   // TODO: Use the freaking Mutexes
-  debug("acl mm/s/s: x: %d, y: %d, z: %d", getPodField(&(state->accel_x)),
-        getPodField(&(state->accel_y)), getPodField(&(state->accel_z)));
+  debug("acl mm/s/s: x: %f, y: %f, z: %f", getPodField_f(&(state->accel_x)),
+        getPodField_f(&(state->accel_y)), getPodField_f(&(state->accel_z)));
 
-  debug("vel mm/s  : x: %d, y: %d, z: %d", getPodField(&(state->velocity_x)),
-        getPodField(&(state->velocity_y)), getPodField(&(state->velocity_z)));
+  debug("vel mm/s  : x: %f, y: %f, z: %f", getPodField_f(&(state->velocity_x)),
+        getPodField_f(&(state->velocity_y)), getPodField_f(&(state->velocity_z)));
 
-  debug("pos mm    : x: %d, y: %d, z: %d", getPodField(&(state->position_x)),
-        getPodField(&(state->velocity_y)), getPodField(&(state->velocity_z)));
+  debug("pos mm    : x: %f, y: %f, z: %f", getPodField_f(&(state->position_x)),
+        getPodField_f(&(state->velocity_y)), getPodField_f(&(state->velocity_z)));
 
   debug("skates    : %d", state->tmp_skates);
   debug("brakes    : %d", state->tmp_skates);

@@ -291,9 +291,10 @@ int commandServer() {
     // Existing Clients
     for (i = 0; i < nclients; i++) {
       if (FD_ISSET(clients[i], &read_fd_set)) {
-        debug("Recv new command from existing client fd(%d)", clients[i]);
+        debug("Recv new command from existing client (fd %d)", clients[i]);
         if (processRequest(clients[i], clients[i]) < 0) {
           // remove the client
+          setPodMode(Emergency, "Operator Client %d (fd %d) disconnected", i, clients[i]);
           close(clients[i]);
           int j;
           for (j = i + 1; j < nclients; j++) {
