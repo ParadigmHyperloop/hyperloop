@@ -1,4 +1,4 @@
-main
+core/core
 /pod
 *.o
 *.dSYM

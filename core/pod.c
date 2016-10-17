@@ -28,7 +28,7 @@ pod_state_t __state = {
  *
  * @return whether the new mode is valid knowing the gPodState
  */
-bool validPodMode(pod_mode_t current_state, pod_mode_t new_state) {
+bool validPodMode(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
       {Boot, Ready, Emergency, Shutdown, _nil},      // 0: Boot
       {Ready, Pushing, Emergency, _nil},             // 1: Ready
@@ -40,14 +40,14 @@ bool validPodMode(pod_mode_t current_state, pod_mode_t new_state) {
   };
 
   // Ensure that the pod's current state can always transition to itself
-  assert(transitions[current_state][0] == current_state);
+  assert(transitions[current_mode][0] == current_mode);
 
   pod_mode_t i_state;
   int i = 0;
 
-  while ((i_state = transitions[current_state][i]) != _nil) {
-    debug("Checking %d == %d", i_state, new_state);
-    if (i_state == new_state) {
+  while ((i_state = transitions[current_mode][i]) != _nil) {
+    // debug("Checking %s == %s", pod_mode_names[i_state], pod_mode_names[new_mode]);
+    if (i_state == new_mode) {
       return true;
     }
     i++;
@@ -112,18 +112,22 @@ int setPodMode(pod_mode_t new_mode, char *reason, ...) {
   va_start(arg, reason);
   vsnprintf(&msg[0], MAX_LOG_LINE, reason, arg);
   va_end(arg);
+  pod_state_t * state = getPodState();
+  pod_mode_t old_mode = getPodMode();
 
-  warn("Pod Mode Transition %d => %d. reason: %s",
-       pod_mode_names[getPodState()->mode], pod_mode_names[new_mode], msg);
+  warn("Pod Mode Transition %s => %s. reason: %s",
+       pod_mode_names[old_mode], pod_mode_names[new_mode], msg);
 
-  if (validPodMode(getPodState()->mode, new_mode)) {
+  if (validPodMode(old_mode, new_mode)) {
+    pthread_rwlock_wrlock(&(state->mode_mutex));
     getPodState()->mode = new_mode;
-    warn("Request to set mode from %d to %d: approved",
-         pod_mode_names[getPodState()->mode], pod_mode_names[new_mode]);
+    pthread_rwlock_unlock(&(state->mode_mutex));
+    warn("Request to set mode from %s to %s: approved",
+         pod_mode_names[old_mode], pod_mode_names[new_mode]);
     return 0;
   } else {
-    warn("Request to set mode from %d to %d: denied",
-         pod_mode_names[getPodState()->mode], pod_mode_names[new_mode]);
+    warn("Request to set mode from %s to %s: denied",
+         pod_mode_names[old_mode], pod_mode_names[new_mode]);
     return -1;
   }
 }
@@ -146,7 +150,7 @@ int32_t getPodField(pod_value_t *pod_field) {
 
 float getPodField_f(pod_value_t *pod_field) {
   pthread_rwlock_rdlock(&(pod_field->lock));
-  int32_t value = pod_field->value.fl;
+  float value = pod_field->value.fl;
   pthread_rwlock_unlock(&(pod_field->lock));
   return value;
 }
