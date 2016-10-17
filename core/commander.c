@@ -51,8 +51,9 @@ int startTCPCommandServer(int portno) {
 
   int option = 1;
   setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+#ifdef SO_REUSEPORT
   setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &option, sizeof(option));
-
+#endif
   /*---Initialize address/port structure---*/
   bzero(&self, sizeof(self));
   self.sin_family = AF_INET;
