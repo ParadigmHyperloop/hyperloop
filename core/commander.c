@@ -28,6 +28,10 @@ extern command_t commands[];
 static char cmdbuffer[CMD_OUT_BUF];
 
 bool first_client = true;
+int serverfd;
+int clients[MAX_CMD_CLIENTS];
+int nclients = 0;
+
 
 // Much of this code is based on this UTAH tcpserver example, thanks!
 // https://www.cs.utah.edu/~swalton/listings/sockets/programs/part2/chap6/simple-server.c
@@ -45,6 +49,11 @@ int startTCPCommandServer(int portno) {
     return -1;
   }
 
+  int option = 1;
+  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+#ifdef SO_REUSEPORT
+  setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &option, sizeof(option));
+#endif
   /*---Initialize address/port structure---*/
   bzero(&self, sizeof(self));
   self.sin_family = AF_INET;
@@ -62,9 +71,6 @@ int startTCPCommandServer(int portno) {
     error("Command Server listen() %s", strerror(errno));
     return -1;
   }
-
-  int option = 1;
-  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 
   return sockfd;
 }
@@ -222,7 +228,7 @@ int commandServer() {
   // being cleared or capped with a null terminator
 
   debug("Starting TCP Network Command Server");
-  int serverfd = startTCPCommandServer(CMD_SVR_PORT);
+  serverfd = startTCPCommandServer(CMD_SVR_PORT);
 
   if (serverfd < 0) {
     return -1;
@@ -230,8 +236,6 @@ int commandServer() {
 
   note("TCP Network Command Server Started on port: %d", CMD_SVR_PORT);
 
-  int clients[MAX_CMD_CLIENTS];
-  int nclients = 0;
 
   fd_set active_fd_set, read_fd_set;
 
@@ -291,9 +295,10 @@ int commandServer() {
     // Existing Clients
     for (i = 0; i < nclients; i++) {
       if (FD_ISSET(clients[i], &read_fd_set)) {
-        debug("Recv new command from existing client fd(%d)", clients[i]);
+        debug("Recv new command from existing client (fd %d)", clients[i]);
         if (processRequest(clients[i], clients[i]) < 0) {
           // remove the client
+          setPodMode(Emergency, "Operator Client %d (fd %d) disconnected", i, clients[i]);
           close(clients[i]);
           int j;
           for (j = i + 1; j < nclients; j++) {
@@ -324,11 +329,10 @@ void *commandMain(void *arg) {
   if (retval < 0) {
     switch (getPodMode()) {
     case Boot:
-      setPodMode(Shutdown, "Command Server Failed to start in Boot Stage");
+      setPodMode(Shutdown, "Command Server Failed in Boot Stage");
       break;
     default:
-      setPodMode(Emergency,
-                 "Command Server Failed to start in Post-Boot Stage");
+      setPodMode(Emergency, "Command Server Failed");
     }
     if (first_client) {
       sem_post(getPodState()->boot_sem);

@@ -20,12 +20,15 @@ typedef enum {
 } pod_mode_t;
 
 typedef struct pod_value {
-  int32_t value; // TODO: either make this a union or more structs
+  union {
+    int32_t int32;
+    float fl;
+  } value;
   pthread_rwlock_t lock;
 } pod_value_t;
 
-#define POD_VALUE_INITIALIZER                                                  \
-  { 0, PTHREAD_RWLOCK_INITIALIZER }
+#define POD_VALUE_INITIALIZER_FL { { .fl = 0.0 } , PTHREAD_RWLOCK_INITIALIZER }
+#define POD_VALUE_INITIALIZER_INT32 { { .int32 = 0 } , PTHREAD_RWLOCK_INITIALIZER }
 
 /**
  * Defines the master state of the pod
@@ -85,6 +88,9 @@ typedef struct pod_state {
   int tmp_brakes;
 
   sem_t *boot_sem;
+
+
+  uint64_t start;
   bool initialized;
 } pod_state_t;
 
@@ -125,7 +131,7 @@ int podLog(char *fmt, ...);
  *
  * @return Returns 0 in the event of a sucessful state change, -1 on error
  */
-int setPodMode(pod_mode_t new_state, char *reason);
+int setPodMode(pod_mode_t new_state, char *reason, ...);
 
 /**
  * @brief Get the mode of the pod's control algorithms.
@@ -155,17 +161,20 @@ pod_state_t *getPodState(void);
 /**
  * Intiializes the pod's pod_state_t returned by getPodState()
  */
-void initializePodState(void);
+int initializePodState(void);
 
 /**
  * Helper method to read value from pod_state
  */
 int32_t getPodField(pod_value_t *pod_field);
+float getPodField_f(pod_value_t *pod_field);
+
 
 /**
  * Helper method to change a value from pod_state
  */
 void setPodField(pod_value_t *pod_field, int32_t newValue);
+void setPodField_f(pod_value_t *pod_field, float newValue);
 
 /**
  * Get the current time of the pod in microseconds

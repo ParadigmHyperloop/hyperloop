@@ -37,10 +37,10 @@ bool primaryBrakesEngaged(pod_state_t *state) {
  * readings
  */
 bool podIsStopped(pod_state_t *state) {
-  return within(-A_ERR_X, getPodField(&(state->accel_x)), A_ERR_X) &&
-         within(-A_ERR_Y, getPodField(&(state->accel_y)), A_ERR_Y) &&
-         within(-A_ERR_Z, getPodField(&(state->accel_z)), A_ERR_Z) &&
-         within(-V_ERR_X, getPodField(&(state->velocity_x)), V_ERR_X) &&
-         within(-V_ERR_Y, getPodField(&(state->velocity_y)), V_ERR_Y) &&
-         within(-V_ERR_Z, getPodField(&(state->velocity_z)), V_ERR_Z);
+  return within(-A_ERR_X, getPodField_f(&(state->accel_x)), A_ERR_X) &&
+         within(-A_ERR_Y, getPodField_f(&(state->accel_y)), A_ERR_Y) &&
+         within(-A_ERR_Z, getPodField_f(&(state->accel_z)), A_ERR_Z) &&
+         within(-V_ERR_X, getPodField_f(&(state->velocity_x)), V_ERR_X) &&
+         within(-V_ERR_Y, getPodField_f(&(state->velocity_y)), V_ERR_Y) &&
+         within(-V_ERR_Z, getPodField_f(&(state->velocity_z)), V_ERR_Z);
 }

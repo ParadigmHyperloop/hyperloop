@@ -5,6 +5,9 @@
  * get a pointer to the pod state.
  */
 extern pod_state_t __state;
+extern int serverfd;
+extern int clients[MAX_CMD_CLIENTS];
+extern int nclients;
 
 void setPriority(pthread_t task, int priority) {
   struct sched_param sp;
@@ -24,6 +27,14 @@ void setPriority(pthread_t task, int priority) {
  */
 void pod_exit(int code) {
   fprintf(stderr, "=== POD IS SHUTTING DOWN NOW! ===\n");
+
+  while (nclients > 0) {
+    fprintf(stderr, "Closing client %d (fd %d)\n", nclients, clients[nclients]);
+    close(clients[nclients]);
+    nclients--;
+  }
+  fprintf(stderr, "Closing command server (fd %d)\n", serverfd);
+  close(serverfd);
   exit(code);
 }
 
@@ -58,20 +69,50 @@ void signal_handler(int sig) {
   pod_exit(EXIT_FAILURE);
 }
 
-void sigpipe_handler(int sig) { warn("SIGPIPE Recieved"); }
+void exit_signal_handler(int sig) {
+#ifdef TESTING
+  pod_exit(2);
+#else
+  switch (__state.mode) {
+    case Boot:
+    case Shutdown:
+      error("Exiting by signal %d", sig);
+      pod_exit(1);
+    default:
+      setPodMode(Emergency, "Recieved Signal %d", sig);
+  }
+#endif
+}
+
+
+void sigpipe_handler(int sig) { error("SIGPIPE Recieved"); }
 
 int main() {
   int boot_sem_ret = 0;
   info("POD Booting...");
   info("Initializing Pod State");
-  initializePodState();
+
+  if (initializePodState() < 0) {
+    fprintf(stderr, "Failed to Initialize Pod State");
+    pod_exit(1);
+  }
 
   info("Loading POD state struct for the first time");
   pod_state_t *state = getPodState();
 
   info("Registering POSIX signal handlers");
+
+  // Pod Panic Signal
   signal(POD_SIGPANIC, signal_handler);
+
+  // TCP Server can generate SIGPIPE signals on disconnect
+  // TODO: Evaluate if this should trigger an emergency
   signal(SIGPIPE, sigpipe_handler);
+
+  // Signals that should trigger soft shutdown
+  signal(SIGINT, exit_signal_handler);
+  signal(SIGTERM, exit_signal_handler);
+  signal(SIGHUP, exit_signal_handler);
 
   // -----------------------------------------
   // Logging - Remote Logging System
