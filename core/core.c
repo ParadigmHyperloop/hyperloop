@@ -15,9 +15,7 @@ int32_t maximumSafeDistanceBeforeBraking = 125;
  */
 void bootChecks(pod_state_t *state) {
   if (getPodField(&(state->ready)) == 1) {
-
     // TODO: Other Pre-flight Checks that are not Human checked
-
     setPodMode(Ready, "Pod's Ready bit has been set");
   } else {
     info("Pod state is Boot, waiting for operator...");
@@ -28,7 +26,7 @@ void bootChecks(pod_state_t *state) {
  * Checks to be performed when the pod's state is Boot
  */
 void readyChecks(pod_state_t *state) {
-  if (getPodField(&(state->accel_x)) > 0) {
+  if (getPodField_f(&(state->accel_x)) > 0.0) {
     setPodMode(Pushing, "Detecting Positive Acceleration");
   }
 }
@@ -51,7 +49,7 @@ void pushingChecks(pod_state_t *state) {
     setPodMode(Emergency, "Pod Position is > max travel before braking");
   } else if (getPodField(&(state->velocity_x)) > maximumSafeForwardVelocity) {
     setPodMode(Emergency, "Pod is going too fast");
-  } else if (getPodField(&(state->accel_x)) <= 0) {
+  } else if (getPodField_f(&(state->accel_x)) <= 0.0) {
     setPodMode(Coasting, "Pod has negative acceleration in the X dir");
   }
 }
@@ -73,7 +71,9 @@ void coastingChecks(pod_state_t *state) {
  * Checks to be performed when the pod's state is Braking
  */
 void brakingChecks(pod_state_t *state) {
-  if (outside(PRIMARY_BRAKING_ACCEL_X_MIN, getPodField(&(state->accel_x)),
+  // TODO: PRIMARY_BRAKING_ACCEL_X_MIN is a negative number (-10 m/s/s)
+  //       PRIMARY_BRAKING_ACCEL_X_MAX is a "bigger" negative number (-20 m/s/s)
+  if (outside(PRIMARY_BRAKING_ACCEL_X_MIN, getPodField_f(&(state->accel_x)),
               PRIMARY_BRAKING_ACCEL_X_MAX)) {
     setPodMode(Emergency, "Pod acceleration is NOT nominal");
   } else if (podIsStopped(state)) {

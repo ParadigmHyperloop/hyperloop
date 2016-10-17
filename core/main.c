@@ -64,7 +64,11 @@ int main() {
   int boot_sem_ret = 0;
   info("POD Booting...");
   info("Initializing Pod State");
-  initializePodState();
+
+  if (initializePodState() < 0) {
+    fprintf(stderr, "Failed to Initialize Pod State");
+    pod_exit(1);
+  }
 
   info("Loading POD state struct for the first time");
   pod_state_t *state = getPodState();
