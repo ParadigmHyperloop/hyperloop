@@ -3,17 +3,27 @@
 
 int imuFd = -1;
 
+// All units are assumed to be in meters
 typedef struct {
-  // All units are based in meters
-  uint32_t header;
+  // header
+  uint32_t hd;
+  // linear acceleration X
   float x;
+  // linear acceleration Y
   float y;
+  // linear acceleration Z
   float z;
+  // angular acceleration X
   float wx;
+  // angular acceleration Y
   float wy;
+  // angular acceleration Z
   float wz;
-  uint8_t status;
+  // sequence byte
   uint8_t sequence;
+  // status byte
+  uint8_t status;
+  // temperature byte
   float temperature;
 } imu_datagram_t;
 
@@ -31,45 +41,64 @@ typedef struct {
 //   0x00, 0x01 // temperature bits (UInt16)
 // };
 
-bool atHeader() {
-  unsigned char firstByte[1] = {0};
+// TODO: This is really a job for ring_buf_t
+unsigned char imubuf[IMU_MESSAGE_SIZE] = {0};
+int imubufc = 0;
+
+/**
+ * Determines if we have a valid header read in
+ *
+ * Returns -1 if read is failing (applicable in O_NONBLOCK)
+ * Returns 0 if we are not at a header
+ * Returns 1 if we are at a header
+ */
+int atHeader() {
+  int i;
+  bool success = false;
   // TODO: Remove these asserts and log errors instead, Definitely when
   // O_NONBLOCK is used
-  assert(read(imuFd, firstByte, 1) == 1);
+  while (imubufc < 32) {
 
-  debug("IMU First Byte%x\n", *firstByte);
+    // Try a non blocking read
+    if (read(imuFd, &imubuf[imubufc], 1) != 1) {
+      return -1;
+    }
+    imubufc++;
+  }
 
-  if (*firstByte == 0xFE) {
-    unsigned char restOfHeader[3] = {0};
-    assert(read(imuFd, restOfHeader, 3) == 3);
+  if (imubuf[0] == 0xFE) {
+    unsigned const char ideal[3] = {0x81, 0xFF, 0x55};
 
-    unsigned char ideal[3] = {0x81, 0xFF, 0x55};
-
-    int i;
-    for (i = 0; i < 3; i++) {
-      printf("%x\n", restOfHeader[i]);
-      if (restOfHeader[i] != ideal[i]) {
-        return false;
+    success = true;
+    for (i = 1; i < 4; i++) {
+      printf("%x\n", imubuf[i]);
+      if (imubuf[i] != ideal[i]) {
+        success = false;
       }
     }
-    return true;
-  } else {
-    return false;
   }
-}
 
+  if (!success) {
+    // remove the first byte and shuffle everyone back once
+    for (i=0; i<3; i++) {
+      imubuf[i] = imubuf[i+1];
+    }
+    imubufc--;
+  }
+
+  return (success ? 1 : 0);
+}
 
 extern pod_state_t __state;
 
 int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
 #ifdef TESTING
-
   // Lets have a chat together... this testing simulator... is terrible...
   // It does not follow the laws of physics to the nail, but it is something
   // that excersises the system with minimal impact on the __state.
   // So... I recognize that this is terrible. I will fix it into a proper sim
   // when there is time
-
+  // Generates NOISE
   #define NOISE (float)(rand() - RAND_MAX/2)/(RAND_MAX*100.0)
   static float base_ax = 0.0; // NOTE: preserved accross calls
   static uint64_t pushing = 0;
@@ -112,9 +141,6 @@ int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
     }
   }
 
-
-
-
   ax += NOISE;
   debug("[SIM] Giving => x: %f, y: **, z: **, wx: **, wy: **, wz: **,\n", ax);
   *gram = (imu_datagram_t){
@@ -126,45 +152,30 @@ int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
     .wz = NOISE
   };
   return 0;
-
+  #undef NOISE
 #else
 
   retries = 0;
   bool at_header = false;
-  while (!(at_header = atHeader()) && retries < 33)
+  while ((at_header = atHeader()) == 0 && retries < 32)
     retries++;
 
-  if (!at_header) {
-    error("Could not find an IMU data header");
+  if (at_header < 1) {
+    error("Could not find an IMU data header: %d", at_header);
     return -1;
+  } else {
+    assert(imubufc == 32);
   }
 
-  char buf[32];
-
-  int count = 0;
-  int n = 32;
-  // Force read an entire packet
-  // read() is not garenteed to give you all n bytes
-  while (count < n) {
-    int new_count = read(imuFd, buf, n - count);
-
-    if (new_count <= count) {
-      count = -1;
-      break;
-    }
-
-    count += new_count;
-  }
-
-  assert(count == 32);
-
-  *gram = {.header = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24),
-           .wx = buf[4] | (buf[5] << 8) | (buf[6] << 16) | (buf[7] << 24),
-           .wy = buf[8] | (buf[9] << 8) | (buf[10] << 16) | (buf[11] << 24),
-           .wz = buf[12] | (buf[13] << 8) | (buf[14] << 16) | (buf[15] << 24),
-           .x = buf[16] | (buf[17] << 8) | (buf[18] << 16) | (buf[19] << 24),
-           .y = buf[20] | (buf[21] << 8) | (buf[22] << 16) | (buf[23] << 24),
-           .z = buf[24] | (buf[25] << 8) | (buf[26] << 16) | (buf[27] << 24),
+  // Massive Bit Shifting Operation.
+  // See the example imu_datagram_t in the comment at the top of this file
+  *gram = {.hd = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3],
+           .wx = (buf[4] << 24)  | (buf[5] << 16)  | (buf[6] << 8)  | buf[7],
+           .wy = (buf[8] << 24)  | (buf[9] << 16)  | (buf[10] << 8) | buf[11],
+           .wz = (buf[12] << 24) | (buf[13] << 16) | (buf[14] << 8) | buf[15],
+           .x =  (buf[16] << 24) | (buf[17] << 16) | (buf[18] << 8) | buf[19],
+           .y =  (buf[20] << 24) | (buf[21] << 16) | (buf[22] << 8) | buf[23],
+           .z =  (buf[24] << 24) | (buf[25] << 16) | (buf[26] << 8) | buf[27],
            .status = buf[28],
            .sequence = buf[29],
            .temperature = buf[30] | (buf[31] << 8)};
@@ -174,7 +185,7 @@ int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
 
 // Connect the serial device for the IMU
 int imuConnect() {
-  imuFd = open(IMU_DEVICE, O_RDWR, S_IRUSR | S_IWUSR);
+  imuFd = open(IMU_DEVICE, O_RDWR | O_NONBLOCK, S_IRUSR | S_IWUSR);
 
   if (imuFd < 0) {
     return -1;

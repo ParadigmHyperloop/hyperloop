@@ -87,7 +87,7 @@ void brakingChecks(pod_state_t *state) {
   }
 }
 
-void heightCheck(pod_state_t *state) {
+void skateCheck(pod_state_t *state) {
   // TODO: Make these checks bounded by min and max values
   bool ok = (getPodField(&(state->skate_rear_left_z)) > 0) &&
             (getPodField(&(state->skate_rear_right_z)) > 0) &&
@@ -96,6 +96,15 @@ void heightCheck(pod_state_t *state) {
 
   if (!ok) {
     setPodMode(Emergency, "A height sensor is returning 0");
+  }
+
+  int i;
+  for (i=0; i<N_SKATE_THERMOCOUPLES; i++) {
+    int32_t temp = getPodField(&(state->skate_thermocouples[i]));
+
+    if (temp < MIN_REGULATOR_THERMOCOUPLE_TEMP) {
+      setPodMode(Emergency, "Thermocouple %d for skates is too low");
+    }
   }
 }
 
