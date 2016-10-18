@@ -32,7 +32,6 @@ int serverfd;
 int clients[MAX_CMD_CLIENTS];
 int nclients = 0;
 
-
 // Much of this code is based on this UTAH tcpserver example, thanks!
 // https://www.cs.utah.edu/~swalton/listings/sockets/programs/part2/chap6/simple-server.c
 
@@ -236,7 +235,6 @@ int commandServer() {
 
   note("TCP Network Command Server Started on port: %d", CMD_SVR_PORT);
 
-
   fd_set active_fd_set, read_fd_set;
 
   int cmdbufferc = 0;
@@ -298,7 +296,8 @@ int commandServer() {
         debug("Recv new command from existing client (fd %d)", clients[i]);
         if (processRequest(clients[i], clients[i]) < 0) {
           // remove the client
-          setPodMode(Emergency, "Operator Client %d (fd %d) disconnected", i, clients[i]);
+          setPodMode(Emergency, "Operator Client %d (fd %d) disconnected", i,
+                     clients[i]);
           close(clients[i]);
           int j;
           for (j = i + 1; j < nclients; j++) {

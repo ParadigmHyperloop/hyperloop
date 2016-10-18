@@ -27,8 +27,16 @@ typedef struct pod_value {
   pthread_rwlock_t lock;
 } pod_value_t;
 
-#define POD_VALUE_INITIALIZER_FL { { .fl = 0.0 } , PTHREAD_RWLOCK_INITIALIZER }
-#define POD_VALUE_INITIALIZER_INT32 { { .int32 = 0 } , PTHREAD_RWLOCK_INITIALIZER }
+#define POD_VALUE_INITIALIZER_FL                                               \
+  {                                                                            \
+    { .fl = 0.0 }                                                              \
+    , PTHREAD_RWLOCK_INITIALIZER                                               \
+  }
+#define POD_VALUE_INITIALIZER_INT32                                            \
+  {                                                                            \
+    { .int32 = 0 }                                                             \
+    , PTHREAD_RWLOCK_INITIALIZER                                               \
+  }
 
 /**
  * Defines the master state of the pod
@@ -89,7 +97,6 @@ typedef struct pod_state {
   int tmp_ebrakes;
 
   sem_t *boot_sem;
-
 
   uint64_t start;
   bool initialized;
@@ -169,7 +176,6 @@ int initializePodState(void);
  */
 int32_t getPodField(pod_value_t *pod_field);
 float getPodField_f(pod_value_t *pod_field);
-
 
 /**
  * Helper method to change a value from pod_state

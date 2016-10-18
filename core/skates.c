@@ -19,8 +19,9 @@ int skateRead(pod_state_t *state) {
 
   // TODO: Read in new values and put them into the state struct
   int i;
-  for (i=0; i<N_SKATE_THERMOCOUPLES; i++) {
-    int32_t new_value = readSkateThermocouple(i); // Read in value for relulator temp i
+  for (i = 0; i < N_SKATE_THERMOCOUPLES; i++) {
+    int32_t new_value =
+        readSkateThermocouple(i); // Read in value for relulator temp i
     setPodField(&(state->skate_thermocouples[i]), new_value);
   }
 

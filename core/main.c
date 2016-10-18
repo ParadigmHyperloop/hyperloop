@@ -74,16 +74,15 @@ void exit_signal_handler(int sig) {
   pod_exit(2);
 #else
   switch (__state.mode) {
-    case Boot:
-    case Shutdown:
-      error("Exiting by signal %d", sig);
-      pod_exit(1);
-    default:
-      setPodMode(Emergency, "Recieved Signal %d", sig);
+  case Boot:
+  case Shutdown:
+    error("Exiting by signal %d", sig);
+    pod_exit(1);
+  default:
+    setPodMode(Emergency, "Recieved Signal %d", sig);
   }
 #endif
 }
-
 
 void sigpipe_handler(int sig) { error("SIGPIPE Recieved"); }
 

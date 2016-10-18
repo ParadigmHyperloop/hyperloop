@@ -99,7 +99,7 @@ void skateCheck(pod_state_t *state) {
   }
 
   int i;
-  for (i=0; i<N_SKATE_THERMOCOUPLES; i++) {
+  for (i = 0; i < N_SKATE_THERMOCOUPLES; i++) {
     int32_t temp = getPodField(&(state->skate_thermocouples[i]));
 
     if (temp < MIN_REGULATOR_THERMOCOUPLE_TEMP) {
