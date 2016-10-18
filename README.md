@@ -137,4 +137,21 @@ complexity of the application and dependency tree.
 
 Anything running at the control point is fair game though. The control point
 is not limited in resources like the BBB so the only rule we really impose is
-that it works, it's tested, and it is reliable.
+that it works, it's tested, and it is reliable. We will have a full Dell R7**
+server running in the control area to recieve and proccess data from the pod.
+The server will be virtualized with a VMware vSphere hypervisor that can host
+dozens of virtual machines at once. We hope to keep the control point simple
+for the time being though, so this is mostly over-preparing
+
+# License
+
+See the [LICENSE](LICENSE) for full licensing details.
+
+In summary, (you still need to read the whole thing), this code is for 
+OpenLoop and OpenLoop only. It is shared with the world for the benefit of
+observers and potential developers. If you wish to utilize this code in any
+way, you must contact us first and recieve writen permission to utilize the
+source for the purpose you require. 
+
+Lastly, DON'T trust this code to work for your hyperloop pod, or your project.
+This code is only being verified and tested on the OpenLoop plaform.
