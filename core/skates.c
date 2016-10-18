@@ -7,10 +7,11 @@ uint32_t readDistanceSensor(int sensorno) {
 
 uint32_t readSkateThermocouple(int thermocoupleno) {
   // TODO: Actually read in distance value
+  // TODO: Probably want to abstract this down to a generic readThermocouple()
   return 15;
 }
 
-int skatesRead(pod_state_t *state) {
+int skateRead(pod_state_t *state) {
   setPodField(&(state->skate_front_left_z), readDistanceSensor(0));
   setPodField(&(state->skate_front_right_z), readDistanceSensor(1));
   setPodField(&(state->skate_rear_left_z), readDistanceSensor(2));

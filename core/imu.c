@@ -102,8 +102,14 @@ int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
   #define NOISE (float)(rand() - RAND_MAX/2)/(RAND_MAX*100.0)
   static float base_ax = 0.0; // NOTE: preserved accross calls
   static uint64_t pushing = 0;
+  static uint64_t last_time = 0;
   static uint64_t coasting = 0;
   static bool moving = false;
+
+  if (last_time == 0) {
+    last_time = t;
+  }
+
   float vx = __state.velocity_x.value.fl;
   // If ready, start pushing at some random time
   if (getPodMode() == Ready) {
@@ -133,8 +139,13 @@ int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
     debug("Brakes applied");
     ax -= 7.0;
 
-    if (vx < -2*ax) {
-      ax = -(vx/2.0);
+    // predict velocity on sim end to simulate smooth transition to vx=0.0
+
+    if (vx < -ax) {
+      if (vx > 0.0) {
+        double rough_dt = t - last_time;
+        ax = (0.0 - vx) / rough_dt;
+      }
     }
     if (vx < 0) {
       error("[SIM] NEGATIVE VELOCITY");
@@ -249,6 +260,7 @@ int calcState(pod_value_t * a,
  * Position state values
  */
 int imuRead(pod_state_t *p) {
+  // TODO: Clean up all this time tracking code
 
   static uint64_t start_time = 0;
   static uint64_t lastCheckTime = 0;
@@ -260,15 +272,15 @@ int imuRead(pod_state_t *p) {
     usleep(1);
   }
 
-  uint64_t currentCheckTime = getTime(); // Same as above, assume milliseconds
-
   imu_datagram_t data;
 
+  // TODO: This time tracking is giving me a headache
+  uint64_t currentCheckTime = getTime(); // Same as above, assume milliseconds
+
+  // Read from the IMU also provide the time offset scince start for simulator
   if (readIMUDatagram(currentCheckTime - start_time, &data) < 0) {
     return -1;
   }
-
-  assert((currentCheckTime - lastCheckTime) < INT32_MAX);
 
   double dt = (double)(currentCheckTime - lastCheckTime);
   lastCheckTime = currentCheckTime;
