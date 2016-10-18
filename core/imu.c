@@ -80,8 +80,8 @@ int atHeader() {
 
   if (!success) {
     // remove the first byte and shuffle everyone back once
-    for (i=0; i<3; i++) {
-      imubuf[i] = imubuf[i+1];
+    for (i = 0; i < 3; i++) {
+      imubuf[i] = imubuf[i + 1];
     }
     imubufc--;
   }
@@ -93,13 +93,13 @@ extern pod_state_t __state;
 
 int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
 #ifdef TESTING
-  // Lets have a chat together... this testing simulator... is terrible...
-  // It does not follow the laws of physics to the nail, but it is something
-  // that excersises the system with minimal impact on the __state.
-  // So... I recognize that this is terrible. I will fix it into a proper sim
-  // when there is time
-  // Generates NOISE
-  #define NOISE (float)(rand() - RAND_MAX/2)/(RAND_MAX*100.0)
+// Lets have a chat together... this testing simulator... is terrible...
+// It does not follow the laws of physics to the nail, but it is something
+// that excersises the system with minimal impact on the __state.
+// So... I recognize that this is terrible. I will fix it into a proper sim
+// when there is time
+// Generates NOISE
+#define NOISE (float)(rand() - RAND_MAX / 2) / (RAND_MAX * 100.0)
   static float base_ax = 0.0; // NOTE: preserved accross calls
   static uint64_t pushing = 0;
   static uint64_t last_time = 0;
@@ -121,12 +121,13 @@ int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
     moving = true;
     base_ax = 2.0;
 
-    uint64_t q = t - pushing; // The time period after pusher has started to back off
+    uint64_t q =
+        t - pushing; // The time period after pusher has started to back off
     debug("[SIM] PUSHER IS ON => usecs: %llu\n", q);
     if (q > 5 * 1000 * 1000) { // After 5 seconds of pushing
       base_ax = 6.0 - ((float)q / (1000.0 * 1000.0));
       if (q > 6 * 1000 * 1000) {
-        pushing = 0; // Turn off the pusher after 6 seconds of pushing
+        pushing = 0;  // Turn off the pusher after 6 seconds of pushing
         coasting = t; // Turn off the pusher after 6 seconds of pushing
       }
     }
@@ -155,15 +156,9 @@ int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
   ax += NOISE;
   debug("[SIM] Giving => x: %f, y: **, z: **, wx: **, wy: **, wz: **,\n", ax);
   *gram = (imu_datagram_t){
-    .x = ax,
-    .y = NOISE,
-    .z = NOISE,
-    .wx = NOISE,
-    .wy = NOISE,
-    .wz = NOISE
-  };
+      .x = ax, .y = NOISE, .z = NOISE, .wx = NOISE, .wy = NOISE, .wz = NOISE};
   return 0;
-  #undef NOISE
+#undef NOISE
 #else
 
   retries = 0;
@@ -181,12 +176,12 @@ int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
   // Massive Bit Shifting Operation.
   // See the example imu_datagram_t in the comment at the top of this file
   *gram = {.hd = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3],
-           .wx = (buf[4] << 24)  | (buf[5] << 16)  | (buf[6] << 8)  | buf[7],
-           .wy = (buf[8] << 24)  | (buf[9] << 16)  | (buf[10] << 8) | buf[11],
+           .wx = (buf[4] << 24) | (buf[5] << 16) | (buf[6] << 8) | buf[7],
+           .wy = (buf[8] << 24) | (buf[9] << 16) | (buf[10] << 8) | buf[11],
            .wz = (buf[12] << 24) | (buf[13] << 16) | (buf[14] << 8) | buf[15],
-           .x =  (buf[16] << 24) | (buf[17] << 16) | (buf[18] << 8) | buf[19],
-           .y =  (buf[20] << 24) | (buf[21] << 16) | (buf[22] << 8) | buf[23],
-           .z =  (buf[24] << 24) | (buf[25] << 16) | (buf[26] << 8) | buf[27],
+           .x = (buf[16] << 24) | (buf[17] << 16) | (buf[18] << 8) | buf[19],
+           .y = (buf[20] << 24) | (buf[21] << 16) | (buf[22] << 8) | buf[23],
+           .z = (buf[24] << 24) | (buf[25] << 16) | (buf[26] << 8) | buf[27],
            .status = buf[28],
            .sequence = buf[29],
            .temperature = buf[30] | (buf[31] << 8)};
@@ -226,10 +221,7 @@ int imuConnect() {
   return imuFd;
 }
 
-int calcState(pod_value_t * a,
-              pod_value_t * v,
-              pod_value_t * x,
-              float new_accel,
+int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float new_accel,
               double dt) {
 
   float acceleration = getPodField_f(a);
