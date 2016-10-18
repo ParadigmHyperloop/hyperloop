@@ -1,3 +1,19 @@
+/*****************************************************************************
+ * Copyright (c) OpenLoop, 2016
+ *
+ * This material is proprietary of The OpenLoop Alliance and its members.
+ * All rights reserved.
+ * The methods and techniques described herein are considered proprietary
+ * information. Reproduction or distribution, in whole or in part, is forbidden
+ * except by express written permission of OpenLoop.
+ *
+ * Source that is published publicly is for demonstration purposes only and
+ * shall not be utilized to any extent without express written permission of
+ * OpenLoop.
+ *
+ * Please see http://www.opnlp.co for contact information
+ ****************************************************************************/
+
 #include "pod.h"
 /**
  * TODO: Do Not Need to do anything with this anymore
@@ -9,7 +25,6 @@ uint32_t readLateralSensor(uint8_t sensorno) {
 }
 
 int lateralRead(pod_state_t *state) {
-  debug("Updateing lateral sensor readings");
 
   setPodField(&(state->lateral_front_left), readLateralSensor(0));
   setPodField(&(state->lateral_front_right), readLateralSensor(1));

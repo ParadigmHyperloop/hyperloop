@@ -1,9 +1,25 @@
+/*****************************************************************************
+ * Copyright (c) OpenLoop, 2016
+ *
+ * This material is proprietary of The OpenLoop Alliance and its members.
+ * All rights reserved.
+ * The methods and techniques described herein are considered proprietary
+ * information. Reproduction or distribution, in whole or in part, is forbidden
+ * except by express written permission of OpenLoop.
+ *
+ * Source that is published publicly is for demonstration purposes only and
+ * shall not be utilized to any extent without express written permission of
+ * OpenLoop.
+ *
+ * Please see http://www.opnlp.co for contact information
+ ****************************************************************************/
+
 #include "pod.h"
 #include "pod-helpers.h"
 
 int imuRead(pod_state_t *state);
 int lateralRead(pod_state_t *state);
-int heightRead(pod_state_t *state);
+int skateRead(pod_state_t *state);
 int brakingRead(pod_state_t *state);
 
 float maximumSafeForwardVelocity = 25.0;    // TODO: CHANGE ME! ARBITRARY!
@@ -87,7 +103,7 @@ void brakingChecks(pod_state_t *state) {
   }
 }
 
-void heightCheck(pod_state_t *state) {
+void skateCheck(pod_state_t *state) {
   // TODO: Make these checks bounded by min and max values
   bool ok = (getPodField(&(state->skate_rear_left_z)) > 0) &&
             (getPodField(&(state->skate_rear_right_z)) > 0) &&
@@ -96,6 +112,15 @@ void heightCheck(pod_state_t *state) {
 
   if (!ok) {
     setPodMode(Emergency, "A height sensor is returning 0");
+  }
+
+  int i;
+  for (i = 0; i < N_SKATE_THERMOCOUPLES; i++) {
+    int32_t temp = getPodField(&(state->skate_thermocouples[i]));
+
+    if (temp < MIN_REGULATOR_THERMOCOUPLE_TEMP) {
+      setPodMode(Emergency, "Thermocouple %d for skates is too low");
+    }
   }
 }
 
@@ -135,6 +160,11 @@ void setBrakes(int value) {
   getPodState()->tmp_brakes = value;
 }
 
+void setEBrakes(int value) {
+  // TODO: Implement Me
+  getPodState()->tmp_ebrakes = value;
+}
+
 void adjustBrakes(pod_state_t *state) {
   switch (getPodMode()) {
   case Ready:
@@ -143,10 +173,13 @@ void adjustBrakes(pod_state_t *state) {
     setBrakes(0);
     break;
   case Boot:
-  case Emergency:
   case Shutdown:
   case Braking:
     setBrakes(1);
+    break;
+  case Emergency:
+    setBrakes(1);
+    setEBrakes(1);
     break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a brake decsion");
@@ -193,8 +226,8 @@ void *coreMain(void *arg) {
     if (imuRead(state) < 0) {
       DECLARE_EMERGENCY("IMU READ FAILED");
     }
-    if (heightRead(state) < 0) {
-      DECLARE_EMERGENCY("HEIGHT READ FAILED");
+    if (skateRead(state) < 0) {
+      DECLARE_EMERGENCY("SKATE READ FAILED");
     }
     if (lateralRead(state) < 0) {
       DECLARE_EMERGENCY("LATERAL READ FAILED");
@@ -205,7 +238,7 @@ void *coreMain(void *arg) {
     // -------------------------------------------
 
     // General Checks (Going too fast, going too high)
-    heightCheck(state);
+    skateCheck(state);
     lateralCheck(state);
 
     if (getPodField_f(&(state->velocity_x)) < -V_ERR_X) {
@@ -239,7 +272,10 @@ void *coreMain(void *arg) {
     // SECTION: Change the control surfaces
     // -------------------------------------------
 
+    // Handle Skates
     adjustSkates(state);
+
+    // Handle Wheel AND Ebrakes
     adjustBrakes(state);
 
     // -------------------------------------------

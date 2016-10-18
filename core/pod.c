@@ -1,3 +1,19 @@
+/*****************************************************************************
+ * Copyright (c) OpenLoop, 2016
+ *
+ * This material is proprietary of The OpenLoop Alliance and its members.
+ * All rights reserved.
+ * The methods and techniques described herein are considered proprietary
+ * information. Reproduction or distribution, in whole or in part, is forbidden
+ * except by express written permission of OpenLoop.
+ *
+ * Source that is published publicly is for demonstration purposes only and
+ * shall not be utilized to any extent without express written permission of
+ * OpenLoop.
+ *
+ * Please see http://www.opnlp.co for contact information
+ ****************************************************************************/
+
 #include "pod.h"
 
 char *pod_mode_names[N_POD_STATES] = {"Boot",     "Ready",   "Pushing",
@@ -30,13 +46,13 @@ pod_state_t __state = {
  */
 bool validPodMode(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
-      {Boot, Ready, Emergency, Shutdown, _nil},      // 0: Boot
-      {Ready, Pushing, Emergency, _nil},             // 1: Ready
-      {Pushing, Coasting, Braking, Emergency, _nil}, // 2: Pushing
-      {Coasting, Braking, Emergency, _nil},          // 3: Coasting
-      {Braking, Shutdown, Emergency, _nil},          // 4: Braking
-      {Emergency, Shutdown, _nil},                   // 5: Emergency
-      {Shutdown, _nil}                               // 6: Shutdown
+      {Boot, Ready, Emergency, Shutdown, _nil}, // 0: Boot
+      {Ready, Pushing, Emergency, _nil},        // 1: Ready
+      {Pushing, Coasting, Emergency, _nil},     // 2: Pushing
+      {Coasting, Braking, Emergency, _nil},     // 3: Coasting
+      {Braking, Shutdown, Emergency, _nil},     // 4: Braking
+      {Emergency, Shutdown, _nil},              // 5: Emergency
+      {Shutdown, _nil}                          // 6: Shutdown
   };
 
   // Ensure that the pod's current state can always transition to itself
@@ -46,7 +62,8 @@ bool validPodMode(pod_mode_t current_mode, pod_mode_t new_mode) {
   int i = 0;
 
   while ((i_state = transitions[current_mode][i]) != _nil) {
-    // debug("Checking %s == %s", pod_mode_names[i_state], pod_mode_names[new_mode]);
+    // debug("Checking %s == %s", pod_mode_names[i_state],
+    // pod_mode_names[new_mode]);
     if (i_state == new_mode) {
       return true;
     }
@@ -112,11 +129,11 @@ int setPodMode(pod_mode_t new_mode, char *reason, ...) {
   va_start(arg, reason);
   vsnprintf(&msg[0], MAX_LOG_LINE, reason, arg);
   va_end(arg);
-  pod_state_t * state = getPodState();
+  pod_state_t *state = getPodState();
   pod_mode_t old_mode = getPodMode();
 
-  warn("Pod Mode Transition %s => %s. reason: %s",
-       pod_mode_names[old_mode], pod_mode_names[new_mode], msg);
+  warn("Pod Mode Transition %s => %s. reason: %s", pod_mode_names[old_mode],
+       pod_mode_names[new_mode], msg);
 
   if (validPodMode(old_mode, new_mode)) {
     pthread_rwlock_wrlock(&(state->mode_mutex));
@@ -126,8 +143,8 @@ int setPodMode(pod_mode_t new_mode, char *reason, ...) {
          pod_mode_names[old_mode], pod_mode_names[new_mode]);
     return 0;
   } else {
-    warn("Request to set mode from %s to %s: denied",
-         pod_mode_names[old_mode], pod_mode_names[new_mode]);
+    warn("Request to set mode from %s to %s: denied", pod_mode_names[old_mode],
+         pod_mode_names[new_mode]);
     return -1;
   }
 }

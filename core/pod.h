@@ -1,3 +1,19 @@
+/*****************************************************************************
+ * Copyright (c) OpenLoop, 2016
+ *
+ * This material is proprietary of The OpenLoop Alliance and its members.
+ * All rights reserved.
+ * The methods and techniques described herein are considered proprietary
+ * information. Reproduction or distribution, in whole or in part, is forbidden
+ * except by express written permission of OpenLoop.
+ *
+ * Source that is published publicly is for demonstration purposes only and
+ * shall not be utilized to any extent without express written permission of
+ * OpenLoop.
+ *
+ * Please see http://www.opnlp.co for contact information
+ ****************************************************************************/
+
 #include "cdefs.h"
 #include "config.h"
 #include <pthread.h>
@@ -27,8 +43,16 @@ typedef struct pod_value {
   pthread_rwlock_t lock;
 } pod_value_t;
 
-#define POD_VALUE_INITIALIZER_FL { { .fl = 0.0 } , PTHREAD_RWLOCK_INITIALIZER }
-#define POD_VALUE_INITIALIZER_INT32 { { .int32 = 0 } , PTHREAD_RWLOCK_INITIALIZER }
+#define POD_VALUE_INITIALIZER_FL                                               \
+  {                                                                            \
+    { .fl = 0.0 }                                                              \
+    , PTHREAD_RWLOCK_INITIALIZER                                               \
+  }
+#define POD_VALUE_INITIALIZER_INT32                                            \
+  {                                                                            \
+    { .int32 = 0 }                                                             \
+    , PTHREAD_RWLOCK_INITIALIZER                                               \
+  }
 
 /**
  * Defines the master state of the pod
@@ -86,9 +110,9 @@ typedef struct pod_state {
 
   int tmp_skates;
   int tmp_brakes;
+  int tmp_ebrakes;
 
   sem_t *boot_sem;
-
 
   uint64_t start;
   bool initialized;
@@ -168,7 +192,6 @@ int initializePodState(void);
  */
 int32_t getPodField(pod_value_t *pod_field);
 float getPodField_f(pod_value_t *pod_field);
-
 
 /**
  * Helper method to change a value from pod_state

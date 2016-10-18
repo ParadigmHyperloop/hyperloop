@@ -1,3 +1,19 @@
+/*****************************************************************************
+ * Copyright (c) OpenLoop, 2016
+ *
+ * This material is proprietary of The OpenLoop Alliance and its members.
+ * All rights reserved.
+ * The methods and techniques described herein are considered proprietary
+ * information. Reproduction or distribution, in whole or in part, is forbidden
+ * except by express written permission of OpenLoop.
+ *
+ * Source that is published publicly is for demonstration purposes only and
+ * shall not be utilized to any extent without express written permission of
+ * OpenLoop.
+ *
+ * Please see http://www.opnlp.co for contact information
+ ****************************************************************************/
+
 #ifndef _OPENLOOP_POD_CONFIG_
 #define _OPENLOOP_POD_CONFIG_
 
@@ -17,7 +33,8 @@
 // --------------------------
 // PINS - List of pin numbers
 // --------------------------
-#define EBRAKE_PINS { 0, 1, 2 }
+#define EBRAKE_PINS                                                            \
+  { 0, 1, 2 }
 
 // --------------------------
 // Device Constants
@@ -58,7 +75,7 @@
 
 // IMU Device
 #define IMU_DEVICE "/dev/cu.usbmodem-00000"
-
+#define IMU_MESSAGE_SIZE 32
 
 // -------------------------
 // Subsystem Identifiers
@@ -72,22 +89,24 @@
 // The Logging Client
 #define POD_LOGGING_SUBSYSTEM 8
 
-
 // ----------------------
 // Thread Sleep Intervals
 // --------------------------------------------------------------------------
 // Each thread is a loop, how long should the thread sleep for each iteration
 // --------------------------------------------------------------------------
-#define CORE_THREAD_SLEEP 5000
+#define CORE_THREAD_SLEEP 500000
 #define LOGGING_THREAD_SLEEP 500000
 
 // --------------
 // Debug Printing
 // --------------
 #ifdef TESTING
-#define output(prefix_, fmt_, ...) podLog((prefix_ "[%s] {" __FILE__ ":" __XSTR__(__LINE__) "} " fmt_), __FUNCTION__, ##__VA_ARGS__)
+#define output(prefix_, fmt_, ...)                                             \
+  podLog((prefix_ "[%s] {" __FILE__ ":" __XSTR__(__LINE__) "} " fmt_),         \
+         __FUNCTION__, ##__VA_ARGS__)
 #else
-#define output(prefix_, fmt_, ...) podLog((prefix_ fmt_), __FUNCTION__, ##__VA_ARGS__)
+#define output(prefix_, fmt_, ...)                                             \
+  podLog((prefix_ fmt_), __FUNCTION__, ##__VA_ARGS__)
 #endif
 #define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
 #define warn(fmt_, ...) output("[WARN]  ", fmt_, ##__VA_ARGS__)
@@ -95,10 +114,13 @@
 #define info(fmt_, ...) output("[INFO]  ", fmt_, ##__VA_ARGS__)
 #define note(fmt_, ...) output("[NOTE]  ", fmt_, ##__VA_ARGS__)
 #define fatal(fmt_, ...) output("[FATAL] ", fmt_, ##__VA_ARGS__)
-#define panic(subsystem, notes, ...) podInterruptPanic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
+#define panic(subsystem, notes, ...)                                           \
+  podInterruptPanic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 
-
-#define DECLARE_EMERGENCY(message) setPodMode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
+// Helper that wraps setPodMode but adds file and line number
+// REVIEW: Probably should remove
+#define DECLARE_EMERGENCY(message)                                             \
+  setPodMode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
 
 // ------------------
 // Primary Braking Thresholds
@@ -119,7 +141,7 @@
 // Emergency Braking Thresholds
 // ------------------
 /// NOMINAL: 1.2 G = 1.2 * 9.8 m/s/s * 1000 mm / m
-#define EBRAKE_BRAKING_ACCEL_X_MIN -7.84 // -0.8 G => mm/s/s
+#define EBRAKE_BRAKING_ACCEL_X_MIN -7.84  // -0.8 G => mm/s/s
 #define EBRAKE_BRAKING_ACCEL_X_NOM -11.76 // -1.2 G => mm/s/s
 #define EBRAKE_BRAKING_ACCEL_X_MAX -49.00 // -5.0 G => mm/s/s
 
@@ -140,13 +162,16 @@
 // This value should indicate when the pusher has fully detached
 #define COASTING_MIN_ACCEL_TRIGGER -0.1
 
-
 // ---------------------
 // Lateral Sensor Config
 // ---------------------
 #define LATERAL_MIN 5
 #define LATERAL_MAX 7
 
+// ---------------------
+// Skate config
+// ---------------------
+#define MIN_REGULATOR_THERMOCOUPLE_TEMP 5L // celcius?
 
 // ---------------------
 // Logging Configuration
