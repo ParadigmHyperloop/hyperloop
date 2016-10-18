@@ -79,7 +79,7 @@
 // --------------------------------------------------------------------------
 // Each thread is a loop, how long should the thread sleep for each iteration
 // --------------------------------------------------------------------------
-#define CORE_THREAD_SLEEP 5000
+#define CORE_THREAD_SLEEP 500000
 #define LOGGING_THREAD_SLEEP 500000
 
 // --------------

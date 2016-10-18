@@ -9,7 +9,6 @@ uint32_t readLateralSensor(uint8_t sensorno) {
 }
 
 int lateralRead(pod_state_t *state) {
-  debug("Updateing lateral sensor readings");
 
   setPodField(&(state->lateral_front_left), readLateralSensor(0));
   setPodField(&(state->lateral_front_right), readLateralSensor(1));

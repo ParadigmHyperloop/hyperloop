@@ -86,6 +86,7 @@ typedef struct pod_state {
 
   int tmp_skates;
   int tmp_brakes;
+  int tmp_ebrakes;
 
   sem_t *boot_sem;
 
