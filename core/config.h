@@ -58,6 +58,7 @@
 
 // IMU Device
 #define IMU_DEVICE "/dev/cu.usbmodem-00000"
+#define IMU_MESSAGE_SIZE 32
 
 
 // -------------------------
@@ -97,7 +98,8 @@
 #define fatal(fmt_, ...) output("[FATAL] ", fmt_, ##__VA_ARGS__)
 #define panic(subsystem, notes, ...) podInterruptPanic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 
-
+// Helper that wraps setPodMode but adds file and line number
+// REVIEW: Probably should remove
 #define DECLARE_EMERGENCY(message) setPodMode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
 
 // ------------------
@@ -146,6 +148,11 @@
 // ---------------------
 #define LATERAL_MIN 5
 #define LATERAL_MAX 7
+
+// ---------------------
+// Skate config
+// ---------------------
+#define MIN_REGULATOR_THERMOCOUPLE_TEMP 5L // celcius?
 
 
 // ---------------------
