@@ -82,6 +82,118 @@ might go about it's control decisions
   distance to the end of the tube.  It sets the state to `Emergency`
 * The braking module observes that the state is now `Emergency` and applies Emergency Braking
 
+## Sensor numbers
+
+_See Pod Layout Below for orientation_
+
+These values are defined in [config.h](config.h). Numbers are used internally
+to index control surfaces and sensors
+
+### Skates
+
+| No. | Location    |
+|-----|-------------|
+| 0   | FRONT LEFT  |
+| 1   | FRONT RIGHT |
+| 2   | MID LEFT    |
+| 3   | MID RIGHT   |
+| 4   | REAR LEFT   |
+| 5   | REAR RIGHT  |
+
+### Skates Regulator Thermocouples
+
+| No. | Location    |
+|-----|-------------|
+| 0   | FRONT LEFT  |
+| 1   | FRONT RIGHT |
+| 2   | MID LEFT    |
+| 3   | MID RIGHT   |
+| 4   | REAR LEFT   |
+| 5   | REAR RIGHT  |
+
+### Skates Regulator Pressure Sensors
+
+| No. | Location    |
+|-----|-------------|
+| 0   | FRONT LEFT  |
+| 1   | FRONT RIGHT |
+| 2   | MID LEFT    |
+| 3   | MID RIGHT   |
+| 4   | REAR LEFT   |
+| 5   | REAR RIGHT  |
+
+
+### Wheel Solenoids
+
+| No. | Location |
+|-----|----------|
+| 0   | FRONT    |
+| 1   | MID      |
+| 2   | REAR     |
+
+### Wheel Pressure Sensors
+
+| No. | Location |
+|-----|----------|
+| 0   | FRONT    |
+| 1   | MID      |
+| 2   | REAR     |
+
+### Wheel Thermocouple Sensors
+
+| No. | Location |
+|-----|----------|
+| 0   | FRONT    |
+| 1   | MID      |
+| 2   | REAR     |
+
+
+### Emergency Brake Solenoids
+
+| No. | Location |
+|-----|----------|
+| 0   | FRONT    |
+| 1   | MID      |
+| 2   | REAR     |
+
+### Emergency Brake Pressure Sensors
+
+| No. | Location |
+|-----|----------|
+| 0   | FRONT    |
+| 1   | MID      |
+| 2   | REAR     |
+
+### OMRON Sensors (height sensors)
+
+// TODO: Confirm this for final numbers
+
+| No. | Location    |
+|-----|-------------|
+| 0   | FRONT LEFT  |
+| 1   | FRONT RIGHT |
+| 2   | MID LEFT    |
+| 3   | MID RIGHT   |
+| 4   | REAR LEFT   |
+| 5   | REAR RIGHT  |
+
+### Sharp Sensors (lateral sensors)
+
+// TODO: Confirm this for final numbers
+
+| No. | Location    |
+|-----|-------------|
+| 0   | FRONT LEFT  |
+| 1   | FRONT RIGHT |
+| 2   | MID LEFT    |
+| 3   | MID RIGHT   |
+| 4   | REAR LEFT   |
+| 5   | REAR RIGHT  |
+
+### IMU
+
+The IMU just has a device path `/dev/usbmodem-00000` or something like that.
+
 # Operating System
 
 At this time... we are just running a vanilla Linux on the BBB, this will
