@@ -22,7 +22,6 @@ import SocketServer
 import argparse
 from influxdb import InfluxDBClient
 
-# TODO: Take these in on the CLI
 BASE_PATH = '.'
 INFLUX_HOST = 'localhost'
 INFLUX_PORT = 8086
