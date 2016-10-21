@@ -14,6 +14,9 @@ run-core:
 run-ods:
 	$(ODS_MAKE) run
 
+setup-ods:
+	$(ODS_MAKE) setup-mac
+
 test: all
 	./test
 
