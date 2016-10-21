@@ -8,10 +8,10 @@
 #
 
 CC= gcc
-DEPS = core.c imu.c braking.c lateral.c logging.c skates.c pod.c pod-helpers.c commands.c commander.c
+DEPS = core.c imu.c braking.c lateral.c logging.c skates.c pod.c pod-helpers.c commands.c commander.c mux.c libBBBShims.c
 SOURCES= main.c
 EXECUTABLE = core
-CFLAGS += -std=gnu99
+CFLAGS += -std=gnu99 -DTESTING
 LDFLAGS += -pthread
 
 all: $(EXECUTABLE)
