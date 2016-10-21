@@ -15,6 +15,7 @@
  ****************************************************************************/
 
 #include "cdefs.h"
+#include "libBBB.h"
 #include "config.h"
 #include <pthread.h>
 #include <sys/queue.h>
@@ -54,6 +55,10 @@ typedef struct pod_value {
     , PTHREAD_RWLOCK_INITIALIZER                                               \
   }
 
+typedef struct {
+  int select_pins[N_MUX_SELECT_PINS];
+  int line_pin;
+} pod_mux_t;
 /**
  * Defines the master state of the pod
  */
@@ -108,29 +113,43 @@ typedef struct pod_state {
   // Holds the pod in a boot state until set to 1 by an operator
   pod_value_t ready;
 
+  pod_mux_t muxes[N_MUXES];
+
+  // TODO: Temporary
   int tmp_skates;
   int tmp_brakes;
   int tmp_ebrakes;
 
+
   sem_t *boot_sem;
 
   uint64_t start;
+  uint64_t overrides;
+  pthread_rwlock_t overrides_mutex;
+
   bool initialized;
 } pod_state_t;
 
-typedef enum { Message = 1, Telemetry = 2 } log_type_t;
+typedef enum { Message = 1, Telemetry_float = 2, Telemetry_int32 } log_type_t;
+
 
 typedef struct {
   char name[64];
-  uint32_t value;
-} log_data_t;
+  float value;
+} log_float_data_t;
+
+typedef struct {
+  char name[64];
+  int32_t value;
+} log_int32_data_t;
 
 typedef struct log {
   log_type_t type;
   union {
     char message[MAX_LOG_LINE];
-    log_data_t data;
-  } content;
+    log_float_data_t float_data;
+    log_int32_data_t int32_data;
+  } v;
   STAILQ_ENTRY(log) entries;
 } log_t;
 
@@ -222,4 +241,12 @@ void podInterruptPanic(int subsystem, char *file, int line, char *notes, ...);
 int imuConnect(void);
 
 void pod_exit(int code);
+
+int setSkates(int no, int val, bool override);
+int setBrakes(int no, int val, bool override);
+int setEBrakes(int no, int val, bool override);
+
+void setManual(uint64_t surfaces, bool override);
+bool isManual(uint64_t surface);
+
 #endif

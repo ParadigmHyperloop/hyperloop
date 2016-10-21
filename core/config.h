@@ -17,12 +17,6 @@
 #ifndef _OPENLOOP_POD_CONFIG_
 #define _OPENLOOP_POD_CONFIG_
 
-// --------------------------
-// Compiling Switches
-// --------------------------
-
-// For testing on non BBB hardware
-#define TESTING
 
 // --------------------------
 // Branding
@@ -33,8 +27,7 @@
 // --------------------------
 // PINS - List of pin numbers
 // --------------------------
-#define EBRAKE_PINS                                                            \
-  { 0, 1, 2 }
+#define EBRAKE_PINS { 0, 1, 2 }
 
 // --------------------------
 // Device Constants
@@ -63,12 +56,12 @@
 #define LOOP_DURATION 1000;
 
 // Error Thresholds
-#define A_ERR_X 0.02
-#define A_ERR_Y 0.02
-#define A_ERR_Z 0.02
-#define V_ERR_X 0.02
-#define V_ERR_Y 0.02
-#define V_ERR_Z 0.02
+#define A_ERR_X 0.0002
+#define A_ERR_Y 0.0002
+#define A_ERR_Z 0.0002
+#define V_ERR_X 0.0002
+#define V_ERR_Y 0.0002
+#define V_ERR_Z 0.0002
 
 // Signals
 #define POD_SIGPANIC SIGUSR2
@@ -94,18 +87,19 @@
 // --------------------------------------------------------------------------
 // Each thread is a loop, how long should the thread sleep for each iteration
 // --------------------------------------------------------------------------
-#define CORE_THREAD_SLEEP 500000
-#define LOGGING_THREAD_SLEEP 500000
+#define CORE_THREAD_SLEEP 5000
+#define LOGGING_THREAD_SLEEP 5000
 
 // --------------
 // Debug Printing
 // --------------
 #ifdef TESTING
-#define output(prefix_, fmt_, ...)                                             \
-  podLog((prefix_ "[%s] {" __FILE__ ":" __XSTR__(__LINE__) "} " fmt_),         \
-         __FUNCTION__, ##__VA_ARGS__)
+#define FLINE __FILE__ ":"  __XSTR__(__LINE__)
+#define output(prefix_, fmt_, ...) podLog((prefix_ "[%s] {" FLINE "} " \
+  fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
+
 #else
-#define output(prefix_, fmt_, ...)                                             \
+#define output(prefix_, fmt_, ...)                                           \
   podLog((prefix_ fmt_), __FUNCTION__, ##__VA_ARGS__)
 #endif
 #define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
@@ -114,12 +108,12 @@
 #define info(fmt_, ...) output("[INFO]  ", fmt_, ##__VA_ARGS__)
 #define note(fmt_, ...) output("[NOTE]  ", fmt_, ##__VA_ARGS__)
 #define fatal(fmt_, ...) output("[FATAL] ", fmt_, ##__VA_ARGS__)
-#define panic(subsystem, notes, ...)                                           \
+#define panic(subsystem, notes, ...)                                         \
   podInterruptPanic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 
 // Helper that wraps setPodMode but adds file and line number
 // REVIEW: Probably should remove
-#define DECLARE_EMERGENCY(message)                                             \
+#define DECLARE_EMERGENCY(message)                                           \
   setPodMode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
 
 // ------------------
@@ -137,6 +131,13 @@
 #define PRIMARY_BRAKING_ENGAGED_NOM_F 100
 #define PRIMARY_BRAKING_ENGAGED_MAX_F 150
 
+#define PRIMARY_BRAKE_OVERRIDE_FRONT 0x0000000000000008
+#define PRIMARY_BRAKE_OVERRIDE_MID   0x0000000000000010
+#define PRIMARY_BRAKE_OVERRIDE_REAR  0x0000000000000020
+#define PRIMARY_BRAKE_OVERRIDE_ALL   (PRIMARY_BRAKE_OVERRIDE_FRONT) | \
+                                     (PRIMARY_BRAKE_OVERRIDE_MID) | \
+                                     (PRIMARY_BRAKE_OVERRIDE_REAR)
+
 // ------------------
 // Emergency Braking Thresholds
 // ------------------
@@ -150,6 +151,18 @@
 #define EBRAKE_ENGAGED_MIN_F 800
 #define EBRAKE_ENGAGED_NOM_F 1000
 #define EBRAKE_ENGAGED_MAX_F 1500
+
+
+#define EBRAKE_OVERRIDE_FRONT 0x0000000000000001
+#define EBRAKE_OVERRIDE_MID   0x0000000000000002
+#define EBRAKE_OVERRIDE_REAR  0x0000000000000004
+#define EBRAKE_OVERRIDE_ALL   (EBRAKE_OVERRIDE_FRONT) | \
+                              (EBRAKE_OVERRIDE_MID) | \
+                              (EBRAKE_OVERRIDE_REAR)
+
+#define EBRAKE_OVERRIDE_LIST {(EBRAKE_OVERRIDE_FRONT), \
+                              (EBRAKE_OVERRIDE_FRONT), \
+                              (EBRAKE_OVERRIDE_FRONT)}
 
 //----------------------
 // Pushing Thresholds
@@ -173,6 +186,36 @@
 // ---------------------
 #define MIN_REGULATOR_THERMOCOUPLE_TEMP 5L // celcius?
 
+#define SKATE_OVERRIDE_FRONT_LEFT  0x0000000000000040
+#define SKATE_OVERRIDE_FRONT_RIGHT 0x0000000000000080
+#define SKATE_OVERRIDE_MID_LEFT    0x0000000000000100
+#define SKATE_OVERRIDE_MID_RIGHT   0x0000000000000200
+#define SKATE_OVERRIDE_REAR_LEFT   0x0000000000000400
+#define SKATE_OVERRIDE_REAR_RIGHT  0x0000000000000800
+
+#define SKATE_OVERRIDE_ALL (SKATE_OVERRIDE_FRONT_LEFT) | \
+                           (SKATE_OVERRIDE_FRONT_RIGHT) | \
+                           (SKATE_OVERRIDE_MID_LEFT) | \
+                           (SKATE_OVERRIDE_MID_RIGHT) | \
+                           (SKATE_OVERRIDE_REAR_LEFT) | \
+                           (SKATE_OVERRIDE_REAR_RIGHT)
+
+
+#define SKATE_OVERRIDE_LIST { (SKATE_OVERRIDE_FRONT_LEFT), \
+                              (SKATE_OVERRIDE_FRONT_RIGHT), \
+                              (SKATE_OVERRIDE_MID_LEFT), \
+                              (SKATE_OVERRIDE_MID_RIGHT), \
+                              (SKATE_OVERRIDE_REAR_LEFT), \
+                              (SKATE_OVERRIDE_REAR_RIGHT) }
+
+// ---------------------
+// Muxxing
+// ---------------------
+#define N_MUXES 5
+#define N_MUX_SELECT_PINS 4
+
+#define MUX_0_PINS { }
+
 // ---------------------
 // Logging Configuration
 // ---------------------
@@ -181,8 +224,8 @@
 #define MAX_PACKET_SIZE 1024
 #define LOG_SVR_NAME "pod-server.openloopalliance.com"
 #define LOG_SVR_PORT 7778
-#define MAX_LOG_LINE 4096
-#define LOG_BUF_SIZE 40960
+#define MAX_LOG_LINE 512
+#define LOG_BUF_SIZE MAX_LOG_LINE * 50
 
 // ---------------
 // Command Control
