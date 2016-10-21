@@ -55,9 +55,14 @@ int skateCommand(int argc, char *argv[], int outbufc, char outbuf[]);
 int emergencyCommand(int argc, char *argv[], int outbufc, char outbuf[]);
 
 /**
- * A command that exit the pod program
+ * A command that exits the pod program
  */
 int exitCommand(int argc, char *argv[], int outbufc, char outbuf[]);
+
+/**
+ * A command that overrides a control surface
+ */
+int overrideCommand(int argc, char *argv[], int outbufc, char outbuf[]);
 
 /**
  * A command that immediately kills the controller

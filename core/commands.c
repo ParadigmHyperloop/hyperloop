@@ -24,6 +24,7 @@
 command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "status", .func = statusCommand},
                         {.name = "skate", .func = skateCommand},
+                        {.name = "override", .func = overrideCommand},
                         {.name = "ready", .func = readyCommand},
                         {.name = "brake", .func = brakeCommand},
                         {.name = "help", .func = helpCommand},
@@ -94,6 +95,35 @@ int brakeCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 }
 
 int skateCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+  return 0;
+}
+
+int overrideCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+  if (argc < 3) {
+    return snprintf(outbuf, outbufc, "Usage: override <surface> [<number>] <new_value>%d", getPodMode());
+  }
+  if (strncmp(argv[1], "skate", 5)) {
+    if (argv[2][0] == '-') {
+      setManual(SKATE_OVERRIDE_ALL, true);
+    } else {
+      setManual(SKATE_OVERRIDE_ALL, true);
+
+      if (argc == 3) {
+        int i;
+        int val = atoi(argv[2]);
+
+        for (i=0;i<N_SKATE_SOLONOIDS;i++) {
+          setSkates(i, val, true);
+        }
+      } else if (argc == 4){
+        int i = atoi(argv[2]);
+        int val = atoi(argv[3]);
+        setSkates(i, val, true);
+      }
+    }
+  } else if (strncmp(argv[1], "brake", 5)) {
+
+  }
   return 0;
 }
 
