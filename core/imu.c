@@ -115,7 +115,7 @@ int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
 // So... I recognize that this is terrible. I will fix it into a proper sim
 // when there is time
 // Generates NOISE
-#define NOISE (float)(rand() - RAND_MAX / 2) / (RAND_MAX * 100.0)
+#define NOISE (float)(rand() - RAND_MAX / 2) / (RAND_MAX * 10000.0)
   static float base_ax = 0.0; // NOTE: preserved accross calls
   static uint64_t pushing = 0;
   static uint64_t last_time = 0;
@@ -159,12 +159,13 @@ int readIMUDatagram(uint64_t t, imu_datagram_t *gram) {
     // predict velocity on sim end to simulate smooth transition to vx=0.0
 
     if (vx < -ax) {
-      if (vx > 0.0) {
-        double rough_dt = t - last_time;
-        ax = (0.0 - vx) / rough_dt;
-      }
+      // if (vx > 0.0) {
+      //   double rough_dt = t - last_time;
+      //   ax = (0.0 - vx) / rough_dt;
+      // }
     }
     if (vx < 0) {
+      ax = 0.0;
       error("[SIM] NEGATIVE VELOCITY");
     }
   }
