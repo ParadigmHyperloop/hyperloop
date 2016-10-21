@@ -47,7 +47,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <termios.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifndef TESTING
 #include <linux/i2c-dev.h>
+#endif
 #include <sys/ioctl.h>
 
 // Type definitions
@@ -88,6 +90,7 @@ int setUsrLedValue(char *led, int value);
 int initPin(int pinnum);
 int setPinDirection(int pinnum, char *dir);
 int setPinValue(int pinnum, int value);
+int digitalWrite(int pinnum, int value);
 int getPinValue(int pinnum);
 
 // PWM Prototypes
