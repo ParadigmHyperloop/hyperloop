@@ -26,6 +26,7 @@ typedef struct ring_buf {
   void *head;
   void *tail;
   int sz;
+  int count;
   bool initialized;
   pthread_mutex_t mutex;
 } ring_buf_t;
@@ -42,18 +43,12 @@ int bufAdd(log_t l, struct ring_buf *buf) {
   // Copy the new element into the buffer
 
   memcpy(buf->head, &l, buf->sz);
-  // fprintf(stderr, "\n >>> Pushing %p (%s)\n", buf->head, ((log_t
-  // *)buf->head)->content.message);
 
   buf->head += buf->sz;
   if (buf->head >= buf->end) {
     buf->head = buf->start;
   }
 
-  // &(buf->data[0]) + (((buf->head + sizeof(*buf->head) - buf->data) %
-  // sizeof(buf->data)) / sizeof(*buf->head))
-  //  buf->data + ((buf->head + sizeof(*buf->head) - buf->data) %
-  //  sizeof(buf->data))
   if (buf->head == buf->tail) {
     buf->tail += buf->sz;
     if (buf->tail == buf->end) {
@@ -61,8 +56,13 @@ int bufAdd(log_t l, struct ring_buf *buf) {
     }
     pthread_mutex_unlock(&(buf->mutex));
 
-    return -1;
+    fprintf(stderr, "[RINGBUF] Buf Full Dropping oldest message from buffer");
+
+    // 1 indicates success but overwrote a queued log
+    return 1;
   }
+  buf->count++;
+
   pthread_mutex_unlock(&(buf->mutex));
 
   return 0;
@@ -88,6 +88,8 @@ int bufPop(log_t *l, struct ring_buf *buf) {
     buf->tail = buf->start;
   }
 
+  buf->count--;
+
   pthread_mutex_unlock(&(buf->mutex));
   return 0;
 }
@@ -110,15 +112,30 @@ void bufInit(struct ring_buf *buf, void *block, int size, int item_sz) {
 int connectLogger() {
   debug("Connecting to logging server: " LOG_SVR_NAME);
 
-  int sockfd, portno = LOG_SVR_PORT;
+  int fd, portno = LOG_SVR_PORT;
   struct sockaddr_in serveraddr;
   struct hostent *server;
   char *hostname = LOG_SVR_NAME;
 
   // Create the socket
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sockfd < 0) {
+  fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (fd < 0) {
     error("ERROR opening socket\n");
+    return -1;
+  }
+
+  struct timeval t;
+  t.tv_sec = 1;
+  t.tv_usec = 0;
+
+  // Set send and recieve timeouts to reasonable numbers
+  if (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&t, sizeof(t)) < 0) {
+     error("setsockopt failed\n");
+     return -1;
+  }
+
+  if (setsockopt (fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&t, sizeof(t)) < 0) {
+    error("setsockopt failed\n");
     return -1;
   }
 
@@ -137,15 +154,14 @@ int connectLogger() {
   serveraddr.sin_port = htons(portno);
 
   // Start TCP connection
-  if (connect(sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) {
+  if (connect(fd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) {
     error("Connection Refused\n");
     return -1;
   }
 
-  note("Connected to " LOG_SVR_NAME ":" __XSTR__(LOG_SVR_PORT) " on fd %d",
-       sockfd);
+  note("Connected to " LOG_SVR_NAME ":" __XSTR__(LOG_SVR_PORT) " fd %d", fd);
 
-  return sockfd;
+  return fd;
 }
 
 // Use of any output macro in this function could lead to stack overflow...
@@ -160,20 +176,26 @@ int logSend(log_t *l) {
 
   switch (l->type) {
   case Message:
-    snprintf(&buf[0], MAX_PACKET_SIZE, "POD1%s\n", l->content.message);
+    snprintf(&buf[0], MAX_PACKET_SIZE, "POD1%s", l->v.message);
     break;
-  case Telemetry:
-    snprintf(&buf[0], MAX_PACKET_SIZE, "POD2%s %d\n", l->content.data.name,
-             l->content.data.value);
+  case Telemetry_float:
+    snprintf(&buf[0], MAX_PACKET_SIZE, "POD2%s %f\n", l->v.float_data.name,
+             l->v.float_data.value);
+    break;
+  case Telemetry_int32:
+    snprintf(&buf[0], MAX_PACKET_SIZE, "POD2%s %d\n", l->v.int32_data.name,
+             l->v.int32_data.value);
     break;
   default:
     fprintf(stderr, "Unknown Log Type: %d", l->type);
     return -1;
   }
 
+  // TODO: buf is always a string, should be named as such
+  fprintf(stderr, "[STDERR] Logging %s", buf);
   /* send the message line to the server */
   int n = write(logging_socket, buf, strlen(buf));
-  if (n < 0) {
+  if (n <= 0) {
     fprintf(stderr, "ERROR writing to socket\n");
     return -1;
   }
@@ -192,17 +214,29 @@ int logEnqueue(log_t *l) {
   return 0;
 }
 
+int logTelemetry_f(char *name, float f) {
+  log_t l = { .type = Telemetry_float, .v = { .float_data = { .name = {0}, .value = f}}};
+  snprintf(&l.v.float_data.name[0], 64, "%s", name);
+  return logEnqueue(&l);
+}
+
+int logTelemetry(char *name, int32_t i) {
+  log_t l = { .type = Telemetry_int32, .v = { .int32_data = { .name = {0}, .value = i}}};
+  snprintf(&l.v.int32_data.name[0], 64, "%s", name);
+  return logEnqueue(&l);
+}
+
 int podLog(char *fmt, ...) {
   va_list arg;
-  log_t l = {.type = Message, .content = {{0}}};
+  log_t l = {.type = Message, .v = {{0}}};
 
-  char *msg = l.content.message;
+  char *msg = l.v.message;
   /* Write the error message */
   va_start(arg, fmt);
   vsnprintf(msg, MAX_LOG_LINE, fmt, arg);
   va_end(arg);
 
-  printf("%s\n", msg);
+  printf("%s", msg);
   fflush(stdout);
 
   static FILE *log_file = NULL;
@@ -214,7 +248,7 @@ int podLog(char *fmt, ...) {
       fprintf(stderr, "Failed to Open Log File: " LOG_FILE_PATH);
     }
   } else {
-    fprintf(log_file, "%s\n", msg);
+    fprintf(log_file, "%s", msg);
     fflush(log_file);
     fsync(fileno(log_file));
   }
@@ -223,24 +257,40 @@ int podLog(char *fmt, ...) {
 }
 
 void logDump(pod_state_t *state) {
-  debug("Logging System -> Dumping");
+  note("Logging System -> Dumping");
 
-  debug("mode: %s, ready: %d", pod_mode_names[getPodMode()],
-        getPodField(&(state->ready)));
+  note("mode: %s, ready: %d", pod_mode_names[getPodMode()],
+       getPodField(&(state->ready)));
 
-  debug("acl m/s/s: x: %f, y: %f, z: %f", getPodField_f(&(state->accel_x)),
-        getPodField_f(&(state->accel_y)), getPodField_f(&(state->accel_z)));
+  note("acl m/s/s: x: %f, y: %f, z: %f", getPodField_f(&(state->accel_x)),
+       getPodField_f(&(state->accel_y)), getPodField_f(&(state->accel_z)));
 
-  debug("vel m/s  : x: %f, y: %f, z: %f", getPodField_f(&(state->velocity_x)),
-        getPodField_f(&(state->velocity_y)),
-        getPodField_f(&(state->velocity_z)));
+  note("vel m/s  : x: %f, y: %f, z: %f", getPodField_f(&(state->velocity_x)),
+       getPodField_f(&(state->velocity_y)),
+       getPodField_f(&(state->velocity_z)));
 
-  debug("pos m    : x: %f, y: %f, z: %f", getPodField_f(&(state->position_x)),
-        getPodField_f(&(state->position_y)),
-        getPodField_f(&(state->position_z)));
+  note("pos m    : x: %f, y: %f, z: %f", getPodField_f(&(state->position_x)),
+       getPodField_f(&(state->position_y)),
+       getPodField_f(&(state->position_z)));
 
-  debug("skates   : %d", state->tmp_skates);
-  debug("brakes   : %d", state->tmp_brakes);
+  note("skates   : %d", state->tmp_skates);
+  note("brakes   : %d", state->tmp_brakes);
+
+  // Send Telemetry
+  logTelemetry_f("accel_x", getPodField_f(&(state->accel_x)));
+  logTelemetry_f("accel_y", getPodField_f(&(state->accel_y)));
+  logTelemetry_f("accel_z", getPodField_f(&(state->accel_z)));
+
+  logTelemetry_f("velocity_x", getPodField_f(&(state->velocity_x)));
+  logTelemetry_f("velocity_y", getPodField_f(&(state->velocity_y)));
+  logTelemetry_f("velocity_z", getPodField_f(&(state->velocity_z)));
+
+  logTelemetry_f("position_x", getPodField_f(&(state->position_x)));
+  logTelemetry_f("position_y", getPodField_f(&(state->position_y)));
+  logTelemetry_f("position_z", getPodField_f(&(state->position_z)));
+
+  logTelemetry("skates", state->tmp_skates);
+  logTelemetry("brakes", state->tmp_brakes);
 }
 
 void *loggingMain(void *arg) {
@@ -269,8 +319,14 @@ void *loggingMain(void *arg) {
     int r = bufPop(&l, &logbuf);
 
     if (r == 0) {
-      // Send the log
-      int result = logSend(&l);
+      // Send the log, attempt 3 additional tries if it failed
+      int result = logSend(&l), attempts = 0;
+      while (result < 0 && attempts < 3) {
+        usleep(LOGGING_THREAD_SLEEP);
+        result = logSend(&l);
+        attempts++;
+        fprintf(stderr, "Log Retry #%d result %d\n", attempts, result);
+      }
 
       // Failed to send logs.
       // Regardless of the reason, we need to stop
@@ -286,5 +342,6 @@ void *loggingMain(void *arg) {
   }
 
   error("=== Logging system is going down ===");
+  exit(1);
   return NULL;
 }
