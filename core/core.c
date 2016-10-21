@@ -150,36 +150,75 @@ void lateralCheck(pod_state_t *state) {
   }
 }
 
-void setSkates(int value) {
+int setSkates(int no, int val, bool override) {
   // TODO: Implement Me
-  getPodState()->tmp_skates = value;
+  pod_state_t * state = getPodState();
+  if (isManual(SKATE_OVERRIDE_ALL) && !override && state->tmp_skates != val) {
+    warn("Skates are in override mode!");
+    return -1;
+  }
+
+  state->tmp_skates = val;
+  return 0;
 }
 
-void setBrakes(int value) {
+int setBrakes(int no, int val, bool override) {
   // TODO: Implement Me
-  getPodState()->tmp_brakes = value;
+  pod_state_t * state = getPodState();
+  uint64_t skate_override[] = SKATE_OVERRIDE_LIST;
+  if (isManual(skate_override[no]) && !override && state->tmp_brakes != val) {
+    warn("Skates are in override mode!");
+    return -1;
+  }
+
+  state->tmp_brakes = val;
+  return 0;
 }
 
-void setEBrakes(int value) {
-  // TODO: Implement Me
-  getPodState()->tmp_ebrakes = value;
+int setEBrakes(int no, int val, bool override) {
+  // TODO: Implement actually and also implement locking
+  pod_state_t * state = getPodState();
+  uint64_t ebrake_override[] = EBRAKE_OVERRIDE_LIST;
+
+  if (isManual(ebrake_override[no]) && !override && state->tmp_ebrakes != val) {
+    warn("Skates are in override mode!");
+    return -1;
+  }
+
+  state->tmp_ebrakes = val;
+  return 0;
 }
 
 void adjustBrakes(pod_state_t *state) {
+  int i;
   switch (getPodMode()) {
   case Ready:
   case Pushing:
   case Coasting:
-    setBrakes(0);
+    for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
+      setBrakes(i, 0, false);
+    }
     break;
   case Boot:
   case Shutdown:
   case Braking:
-    setBrakes(1);
+    for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
+      setBrakes(i, 1, false);
+    }
     break;
   case Emergency:
-    setBrakes(1);
-    setEBrakes(1);
+    if (getPodField(&(state->accel_x)) <= A_ERR_X) {
+      for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
+        setBrakes(i, 1, false);
+      }
+      for (i=0; i<N_EBRAKE_SOLONOIDS; i++) {
+        setEBrakes(i, 0, false);
+      }
+    } else {
+      error("==== Emergency Emergency Emergency ====");
+      error("State is Emergency but not applying any brakes because accel x is > 0.0");
+      error("==== Emergency Emergency Emergency ====");
+    }
     break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a brake decsion");
@@ -189,18 +228,22 @@ void adjustBrakes(pod_state_t *state) {
 void adjustSkates(pod_state_t *state) {
   // Skates are completely controlled by pod state, therefore we can just
   // switch over them
-
+  int i;
   switch (getPodMode()) {
   case Ready:
   case Pushing:
   case Coasting:
-    setSkates(1);
+    for (i=0; i<N_SKATE_SOLONOIDS; i++) {
+      setSkates(i, 1, false);
+    }
     break;
   case Boot:
   case Emergency:
   case Shutdown:
   case Braking:
-    setSkates(0);
+    for (i=0; i<N_SKATE_SOLONOIDS; i++) {
+      setSkates(i, 1, false);
+    }
     break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");

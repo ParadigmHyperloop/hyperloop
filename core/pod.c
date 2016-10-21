@@ -37,8 +37,37 @@ pod_state_t __state = {
     .skate_front_right_z = POD_VALUE_INITIALIZER_INT32,
     .skate_rear_left_z = POD_VALUE_INITIALIZER_INT32,
     .skate_rear_right_z = POD_VALUE_INITIALIZER_INT32,
+    .overrides = 0ULL,
+    .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER
 };
 
+/**
+ * Sets the given control surfaces into override mode
+ */
+void setManual(uint64_t surfaces, bool override) {
+  pod_state_t * state = getPodState();
+  if (override) {
+    pthread_rwlock_wrlock(&(state->overrides_mutex));
+    state->overrides |= surfaces;
+    pthread_rwlock_unlock(&(state->overrides_mutex));
+  } else {
+    pthread_rwlock_wrlock(&(state->overrides_mutex));
+    state->overrides &= ~surfaces;
+    pthread_rwlock_unlock(&(state->overrides_mutex));
+  }
+}
+
+/**
+ * Sets the given control surfaces into override mode
+ */
+bool isManual(uint64_t surface) {
+  bool manual = false;
+  pod_state_t * state = getPodState();
+  pthread_rwlock_rdlock(&(state->overrides_mutex));
+  manual = (bool) ((state->overrides & surface) != 0);
+  pthread_rwlock_unlock(&(state->overrides_mutex));
+  return manual;
+}
 /**
  * Determines if the new mode is a valid mode
  *
