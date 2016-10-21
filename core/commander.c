@@ -55,39 +55,55 @@ int nclients = 0;
  * Start the TCP server: open the listen socket and bind to the given port
  */
 int startTCPCommandServer(int portno) {
-  int sockfd;
+  int fd;
   struct sockaddr_in self;
 
-  /*---Create streaming socket---*/
-  if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+  // Create a socket
+  if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     error("Command Server socket() %s", strerror(errno));
     return -1;
   }
 
   int option = 1;
-  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+  setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 #ifdef SO_REUSEPORT
-  setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &option, sizeof(option));
+  setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &option, sizeof(option));
 #endif
-  /*---Initialize address/port structure---*/
+
+  struct timeval t;
+  t.tv_sec = 1;
+  t.tv_usec = 0;
+
+  // Set send and recieve timeouts to reasonable numbers
+  if (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&t, sizeof(t)) < 0) {
+    error("setsockopt failed\n");
+    return -1;
+  }
+
+  if (setsockopt (fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&t, sizeof(t)) < 0) {
+    error("setsockopt failed\n");
+    return -1;
+  }
+
+  // Initialize address/port structure
   bzero(&self, sizeof(self));
   self.sin_family = AF_INET;
   self.sin_port = htons(portno);
   self.sin_addr.s_addr = INADDR_ANY;
 
-  /*---Assign a port number to the socket---*/
-  if (bind(sockfd, (struct sockaddr *)&self, sizeof(self)) != 0) {
+  // Assign a port number to the socket
+  if (bind(fd, (struct sockaddr *)&self, sizeof(self)) != 0) {
     error("Command Server Socket bind() %s", strerror(errno));
     return -1;
   }
 
-  /*---Make it a "listening socket"---*/
-  if (listen(sockfd, 20) != 0) {
+  // Make it a "listening socket"
+  if (listen(fd, 20) != 0) {
     error("Command Server listen() %s", strerror(errno));
     return -1;
   }
 
-  return sockfd;
+  return fd;
 }
 
 /**
