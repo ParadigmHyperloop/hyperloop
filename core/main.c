@@ -57,8 +57,6 @@ void pod_exit(int code) {
 void *coreMain(void *arg);
 void *loggingMain(void *arg);
 void *commandMain(void *arg);
-
-void digitalWrite(int pin, int val) {}
 /**
  * Panic Signal Handler.  This is only called if the shit has hit the fan
  * This function fires whenever the controller looses complete control in itself

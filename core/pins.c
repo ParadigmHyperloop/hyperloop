@@ -17,7 +17,6 @@
 #ifdef TESTING
 // Stub the GPIO functions
 void pinMode(int pin, int mode) {}
-void digitalWrite(int pin, int mode) {}
 #else
 #include "libBBB.h"
 #endif
