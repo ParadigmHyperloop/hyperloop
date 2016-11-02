@@ -7,6 +7,14 @@ The c code to run the OpenLoop HyperLoop pod. Runs on the BeagleBone Black board
 * **BBB**: Beagle Bone Black, an ARM microcontroller
 * **IMU**: Inertial Measurement Unit, a really sick accelerometer
 
+# Dependencies
+
+* `libimu`: The OpenLoop KVH IMU implementation in C.  This implementation is
+  closed source; however, the headers may be found in
+  [openloopalliance/libimu](https://github.com/openloopalliance/libimu)
+* `libBBB`: A BeagleBone Black interface library.  For more info see
+  [openloopalliance/libBBB](https://github.com/openloopalliance/libBBB)
+
 # High Level Overview
 
 ## threads
