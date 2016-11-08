@@ -9,6 +9,9 @@ run: run-core
 run-core:
 	$(CORE_MAKE) run
 
+install:
+	$(CORE_MAKE) install
+
 test: all
 	./test
 
