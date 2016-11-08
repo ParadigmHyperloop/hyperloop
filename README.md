@@ -2,7 +2,7 @@
 
 The code for the Hyperloop Pod Control systems
 
-* **Core**: the core C controller. 
+* **Core**: the core C controller.
 * **ODS**: receive logs from the pod over TCP
 * **Client**: client (telnet) for interacting with the pod remotely
 
@@ -147,11 +147,11 @@ for the time being though, so this is mostly over-preparing
 
 See the [LICENSE](LICENSE) for full licensing details.
 
-In summary, (you still need to read the whole thing), this code is for 
+In summary, (you still need to read the whole thing), this code is for
 OpenLoop and OpenLoop only. It is shared with the world for the benefit of
 observers and potential developers. If you wish to utilize this code in any
-way, you must contact us first and recieve writen permission to utilize the
-source for the purpose you require. 
+way, you must contact us first and receive written permission to utilize the
+source for the purpose you require.
 
-Lastly, DON'T trust this code to work for your hyperloop pod, or your project.
-This code is only being verified and tested on the OpenLoop plaform.
+Lastly, DON'T trust this code to work for your HyperLoop pod, or your project.
+This code is only being verified and tested on the OpenLoop platform.
