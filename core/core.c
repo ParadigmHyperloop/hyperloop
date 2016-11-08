@@ -17,6 +17,8 @@
 #include "pod.h"
 #include "pod-helpers.h"
 
+int imufd;
+
 int imuRead(pod_state_t *state);
 int lateralRead(pod_state_t *state);
 int skateRead(pod_state_t *state);
@@ -256,19 +258,27 @@ void adjustSkates(pod_state_t *state) {
 void *coreMain(void *arg) {
 
   // TODO: Implement pinReset();
-
-  imuConnect();
   pod_state_t *state = getPodState();
 
-  pod_mode_t mode;
+  imufd = imu_connect(IMU_DEVICE);
 
+  if (imufd < 0) {
+    return NULL;
+  }
+
+  pod_mode_t mode;
+  imu_datagram_t imu_data;
   while ((mode = getPodMode()) != Shutdown) {
     // --------------------------------------------
     // SECTION: Read new information from sensors
     // --------------------------------------------
-    if (imuRead(state) < 0) {
+
+    if (imu_read(imufd, &imu_data) < 0) {
       DECLARE_EMERGENCY("IMU READ FAILED");
     }
+
+    add_imu_data(&imu_data, state);
+
     if (skateRead(state) < 0) {
       DECLARE_EMERGENCY("SKATE READ FAILED");
     }
@@ -331,6 +341,8 @@ void *coreMain(void *arg) {
     // --------------------------------------------
     usleep(CORE_THREAD_SLEEP);
   }
+
+  imu_disconnect(imufd);
 
   return NULL;
 }

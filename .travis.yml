@@ -6,7 +6,18 @@ compiler:
 os:
   - linux
   - osx
+before_install:
+  - echo -e "machine github.com\n  login $CI_USER_TOKEN" >> ~/.netrc
+  - git clone https://github.com/EdHurtig/libimu-private.git libimu
+
+before_script:
+  - ls -la
+  - pwd
+  - cd libimu && make && make install && cd ..
+  - $CC --version
 
 script:
   - $CC --version
-  - cd core && make
+  - ls -la
+  - pwd
+  - make && make install

@@ -8,18 +8,35 @@
 #
 
 CC= gcc
-DEPS = core.c imu.c braking.c lateral.c logging.c skates.c pod.c pod-helpers.c commands.c commander.c mux.c libBBBShims.c
-SOURCES= main.c
+DEPS = core.c imu_data.c braking.c lateral.c logging.c skates.c pod.c pod-helpers.c commands.c commander.c mux.c libBBBShims.c
+SOURCES= main.c $(DEPS)
+OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
+
 EXECUTABLE = core
-CFLAGS += -std=gnu99 -DTESTING
-LDFLAGS += -pthread
+CFLAGS += -pthread -std=gnu99 -DTESTING -I../libimu/BUILD/dst/usr/local/include
+LDFLAGS += -pthread -limu -L../libimu/BUILD/dst/usr/local/lib
+OBJROOT= ./BUILD/obj
+DSTROOT= ./BUILD/dst
+
+
+$(EXECUTABLE):  $(OBJECTS)
+	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)
+
+$(OBJECTS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 all: $(EXECUTABLE)
 
 core: main.c $(DEPS)
 
+install:
+	mkdir -p $(DSTROOT)/usr/local/bin
+	mkdir -p $(OBJROOT)
+	install -m 755 $(OBJECTS) $(OBJROOT)
+	install -m 755 $(EXECUTABLE) $(DSTROOT)/usr/local/bin
+
 run: clean all
 	./$(EXECUTABLE)
 
 clean:
-	rm -f *.o *~ $(EXECUTABLE)
+	rm -rf *.o *~ $(EXECUTABLE) BUILD

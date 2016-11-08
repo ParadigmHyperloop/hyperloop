@@ -3,3 +3,6 @@ core/core
 *.o
 *.dSYM
 *.log
+libimu-private
+libimu
+

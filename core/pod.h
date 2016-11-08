@@ -20,6 +20,9 @@
 #include <pthread.h>
 #include <sys/queue.h>
 
+// proprietary libimu header
+#include <imu.h>
+
 #ifndef OPENLOOP_POD_H
 #define OPENLOOP_POD_H
 
@@ -248,5 +251,7 @@ int setEBrakes(int no, int val, bool override);
 
 void setManual(uint64_t surfaces, bool override);
 bool isManual(uint64_t surface);
+
+void add_imu_data(imu_datagram_t * data, pod_state_t * s);
 
 #endif
