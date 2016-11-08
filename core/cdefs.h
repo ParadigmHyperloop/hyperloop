@@ -63,6 +63,6 @@
 #define __STR__(s) #s
 #define __XSTR__(s) __STR__(s)
 
-#define assertUInt32Addition(a, b) assert(!((a >> 31) && (b >> 31)))
+#define USEC_PER_SEC 1000000ull
 
 #endif
