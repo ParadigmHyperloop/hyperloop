@@ -100,7 +100,9 @@ int skateCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 
 int overrideCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   if (argc < 3) {
-    return snprintf(outbuf, outbufc, "Usage: override <surface> [<number>] <new_value>%d", getPodMode());
+    return snprintf(outbuf, outbufc,
+                    "Usage: override <surface> [<number>] <new_value>%d",
+                    getPodMode());
   }
   if (strncmp(argv[1], "skate", 5)) {
     if (argv[2][0] == '-') {
@@ -112,17 +114,16 @@ int overrideCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
         int i;
         int val = atoi(argv[2]);
 
-        for (i=0;i<N_SKATE_SOLONOIDS;i++) {
+        for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
           setSkates(i, val, true);
         }
-      } else if (argc == 4){
+      } else if (argc == 4) {
         int i = atoi(argv[2]);
         int val = atoi(argv[3]);
         setSkates(i, val, true);
       }
     }
   } else if (strncmp(argv[1], "brake", 5)) {
-
   }
   return 0;
 }

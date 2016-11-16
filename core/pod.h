@@ -123,7 +123,6 @@ typedef struct pod_state {
   int tmp_brakes;
   int tmp_ebrakes;
 
-
   sem_t *boot_sem;
 
   uint64_t start;
@@ -134,7 +133,6 @@ typedef struct pod_state {
 } pod_state_t;
 
 typedef enum { Message = 1, Telemetry_float = 2, Telemetry_int32 } log_type_t;
-
 
 typedef struct {
   char name[64];
@@ -252,6 +250,6 @@ int setEBrakes(int no, int val, bool override);
 void setManual(uint64_t surfaces, bool override);
 bool isManual(uint64_t surface);
 
-void add_imu_data(imu_datagram_t * data, pod_state_t * s);
+void add_imu_data(imu_datagram_t *data, pod_state_t *s);
 
 #endif

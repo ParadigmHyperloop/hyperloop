@@ -75,12 +75,12 @@ int startTCPCommandServer(int portno) {
   t.tv_usec = 0;
 
   // Set send and recieve timeouts to reasonable numbers
-  if (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&t, sizeof(t)) < 0) {
+  if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&t, sizeof(t)) < 0) {
     error("setsockopt failed\n");
     return -1;
   }
 
-  if (setsockopt (fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&t, sizeof(t)) < 0) {
+  if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&t, sizeof(t)) < 0) {
     error("setsockopt failed\n");
     return -1;
   }

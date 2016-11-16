@@ -129,12 +129,12 @@ int connectLogger() {
   t.tv_usec = 0;
 
   // Set send and recieve timeouts to reasonable numbers
-  if (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&t, sizeof(t)) < 0) {
-     error("setsockopt failed\n");
-     return -1;
+  if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&t, sizeof(t)) < 0) {
+    error("setsockopt failed\n");
+    return -1;
   }
 
-  if (setsockopt (fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&t, sizeof(t)) < 0) {
+  if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&t, sizeof(t)) < 0) {
     error("setsockopt failed\n");
     return -1;
   }
@@ -215,13 +215,15 @@ int logEnqueue(log_t *l) {
 }
 
 int logTelemetry_f(char *name, float f) {
-  log_t l = { .type = Telemetry_float, .v = { .float_data = { .name = {0}, .value = f}}};
+  log_t l = {.type = Telemetry_float,
+             .v = {.float_data = {.name = {0}, .value = f}}};
   snprintf(&l.v.float_data.name[0], 64, "%s", name);
   return logEnqueue(&l);
 }
 
 int logTelemetry(char *name, int32_t i) {
-  log_t l = { .type = Telemetry_int32, .v = { .int32_data = { .name = {0}, .value = i}}};
+  log_t l = {.type = Telemetry_int32,
+             .v = {.int32_data = {.name = {0}, .value = i}}};
   snprintf(&l.v.int32_data.name[0], 64, "%s", name);
   return logEnqueue(&l);
 }

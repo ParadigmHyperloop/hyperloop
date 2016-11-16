@@ -20,32 +20,30 @@ char *pod_mode_names[N_POD_STATES] = {"Boot",     "Ready",   "Pushing",
                                       "Coasting", "Braking", "Emergency",
                                       "Shutdown", "(null)"};
 
-pod_state_t __state = {
-    .mode = Boot,
-    .initialized = false,
-    .start = 0ULL,
-    .accel_x = POD_VALUE_INITIALIZER_FL,
-    .accel_y = POD_VALUE_INITIALIZER_FL,
-    .accel_z = POD_VALUE_INITIALIZER_FL,
-    .velocity_x = POD_VALUE_INITIALIZER_FL,
-    .velocity_z = POD_VALUE_INITIALIZER_FL,
-    .velocity_y = POD_VALUE_INITIALIZER_FL,
-    .position_x = POD_VALUE_INITIALIZER_FL,
-    .position_y = POD_VALUE_INITIALIZER_FL,
-    .position_z = POD_VALUE_INITIALIZER_FL,
-    .skate_front_left_z = POD_VALUE_INITIALIZER_INT32,
-    .skate_front_right_z = POD_VALUE_INITIALIZER_INT32,
-    .skate_rear_left_z = POD_VALUE_INITIALIZER_INT32,
-    .skate_rear_right_z = POD_VALUE_INITIALIZER_INT32,
-    .overrides = 0ULL,
-    .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER
-};
+pod_state_t __state = {.mode = Boot,
+                       .initialized = false,
+                       .start = 0ULL,
+                       .accel_x = POD_VALUE_INITIALIZER_FL,
+                       .accel_y = POD_VALUE_INITIALIZER_FL,
+                       .accel_z = POD_VALUE_INITIALIZER_FL,
+                       .velocity_x = POD_VALUE_INITIALIZER_FL,
+                       .velocity_z = POD_VALUE_INITIALIZER_FL,
+                       .velocity_y = POD_VALUE_INITIALIZER_FL,
+                       .position_x = POD_VALUE_INITIALIZER_FL,
+                       .position_y = POD_VALUE_INITIALIZER_FL,
+                       .position_z = POD_VALUE_INITIALIZER_FL,
+                       .skate_front_left_z = POD_VALUE_INITIALIZER_INT32,
+                       .skate_front_right_z = POD_VALUE_INITIALIZER_INT32,
+                       .skate_rear_left_z = POD_VALUE_INITIALIZER_INT32,
+                       .skate_rear_right_z = POD_VALUE_INITIALIZER_INT32,
+                       .overrides = 0ULL,
+                       .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER};
 
 /**
  * Sets the given control surfaces into override mode
  */
 void setManual(uint64_t surfaces, bool override) {
-  pod_state_t * state = getPodState();
+  pod_state_t *state = getPodState();
   if (override) {
     pthread_rwlock_wrlock(&(state->overrides_mutex));
     state->overrides |= surfaces;
@@ -62,9 +60,9 @@ void setManual(uint64_t surfaces, bool override) {
  */
 bool isManual(uint64_t surface) {
   bool manual = false;
-  pod_state_t * state = getPodState();
+  pod_state_t *state = getPodState();
   pthread_rwlock_rdlock(&(state->overrides_mutex));
-  manual = (bool) ((state->overrides & surface) != 0);
+  manual = (bool)((state->overrides & surface) != 0);
   pthread_rwlock_unlock(&(state->overrides_mutex));
   return manual;
 }

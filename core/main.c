@@ -21,7 +21,7 @@ struct arguments {
   bool ready;
 };
 
-struct arguments args = { 0 };
+struct arguments args = {0};
 
 /**
  * WARNING: Do Not Directly Access this struct, use getPodState() instead to
@@ -54,7 +54,7 @@ void parse_args(int argc, char *argv[]) {
       args.tests = true;
       break;
     default:
-            usage();
+      usage();
     }
   }
   // argc -= optind;

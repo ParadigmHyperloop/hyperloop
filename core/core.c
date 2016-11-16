@@ -154,7 +154,7 @@ void lateralCheck(pod_state_t *state) {
 
 int setSkates(int no, int val, bool override) {
   // TODO: Implement Me
-  pod_state_t * state = getPodState();
+  pod_state_t *state = getPodState();
   if (isManual(SKATE_OVERRIDE_ALL) && !override && state->tmp_skates != val) {
     warn("Skates are in override mode!");
     return -1;
@@ -166,7 +166,7 @@ int setSkates(int no, int val, bool override) {
 
 int setBrakes(int no, int val, bool override) {
   // TODO: Implement Me
-  pod_state_t * state = getPodState();
+  pod_state_t *state = getPodState();
   uint64_t skate_override[] = SKATE_OVERRIDE_LIST;
   if (isManual(skate_override[no]) && !override && state->tmp_brakes != val) {
     warn("Skates are in override mode!");
@@ -179,7 +179,7 @@ int setBrakes(int no, int val, bool override) {
 
 int setEBrakes(int no, int val, bool override) {
   // TODO: Implement actually and also implement locking
-  pod_state_t * state = getPodState();
+  pod_state_t *state = getPodState();
   uint64_t ebrake_override[] = EBRAKE_OVERRIDE_LIST;
 
   if (isManual(ebrake_override[no]) && !override && state->tmp_ebrakes != val) {
@@ -197,28 +197,29 @@ void adjustBrakes(pod_state_t *state) {
   case Ready:
   case Pushing:
   case Coasting:
-    for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
+    for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
       setBrakes(i, 0, false);
     }
     break;
   case Boot:
   case Shutdown:
   case Braking:
-    for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
+    for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
       setBrakes(i, 1, false);
     }
     break;
   case Emergency:
     if (getPodField(&(state->accel_x)) <= A_ERR_X) {
-      for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
+      for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
         setBrakes(i, 1, false);
       }
-      for (i=0; i<N_EBRAKE_SOLONOIDS; i++) {
+      for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
         setEBrakes(i, 0, false);
       }
     } else {
       error("==== Emergency Emergency Emergency ====");
-      error("State is Emergency but not applying any brakes because accel x is > 0.0");
+      error("State is Emergency but not applying any brakes because accel x is "
+            "> 0.0");
       error("==== Emergency Emergency Emergency ====");
     }
     break;
@@ -235,7 +236,7 @@ void adjustSkates(pod_state_t *state) {
   case Ready:
   case Pushing:
   case Coasting:
-    for (i=0; i<N_SKATE_SOLONOIDS; i++) {
+    for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
       setSkates(i, 1, false);
     }
     break;
@@ -243,7 +244,7 @@ void adjustSkates(pod_state_t *state) {
   case Emergency:
   case Shutdown:
   case Braking:
-    for (i=0; i<N_SKATE_SOLONOIDS; i++) {
+    for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
       setSkates(i, 1, false);
     }
     break;

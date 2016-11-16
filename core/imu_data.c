@@ -8,7 +8,8 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
   float position = getPodField_f(x);
 
   // Exponential Moving Average
-  float new_accel = (1.0 - IMU_EMA_ALPHA) * acceleration + IMU_EMA_ALPHA * accel;
+  float new_accel =
+      (1.0 - IMU_EMA_ALPHA) * acceleration + IMU_EMA_ALPHA * accel;
 
   // Calculate the new_velocity (oldv + (olda + newa) / 2)
 
@@ -20,7 +21,7 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
   float dx = ((dt * new_velocity) / USEC_PER_SEC);
   float new_position = (position + dx);
 
-  //debug("dt: %lf us, dv: %f m/s, dx: %f m", dt, dv, dx);
+  // debug("dt: %lf us, dv: %f m/s, dx: %f m", dt, dv, dx);
 
   setPodField_f(a, new_accel);
   setPodField_f(v, new_velocity);
@@ -33,7 +34,7 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
  * Take a new IMU datagram and use it to update the x, y, and z positions
  * of the pod
  */
-void add_imu_data(imu_datagram_t * data, pod_state_t * s) {
+void add_imu_data(imu_datagram_t *data, pod_state_t *s) {
   static uint64_t last_imu_reading = 0;
   if (last_imu_reading == 0) {
     last_imu_reading = getTime();
