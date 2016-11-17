@@ -8,12 +8,14 @@ The code for the Hyperloop Pod Control systems
 
 # Glossary
 
-* **BBB**: Beagle Bone Black, an ARM microcontroller
+* **BBB**: Beagle Bone Black, an ARM micro-controller
 * **IMU**: Inertial Measurement Unit, a really sick accelerometer
 * **ODS**: OpenLoop Data Shuttle: the server that the pod sends telemetry data
   and logs to.
 
 # Documentation
+
+There is more documentation in this repository and on the OpenLoop Google Drive
 
 * [Core Control Program Documentation](core/README.md)
 
@@ -25,12 +27,52 @@ The following is a high level getting started geared for Openloop developers
 
 To fire it up locally on your mac you need 3 terminal windows and some `clang`
 
+* You will need `Xcode` if you are developing on a Mac in order to get clang
+* You will need a standard build environment if you are developing on Linux.
+  * You may use a `clang/llvm` stack or a `gcc` stack, we support both
+
+* You will also need a semi-sane Python environment, set that up on a mac with:
+  ```
+  sudo easy_install pip
+  sudo pip install virtualenv
+  ```
+
+### Clone required sources
+
 1. Clone this repo somewhere safe, then cd into it.
-2. In the first window, fire up the ODS server: type `make run-ods`
+  ```
+  mkdir ~/dev
+  cd dev
+  git clone git@github.com:openloopalliance/hyperloop-core.git
+  cd hyperloop-core
+  ```
+2. Clone the appropriate support repo in `~/dev/hyperloop-core` for the IMU
+  * Real Version
     ```
-→ make run-ods
-cd ods && /Applications/Xcode.app/Contents/Developer/usr/bin/make run
-/Users/ehurtig/dev/hyperloop-core/ods
+    git clone git@github.com:EdHurtig/libimu-private.git libimu
+    # Do not cd into this folder right now
+    ```
+    _Note that it must be cloned as "libimu" not "libimu-private"_
+  * Public Stub Version
+    ```
+    git clone https://github.com/openloopalliance/libimu.git
+    # Do not cd into this folder right now
+    ```
+3. In a *NEW* terminal window, Clone the ODS repo somewhere, this one can be
+   cloned in `~/dev` or within your `~/dev/hyperloop-core` folder. We will call
+   this window the *ODS Terminal Window*
+   ```
+   git clone git@github.com:openloopalliance/ODS.git
+   cd ODS
+   ```
+
+### Startup The Environment
+
+#### Control Point ODS server
+
+1. In the ODS terminal window, fire up the ODS server: type `make run-ods`
+    ```
+→ make run
 rm -f server.out server.err test-data.txt *.csv
 pip install -r requirements.txt
 Requirement already satisfied (use --upgrade to upgrade): influxdb==3.0.0 in /Users/ehurtig/dev/hyperloop-core/.env/lib/python2.7/site-packages (from -r requirements.txt (line 1))
@@ -42,9 +84,12 @@ Requirement already satisfied (use --upgrade to upgrade): six==1.10.0 in /Users/
 Starting TCP Server on 0.0.0.0:7778
 ```
 
-3. In the second window, fire up the core controller. type `make run-core`
+#### Pod controller
+
+1. In the first terminal window (in `hyperloop-core`), fire up the core
+   controller. type `make run` again
     ```
-    → make run-core
+    → make run
     cd core && /Applications/Xcode.app/Contents/Developer/usr/bin/make run
     /Users/ehurtig/dev/hyperloop-core/core
     rm -f *.o *~ core
@@ -67,9 +112,9 @@ Starting TCP Server on 0.0.0.0:7778
     [NOTE]  [commandServer] {commander.c:239} === Waiting for first commander connection ===
     ```
 
-4. The controller is is waiting for an operator to connect to it. This is the
+2. The controller is is waiting for an operator to connect to it. This is the
    first of many safety features that ensure that the pod does not "run away".
-   To connect to the controller, switch to a third terminal window and type:
+   To connect to the controller, *switch to a third terminal window* and type:
 
    ```
    telnet localhost 7779
@@ -102,7 +147,7 @@ Starting TCP Server on 0.0.0.0:7778
 
     >
     ```
-5. The pod will then start the core controller loop. This loop reads data,
+3. The pod will then start the core controller loop. This loop reads data,
    Makes a decision on it, and then adjusts any control surfaces. However,
    In order to tell the pod to turn on the skates, you need to transition it
    to the `Ready` state.  This allows for pre-flight inspection of the pod
@@ -110,7 +155,7 @@ Starting TCP Server on 0.0.0.0:7778
    the pod is ready to go, issue the `ready` command on the Controller CLI
    that you just connected in step 4.
 
-6. The controller will start the skates and monitor the IMU for motion in the
+4. The controller will start the skates and monitor the IMU for motion in the
    `+X` direction.  As soon as it records this, it will change it's state to
    `Pushing`.  As soon as the acceleration drops to `-X`, the pod will set
    it's state to `Coasting`. Finally as soon as the X position is determined
@@ -127,7 +172,7 @@ level Makefile in this repository that provides a few helpful targets.
 
 * Just typing "make" will compile all the projects
 * `run`: Will start up the core controller (the thing that runs on the BBB)
-* `run-ods`: Will start up the Openloop Data Shuttle server.
+* `run-ods`: Will start up the OpenLoop Data Shuttle server.
 
 ## Coding Practices
 
@@ -138,7 +183,7 @@ complexity of the application and dependency tree.
 Anything running at the control point is fair game though. The control point
 is not limited in resources like the BBB so the only rule we really impose is
 that it works, it's tested, and it is reliable. We will have a full Dell R7**
-server running in the control area to recieve and proccess data from the pod.
+server running in the control area to receive and process data from the pod.
 The server will be virtualized with a VMware vSphere hypervisor that can host
 dozens of virtual machines at once. We hope to keep the control point simple
 for the time being though, so this is mostly over-preparing
