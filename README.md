@@ -50,14 +50,19 @@ To fire it up locally on your mac you need 3 terminal windows and some `clang`
   * Real Version
     ```
     git clone git@github.com:EdHurtig/libimu-private.git libimu
-    # Do not cd into this folder right now
     ```
     _Note that it must be cloned as "libimu" not "libimu-private"_
   * Public Stub Version
     ```
     git clone https://github.com/openloopalliance/libimu.git
-    # Do not cd into this folder right now
     ```
+3. Build the `libimu` project so that the `hyperloop-core` project has an IMU
+   implementation it can use
+   ```
+   cd libimu
+   make && make install
+   cd ..
+   ```
 3. In a *NEW* terminal window, Clone the ODS repo somewhere, this one can be
    cloned in `~/dev` or within your `~/dev/hyperloop-core` folder. We will call
    this window the *ODS Terminal Window*
