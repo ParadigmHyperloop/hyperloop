@@ -266,7 +266,7 @@ void *coreMain(void *arg) {
   if (imufd < 0) {
     return NULL;
   }
-
+  size_t imu_score = 0, skate_score = 0, lateralScore = 0;
   pod_mode_t mode;
   imu_datagram_t imu_data;
   while ((mode = getPodMode()) != Shutdown) {
@@ -274,15 +274,21 @@ void *coreMain(void *arg) {
     // SECTION: Read new information from sensors
     // --------------------------------------------
 
-    if (imu_read(imufd, &imu_data) < 0) {
-      DECLARE_EMERGENCY("IMU READ FAILED");
+    if (imu_read(imufd, &imu_data) < 0 && imu_score < IMU_SCORE_MAX) {
+      imu_score += IMU_SCORE_STEP_UP;
+      if (imu_score > IMU_SCORE_MAX) {
+        DECLARE_EMERGENCY("IMU FAILED");
+      }
+    } else if (imu_score > 0) {
+      imu_score -= IMU_SCORE_STEP_DOWN;
     }
 
     add_imu_data(&imu_data, state);
 
-    if (skateRead(state) < 0) {
+    if (skateRead(state) < 0 && skate_score < SKATE_SCORE_MAX) {
       DECLARE_EMERGENCY("SKATE READ FAILED");
     }
+
     if (lateralRead(state) < 0) {
       DECLARE_EMERGENCY("LATERAL READ FAILED");
     }
@@ -295,7 +301,7 @@ void *coreMain(void *arg) {
     skateCheck(state);
     lateralCheck(state);
 
-    if (getPodField_f(&(state->velocity_x)) < -V_ERR_X) {
+    if (getPodField_f(&(state->velocity_x)) < -V_ERR_X && state->calibrated) {
       setPodMode(Emergency, "Pod rolling backward");
     }
 

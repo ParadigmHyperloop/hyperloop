@@ -14,6 +14,8 @@
  * Please see http://www.opnlp.co for contact information
  ****************************************************************************/
 
+#include "config/scores.h"
+
 #ifndef _OPENLOOP_POD_CONFIG_
 #define _OPENLOOP_POD_CONFIG_
 
@@ -45,6 +47,8 @@
 
 #define N_LATERAL_SENSORS 4
 
+#define N_BATTERIES 4
+
 // Taken from interface.c
 #define COND 2
 #define COUNT 4
@@ -56,25 +60,25 @@
 #define LOOP_DURATION 1000;
 
 // Error Thresholds
-#define A_ERR_X 0.0002
-#define A_ERR_Y 0.0002
-#define A_ERR_Z 0.0002
-#define V_ERR_X 0.0002
-#define V_ERR_Y 0.0002
-#define V_ERR_Z 0.0002
+#define A_ERR_X 0.02
+#define A_ERR_Y 0.02
+#define A_ERR_Z 0.02
+#define V_ERR_X 0.1
+#define V_ERR_Y 0.1
+#define V_ERR_Z 0.1
 
 // Signals
 #define POD_SIGPANIC SIGUSR2
 
 // IMU Device
-#define IMU_DEVICE "/dev/cu.usbmodem-00000"
+#define IMU_DEVICE "/dev/ttyUSB0"
 #define IMU_MESSAGE_SIZE 32
 
 // Defines how much filtering should be done in the Exponential Moving Average
 // filter for the IMU input.
 // The formula used is:
 //   (new_accel = (1.0-IMU_EMA_ALPHA)*old_accel + IMU_EMA_ALPHA*accel_reading)
-#define IMU_EMA_ALPHA 0.1
+#define IMU_EMA_ALPHA 0.01
 
 // -------------------------
 // Subsystem Identifiers
@@ -93,7 +97,7 @@
 // --------------------------------------------------------------------------
 // Each thread is a loop, how long should the thread sleep for each iteration
 // --------------------------------------------------------------------------
-#define CORE_THREAD_SLEEP 5000
+#define CORE_THREAD_SLEEP 0
 #define LOGGING_THREAD_SLEEP 5000
 
 // --------------
