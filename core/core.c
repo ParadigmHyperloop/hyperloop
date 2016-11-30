@@ -154,7 +154,8 @@ void lateral_sensor_checks(pod_state_t *state) {
 int set_skate_target(int no, int val, bool override) {
   // TODO: Implement Me
   pod_state_t *state = get_pod_state();
-  if (is_surface_overriden(SKATE_OVERRIDE_ALL) && !override && state->tmp_skates != val) {
+  if (is_surface_overriden(SKATE_OVERRIDE_ALL) && !override &&
+      state->tmp_skates != val) {
     warn("Skates are in override mode!");
     return -1;
   }
@@ -167,7 +168,8 @@ int set_caliper_brakes(int no, int val, bool override) {
   // TODO: Implement Me
   pod_state_t *state = get_pod_state();
   uint64_t skate_override[] = SKATE_OVERRIDE_LIST;
-  if (is_surface_overriden(skate_override[no]) && !override && state->tmp_brakes != val) {
+  if (is_surface_overriden(skate_override[no]) && !override &&
+      state->tmp_brakes != val) {
     warn("Skates are in override mode!");
     return -1;
   }
@@ -181,7 +183,8 @@ int set_emergency_brakes(int no, int val, bool override) {
   pod_state_t *state = get_pod_state();
   uint64_t ebrake_override[] = EBRAKE_OVERRIDE_LIST;
 
-  if (is_surface_overriden(ebrake_override[no]) && !override && state->tmp_ebrakes != val) {
+  if (is_surface_overriden(ebrake_override[no]) && !override &&
+      state->tmp_ebrakes != val) {
     warn("Skates are in override mode!");
     return -1;
   }
@@ -255,7 +258,7 @@ void adjust_skates(pod_state_t *state) {
 /**
  * The Core Run Loop
  */
-void * core_main(void *arg) {
+void *core_main(void *arg) {
 
   // TODO: Implement pinReset();
   pod_state_t *state = get_pod_state();

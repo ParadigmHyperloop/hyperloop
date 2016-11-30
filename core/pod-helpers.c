@@ -38,8 +38,7 @@ bool any_emergency_brakes(pod_state_t *state) {
 bool any_calipers(pod_state_t *state) {
   int i;
   for (i = 0; i < N_EBRAKE_PRESSURES; i++) {
-    if (!within(EBRAKE_ENGAGED_MIN_F,
-                get_value(&(state->ebrake_pressures[i])),
+    if (!within(EBRAKE_ENGAGED_MIN_F, get_value(&(state->ebrake_pressures[i])),
                 EBRAKE_ENGAGED_MAX_F)) {
       return false;
     }

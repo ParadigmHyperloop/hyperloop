@@ -213,7 +213,7 @@ void set_value_f(pod_value_t *pod_field, float newValue) {
 }
 
 void pod_calibrate() {
-  pod_state_t * state = get_pod_state();
+  pod_state_t *state = get_pod_state();
 
   set_value_f(&(state->imu_calibration_x), get_value_f(&(state->accel_x)));
   set_value_f(&(state->imu_calibration_y), get_value_f(&(state->accel_y)));
@@ -221,7 +221,7 @@ void pod_calibrate() {
 }
 
 void pod_reset() {
-  pod_state_t * state = get_pod_state();
+  pod_state_t *state = get_pod_state();
 
   set_value_f(&(state->accel_x), 0.0);
   set_value_f(&(state->accel_y), 0.0);

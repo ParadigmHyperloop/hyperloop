@@ -36,7 +36,8 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
  */
 void add_imu_data(imu_datagram_t *data, pod_state_t *s) {
   if (!imu_valid(data)) {
-    printf("NOT VALID: %X == %X; STAT: %X\n", data->computed_crc, data->crc, data->status);
+    printf("NOT VALID: %X == %X; STAT: %X\n", data->computed_crc, data->crc,
+           data->status);
     if (data->x > 0.0) {
       exit(101);
     }

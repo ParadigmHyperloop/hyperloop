@@ -17,7 +17,6 @@
 #include "pod.h"
 #include "commands.h"
 
-
 int helpCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   int count = snprintf(
       &outbuf[0], outbufc, "%s",

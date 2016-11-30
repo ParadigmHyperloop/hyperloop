@@ -329,7 +329,7 @@ int commandServer() {
         if (processRequest(clients[i], clients[i]) < 0) {
           // remove the client
           set_pod_mode(Emergency, "Operator Client %d (fd %d) disconnected", i,
-                     clients[i]);
+                       clients[i]);
           close(clients[i]);
           int j;
           for (j = i + 1; j < nclients; j++) {

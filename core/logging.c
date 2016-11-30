@@ -266,12 +266,10 @@ void logDump(pod_state_t *state) {
        get_value_f(&(state->accel_y)), get_value_f(&(state->accel_z)));
 
   note("vel m/s  : x: %f, y: %f, z: %f", get_value_f(&(state->velocity_x)),
-       get_value_f(&(state->velocity_y)),
-       get_value_f(&(state->velocity_z)));
+       get_value_f(&(state->velocity_y)), get_value_f(&(state->velocity_z)));
 
   note("pos m    : x: %f, y: %f, z: %f", get_value_f(&(state->position_x)),
-       get_value_f(&(state->position_y)),
-       get_value_f(&(state->position_z)));
+       get_value_f(&(state->position_y)), get_value_f(&(state->position_z)));
 
   note("skates   : %d", state->tmp_skates);
   note("brakes   : %d", state->tmp_brakes);
