@@ -71,7 +71,7 @@ bool isManual(uint64_t surface) {
  *
  * @return whether the new mode is valid knowing the gPodState
  */
-bool validPodMode(pod_mode_t current_mode, pod_mode_t new_mode) {
+bool validTransition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
       {Boot, Ready, Emergency, Shutdown, _nil}, // 0: Boot
       {Ready, Pushing, Emergency, _nil},        // 1: Ready
@@ -86,7 +86,8 @@ bool validPodMode(pod_mode_t current_mode, pod_mode_t new_mode) {
   assert(transitions[current_mode][0] == current_mode);
 
   pod_mode_t i_state;
-  int i = 0;
+  // Do not include Current Mode => Same Current Mode
+  int i = 1;
 
   while ((i_state = transitions[current_mode][i]) != _nil) {
     // debug("Checking %s == %s", pod_mode_names[i_state],
@@ -162,7 +163,7 @@ int setPodMode(pod_mode_t new_mode, char *reason, ...) {
   warn("Pod Mode Transition %s => %s. reason: %s", pod_mode_names[old_mode],
        pod_mode_names[new_mode], msg);
 
-  if (validPodMode(old_mode, new_mode)) {
+  if (validTransition(old_mode, new_mode)) {
     pthread_rwlock_wrlock(&(state->mode_mutex));
     getPodState()->mode = new_mode;
     pthread_rwlock_unlock(&(state->mode_mutex));
@@ -211,6 +212,27 @@ void setPodField_f(pod_value_t *pod_field, float newValue) {
   pthread_rwlock_unlock(&(pod_field->lock));
 }
 
+void pod_calibrate() {
+  pod_state_t * state = getPodState();
+
+  setPodField_f(&(state->imu_calibration_x), getPodField_f(&(state->accel_x)));
+  setPodField_f(&(state->imu_calibration_y), getPodField_f(&(state->accel_y)));
+  setPodField_f(&(state->imu_calibration_z), getPodField_f(&(state->accel_z)));
+}
+
+void pod_reset() {
+  pod_state_t * state = getPodState();
+
+  setPodField_f(&(state->accel_x), 0.0);
+  setPodField_f(&(state->accel_y), 0.0);
+  setPodField_f(&(state->accel_z), 0.0);
+  setPodField_f(&(state->velocity_x), 0.0);
+  setPodField_f(&(state->velocity_z), 0.0);
+  setPodField_f(&(state->velocity_y), 0.0);
+  setPodField_f(&(state->position_x), 0.0);
+  setPodField_f(&(state->position_y), 0.0);
+  setPodField_f(&(state->position_z), 0.0);
+}
 /**
  * Trigger a full controller panic and kill everything.  This is a forced dumb
  * EBRAKE.

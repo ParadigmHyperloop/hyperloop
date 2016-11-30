@@ -62,6 +62,34 @@ typedef struct {
   int select_pins[N_MUX_SELECT_PINS];
   int line_pin;
 } pod_mux_t;
+
+/**
+ * Information from the battery control boards
+ */
+typedef struct {
+  pod_value_t voltage;
+  pod_value_t current;
+  pod_value_t temperature;
+  pod_value_t charge;
+  pod_value_t remaining_time;
+} pod_battery_t;
+
+/**
+ * Bundles information for analog sensor reading
+ */
+typedef struct {
+  // The internal id number for the sensor
+  int sensor_id;
+  // The Human readable name of the sensor
+  char name[63];
+  // The last calibrated sensor value
+  pod_value_t value;
+  // quadratic calibration coefficients ax^2 + bx + c where x is the raw value
+  double cal_a;
+  double cal_b;
+  double cal_c;
+} pod_analog_sensor_t;
+
 /**
  * Defines the master state of the pod
  */
@@ -77,6 +105,10 @@ typedef struct pod_state {
   pod_value_t position_x;
   pod_value_t position_y;
   pod_value_t position_z;
+
+  pod_value_t imu_calibration_x;
+  pod_value_t imu_calibration_y;
+  pod_value_t imu_calibration_z;
 
   // Lateral Sensors
   pod_value_t lateral_front_left;
@@ -104,6 +136,12 @@ typedef struct pod_state {
   pod_value_t wheel_pressures[N_WHEEL_PRESSURES];
   pod_value_t wheel_thermocouples[N_WHEEL_THERMOCOUPLES];
 
+  // Pusher plate
+  pod_value_t pusher_plate;
+
+  // Batteries
+  pod_battery_t batteries[N_BATTERIES];
+
   // Thread Tracking
   pthread_t core_thread;
   pthread_t logging_thread;
@@ -118,6 +156,7 @@ typedef struct pod_state {
 
   pod_mux_t muxes[N_MUXES];
 
+  // --- Begin Non-Thread Safe Members ---
   // TODO: Temporary
   int tmp_skates;
   int tmp_brakes;
@@ -129,6 +168,7 @@ typedef struct pod_state {
   uint64_t overrides;
   pthread_rwlock_t overrides_mutex;
 
+  bool calibrated;
   bool initialized;
 } pod_state_t;
 
@@ -234,6 +274,15 @@ void logDump(pod_state_t *state);
 
 void podInterruptPanic(int subsystem, char *file, int line, char *notes, ...);
 
+/**
+ * Calibrate sensors based on currently read values (zero out)
+ */
+void pod_calibrate(void);
+
+/**
+ * Reset positional and sensor data to blank slate
+ */
+void pod_reset(void);
 /**
  * Open the serial line to the IMU
  *

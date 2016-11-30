@@ -35,8 +35,11 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
  * of the pod
  */
 void add_imu_data(imu_datagram_t *data, pod_state_t *s) {
-
   if (!imu_valid(data)) {
+    printf("NOT VALID: %X == %X; STAT: %X\n", data->computed_crc, data->crc, data->status);
+    if (data->x > 0.0) {
+      exit(101);
+    }
     return;
   }
 
@@ -47,13 +50,20 @@ void add_imu_data(imu_datagram_t *data, pod_state_t *s) {
   }
 
   uint64_t new_imu_reading = getTime();
+
   uint64_t dt = new_imu_reading - last_imu_reading;
 
   if (dt == 0) {
     return;
   }
 
-  calcState(&(s->accel_x), &(s->velocity_x), &(s->position_x), data->x, dt);
-  calcState(&(s->accel_y), &(s->velocity_y), &(s->position_y), data->y, dt);
-  calcState(&(s->accel_z), &(s->velocity_z), &(s->position_z), data->z, dt);
+  last_imu_reading = new_imu_reading;
+
+  float x = data->x + getPodField_f(&(s->imu_calibration_x));
+  float y = data->y + getPodField_f(&(s->imu_calibration_y));
+  float z = data->z + getPodField_f(&(s->imu_calibration_z));
+
+  calcState(&(s->accel_x), &(s->velocity_x), &(s->position_x), x, dt);
+  calcState(&(s->accel_y), &(s->velocity_y), &(s->position_y), y, dt);
+  calcState(&(s->accel_z), &(s->velocity_z), &(s->position_z), z, dt);
 }

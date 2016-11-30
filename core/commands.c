@@ -17,22 +17,6 @@
 #include "pod.h"
 #include "commands.h"
 
-// You must keep this list in order from Longest String to Shortest,
-// Doesn't matter the order umongst names of equal length.
-// Has to deal with how commands are located, where "e" undercuts any command
-// that starts with "e", like "exit"
-command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
-                        {.name = "status", .func = statusCommand},
-                        {.name = "skate", .func = skateCommand},
-                        {.name = "override", .func = overrideCommand},
-                        {.name = "ready", .func = readyCommand},
-                        {.name = "brake", .func = brakeCommand},
-                        {.name = "help", .func = helpCommand},
-                        {.name = "ping", .func = pingCommand},
-                        {.name = "exit", .func = exitCommand},
-                        {.name = "kill", .func = killCommand},
-                        {.name = "e", .func = emergencyCommand},
-                        {.name = NULL}};
 
 int helpCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   int count = snprintf(
@@ -49,6 +33,8 @@ int helpCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
                                        " - brake\n"
                                        " - skate\n"
                                        " - status\n"
+                                       " - calibrate\n"
+                                       " - reset\n"
                                        " - emergency (alias: e)\n"
                                        " - exit\n"
                                        " - kill\n");
@@ -57,6 +43,17 @@ int helpCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 
 int pingCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   return snprintf(&outbuf[0], outbufc, "PONG");
+}
+
+int calibrateCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+  pod_calibrate();
+  pod_reset();
+  return snprintf(&outbuf[0], outbufc, "CALIBRATION SET");
+}
+
+int resetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+  pod_reset();
+  return snprintf(&outbuf[0], outbufc, "OK");
 }
 
 int readyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
@@ -146,3 +143,22 @@ int killCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   panic(POD_COMMAND_SUBSYSTEM, "Command Line Initiated Kill Command");
   return -1;
 }
+
+// You must keep this list in order from Longest String to Shortest,
+// Doesn't matter the order umongst names of equal length.
+// Has to deal with how commands are located, where "e" undercuts any command
+// that starts with "e", like "exit"
+command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
+                        {.name = "status", .func = statusCommand},
+                        {.name = "skate", .func = skateCommand},
+                        {.name = "override", .func = overrideCommand},
+                        {.name = "ready", .func = readyCommand},
+                        {.name = "brake", .func = brakeCommand},
+                        {.name = "help", .func = helpCommand},
+                        {.name = "ping", .func = pingCommand},
+                        {.name = "exit", .func = exitCommand},
+                        {.name = "kill", .func = killCommand},
+                        {.name = "calibrate", .func = calibrateCommand},
+                        {.name = "reset", .func = resetCommand},
+                        {.name = "e", .func = emergencyCommand},
+                        {.name = NULL}};
