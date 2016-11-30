@@ -67,14 +67,14 @@
 #define POD_SIGPANIC SIGUSR2
 
 // IMU Device
-#define IMU_DEVICE "/dev/cu.usbmodem-00000"
+#define IMU_DEVICE "/dev/ttyUSB0"
 #define IMU_MESSAGE_SIZE 32
 
 // Defines how much filtering should be done in the Exponential Moving Average
 // filter for the IMU input.
 // The formula used is:
 //   (new_accel = (1.0-IMU_EMA_ALPHA)*old_accel + IMU_EMA_ALPHA*accel_reading)
-#define IMU_EMA_ALPHA 0.1
+#define IMU_EMA_ALPHA 0.01
 
 // -------------------------
 // Subsystem Identifiers

@@ -36,7 +36,7 @@ install:
 	install -m 755 $(EXECUTABLE) $(DSTROOT)/usr/local/bin
 
 run: clean all
-	./$(EXECUTABLE)
+	./$(EXECUTABLE) -r
 
 clean:
 	rm -rf *.o *~ $(EXECUTABLE) BUILD

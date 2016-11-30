@@ -110,7 +110,7 @@ void bufInit(struct ring_buf *buf, void *block, int size, int item_sz) {
 // http://www.cs.cmu.edu/afs/cs/academic/class/15213-f99/www/class26/tcpclient.c
 
 int connectLogger() {
-  debug("Connecting to logging server: " LOG_SVR_NAME);
+  info("Connecting to logging server: " LOG_SVR_NAME);
 
   int fd, portno = LOG_SVR_PORT;
   struct sockaddr_in serveraddr;
@@ -191,8 +191,6 @@ int logSend(log_t *l) {
     return -1;
   }
 
-  // TODO: buf is always a string, should be named as such
-  fprintf(stderr, "[STDERR] Logging %s", buf);
   /* send the message line to the server */
   int n = write(logging_socket, buf, strlen(buf));
   if (n <= 0) {

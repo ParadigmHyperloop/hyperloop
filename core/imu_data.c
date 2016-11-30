@@ -9,7 +9,7 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
 
   // Exponential Moving Average
   float new_accel =
-      (1.0 - IMU_EMA_ALPHA) * acceleration + IMU_EMA_ALPHA * accel;
+      (1.0 - IMU_EMA_ALPHA) * acceleration + (IMU_EMA_ALPHA * accel);
 
   // Calculate the new_velocity (oldv + (olda + newa) / 2)
 
@@ -35,6 +35,11 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
  * of the pod
  */
 void add_imu_data(imu_datagram_t *data, pod_state_t *s) {
+
+  if (!imu_valid(data)) {
+    return;
+  }
+
   static uint64_t last_imu_reading = 0;
   if (last_imu_reading == 0) {
     last_imu_reading = getTime();
