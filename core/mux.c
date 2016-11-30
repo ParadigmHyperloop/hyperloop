@@ -1,6 +1,6 @@
 #include "pod.h"
 
-int setMux(pod_mux_t mux, uint8_t select) {
+int set_mux(pod_mux_t mux, uint8_t select) {
   assert(N_MUX_SELECT_PINS == 4);
   int i;
   for (i = 0; i < N_MUX_SELECT_PINS; i++) {

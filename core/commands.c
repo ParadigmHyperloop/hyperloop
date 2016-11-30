@@ -57,34 +57,34 @@ int resetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 }
 
 int readyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
-  pod_state_t *state = getPodState();
+  pod_state_t *state = get_pod_state();
 
   int n;
 
-  int32_t ready = getPodField(&(state->ready));
+  int32_t ready = get_value(&(state->ready));
   if (ready == 0) {
-    setPodField(&(state->ready), 1);
+    set_value(&(state->ready), 1);
     n = snprintf(&outbuf[0], outbufc, "OK: SET POD READY BIT => 1");
   } else {
     n = snprintf(&outbuf[0], outbufc, "FAIL: POD READY BIT = %d, POD MODE = %d",
-                 ready, getPodMode());
+                 ready, get_pod_mode());
   }
 
   return n;
 }
 
 int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
-  pod_state_t *state = getPodState();
+  pod_state_t *state = get_pod_state();
   return snprintf(&outbuf[0], outbufc, "=== STATUS REPORT ===\n"
                                        "Mode:\t%d\n"
                                        "Ready:\t%d\n"
                                        "Ax:\t%f\n"
                                        "Vx:\t%f\n"
                                        "Px:\t%f\n",
-                  getPodMode(), getPodField(&(state->ready)),
-                  getPodField_f(&(state->accel_x)),
-                  getPodField_f(&(state->velocity_x)),
-                  getPodField_f(&(state->position_x)));
+                  get_pod_mode(), get_value(&(state->ready)),
+                  get_value_f(&(state->accel_x)),
+                  get_value_f(&(state->velocity_x)),
+                  get_value_f(&(state->position_x)));
 }
 
 int brakeCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
@@ -99,25 +99,25 @@ int overrideCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   if (argc < 3) {
     return snprintf(outbuf, outbufc,
                     "Usage: override <surface> [<number>] <new_value>%d",
-                    getPodMode());
+                    get_pod_mode());
   }
   if (strncmp(argv[1], "skate", 5)) {
     if (argv[2][0] == '-') {
-      setManual(SKATE_OVERRIDE_ALL, true);
+      override_surface(SKATE_OVERRIDE_ALL, true);
     } else {
-      setManual(SKATE_OVERRIDE_ALL, true);
+      override_surface(SKATE_OVERRIDE_ALL, true);
 
       if (argc == 3) {
         int i;
         int val = atoi(argv[2]);
 
         for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-          setSkates(i, val, true);
+          set_skate_target(i, val, true);
         }
       } else if (argc == 4) {
         int i = atoi(argv[2]);
         int val = atoi(argv[3]);
-        setSkates(i, val, true);
+        set_skate_target(i, val, true);
       }
     }
   } else if (strncmp(argv[1], "brake", 5)) {
@@ -126,8 +126,8 @@ int overrideCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 }
 
 int emergencyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
-  setPodMode(Emergency, "Command Line Initialized Emergency");
-  return snprintf(outbuf, outbufc, "Pod Mode: %d", getPodMode());
+  set_pod_mode(Emergency, "Command Line Initialized Emergency");
+  return snprintf(outbuf, outbufc, "Pod Mode: %d", get_pod_mode());
 }
 
 int exitCommand(int argc, char *argv[], int outbufc, char outbuf[]) {

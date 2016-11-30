@@ -33,7 +33,7 @@ There is a global pod state, `pod_state_t` struct that stores the state of the
 entire pod, including mode (pushing, coasting, braking), position, velocity,
 acceleration, and other very important information.
 
-Use `post_state_t * getPodState(void)` to get a pointer to the current pod
+Use `post_state_t * get_pod_state(void)` to get a pointer to the current pod
 state. There is no global state variable accessible by other means.
 
 ### Pod mode
@@ -49,10 +49,10 @@ The pod's mode, `pod_mode_t`, is one of the following:
 | 5 | Shutdown  | pod is in a safe state, do shutdown |
 | 6 | Emergency | emergency braking                   |
 
-The pod's mode should be retrieved with `pod_mode_t getPodMode(void)`
+The pod's mode should be retrieved with `pod_mode_t get_pod_mode(void)`
 
-**Important** Any component wishing to update the `getPodState()->mode` shall
-call `int setPodMode(pod_mode_t <new_mode>, char * <reason>)` to perform
+**Important** Any component wishing to update the `get_pod_state()->mode` shall
+call `int set_pod_mode(pod_mode_t <new_mode>, char * <reason>)` to perform
 validation of the new state. `<reason>` describes why the state is changing
 for better log interpretation.
 
@@ -65,7 +65,7 @@ multithreaded read/write.
 For example, the IMU currently will be directly setting the pod's Acceleration,
 Velocity, and Position state variables (This will probably change with the
 Kalman filter). The IMU (`imu.c`) will compute the new acceleration, obtain a
-write lock on `getPodState()->accel_x.mutex`.  
+write lock on `get_pod_state()->accel_x.mutex`.  
 
 Upon a successful lock, it will then write the new acceleration and release the
 write lock.

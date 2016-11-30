@@ -42,8 +42,8 @@ pod_state_t __state = {.mode = Boot,
 /**
  * Sets the given control surfaces into override mode
  */
-void setManual(uint64_t surfaces, bool override) {
-  pod_state_t *state = getPodState();
+void override_surface(uint64_t surfaces, bool override) {
+  pod_state_t *state = get_pod_state();
   if (override) {
     pthread_rwlock_wrlock(&(state->overrides_mutex));
     state->overrides |= surfaces;
@@ -58,9 +58,9 @@ void setManual(uint64_t surfaces, bool override) {
 /**
  * Sets the given control surfaces into override mode
  */
-bool isManual(uint64_t surface) {
+bool is_surface_overriden(uint64_t surface) {
   bool manual = false;
-  pod_state_t *state = getPodState();
+  pod_state_t *state = get_pod_state();
   pthread_rwlock_rdlock(&(state->overrides_mutex));
   manual = (bool)((state->overrides & surface) != 0);
   pthread_rwlock_unlock(&(state->overrides_mutex));
@@ -71,7 +71,7 @@ bool isManual(uint64_t surface) {
  *
  * @return whether the new mode is valid knowing the gPodState
  */
-bool validTransition(pod_mode_t current_mode, pod_mode_t new_mode) {
+bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
       {Boot, Ready, Emergency, Shutdown, _nil}, // 0: Boot
       {Ready, Pushing, Emergency, _nil},        // 1: Ready
@@ -101,8 +101,8 @@ bool validTransition(pod_mode_t current_mode, pod_mode_t new_mode) {
   return false;
 }
 
-int initializePodState(void) {
-  pod_state_t *state = getPodState();
+int init_pod_state(void) {
+  pod_state_t *state = get_pod_state();
   debug("initializing State at %p", state);
 
   pthread_rwlock_init(&(state->mode_mutex), NULL);
@@ -128,11 +128,11 @@ int initializePodState(void) {
     return -1;
   }
 
-  state->initialized = getTime();
+  state->initialized = get_time();
   return 0;
 }
 
-pod_state_t *getPodState(void) {
+pod_state_t *get_pod_state(void) {
   if (!__state.initialized) {
     warn("Pod State is not initialized");
   }
@@ -140,32 +140,32 @@ pod_state_t *getPodState(void) {
   return &__state;
 }
 
-pod_mode_t getPodMode(void) {
-  pthread_rwlock_rdlock(&(getPodState()->mode_mutex));
+pod_mode_t get_pod_mode(void) {
+  pthread_rwlock_rdlock(&(get_pod_state()->mode_mutex));
 
-  pod_mode_t mode = getPodState()->mode;
+  pod_mode_t mode = get_pod_state()->mode;
 
-  pthread_rwlock_unlock(&(getPodState()->mode_mutex));
+  pthread_rwlock_unlock(&(get_pod_state()->mode_mutex));
 
   return mode;
 }
 
-int setPodMode(pod_mode_t new_mode, char *reason, ...) {
+int set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   static char msg[MAX_LOG_LINE];
 
   va_list arg;
   va_start(arg, reason);
   vsnprintf(&msg[0], MAX_LOG_LINE, reason, arg);
   va_end(arg);
-  pod_state_t *state = getPodState();
-  pod_mode_t old_mode = getPodMode();
+  pod_state_t *state = get_pod_state();
+  pod_mode_t old_mode = get_pod_mode();
 
   warn("Pod Mode Transition %s => %s. reason: %s", pod_mode_names[old_mode],
        pod_mode_names[new_mode], msg);
 
-  if (validTransition(old_mode, new_mode)) {
+  if (validate_transition(old_mode, new_mode)) {
     pthread_rwlock_wrlock(&(state->mode_mutex));
-    getPodState()->mode = new_mode;
+    get_pod_state()->mode = new_mode;
     pthread_rwlock_unlock(&(state->mode_mutex));
     warn("Request to set mode from %s to %s: approved",
          pod_mode_names[old_mode], pod_mode_names[new_mode]);
@@ -178,7 +178,7 @@ int setPodMode(pod_mode_t new_mode, char *reason, ...) {
 }
 
 // returns the time in microseconds
-uint64_t getTime() {
+uint64_t get_time() {
   struct timeval currentTime;
 
   assert(gettimeofday(&currentTime, NULL) == 0);
@@ -186,58 +186,58 @@ uint64_t getTime() {
   return (currentTime.tv_sec * 1000000ULL) + currentTime.tv_usec;
 }
 
-int32_t getPodField(pod_value_t *pod_field) {
+int32_t get_value(pod_value_t *pod_field) {
   pthread_rwlock_rdlock(&(pod_field->lock));
   int32_t value = pod_field->value.int32;
   pthread_rwlock_unlock(&(pod_field->lock));
   return value;
 }
 
-float getPodField_f(pod_value_t *pod_field) {
+float get_value_f(pod_value_t *pod_field) {
   pthread_rwlock_rdlock(&(pod_field->lock));
   float value = pod_field->value.fl;
   pthread_rwlock_unlock(&(pod_field->lock));
   return value;
 }
 
-void setPodField(pod_value_t *pod_field, int32_t newValue) {
+void set_value(pod_value_t *pod_field, int32_t newValue) {
   pthread_rwlock_wrlock(&(pod_field->lock));
   pod_field->value.int32 = newValue;
   pthread_rwlock_unlock(&(pod_field->lock));
 }
 
-void setPodField_f(pod_value_t *pod_field, float newValue) {
+void set_value_f(pod_value_t *pod_field, float newValue) {
   pthread_rwlock_wrlock(&(pod_field->lock));
   pod_field->value.fl = newValue;
   pthread_rwlock_unlock(&(pod_field->lock));
 }
 
 void pod_calibrate() {
-  pod_state_t * state = getPodState();
+  pod_state_t * state = get_pod_state();
 
-  setPodField_f(&(state->imu_calibration_x), getPodField_f(&(state->accel_x)));
-  setPodField_f(&(state->imu_calibration_y), getPodField_f(&(state->accel_y)));
-  setPodField_f(&(state->imu_calibration_z), getPodField_f(&(state->accel_z)));
+  set_value_f(&(state->imu_calibration_x), get_value_f(&(state->accel_x)));
+  set_value_f(&(state->imu_calibration_y), get_value_f(&(state->accel_y)));
+  set_value_f(&(state->imu_calibration_z), get_value_f(&(state->accel_z)));
 }
 
 void pod_reset() {
-  pod_state_t * state = getPodState();
+  pod_state_t * state = get_pod_state();
 
-  setPodField_f(&(state->accel_x), 0.0);
-  setPodField_f(&(state->accel_y), 0.0);
-  setPodField_f(&(state->accel_z), 0.0);
-  setPodField_f(&(state->velocity_x), 0.0);
-  setPodField_f(&(state->velocity_z), 0.0);
-  setPodField_f(&(state->velocity_y), 0.0);
-  setPodField_f(&(state->position_x), 0.0);
-  setPodField_f(&(state->position_y), 0.0);
-  setPodField_f(&(state->position_z), 0.0);
+  set_value_f(&(state->accel_x), 0.0);
+  set_value_f(&(state->accel_y), 0.0);
+  set_value_f(&(state->accel_z), 0.0);
+  set_value_f(&(state->velocity_x), 0.0);
+  set_value_f(&(state->velocity_z), 0.0);
+  set_value_f(&(state->velocity_y), 0.0);
+  set_value_f(&(state->position_x), 0.0);
+  set_value_f(&(state->position_y), 0.0);
+  set_value_f(&(state->position_z), 0.0);
 }
 /**
  * Trigger a full controller panic and kill everything.  This is a forced dumb
  * EBRAKE.
  */
-void podInterruptPanic(int subsystem, char *file, int line, char *notes, ...) {
+void pod_panic(int subsystem, char *file, int line, char *notes, ...) {
   static char msg[MAX_LOG_LINE];
   va_list arg;
   va_start(arg, notes);

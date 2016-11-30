@@ -19,8 +19,8 @@
 void testIMUAccelerationComputations() {}
 
 int main() {
-  initializePodState();
-  pod_state_t *state = getPodState();
+  init_pod_state();
+  pod_state_t *state = get_pod_state();
 
   testIMUAccelerationComputations();
 }

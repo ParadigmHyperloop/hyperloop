@@ -102,15 +102,15 @@ Starting TCP Server on 0.0.0.0:7778
     ./core
     [INFO]  [main] {main.c:65} POD Booting...
     [INFO]  [main] {main.c:66} Initializing Pod State
-    [WARN]  [getPodState] {pod.c:92} Pod State is not initialized
-    [DEBUG] [initializePodState] {pod.c:61} initializing State at 0x1057f0240
+    [WARN]  [get_pod_state] {pod.c:92} Pod State is not initialized
+    [DEBUG] [init_pod_state] {pod.c:61} initializing State at 0x1057f0240
     [INFO]  [main] {main.c:73} Loading POD state struct for the first time
     [INFO]  [main] {main.c:76} Registering POSIX signal handlers
     [INFO]  [main] {main.c:83} Starting the Logging Client Connection
-    [DEBUG] [loggingMain] {logging.c:230} [loggingMain] Thread Start
+    [DEBUG] [logging_main] {logging.c:230} [logging_main] Thread Start
     [DEBUG] [connectLogger] {logging.c:95} Connecting to logging server: pod-server.openloopalliance.com
     [NOTE]  [connectLogger] {logging.c:130} Connected to pod-server.openloopalliance.com:7778 on fd 5
-    [INFO]  [loggingMain] {logging.c:244} punching boot_sem to proceed
+    [INFO]  [logging_main] {logging.c:244} punching boot_sem to proceed
     [INFO]  [main] {main.c:101} Booting Command and Control Server
     [DEBUG] [commandServer] {commander.c:224} Starting TCP Network Command Server
     [NOTE]  [commandServer] {commander.c:231} TCP Network Command Server Started on port: 7779

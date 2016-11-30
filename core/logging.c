@@ -259,50 +259,50 @@ int podLog(char *fmt, ...) {
 void logDump(pod_state_t *state) {
   note("Logging System -> Dumping");
 
-  note("mode: %s, ready: %d", pod_mode_names[getPodMode()],
-       getPodField(&(state->ready)));
+  note("mode: %s, ready: %d", pod_mode_names[get_pod_mode()],
+       get_value(&(state->ready)));
 
-  note("acl m/s/s: x: %f, y: %f, z: %f", getPodField_f(&(state->accel_x)),
-       getPodField_f(&(state->accel_y)), getPodField_f(&(state->accel_z)));
+  note("acl m/s/s: x: %f, y: %f, z: %f", get_value_f(&(state->accel_x)),
+       get_value_f(&(state->accel_y)), get_value_f(&(state->accel_z)));
 
-  note("vel m/s  : x: %f, y: %f, z: %f", getPodField_f(&(state->velocity_x)),
-       getPodField_f(&(state->velocity_y)),
-       getPodField_f(&(state->velocity_z)));
+  note("vel m/s  : x: %f, y: %f, z: %f", get_value_f(&(state->velocity_x)),
+       get_value_f(&(state->velocity_y)),
+       get_value_f(&(state->velocity_z)));
 
-  note("pos m    : x: %f, y: %f, z: %f", getPodField_f(&(state->position_x)),
-       getPodField_f(&(state->position_y)),
-       getPodField_f(&(state->position_z)));
+  note("pos m    : x: %f, y: %f, z: %f", get_value_f(&(state->position_x)),
+       get_value_f(&(state->position_y)),
+       get_value_f(&(state->position_z)));
 
   note("skates   : %d", state->tmp_skates);
   note("brakes   : %d", state->tmp_brakes);
 
   // Send Telemetry
-  logTelemetry_f("accel_x", getPodField_f(&(state->accel_x)));
-  logTelemetry_f("accel_y", getPodField_f(&(state->accel_y)));
-  logTelemetry_f("accel_z", getPodField_f(&(state->accel_z)));
+  logTelemetry_f("accel_x", get_value_f(&(state->accel_x)));
+  logTelemetry_f("accel_y", get_value_f(&(state->accel_y)));
+  logTelemetry_f("accel_z", get_value_f(&(state->accel_z)));
 
-  logTelemetry_f("velocity_x", getPodField_f(&(state->velocity_x)));
-  logTelemetry_f("velocity_y", getPodField_f(&(state->velocity_y)));
-  logTelemetry_f("velocity_z", getPodField_f(&(state->velocity_z)));
+  logTelemetry_f("velocity_x", get_value_f(&(state->velocity_x)));
+  logTelemetry_f("velocity_y", get_value_f(&(state->velocity_y)));
+  logTelemetry_f("velocity_z", get_value_f(&(state->velocity_z)));
 
-  logTelemetry_f("position_x", getPodField_f(&(state->position_x)));
-  logTelemetry_f("position_y", getPodField_f(&(state->position_y)));
-  logTelemetry_f("position_z", getPodField_f(&(state->position_z)));
+  logTelemetry_f("position_x", get_value_f(&(state->position_x)));
+  logTelemetry_f("position_y", get_value_f(&(state->position_y)));
+  logTelemetry_f("position_z", get_value_f(&(state->position_z)));
 
   logTelemetry("skates", state->tmp_skates);
   logTelemetry("brakes", state->tmp_brakes);
 }
 
-void *loggingMain(void *arg) {
-  debug("[loggingMain] Thread Start");
+void *logging_main(void *arg) {
+  debug("[logging_main] Thread Start");
 
-  pod_state_t *state = getPodState();
+  pod_state_t *state = get_pod_state();
   logging_socket = connectLogger();
 
   if (logging_socket < 0) {
     // attempt to put the pod into shutdown mode if we are in the boot state
     // if we have already completed boot, then
-    setPodMode(Shutdown, "Logging socket failed to connect.");
+    set_pod_mode(Shutdown, "Logging socket failed to connect.");
   }
 
   // Post to the boot sem to tell the main thread that we have initialized
@@ -314,7 +314,7 @@ void *loggingMain(void *arg) {
   // Start the log forwarding loop until shutdown
   log_t l;
   bool running = true;
-  while (getPodMode() != Shutdown && running == true) {
+  while (get_pod_mode() != Shutdown && running == true) {
     // Try to pop off a log_t that has been queued
     int r = bufPop(&l, &logbuf);
 
@@ -333,7 +333,7 @@ void *loggingMain(void *arg) {
       if (result < 0) {
         running = false;
         fprintf(stderr, "Alert: Log Send Failed %d\n", result);
-        setPodMode(Emergency, "Log Send Failed");
+        set_pod_mode(Emergency, "Log Send Failed");
       }
     } else {
       // No logs in the queue, lets sit for a while

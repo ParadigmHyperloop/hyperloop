@@ -119,12 +119,12 @@
 #define note(fmt_, ...) output("[NOTE]  ", fmt_, ##__VA_ARGS__)
 #define fatal(fmt_, ...) output("[FATAL] ", fmt_, ##__VA_ARGS__)
 #define panic(subsystem, notes, ...)                                           \
-  podInterruptPanic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
+  pod_panic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 
-// Helper that wraps setPodMode but adds file and line number
+// Helper that wraps set_pod_mode but adds file and line number
 // REVIEW: Probably should remove
 #define DECLARE_EMERGENCY(message)                                             \
-  setPodMode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
+  set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
 
 // ------------------
 // Primary Braking Thresholds

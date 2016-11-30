@@ -156,11 +156,12 @@ typedef struct pod_state {
 
   pod_mux_t muxes[N_MUXES];
 
-  // --- Begin Non-Thread Safe Members ---
   // TODO: Temporary
   int tmp_skates;
   int tmp_brakes;
   int tmp_ebrakes;
+
+  bool calibrated;
 
   sem_t *boot_sem;
 
@@ -168,7 +169,6 @@ typedef struct pod_state {
   uint64_t overrides;
   pthread_rwlock_t overrides_mutex;
 
-  bool calibrated;
   bool initialized;
 } pod_state_t;
 
@@ -215,7 +215,7 @@ int podLog(char *fmt, ...);
  *
  * @return Returns 0 in the event of a sucessful state change, -1 on error
  */
-int setPodMode(pod_mode_t new_state, char *reason, ...);
+int set_pod_mode(pod_mode_t new_state, char *reason, ...);
 
 /**
  * @brief Get the mode of the pod's control algorithms.
@@ -230,7 +230,7 @@ int setPodMode(pod_mode_t new_state, char *reason, ...);
  *
  * @return the current pod state as of calling
  */
-pod_mode_t getPodMode(void);
+pod_mode_t get_pod_mode(void);
 
 /**
  * @brief Gets a pointer to the pod state structure
@@ -240,24 +240,24 @@ pod_mode_t getPodMode(void);
  *
  * @return the current pod state as of calling
  */
-pod_state_t *getPodState(void);
+pod_state_t *get_pod_state(void);
 
 /**
- * Intiializes the pod's pod_state_t returned by getPodState()
+ * Intiializes the pod's pod_state_t returned by get_pod_state()
  */
-int initializePodState(void);
+int init_pod_state(void);
 
 /**
  * Helper method to read value from pod_state
  */
-int32_t getPodField(pod_value_t *pod_field);
-float getPodField_f(pod_value_t *pod_field);
+int32_t get_value(pod_value_t *pod_field);
+float get_value_f(pod_value_t *pod_field);
 
 /**
  * Helper method to change a value from pod_state
  */
-void setPodField(pod_value_t *pod_field, int32_t newValue);
-void setPodField_f(pod_value_t *pod_field, float newValue);
+void set_value(pod_value_t *pod_field, int32_t newValue);
+void set_value_f(pod_value_t *pod_field, float newValue);
 
 /**
  * Get the current time of the pod in microseconds
@@ -268,11 +268,11 @@ void setPodField_f(pod_value_t *pod_field, float newValue);
  *
  * @return The current timestamp in microseconds
  */
-uint64_t getTime(void);
+uint64_t get_time(void);
 
 void logDump(pod_state_t *state);
 
-void podInterruptPanic(int subsystem, char *file, int line, char *notes, ...);
+void pod_panic(int subsystem, char *file, int line, char *notes, ...);
 
 /**
  * Calibrate sensors based on currently read values (zero out)
@@ -283,6 +283,7 @@ void pod_calibrate(void);
  * Reset positional and sensor data to blank slate
  */
 void pod_reset(void);
+
 /**
  * Open the serial line to the IMU
  *
@@ -292,12 +293,12 @@ int imuConnect(void);
 
 void pod_exit(int code);
 
-int setSkates(int no, int val, bool override);
+int set_skate_target(int no, int val, bool override);
 int setBrakes(int no, int val, bool override);
 int setEBrakes(int no, int val, bool override);
 
-void setManual(uint64_t surfaces, bool override);
-bool isManual(uint64_t surface);
+void override_surface(uint64_t surfaces, bool override);
+bool is_surface_overriden(uint64_t surface);
 
 void add_imu_data(imu_datagram_t *data, pod_state_t *s);
 
