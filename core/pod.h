@@ -74,6 +74,47 @@ typedef struct {
   pod_value_t remaining_time;
 } pod_battery_t;
 
+typedef uint32_t thermocouple_raw_t;
+typedef uint32_t transducer_raw_t;
+typedef uint32_t photodiode_raw_t;
+typedef uint32_t aux_raw_t;
+typedef uint32_t sharp_raw_t;
+typedef uint32_t omron_raw_t;
+
+/**
+ * Structure of the sensor data in the Shared PRU Memory
+ */
+typedef struct {
+  thermocouple_raw_t lp_thermocouples[N_LP_THERMOCOUPLES];
+  thermocouple_raw_t hp_thermocouple;
+  thermocouple_raw_t caliper_thermocouples[N_WHEEL_THERMOCOUPLES];
+  thermocouple_raw_t ebrake_line_thermocouples[N_EBRAKE_LINE_THERMOCOUPLES];
+  thermocouple_raw_t ebrake_pad_thermocouples[N_EBRAKE_PAD_THERMOCOUPLES];
+  thermocouple_raw_t shell_thermocouples[N_SHELL_THERMOCOUPLES];
+  thermocouple_raw_t regulator_thermocouples[N_LP_REGULATOR_THERMOCOUPLES];
+  thermocouple_raw_t power_thermocouples[N_POWER_THERMOCOUPLES];
+  transducer_raw_t lp_transducers[N_LP_TRANSDUCERS];
+  transducer_raw_t hp_transducer;
+  transducer_raw_t shell_transducers[N_SHELL_TRANSDUCERS];
+  transducer_raw_t skate_transducers[N_SKATE_TRANSDUCERS];
+  photodiode_raw_t shell_photodiodes[N_SHELL_PHOTODIODES];
+  photodiode_raw_t wheel_photodiodes[N_WHEEL_PHOTODIODES];
+  aux_raw_t aux_A;
+  // TODO: Break out N_LATERAL_SENSORS into Left and Right
+  photodiode_raw_t left_lateral_distance[N_LATERAL_SENSORS / 2];
+  aux_raw_t aux_B;
+  photodiode_raw_t right_lateral_distance[N_LATERAL_SENSORS / 2];
+  aux_raw_t aux_C;
+  omron_raw_t skate_omrons[N_SKATE_OMRONS];
+  omron_raw_t wheel_omrons[N_WHEEL_OMRONS];
+  aux_raw_t aux_D;
+} sensor_pack_t;
+
+typedef struct {
+  uint32_t request_lock;
+  const uint32_t lock_confirmed;
+  sensor_pack_t data;
+} pru_com_t;
 /**
  * Bundles information for analog sensor reading
  */
@@ -128,12 +169,12 @@ typedef struct pod_state {
 
   // EBrake Senors and Solonoids
   pod_value_t ebrake_solonoids[N_EBRAKE_SOLONOIDS];
-  pod_value_t ebrake_pressures[N_EBRAKE_PRESSURES];
+  // pod_value_t ebrake_pressures[N_EBRAKE_PRESSURES];
   pod_value_t ebrake_thermocouples[N_EBRAKE_SOLONOIDS];
 
   // Wheel Brake Sensors and Solonoids
   pod_value_t wheel_solonoids[N_WHEEL_SOLONOIDS];
-  pod_value_t wheel_pressures[N_WHEEL_PRESSURES];
+  // pod_value_t wheel_pressures[N_WHEEL_PRESSURES];
   pod_value_t wheel_thermocouples[N_WHEEL_THERMOCOUPLES];
 
   // Pusher plate
@@ -284,12 +325,7 @@ void pod_calibrate(void);
  */
 void pod_reset(void);
 
-/**
- * Open the serial line to the IMU
- *
- * Returns the fd of the IMU (also stored in global imuFd var) or -1 on fail
- */
-int imuConnect(void);
+int pru_read_pack(sensor_pack_t * pack);
 
 void pod_exit(int code);
 

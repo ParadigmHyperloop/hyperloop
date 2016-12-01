@@ -108,15 +108,7 @@ void pod_exit(int code) {
 void signal_handler(int sig) {
   __state.mode = Emergency;
 
-  // Manually make the pod safe
-  int ebrake_pins[] = EBRAKE_PINS;
-
-  // Set all the ebrake pins to 0
-  for (int i = 0; i < sizeof(ebrake_pins) / sizeof(int); i++) {
-    fprintf(stderr, "[PANIC] Forcing Pin %d => 0\n", ebrake_pins[i]);
-    // TODO: ReEnable This:
-    // digitalWrite(ebrake_pins[i], 0);
-  }
+  // TODO: Need to ensure that system is quit with emergency brakes applied
 
   exit(EXIT_FAILURE);
 }
@@ -157,9 +149,9 @@ int main(int argc, char *argv[]) {
   info("Setting Up Pins");
 
 #ifdef BBB
-  setupPins(state);
+  setup_pins(state);
   if (args.tests) {
-    selfTest(state);
+    self_tests(state);
   }
 #endif
 

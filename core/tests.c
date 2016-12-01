@@ -16,11 +16,82 @@
 
 #include "pod.h"
 
-void testIMUAccelerationComputations() {}
+/**
+ * Walks all the surfaces to the given level (0 for min, 1 for max).
+ * For example: relays will be closed if lvl is 1 and released/opened if set
+ * to 0.  MPYEs will be closed when lvl is 1 and opened if 0.
+ *
+ * lvl = 1 indicates the state of the surface that will draw the most currents
+ *
+ * @param lvl The state to set surfaces to
+ * @param sleep The sleep time between each surface actuation.
+ * @param sleep_block The sleep time between actuating all surfaces of a given
+ *   type.
+ *
+ * @return 0 on success. -1 on failure
+ */
+int set_all_surfaces(int lvl, int sleep, int sleep_block) {
+  int i;
+  for (i=0; i<N_SKATE_SOLONOIDS; i++) {
+    set_skate_target(i, lvl);
+    usleep(sleep);
+  }
+  usleep(sleep_block);
 
-int main() {
-  init_pod_state();
-  pod_state_t *state = get_pod_state();
+  for (i=0; i<N_EBRAKE_SOLONOIDS; i++) {
+    set_emergency_brakes(i, lvl);
+    usleep(sleep);
+  }
+  usleep(sleep_block);
 
-  testIMUAccelerationComputations();
+  for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
+    set_caliper_brakes(i, lvl);
+    usleep(sleep);
+  }
+  usleep(sleep_block);
+}
+
+/**
+ * Test to stress the pod's electrical system by bursting it under full load
+ * and trying to generate worst case senario rush currents
+ *
+ * @param state A pointer
+ *
+ * @return 0 on success. -1 on failure
+ */
+int relay_walker() {
+  int n = 0;
+  int lvl = 0;
+  int half_second = 5000000;
+  while (n <= 10) {
+    lvl = n % 2;
+    set_all_surfaces(lvl, half_second, 0);
+    n++;
+  }
+
+  n = 0;
+  while (n <= 10) {
+    lvl = n % 2;
+    set_all_surfaces(lvl, 0, half_second);
+    n++;
+  }
+  sleep(2);
+
+  n = 0;
+  while (n <= 10) {
+    lvl = n % 2;
+    set_all_surfaces(lvl, 0, 0);
+    usleep(half_second);
+    n++;
+  }
+  return 0;
+}
+
+int sensor_walker() {
+  sensor_pack_t sensors = read_pru_dataset();
+}
+
+int self_tests(pod_state_t * state) {
+  sensor_walker() && return -1;
+  relay_walker() && return -1;
 }

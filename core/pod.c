@@ -248,3 +248,8 @@ void pod_panic(int subsystem, char *file, int line, char *notes, ...) {
 
   kill(getpid(), POD_SIGPANIC);
 }
+
+
+int pru_read_pack(sensor_pack_t * pack) {
+    return -1;
+}

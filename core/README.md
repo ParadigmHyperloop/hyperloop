@@ -97,6 +97,15 @@ _See Pod Layout Below for orientation_
 These values are defined in [config.h](config.h). Numbers are used internally
 to index control surfaces and sensors
 
+### LP Packages
+
+| No. | Letter | Location    |
+|-----|--------|-------------|
+| 0   | A      | FRONT LEFT  |
+| 1   | B      | FRONT RIGHT |
+| 2   | C      | BACK LEFT   |
+| 3   | D      | BACK RIGHT  |
+
 ### Skates
 
 | No. | Location    |
@@ -161,16 +170,14 @@ to index control surfaces and sensors
 | No. | Location |
 |-----|----------|
 | 0   | FRONT    |
-| 1   | MID      |
-| 2   | REAR     |
+| 1   | REAR     |
 
 ### Emergency Brake Pressure Sensors
 
 | No. | Location |
 |-----|----------|
 | 0   | FRONT    |
-| 1   | MID      |
-| 2   | REAR     |
+| 1   | REAR     |
 
 ### OMRON Sensors (height sensors)
 
@@ -180,10 +187,17 @@ to index control surfaces and sensors
 |-----|-------------|
 | 0   | FRONT LEFT  |
 | 1   | FRONT RIGHT |
-| 2   | MID LEFT    |
-| 3   | MID RIGHT   |
-| 4   | REAR LEFT   |
-| 5   | REAR RIGHT  |
+| 2   | REAR LEFT   |
+| 3   | REAR RIGHT  |
+
+
+### OMRON Sensors Wheels
+
+| No. | Location    |
+|-----|-------------|
+| 0   | FRONT WHEEL |
+| 1   | MID WHEEL   |
+| 2   | REAR WHEEL  |
 
 ### Sharp Sensors (lateral sensors)
 
@@ -236,7 +250,9 @@ We have made some decisions on our own for naming things
 
 ### Pod Layout
 
-The code is written with the following Physical layout in mind
+The code is written with the following Physical layout in mind.  This is a
+standard cartisian plane... I'm not sure of the technical term so I'm just
+going to verbosely explain the Axes and their directions on the pod.
 
   * Imagine the pod is in a tube running North-South.  The pod is traveling
     **North**.  We call the **North** end of the pod the **Front**, and the
@@ -245,41 +261,23 @@ The code is written with the following Physical layout in mind
     of the pod the **Right**.
   * We call the **Top** the face farther from the Track, and the bottom, the
     face closer to the track (Also the face with the skates on it)
-
-Cool! That wasn't so hard, was it? Ok so now assigning X, Y, and Z vectors.
-
   * Our Pod's direction of travel down this _strait_ **North-South** track is
     is called the **Positive X** direction.  If the pod were to reverse and
     start traveling backwards, we would have a negative Velocity **X** value.
-  * If our pod shifts on the track a few milimeters to the **East** this would
-    be a **Positive Y** movement in the code.  Likewise a shift in the **West**
+  * If our pod shifts on the track a few milimeters to the **West** this would
+    be a **Positive Y** movement in the code.  Likewise a shift in the **East**
     direction would be a **Negative Y** movement
   * Finally, as the pod turns on it's skates, it lifts off the track slightly,
     this is a **Positive Z** movement, and likewise, when the pod's skates turn
     off, this is a **Negative Z** movement.
 
-Hopefully that was not too hard, I just wanted to make the frame of reference
-we have been using for this code incredibly clear.
+Please let me know if I screwed this up somehow : )
 
 ## Developer Notes
 
 > I've Jotted down a lot of notes in this section that may seem trivial, but
-I am putting them here anyways to hopefully save even the experienced developer a few minutes of head scratching and googling
-
-### long vs. long long
-
-The main cross platform issue you will find between your dev machine and a BBB
-will likely be 32/64-Bit issues. A quick refresher:
-
-  * `unsigned long foo;` guarantees that you will have at least 32 bits in
-    `foo`, you will actually probably 64 on 64 bit systems, but only 32 on
-    32-Bit systems.
-  * `unsigned long long foo` guarantees that you will have at least 64 bits
-    regardless of the architecture, even if it's a 32-Bit chip.
-
-To combat this nonsense... we use the `uint32_t` types to
-explicitly state how many bytes are required for the given
-variable
+I am putting them here anyways to hopefully save even the experienced
+developer a few minutes of head scratching and googling
 
 ### Run in 32-Bit mode on a 64-Bit machine
 You can force your 64-Bit system to compile and run a program in 32-Bit mode
@@ -287,5 +285,5 @@ with the following:
 
 ```
 $ CFLAGS="-arch i386" make clean all
-$ arch -i386 ./main
+$ arch -i386 ./core
 ```
