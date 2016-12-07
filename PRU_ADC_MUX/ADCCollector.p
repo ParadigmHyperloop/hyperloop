@@ -21,9 +21,8 @@
 #define CLOCK 200000000 // PRU is always clocked at 200MHz
 #define CLOCKS_PER_LOOP 2 // loop contains two instructions, one clock each
 #define DELAYCOUNT DELAY_MICRO_SECONDS * CLOCK / CLOCKS_PER_LOOP / 1000 / 1000 * 3  //if sampling rate = 98000 --> = 3061.224
-#define MUX_SIZE 15 // (0 - 15)
 
-.macro MUX_SELECT
+.macro MUX_SELECT //Selects mux depending on value of r1
 	QBEQ MUX0, r1, 0 //jump to mux0
 	QBEQ MUX1, r1, 1 //jump to mux1
 	QBEQ MUX2, r1, 2 //jump to mux2
@@ -134,8 +133,7 @@ DONE:
     //Initialize buffer status (0: empty, 1: first buffer is ready, 2: second buffer is ready)
     MOV r2, 0
     SBCO r2, CONST_PRUSHAREDRAM, 0, 4 
-	MOV r4, MUX_SIZE
-	MOV r1, 0
+	MOV r1, 0 //Initialize counter for mux input (0 - 15)
 		
     INITV:
         MOV r5, 0 //Shared RAM address of ADC Saving position 
@@ -178,9 +176,9 @@ DONE:
     HALT
 	
 	MUX:
-		MUX_SELECT
-		ADD r1,r1, 1
-		QBA CONTINUE
+		MUX_SELECT //Call mux macro to set GPIO
+		ADD r1,r1, 1 //Increment selection
+		QBA CONTINUE //Jump back to read loop
 .endm
 
 // Starting point
