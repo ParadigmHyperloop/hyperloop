@@ -24,14 +24,20 @@ typedef struct log {
   STAILQ_ENTRY(log) entries;
 } log_t;
 
-
 /**
  * Sends the given message to all logging destinations
  */
 int podLog(char *fmt, ...);
 
+
+/**
+ * Dump entire pod_state_t to the network logging buffer
+ */
+void logDump(pod_state_t *state);
+
 /**
  * Enqueue a telemetry packet for network transmission of the current state
  */
-void logDump(pod_state_t *state);
+int logEnqueue(log_t *l);
+
 #endif

@@ -7,6 +7,19 @@
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+ifeq ($(OS),Windows_NT)
+	echo "WARNING WARNING WARNING"
+	echo "You are compiling on windows, this is an unsupported environment"
+	echo "WARNING WARNING WARNING"
+else
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+	 LDFLAGS += -pthread 
+endif
+ifeq ($(UNAME_S),Darwin)
+
+endif
+endif
 CC= gcc
 DEPS = core.c imu_data.c braking.c lateral.c logging.c skates.c pod.c pod-helpers.c commands.c commander.c mux.c libBBBShims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
 SOURCES= main.c $(DEPS)
@@ -14,7 +27,7 @@ OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
 
 EXECUTABLE = core
 CFLAGS += -pthread -std=gnu99 -DDEBUG -I../libimu/BUILD/dst/usr/local/include
-LDFLAGS += -pthread -limu -L../libimu/BUILD/dst/usr/local/lib
+LDFLAGS += -limu -L../libimu/BUILD/dst/usr/local/lib
 OBJROOT= ./BUILD/obj
 DSTROOT= ./BUILD/dst
 

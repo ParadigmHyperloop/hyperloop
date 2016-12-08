@@ -269,7 +269,7 @@ void *core_main(void *arg) {
   if (imufd < 0) {
     return NULL;
   }
-  size_t imu_score = 0, skate_score = 0, lateralScore = 0;
+  size_t imu_score = 0, skate_score = 0;
   pod_mode_t mode;
   imu_datagram_t imu_data;
   while ((mode = get_pod_mode()) != Shutdown) {

@@ -91,6 +91,6 @@ int logEnqueue(log_t *l) {
     ring_buf_init(&logbuf, &logbuf_data, LOG_BUF_SIZE, sizeof(log_t));
   }
 
-  ring_buf_append(*l, &logbuf);
+  ring_buf_append(l, &logbuf);
   return 0;
 }

@@ -1,6 +1,6 @@
 #include "pod.h"
 
-void ring_buf_init(struct ring_buf *buf, void *block, int size, int item_sz) {
+void ring_buf_init(ring_buf_t *buf, void *block, int size, int item_sz) {
   buf->head = buf->start = buf->tail = block;
   buf->end = block + size * item_sz;
   buf->sz = item_sz;
@@ -8,11 +8,11 @@ void ring_buf_init(struct ring_buf *buf, void *block, int size, int item_sz) {
   pthread_mutex_init(&(buf->mutex), NULL);
 }
 
-int ring_buf_append(log_t l, ring_buf_t *buf) {
+int ring_buf_append(log_t *l, ring_buf_t *buf) {
   pthread_mutex_lock(&(buf->mutex));
 
   // Copy the new element into the buffer
-  memcpy(buf->head, &l, buf->sz);
+  memcpy(buf->head, l, buf->sz);
 
   buf->head += buf->sz;
   if (buf->head >= buf->end) {

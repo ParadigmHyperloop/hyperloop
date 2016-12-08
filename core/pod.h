@@ -24,11 +24,11 @@
 #include <sys/queue.h>
 
 // proprietary libimu header
-#include "ring_buffer.h"
 #include <imu.h>
 #include "pod/states.h"
 #include "pod/log.h"
 #include "pod/emergency.h"
+#include "ring_buffer.h"
 /**
  * Get the current time of the pod in microseconds
  *
