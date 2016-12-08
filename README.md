@@ -108,8 +108,8 @@ Starting TCP Server on 0.0.0.0:7778
     [INFO]  [main] {main.c:76} Registering POSIX signal handlers
     [INFO]  [main] {main.c:83} Starting the Logging Client Connection
     [DEBUG] [logging_main] {logging.c:230} [logging_main] Thread Start
-    [DEBUG] [connectLogger] {logging.c:95} Connecting to logging server: pod-server.openloopalliance.com
-    [NOTE]  [connectLogger] {logging.c:130} Connected to pod-server.openloopalliance.com:7778 on fd 5
+    [DEBUG] [log_connect] {logging.c:95} Connecting to logging server: pod-server.openloopalliance.com
+    [NOTE]  [log_connect] {logging.c:130} Connected to pod-server.openloopalliance.com:7778 on fd 5
     [INFO]  [logging_main] {logging.c:244} punching boot_sem to proceed
     [INFO]  [main] {main.c:101} Booting Command and Control Server
     [DEBUG] [commandServer] {commander.c:224} Starting TCP Network Command Server
