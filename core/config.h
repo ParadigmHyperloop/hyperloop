@@ -15,6 +15,7 @@
  ****************************************************************************/
 
 #include "config/scores.h"
+#include "config/inventory.h"
 
 #ifndef _OPENLOOP_POD_CONFIG_
 #define _OPENLOOP_POD_CONFIG_
@@ -25,29 +26,6 @@
 #define POD_COPY_OWNER "OpenLoop - Controls Team"
 #define POD_COPY_YEAR "2016"
 
-// --------------------------
-// PINS - List of pin numbers
-// --------------------------
-#define EBRAKE_PINS                                                            \
-  { 0, 1, 2 }
-
-// --------------------------
-// Device Constants
-// --------------------------
-#define N_SKATE_SOLONOIDS 6
-#define N_SKATE_THERMOCOUPLES N_SKATE_SOLONOIDS
-
-#define N_EBRAKE_SOLONOIDS 2
-#define N_EBRAKE_PRESSURES N_EBRAKE_SOLONOIDS
-#define N_EBRAKE_THERMOCOUPLES N_EBRAKE_SOLONOIDS
-
-#define N_WHEEL_SOLONOIDS 3
-#define N_WHEEL_PRESSURES N_WHEEL_SOLONOIDS
-#define N_WHEEL_THERMOCOUPLES N_WHEEL_SOLONOIDS
-
-#define N_LATERAL_SENSORS 4
-
-#define N_BATTERIES 4
 
 // Taken from interface.c
 #define COND 2
@@ -103,7 +81,7 @@
 // --------------
 // Debug Printing
 // --------------
-#ifdef TESTING
+#ifdef DEBUG
 #define FLINE __FILE__ ":" __XSTR__(__LINE__)
 #define output(prefix_, fmt_, ...)                                             \
   podLog((prefix_ "[%s] {" FLINE "} " fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
@@ -119,12 +97,12 @@
 #define note(fmt_, ...) output("[NOTE]  ", fmt_, ##__VA_ARGS__)
 #define fatal(fmt_, ...) output("[FATAL] ", fmt_, ##__VA_ARGS__)
 #define panic(subsystem, notes, ...)                                           \
-  podInterruptPanic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
+  pod_panic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 
-// Helper that wraps setPodMode but adds file and line number
+// Helper that wraps set_pod_mode but adds file and line number
 // REVIEW: Probably should remove
 #define DECLARE_EMERGENCY(message)                                             \
-  setPodMode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
+  set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
 
 // ------------------
 // Primary Braking Thresholds
@@ -215,8 +193,6 @@
 // ---------------------
 // Muxxing
 // ---------------------
-#define N_MUXES 5
-#define N_MUX_SELECT_PINS 4
 
 #define MUX_0_PINS                                                             \
   {}

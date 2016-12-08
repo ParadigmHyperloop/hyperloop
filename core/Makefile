@@ -8,12 +8,12 @@
 #
 
 CC= gcc
-DEPS = core.c imu_data.c braking.c lateral.c logging.c skates.c pod.c pod-helpers.c commands.c commander.c mux.c libBBBShims.c
+DEPS = core.c imu_data.c braking.c lateral.c logging.c skates.c pod.c pod-helpers.c commands.c commander.c mux.c libBBBShims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
 SOURCES= main.c $(DEPS)
 OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
 
 EXECUTABLE = core
-CFLAGS += -pthread -std=gnu99 -DTESTING -I../libimu/BUILD/dst/usr/local/include
+CFLAGS += -pthread -std=gnu99 -DDEBUG -I../libimu/BUILD/dst/usr/local/include
 LDFLAGS += -pthread -limu -L../libimu/BUILD/dst/usr/local/lib
 OBJROOT= ./BUILD/obj
 DSTROOT= ./BUILD/dst

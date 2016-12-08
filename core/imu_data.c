@@ -3,9 +3,9 @@
 
 int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
               double dt) {
-  float acceleration = getPodField_f(a);
-  float velocity = getPodField_f(v);
-  float position = getPodField_f(x);
+  float acceleration = get_value_f(a);
+  float velocity = get_value_f(v);
+  float position = get_value_f(x);
 
   // Exponential Moving Average
   float new_accel =
@@ -23,9 +23,9 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
 
   // debug("dt: %lf us, dv: %f m/s, dx: %f m", dt, dv, dx);
 
-  setPodField_f(a, new_accel);
-  setPodField_f(v, new_velocity);
-  setPodField_f(x, new_position);
+  set_value_f(a, new_accel);
+  set_value_f(v, new_velocity);
+  set_value_f(x, new_position);
 
   return 0;
 }
@@ -36,7 +36,8 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
  */
 void add_imu_data(imu_datagram_t *data, pod_state_t *s) {
   if (!imu_valid(data)) {
-    printf("NOT VALID: %X == %X; STAT: %X\n", data->computed_crc, data->crc, data->status);
+    printf("NOT VALID: %X == %X; STAT: %X\n", data->computed_crc, data->crc,
+           data->status);
     if (data->x > 0.0) {
       exit(101);
     }
@@ -45,11 +46,11 @@ void add_imu_data(imu_datagram_t *data, pod_state_t *s) {
 
   static uint64_t last_imu_reading = 0;
   if (last_imu_reading == 0) {
-    last_imu_reading = getTime();
+    last_imu_reading = get_time();
     return;
   }
 
-  uint64_t new_imu_reading = getTime();
+  uint64_t new_imu_reading = get_time();
 
   uint64_t dt = new_imu_reading - last_imu_reading;
 
@@ -59,9 +60,9 @@ void add_imu_data(imu_datagram_t *data, pod_state_t *s) {
 
   last_imu_reading = new_imu_reading;
 
-  float x = data->x + getPodField_f(&(s->imu_calibration_x));
-  float y = data->y + getPodField_f(&(s->imu_calibration_y));
-  float z = data->z + getPodField_f(&(s->imu_calibration_z));
+  float x = data->x + get_value_f(&(s->imu_calibration_x));
+  float y = data->y + get_value_f(&(s->imu_calibration_y));
+  float z = data->z + get_value_f(&(s->imu_calibration_z));
 
   calcState(&(s->accel_x), &(s->velocity_x), &(s->position_x), x, dt);
   calcState(&(s->accel_y), &(s->velocity_y), &(s->position_y), y, dt);

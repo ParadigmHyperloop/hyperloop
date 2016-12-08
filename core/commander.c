@@ -312,7 +312,7 @@ int commandServer() {
         // boot phase (i.e. it starts up it's core)
         if (first_client) {
           first_client = false;
-          sem_post(getPodState()->boot_sem);
+          sem_post(get_pod_state()->boot_sem);
         }
       }
     }
@@ -328,8 +328,8 @@ int commandServer() {
         debug("Recv new command from existing client (fd %d)", clients[i]);
         if (processRequest(clients[i], clients[i]) < 0) {
           // remove the client
-          setPodMode(Emergency, "Operator Client %d (fd %d) disconnected", i,
-                     clients[i]);
+          set_pod_mode(Emergency, "Operator Client %d (fd %d) disconnected", i,
+                       clients[i]);
           close(clients[i]);
           int j;
           for (j = i + 1; j < nclients; j++) {
@@ -354,19 +354,19 @@ int commandServer() {
  * command server that will recieve commands from both stdin and over the TCP
  * command server
  */
-void *commandMain(void *arg) {
+void *command_main(void *arg) {
   int retval = commandServer();
 
   if (retval < 0) {
-    switch (getPodMode()) {
+    switch (get_pod_mode()) {
     case Boot:
-      setPodMode(Shutdown, "Command Server Failed in Boot Stage");
+      set_pod_mode(Shutdown, "Command Server Failed in Boot Stage");
       break;
     default:
-      setPodMode(Emergency, "Command Server Failed");
+      set_pod_mode(Emergency, "Command Server Failed");
     }
     if (first_client) {
-      sem_post(getPodState()->boot_sem);
+      sem_post(get_pod_state()->boot_sem);
     }
   }
 

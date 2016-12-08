@@ -14,7 +14,7 @@
  * Please see http://www.opnlp.co for contact information
  ****************************************************************************/
 
-#ifdef TESTING
+#ifdef DEBUG
 // Stub the GPIO functions
 void pinMode(int pin, int mode) {}
 #else
