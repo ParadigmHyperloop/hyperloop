@@ -114,7 +114,7 @@ void signal_handler(int sig) {
 }
 
 void exit_signal_handler(int sig) {
-#ifdef TESTING
+#ifdef DEBUG
   pod_exit(2);
 #else
   switch (__state.mode) {

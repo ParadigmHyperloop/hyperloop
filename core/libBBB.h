@@ -47,7 +47,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <termios.h>
 #include <fcntl.h>
 #include <unistd.h>
-#ifndef TESTING
+#ifndef DEBUG
 #include <linux/i2c-dev.h>
 #endif
 #include <sys/ioctl.h>

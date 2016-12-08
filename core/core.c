@@ -114,11 +114,12 @@ void skate_sensor_checks(pod_state_t *state) {
   if (!ok) {
     set_pod_mode(Emergency, "A height sensor is returning 0");
   }
+}
 
+void lp_package_checks(pod_state_t *state) {
   int i;
-  for (i = 0; i < N_SKATE_THERMOCOUPLES; i++) {
-    int32_t temp = get_value(&(state->skate_thermocouples[i]));
-
+  for (i = 0; i < N_LP_REGULATOR_THERMOCOUPLES; i++) {
+    int32_t temp = get_value(&(state->lp_reg_thermocouples[i]));
     if (temp < MIN_REGULATOR_THERMOCOUPLE_TEMP) {
       set_pod_mode(Emergency, "Thermocouple %d for skates is too low");
     }

@@ -21,7 +21,7 @@ uint32_t readDistanceSensor(int sensorno) {
   return 1;
 }
 
-uint32_t readSkateThermocouple(int thermocoupleno) {
+uint32_t readSkateTransducer(int thermocoupleno) {
   // TODO: Actually read in distance value
   // TODO: Probably want to abstract this down to a generic readThermocouple()
   return 15;
@@ -35,10 +35,10 @@ int skateRead(pod_state_t *state) {
 
   // TODO: Read in new values and put them into the state struct
   int i;
-  for (i = 0; i < N_SKATE_THERMOCOUPLES; i++) {
+  for (i = 0; i < N_SKATE_TRANSDUCERS; i++) {
     int32_t new_value =
-        readSkateThermocouple(i); // Read in value for relulator temp i
-    set_value(&(state->skate_thermocouples[i]), new_value);
+        readSkateTransducer(i); // Read in value for relulator temp i
+    set_value(&(state->skate_transducers[i]), new_value);
   }
 
   return 0;

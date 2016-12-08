@@ -47,11 +47,6 @@ int readBraking(pod_state_t *state) {
   // TODO: Read in new values and put them into the state struct
   int i;
 
-  for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    int32_t new_value =
-        readWheelPressure(i); // Read in value for wheel pressure sensor i
-    set_value(&(state->wheel_pressures[i]), new_value);
-  }
 
   for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
     int32_t new_value =
@@ -59,11 +54,6 @@ int readBraking(pod_state_t *state) {
     set_value(&(state->wheel_thermocouples[i]), new_value);
   }
 
-  for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
-    int32_t new_value =
-        readEBrakePressure(i); // Read in value for ebrake pressure sensor i
-    set_value(&(state->ebrake_pressures[i]), new_value);
-  }
 
   for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
     int32_t new_value =

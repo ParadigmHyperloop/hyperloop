@@ -81,7 +81,7 @@
 // --------------
 // Debug Printing
 // --------------
-#ifdef TESTING
+#ifdef DEBUG
 #define FLINE __FILE__ ":" __XSTR__(__LINE__)
 #define output(prefix_, fmt_, ...)                                             \
   podLog((prefix_ "[%s] {" FLINE "} " fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)

@@ -20,31 +20,16 @@
  * Determine if emergency brakes are engaged
  */
 bool any_emergency_brakes(pod_state_t *state) {
-  int i;
-  for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    if (!within(PRIMARY_BRAKING_ENGAGED_MIN_F,
-                get_value(&(state->ebrake_pressures[i])),
-                PRIMARY_BRAKING_ENGAGED_MAX_F)) {
-      return false;
-    }
-  }
-
-  return true;
+  // TODO: no transducers on ebrake lines
+  return state->tmp_ebrakes;
 }
 
 /**
  * Determine if emergency brakes are engaged
  */
 bool any_calipers(pod_state_t *state) {
-  int i;
-  for (i = 0; i < N_EBRAKE_PRESSURES; i++) {
-    if (!within(EBRAKE_ENGAGED_MIN_F, get_value(&(state->ebrake_pressures[i])),
-                EBRAKE_ENGAGED_MAX_F)) {
-      return false;
-    }
-  }
-
-  return true;
+  // TODO: no transducers on caliper lines
+  return state->tmp_brakes;
 }
 
 /**
