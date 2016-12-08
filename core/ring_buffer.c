@@ -1,13 +1,17 @@
 #include "pod.h"
 
-/**
- * Push a value onto the queue
- */
-#define p_push(p, d) d + ((p - d) % sizeof(d));
+void ring_buf_init(struct ring_buf *buf, void *block, int size, int item_sz) {
+  buf->head = buf->start = buf->tail = block;
+  buf->end = block + size * item_sz;
+  buf->sz = item_sz;
+  buf->initialized = true;
+  pthread_mutex_init(&(buf->mutex), NULL);
+}
+
 int ring_buf_append(log_t l, ring_buf_t *buf) {
   pthread_mutex_lock(&(buf->mutex));
-  // Copy the new element into the buffer
 
+  // Copy the new element into the buffer
   memcpy(buf->head, &l, buf->sz);
 
   buf->head += buf->sz;
@@ -36,9 +40,6 @@ int ring_buf_append(log_t l, ring_buf_t *buf) {
   return 0;
 }
 
-/**
- * Pop the oldest value off the buffer
- */
 int ring_buf_pop(log_t *l, ring_buf_t *buf) {
   pthread_mutex_lock(&(buf->mutex));
 
@@ -60,16 +61,4 @@ int ring_buf_pop(log_t *l, ring_buf_t *buf) {
 
   pthread_mutex_unlock(&(buf->mutex));
   return 0;
-}
-#undef p_push
-
-/**
- * Initialize the ring buffer
- */
-void ring_buf_init(struct ring_buf *buf, void *block, int size, int item_sz) {
-  buf->head = buf->start = buf->tail = block;
-  buf->end = block + size * item_sz;
-  buf->sz = item_sz;
-  buf->initialized = true;
-  pthread_mutex_init(&(buf->mutex), NULL);
 }
