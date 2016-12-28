@@ -123,7 +123,7 @@ int addOverlay(char *dtb, char *overname) {
   int j;
   // char strsearch[] = "uart";
 
-  over = fopen("/sys/devices/bone_capemgr.8/slots", "r");
+  over = fopen("/sys/devices/platform/bone_capemgr/slots", "r");
   if (over == NULL) {
     printf("File didn't open\n");
     exit(1);
@@ -163,7 +163,7 @@ int addOverlay(char *dtb, char *overname) {
   char name[100];
   sprintf(name, "%s", overname);
 
-  over = fopen("/sys/devices/bone_capemgr.8/slots", "w");
+  over = fopen("/sys/devices/bone_capemgr/slots", "w");
   if (over == NULL)
     printf("File didn't open\n");
   fseek(over, 0, SEEK_SET);
@@ -693,18 +693,13 @@ int writeCMD(unsigned char cmd) {
 //*************************************************
 int initADC(int mgrnum) {
   FILE *ain;
-  char buf[5];
-  char buf2[50] = "/sys/devices/bone_capemgr.";
+  char buf[50] = "/sys/devices/platform/bone_capemgr/slots";
 
-  // build path to setup ain
-  sprintf(buf, "%i", mgrnum);
-  strcat(buf2, strcat(buf, "/slots"));
-
-  ain = fopen(buf2, "w");
+  ain = fopen(buf, "w");
   if (ain == NULL)
     printf("Analog failed load\n");
   fseek(ain, 0, SEEK_SET);
-  fprintf(ain, "cape-bone-iio");
+  fprintf(ain, "BB-ADC");
   fflush(ain);
   fclose(ain);
 
@@ -714,14 +709,12 @@ int initADC(int mgrnum) {
 int readADC(int helpnum, char *ach) {
   FILE *aval;
   int value;
-  char buf[5];
-  char buf2[50] = "/sys/devices/ocp.2/helper.";
+  char buf[50];
 
   // build file path to read adc
-  sprintf(buf, "%i", helpnum);
-  strcat(buf2, strcat(buf, ach));
+  snprintf(buf, sizeof(buf)/sizeof(char), "/sys/bus/iio/devices/iio:device0/in_voltage%d_raw", helpnum);
 
-  aval = fopen(buf2, "r");
+  aval = fopen(buf, "r");
   if (aval == NULL)
     printf("Analog failed to open\n");
   fseek(aval, 0, SEEK_SET);
