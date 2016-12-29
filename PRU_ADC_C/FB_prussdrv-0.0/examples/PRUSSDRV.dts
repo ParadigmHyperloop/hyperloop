@@ -1,0 +1,24 @@
+/* Minimal device tree overlay to activate PRUSS
+
+Licence: GPLv3
+(C) 2014 by Thomas{ DoT ]Freiherr[ aT ]gmx[ dOt }net
+
+compile with
+   dtc -O dtb -o PRUSSDRV-00A0.dtbo -b 0 -@ PRUSSDRV.dts
+*/
+/dts-v1/;
+
+/ {
+	compatible = "ti,beaglebone", "ti,beaglebone-black";
+	part-number = "PRUSSDRV";
+	version = "00A0";
+
+	fragment@0{
+		target = <&pruss>;
+
+		__overlay__ {
+			status = "okay";
+		};
+	};
+};
+
