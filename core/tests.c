@@ -32,23 +32,31 @@
  */
 int set_all_surfaces(int lvl, int sleep, int sleep_block) {
   int i;
+
+  solenoid_state_t s = kSolenoidOpen;
+  if (lvl == 0) {
+    s = kSolenoidClosed;
+  }
+
   for (i=0; i<N_SKATE_SOLONOIDS; i++) {
-    set_skate_target(i, lvl);
+    set_skate_target(i, s, false);
     usleep(sleep);
   }
   usleep(sleep_block);
 
   for (i=0; i<N_EBRAKE_SOLONOIDS; i++) {
-    set_emergency_brakes(i, lvl);
+    set_emergency_brakes(i, s, false);
     usleep(sleep);
   }
   usleep(sleep_block);
 
   for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
-    set_caliper_brakes(i, lvl);
+    set_caliper_brakes(i, s, false);
     usleep(sleep);
   }
   usleep(sleep_block);
+
+  return 0;
 }
 
 /**
@@ -84,14 +92,24 @@ int relay_walker() {
     usleep(half_second);
     n++;
   }
+
   return 0;
 }
 
 int sensor_walker() {
-  sensor_pack_t sensors = read_pru_dataset();
+  //sensor_pack_t sensors = read_pru_dataset();
+  return 0;
 }
 
 int self_tests(pod_state_t * state) {
-  sensor_walker() && return -1;
-  relay_walker() && return -1;
+  if (relay_walker() < 0) {
+    error("Relay Walk Test Failed");
+    exit(1);
+  }
+
+  if (sensor_walker() < 0) {
+    error("Relay Walk Test Failed");
+    exit(1);
+  }
+  return 0;
 }
