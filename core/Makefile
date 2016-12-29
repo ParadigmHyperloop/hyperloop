@@ -14,14 +14,14 @@ ifeq ($(OS),Windows_NT)
 else
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-	 LDFLAGS += -pthread 
+	 LDFLAGS += -pthread
 endif
 ifeq ($(UNAME_S),Darwin)
 
 endif
 endif
 CC= gcc
-DEPS = core.c imu_data.c braking.c lateral.c logging.c skates.c pod.c pod-helpers.c commands.c commander.c mux.c libBBBShims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
+DEPS = core.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c mux.c tests.c libBBBShims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
 SOURCES= main.c $(DEPS)
 OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
 
@@ -52,4 +52,4 @@ run: clean all
 	./$(EXECUTABLE) -r
 
 clean:
-	rm -rf *.o *~ $(EXECUTABLE) BUILD
+	rm -rf *.o pod/*.o *~ $(EXECUTABLE) BUILD
