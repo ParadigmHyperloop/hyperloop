@@ -22,7 +22,7 @@
 #define OFFSET_SHAREDRAM 2048		//equivalent with 0x00002000
 
 #define PRUSS0_SHARED_DATARAM    4
-#define SAMPLING_RATE 200000//280000//98000 //16khz   //***//prev = 16000
+#define SAMPLING_RATE 16000//280000//98000 //16khz   //***//prev = 16000
 #define BUFF_LENGTH SAMPLING_RATE
 #define PRU_SHARED_BUFF_SIZE 500 //***// prev = 500
 #define CNT_ONE_SEC SAMPLING_RATE / PRU_SHARED_BUFF_SIZE
@@ -47,7 +47,7 @@ static int Enable_ADC()
 		printf("\tERROR: /sys/devices/bone_capemgr.9/slots open failed\n");
 		return -1;
 	}
-	fseek(ain, 0, SEEK_SET); //Set an0
+	fseek(ain, 0, SEEK_SET); 
 	fprintf(ain, "cape-bone-iio");
 	fflush(ain);
 	return 0;
@@ -63,7 +63,7 @@ static int Enable_PRU()
 			printf("\tERROR: /sys/devices/bone_capemgr.9/slots open failed\n");
 			return -1;
 		}
-		fseek(ain, 0, SEEK_SET); //set an0
+		fseek(ain, 0, SEEK_SET); 
 		fprintf(ain, "BB-BONE-PRU-01");
 		fflush(ain);
 		return 0;
@@ -181,3 +181,5 @@ int main (int argc, char* argv[])
 
     return(0);
 }
+
+
