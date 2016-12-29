@@ -4,7 +4,6 @@
 int initPin(int pinnum) { return 0; }
 int setPinDirection(int pinnum, char *dir) { return 0; }
 int setPinValue(int pinnum, int value) { return 0; }
-int digitalWrite(int pinnum, int value) { return 0; }
 int getPinValue(int pinnum) { return 0; }
 
 // PWM Prototypes

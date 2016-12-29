@@ -48,10 +48,10 @@ bool is_pod_stopped(pod_state_t *state) {
 void setRelay(int pin, relay_state_t state) {
   switch (state) {
     case kRelayOn:
-      digitalWrite(pin, 0);
+      setPinValue(pin, 0);
       break;
     case kRelayOff:
-      digitalWrite(pin, 1);
+      setPinValue(pin, 1);
       break;
     default:
       DECLARE_EMERGENCY("UNKNOWN RELAY STATE");
