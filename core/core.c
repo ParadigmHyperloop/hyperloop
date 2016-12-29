@@ -152,7 +152,7 @@ void lateral_sensor_checks(pod_state_t *state) {
   }
 }
 
-int set_skate_target(int no, int val, bool override) {
+int set_skate_target(int no, solenoid_state_t val, bool override) {
   // TODO: Implement Me
   pod_state_t *state = get_pod_state();
   if (is_surface_overriden(SKATE_OVERRIDE_ALL) && !override &&
@@ -162,10 +162,12 @@ int set_skate_target(int no, int val, bool override) {
   }
 
   state->tmp_skates = val;
+
+  set_solenoid(&(state->skate_solonoids[no]), val);
   return 0;
 }
 
-int set_caliper_brakes(int no, int val, bool override) {
+int set_caliper_brakes(int no, solenoid_state_t val, bool override) {
   // TODO: Implement Me
   pod_state_t *state = get_pod_state();
   uint64_t skate_override[] = SKATE_OVERRIDE_LIST;
@@ -175,11 +177,12 @@ int set_caliper_brakes(int no, int val, bool override) {
     return -1;
   }
 
+  set_solenoid(&(state->wheel_solonoids[no]), val);
   state->tmp_brakes = val;
   return 0;
 }
 
-int set_emergency_brakes(int no, int val, bool override) {
+int set_emergency_brakes(int no, solenoid_state_t val, bool override) {
   // TODO: Implement actually and also implement locking
   pod_state_t *state = get_pod_state();
   uint64_t ebrake_override[] = EBRAKE_OVERRIDE_LIST;
@@ -190,6 +193,7 @@ int set_emergency_brakes(int no, int val, bool override) {
     return -1;
   }
 
+  set_solenoid(&(state->ebrake_solonoids[no]), val);
   state->tmp_ebrakes = val;
   return 0;
 }
@@ -201,23 +205,30 @@ void adjust_brakes(pod_state_t *state) {
   case Pushing:
   case Coasting:
     for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-      set_caliper_brakes(i, 0, false);
+      set_caliper_brakes(i, kSolenoidClosed, false);
     }
     break;
   case Boot:
   case Shutdown:
+    for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
+      set_caliper_brakes(i, kSolenoidClosed, false);
+    }
+    for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
+      set_emergency_brakes(i, kSolenoidClosed, false);
+    }
+    break;
   case Braking:
     for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-      set_caliper_brakes(i, 1, false);
+      set_caliper_brakes(i, kSolenoidOpen, false);
     }
     break;
   case Emergency:
     if (get_value(&(state->accel_x)) <= A_ERR_X) {
       for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-        set_caliper_brakes(i, 1, false);
+        set_caliper_brakes(i, kSolenoidOpen, false);
       }
       for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
-        set_emergency_brakes(i, 0, false);
+        set_emergency_brakes(i, kSolenoidOpen, false);
       }
     } else {
       error("==== Emergency Emergency Emergency ====");
@@ -240,7 +251,7 @@ void adjust_skates(pod_state_t *state) {
   case Pushing:
   case Coasting:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, 1, false);
+      set_skate_target(i, kSolenoidOpen, false);
     }
     break;
   case Boot:
@@ -248,7 +259,7 @@ void adjust_skates(pod_state_t *state) {
   case Shutdown:
   case Braking:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, 1, false);
+      set_skate_target(i, kSolenoidClosed, false);
     }
     break;
   default:
@@ -261,7 +272,6 @@ void adjust_skates(pod_state_t *state) {
  */
 void *core_main(void *arg) {
 
-  // TODO: Implement pinReset();
   pod_state_t *state = get_pod_state();
 
   imufd = imu_connect(IMU_DEVICE);
@@ -269,7 +279,7 @@ void *core_main(void *arg) {
   if (imufd < 0) {
     return NULL;
   }
-  size_t imu_score = 0, skate_score = 0, lateralScore = 0;
+  size_t imu_score = 0, skate_score = 0;
   pod_mode_t mode;
   imu_datagram_t imu_data;
   while ((mode = get_pod_mode()) != Shutdown) {

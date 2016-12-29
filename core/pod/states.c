@@ -1,27 +1,32 @@
 #include "../pod.h"
 
+bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
+
+
 char *pod_mode_names[N_POD_STATES] = {"Boot",     "Ready",   "Pushing",
                                       "Coasting", "Braking", "Emergency",
                                       "Shutdown", "(null)"};
 
-pod_state_t __state = {.mode = Boot,
-                       .initialized = false,
-                       .start = 0ULL,
-                       .accel_x = POD_VALUE_INITIALIZER_FL,
-                       .accel_y = POD_VALUE_INITIALIZER_FL,
-                       .accel_z = POD_VALUE_INITIALIZER_FL,
-                       .velocity_x = POD_VALUE_INITIALIZER_FL,
-                       .velocity_z = POD_VALUE_INITIALIZER_FL,
-                       .velocity_y = POD_VALUE_INITIALIZER_FL,
-                       .position_x = POD_VALUE_INITIALIZER_FL,
-                       .position_y = POD_VALUE_INITIALIZER_FL,
-                       .position_z = POD_VALUE_INITIALIZER_FL,
-                       .skate_front_left_z = POD_VALUE_INITIALIZER_INT32,
-                       .skate_front_right_z = POD_VALUE_INITIALIZER_INT32,
-                       .skate_rear_left_z = POD_VALUE_INITIALIZER_INT32,
-                       .skate_rear_right_z = POD_VALUE_INITIALIZER_INT32,
-                       .overrides = 0ULL,
-                       .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER};
+pod_state_t __state = {
+  .mode = Boot,
+  .initialized = false,
+  .start = 0ULL,
+  .accel_x = POD_VALUE_INITIALIZER_FL,
+  .accel_y = POD_VALUE_INITIALIZER_FL,
+  .accel_z = POD_VALUE_INITIALIZER_FL,
+  .velocity_x = POD_VALUE_INITIALIZER_FL,
+  .velocity_z = POD_VALUE_INITIALIZER_FL,
+  .velocity_y = POD_VALUE_INITIALIZER_FL,
+  .position_x = POD_VALUE_INITIALIZER_FL,
+  .position_y = POD_VALUE_INITIALIZER_FL,
+  .position_z = POD_VALUE_INITIALIZER_FL,
+  .skate_front_left_z = POD_VALUE_INITIALIZER_INT32,
+  .skate_front_right_z = POD_VALUE_INITIALIZER_INT32,
+  .skate_rear_left_z = POD_VALUE_INITIALIZER_INT32,
+  .skate_rear_right_z = POD_VALUE_INITIALIZER_INT32,
+  .overrides = 0ULL,
+  .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER
+};
 
 
 
@@ -60,20 +65,36 @@ int init_pod_state(void) {
   pod_state_t *state = get_pod_state();
   debug("initializing State at %p", state);
 
-  pthread_rwlock_init(&(state->mode_mutex), NULL);
-
   int i;
-  for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-    pthread_rwlock_init(&(state->skate_solonoids[i].lock), NULL);
+  int skate_pins[] = SKATE_SOLENOIDS;
+  for (i=0;i<N_SKATE_SOLONOIDS;i++) {
+
+    state->skate_solonoids[i] = (pod_solenoid_t){
+      .gpio = skate_pins[i],
+      .value = 0,
+      .type = kSolenoidNormallyClosed
+    };
   }
 
-  for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
-    pthread_rwlock_init(&(state->ebrake_solonoids[i].lock), NULL);
+  int ebrake_pins[] = EBRAKE_SOLONOIDS;
+  for (i=0;i<N_EBRAKE_SOLONOIDS;i++) {
+    state->ebrake_solonoids[i] = (pod_solenoid_t){
+      .gpio = ebrake_pins[i],
+      .value = 0,
+      .type = kSolenoidNormallyOpen
+    };
   }
 
-  for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    pthread_rwlock_init(&(state->wheel_solonoids[i].lock), NULL);
+  int wheel_pins[] = WHEEL_SOLONOIDS;
+  for (i=0;i<N_WHEEL_SOLONOIDS;i++) {
+    state->wheel_solonoids[i] = (pod_solenoid_t){
+      .gpio = wheel_pins[i],
+      .value = 0,
+      .type = kSolenoidNormallyClosed
+    };
   }
+
+  pthread_rwlock_init(&(state->mode_mutex), NULL);
 
   // assert(sem_init(&(state->boot_sem), 0, 0) == 0);
   state->boot_sem = sem_open(POD_BOOT_SEM, O_CREAT, S_IRUSR | S_IWUSR, 0);

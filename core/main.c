@@ -148,12 +148,10 @@ int main(int argc, char *argv[]) {
 
   info("Setting Up Pins");
 
-#ifdef BBB
   setup_pins(state);
   if (args.tests) {
     self_tests(state);
   }
-#endif
 
   info("Registering POSIX signal handlers");
   // Pod Panic Signal
