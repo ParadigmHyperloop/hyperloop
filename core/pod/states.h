@@ -39,6 +39,26 @@ typedef struct {
   int line_pin;
 } pod_mux_t;
 
+typedef enum solenoid_state {
+  kSolenoidOpen,
+  kSolenoidClosed
+} solenoid_state_t;
+
+typedef enum relay_state {
+  kRelayOff, // Relay is not actuated
+  kRelayOn   // Relay is actuated
+} relay_state_t;
+
+typedef enum solenoid_type {
+  kSolenoidNormallyOpen,
+  kSolenoidNormallyClosed
+} solenoid_type_t;
+
+typedef struct pod_solenoid {
+  int gpio;
+  int value;
+  solenoid_type_t type;
+} pod_solenoid_t;
 /**
  * Information from the battery control boards
  */
@@ -160,19 +180,19 @@ typedef struct pod_state {
   pod_value_t skate_rear_right_z;
 
   // Skate Sensors and Solonoids
-  pod_value_t skate_solonoids[N_SKATE_SOLONOIDS];
+  pod_solenoid_t skate_solonoids[N_SKATE_SOLONOIDS];
   pod_value_t skate_transducers[N_SKATE_TRANSDUCERS];
 
   // LP Packages
   pod_value_t lp_reg_thermocouples[N_LP_REGULATOR_THERMOCOUPLES];
 
   // EBrake Senors and Solonoids
-  pod_value_t ebrake_solonoids[N_EBRAKE_SOLONOIDS];
+  pod_solenoid_t ebrake_solonoids[N_EBRAKE_SOLONOIDS];
   // pod_value_t ebrake_pressures[N_EBRAKE_PRESSURES];
   pod_value_t ebrake_thermocouples[N_EBRAKE_SOLONOIDS];
 
   // Wheel Brake Sensors and Solonoids
-  pod_value_t wheel_solonoids[N_WHEEL_SOLONOIDS];
+  pod_solenoid_t wheel_solonoids[N_WHEEL_SOLONOIDS];
   // pod_value_t wheel_pressures[N_WHEEL_PRESSURES];
   pod_value_t wheel_thermocouples[N_WHEEL_THERMOCOUPLES];
 
@@ -193,6 +213,12 @@ typedef struct pod_state {
 
   // Holds the pod in a boot state until set to 1 by an operator
   pod_value_t ready;
+
+  // Relief
+  pod_solenoid_t relief_valve;
+
+  // Fill
+  pod_solenoid_t hp_fill_valve;
 
   pod_mux_t muxes[N_MUXES];
 
