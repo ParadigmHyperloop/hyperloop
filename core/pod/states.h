@@ -15,6 +15,25 @@ typedef enum {
   _nil = 7       // NULL STATE, not a valid state, used to terminate arrays
 } pod_mode_t;
 
+typedef enum {
+  NonState = -1, // NULL STATE, not a valid state, used to terminate arrays
+  POST = 0,
+  Boot = 1,
+  LPFill = 2,
+  HPFill = 3,
+  Load = 4,
+  Standby = 5,
+  Armed = 6,
+  Pushing = 7,
+  Coasting = 8,
+  Braking = 9,
+  Vent = 10,
+  Retrieval = 11,
+  Emergency = 12,
+} pod_mode_t;
+
+
+
 typedef struct pod_value {
   union {
     int32_t int32;

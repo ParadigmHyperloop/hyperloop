@@ -7,13 +7,20 @@
  */
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
-      {Boot, Ready, Emergency, Shutdown, _nil}, // 0: Boot
-      {Ready, Pushing, Emergency, _nil},        // 1: Ready
-      {Pushing, Coasting, Emergency, _nil},     // 2: Pushing
-      {Coasting, Braking, Emergency, _nil},     // 3: Coasting
-      {Braking, Shutdown, Emergency, _nil},     // 4: Braking
-      {Emergency, Shutdown, _nil},              // 5: Emergency
-      {Shutdown, _nil}                          // 6: Shutdown
+      {NonState, NonState},
+      {POST, Boot, Emergency, NonState},
+      {Boot, LPFill, Emergency, NonState},
+      {LPFill, HPFill, Emergency, NonState},
+      {HPFill, Load, Emergency, NonState},
+      {Load, Standby, Emergency, NonState},
+      {Standby, Load, Armed, Emergency, NonState},
+      {Armed, Standby, Pushing, Emergency, NonState},
+      {Pushing, Coasting, Braking, Emergency, NonState},
+      {Coasting, Braking, Pushing, Emergency, NonState},
+      {Braking, Pushing, Vent, Emergency, NonState},
+      {Vent, Retrieval, Emergency, NonState},
+      {Retrieval, NonState},
+      {Emergency, Vent, NonState},
   };
 
   // Ensure that the pod's current state can always transition to itself
@@ -23,7 +30,7 @@ bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   // Do not include Current Mode => Same Current Mode
   int i = 1;
 
-  while ((i_state = transitions[current_mode][i]) != _nil) {
+  while ((i_state = transitions[current_mode][i]) != NonState) {
     // debug("Checking %s == %s", pod_mode_names[i_state],
     // pod_mode_names[new_mode]);
     if (i_state == new_mode) {
