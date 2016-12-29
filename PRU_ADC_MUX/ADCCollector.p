@@ -16,7 +16,7 @@
 #define BUFF_SIZE 0x00000fa0 //Total buff size: 4kbyte(Each buffer has 2kbyte: 500 piece of data) //***//previously was 00000fa0
 #define HALF_SIZE BUFF_SIZE / 2
 
-#define SAMPLING_RATE 200000 //Sampling rate(16khz) //***//16000
+#define SAMPLING_RATE 16000 //Sampling rate(16khz) //***//16000
 #define DELAY_MICRO_SECONDS (1000000 / SAMPLING_RATE) //Delay by sampling rate
 #define CLOCK 200000000 // PRU is always clocked at 200MHz
 #define CLOCKS_PER_LOOP 2 // loop contains two instructions, one clock each
@@ -71,28 +71,28 @@ MUX3:
 MUX4:
     clr r30, r30, 15   // set P8_11 
 	clr r30, r30, 14   // set P8_12 
-	set r30, r30, 15   // set P9_25 
+	set r30, r30, 7   // set P9_25 
 	clr r30, r30, 5    // set P9_27 
 	QBA INCREMENT
 
 MUX5:
     set r30, r30, 15   // set P8_11  
 	clr r30, r30, 14   // set P8_12 
-	set r30, r30, 15   // set P9_25 
+	set r30, r30, 7    // set P9_25 
 	clr r30, r30, 5    // set P9_27 
 	QBA INCREMENT
 
 MUX6:
     clr r30, r30, 15   // set P8_11 
 	set r30, r30, 14   // set P8_12 
-	set r30, r30, 15   // set P9_25 
+	set r30, r30, 7    // set P9_25 
 	clr r30, r30, 5    // set P9_27 
 	QBA INCREMENT
 
 MUX7:
     set r30, r30, 15   // set P8_11 
 	set r30, r30, 14   // set P8_12 
-	set r30, r30, 15   // set P9_25 
+	set r30, r30, 7   // set P9_25 
 	clr r30, r30, 5    // set P9_27 
 	QBA INCREMENT
 
@@ -119,6 +119,8 @@ MUX10:
 
 MUX11:
     set r30, r30, 15   // set P8_11 
+	set r30, r30, 14   // set P8_12
+	clr r30, r30, 7    // set P9_25 
 	set r30, r30, 5    // set P9_27 
 	QBA INCREMENT
 
@@ -239,6 +241,5 @@ START:
     SBBO r3, r2, 0, 4
 
 	MOV r4, 0
-	MUX_SELECT
     //Read ADC and FIFOCOUNT
 	READADC	
