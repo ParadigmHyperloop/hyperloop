@@ -101,7 +101,7 @@ int sensor_walker() {
   return 0;
 }
 
-int self_tests(pod_state_t * state) {
+int self_tests(pod_t * state) {
   if (relay_walker() < 0) {
     error("Relay Walk Test Failed");
     exit(1);

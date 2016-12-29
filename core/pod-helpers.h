@@ -22,17 +22,17 @@
 /**
  * Determine if the Emergency Brakes are engaged based on their braking presure
  */
-bool any_emergency_brakes(pod_state_t *state);
+bool any_emergency_brakes(pod_t *pod);
 
 /**
  * Determine if the Primary Brakes are engaged based on their braking presure
  */
-bool any_calipers(pod_state_t *state);
+bool any_calipers(pod_t *pod);
 
 /**
  * Determine if the pod is stopped
  */
-bool is_pod_stopped(pod_state_t *state);
+bool is_pod_stopped(pod_t *pod);
 
 /**
  * Sets the desired solenoid state

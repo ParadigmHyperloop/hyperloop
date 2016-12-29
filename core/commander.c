@@ -312,7 +312,7 @@ int commandServer() {
         // boot phase (i.e. it starts up it's core)
         if (first_client) {
           first_client = false;
-          sem_post(get_pod_state()->boot_sem);
+          sem_post(get_pod()->boot_sem);
         }
       }
     }
@@ -366,7 +366,7 @@ void *command_main(void *arg) {
       set_pod_mode(Emergency, "Command Server Failed");
     }
     if (first_client) {
-      sem_post(get_pod_state()->boot_sem);
+      sem_post(get_pod()->boot_sem);
     }
   }
 

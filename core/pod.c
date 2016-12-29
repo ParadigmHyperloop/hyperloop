@@ -29,25 +29,25 @@ uint64_t get_time() {
 
 
 void pod_calibrate() {
-  pod_state_t *state = get_pod_state();
+  pod_t *pod = get_pod();
 
-  set_value_f(&(state->imu_calibration_x), get_value_f(&(state->accel_x)));
-  set_value_f(&(state->imu_calibration_y), get_value_f(&(state->accel_y)));
-  set_value_f(&(state->imu_calibration_z), get_value_f(&(state->accel_z)));
+  set_value_f(&(pod->imu_calibration_x), get_value_f(&(pod->accel_x)));
+  set_value_f(&(pod->imu_calibration_y), get_value_f(&(pod->accel_y)));
+  set_value_f(&(pod->imu_calibration_z), get_value_f(&(pod->accel_z)));
 }
 
 void pod_reset() {
-  pod_state_t *state = get_pod_state();
+  pod_t *pod = get_pod();
 
-  set_value_f(&(state->accel_x), 0.0);
-  set_value_f(&(state->accel_y), 0.0);
-  set_value_f(&(state->accel_z), 0.0);
-  set_value_f(&(state->velocity_x), 0.0);
-  set_value_f(&(state->velocity_z), 0.0);
-  set_value_f(&(state->velocity_y), 0.0);
-  set_value_f(&(state->position_x), 0.0);
-  set_value_f(&(state->position_y), 0.0);
-  set_value_f(&(state->position_z), 0.0);
+  set_value_f(&(pod->accel_x), 0.0);
+  set_value_f(&(pod->accel_y), 0.0);
+  set_value_f(&(pod->accel_z), 0.0);
+  set_value_f(&(pod->velocity_x), 0.0);
+  set_value_f(&(pod->velocity_z), 0.0);
+  set_value_f(&(pod->velocity_y), 0.0);
+  set_value_f(&(pod->position_x), 0.0);
+  set_value_f(&(pod->position_y), 0.0);
+  set_value_f(&(pod->position_z), 0.0);
 }
 
 int pru_read_pack(sensor_pack_t *pack) {

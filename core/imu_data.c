@@ -34,7 +34,7 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
  * Take a new IMU datagram and use it to update the x, y, and z positions
  * of the pod
  */
-void add_imu_data(imu_datagram_t *data, pod_state_t *s) {
+void add_imu_data(imu_datagram_t *data, pod_t *s) {
   if (!imu_valid(data)) {
     printf("NOT VALID: %X == %X; STAT: %X\n", data->computed_crc, data->crc,
            data->status);

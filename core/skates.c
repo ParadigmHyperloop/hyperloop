@@ -27,18 +27,18 @@ uint32_t readSkateTransducer(int thermocoupleno) {
   return 15;
 }
 
-int skateRead(pod_state_t *state) {
-  set_value(&(state->skate_front_left_z), readDistanceSensor(0));
-  set_value(&(state->skate_front_right_z), readDistanceSensor(1));
-  set_value(&(state->skate_rear_left_z), readDistanceSensor(2));
-  set_value(&(state->skate_rear_right_z), readDistanceSensor(3));
+int skateRead(pod_t *pod) {
+  set_value(&(pod->skate_front_left_z), readDistanceSensor(0));
+  set_value(&(pod->skate_front_right_z), readDistanceSensor(1));
+  set_value(&(pod->skate_rear_left_z), readDistanceSensor(2));
+  set_value(&(pod->skate_rear_right_z), readDistanceSensor(3));
 
-  // TODO: Read in new values and put them into the state struct
+  // TODO: Read in new values and put them into the pod struct
   int i;
   for (i = 0; i < N_SKATE_TRANSDUCERS; i++) {
     int32_t new_value =
         readSkateTransducer(i); // Read in value for relulator temp i
-    set_value(&(state->skate_transducers[i]), new_value);
+    set_value(&(pod->skate_transducers[i]), new_value);
   }
 
   return 0;

@@ -150,7 +150,8 @@ typedef enum pod_warning {
 /**
  * Defines the master state of the pod
  */
-typedef struct pod_state {
+typedef struct pod {
+  int version;
   pod_value_t accel_x;
   pod_value_t accel_y;
   pod_value_t accel_z;
@@ -222,6 +223,9 @@ typedef struct pod_state {
 
   pod_mux_t muxes[N_MUXES];
 
+  int imu;
+  int logging_socket;
+
   enum pod_caution cautions;
   enum pod_warning warnings;
 
@@ -239,7 +243,7 @@ typedef struct pod_state {
   pthread_rwlock_t overrides_mutex;
 
   bool initialized;
-} pod_state_t;
+} pod_t;
 
 /**
  * @brief Set the new state of the pod's control algorithms.
@@ -282,12 +286,12 @@ pod_mode_t get_pod_mode(void);
  *
  * @return the current pod state as of calling
  */
-pod_state_t *get_pod_state(void);
+pod_t *get_pod(void);
 
 /**
- * Intiializes the pod's pod_state_t returned by get_pod_state()
+ * Intiializes the pod's pod_t returned by get_pod()
  */
-int init_pod_state(void);
+int init_pod(void);
 
 /**
  * Helper method to read value from pod_state

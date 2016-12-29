@@ -62,8 +62,8 @@ int set_emergency_brakes(int no, solenoid_state_t val, bool override);
 int setBrakes(int no, int val, bool override);
 int setEBrakes(int no, int val, bool override);
 
-int self_tests(pod_state_t *state);
+int self_tests(pod_t *pod);
 
-void add_imu_data(imu_datagram_t *data, pod_state_t *s);
-void setup_pins(pod_state_t * state);
+void add_imu_data(imu_datagram_t *data, pod_t *s);
+void setup_pins(pod_t * state);
 #endif

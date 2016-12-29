@@ -17,11 +17,9 @@
 #include "pod.h"
 #include "pod-helpers.h"
 
-int imufd;
-
-int lateralRead(pod_state_t *state);
-int skateRead(pod_state_t *state);
-int brakingRead(pod_state_t *state);
+int lateralRead(pod_t *pod);
+int skateRead(pod_t *pod);
+int brakingRead(pod_t *pod);
 
 float maximumSafeForwardVelocity = 25.0;    // TODO: CHANGE ME! ARBITRARY!
 float standardDistanceBeforeBraking = 75.0; // TODO: CHANGE ME! ARBITRARY!
@@ -30,8 +28,8 @@ float maximumSafeDistanceBeforeBraking = 125.0;
 /**
  * Checks to be performed when the pod's state is Boot
  */
-void boot_state_checks(pod_state_t *state) {
-  if (get_value(&(state->ready)) == 1) {
+void boot_state_checks(pod_t *pod) {
+  if (get_value(&(pod->ready)) == 1) {
     // TODO: Other Pre-flight Checks that are not Human checked
     set_pod_mode(Ready, "Pod's Ready bit has been set");
   } else {
@@ -42,8 +40,8 @@ void boot_state_checks(pod_state_t *state) {
 /**
  * Checks to be performed when the pod's state is Boot
  */
-void ready_state_checks(pod_state_t *state) {
-  if (get_value_f(&(state->accel_x)) > PUSHING_MIN_ACCEL) {
+void ready_state_checks(pod_t *pod) {
+  if (get_value_f(&(pod->accel_x)) > PUSHING_MIN_ACCEL) {
     set_pod_mode(Pushing, "Detecting Positive Acceleration");
   }
 }
@@ -51,9 +49,9 @@ void ready_state_checks(pod_state_t *state) {
 /**
  * Checks to be performed when the pod's state is Emergency
  */
-void emergency_state_checks(pod_state_t *state) {
-  if (is_pod_stopped(state) && any_emergency_brakes(state) &&
-      any_calipers(state)) {
+void emergency_state_checks(pod_t *pod) {
+  if (is_pod_stopped(pod) && any_emergency_brakes(pod) &&
+      any_calipers(pod)) {
     set_pod_mode(Shutdown, "Pod has been determined to be in a safe state");
   }
 }
@@ -61,12 +59,12 @@ void emergency_state_checks(pod_state_t *state) {
 /**
  * Checks to be performed when the pod's state is Pushing
  */
-void pushing_state_checks(pod_state_t *state) {
-  if (get_value_f(&(state->position_x)) > maximumSafeDistanceBeforeBraking) {
+void pushing_state_checks(pod_t *pod) {
+  if (get_value_f(&(pod->position_x)) > maximumSafeDistanceBeforeBraking) {
     set_pod_mode(Emergency, "Pod Position is > max travel before braking");
-  } else if (get_value_f(&(state->velocity_x)) > maximumSafeForwardVelocity) {
+  } else if (get_value_f(&(pod->velocity_x)) > maximumSafeForwardVelocity) {
     set_pod_mode(Emergency, "Pod is going too fast");
-  } else if (get_value_f(&(state->accel_x)) <= COASTING_MIN_ACCEL_TRIGGER) {
+  } else if (get_value_f(&(pod->accel_x)) <= COASTING_MIN_ACCEL_TRIGGER) {
     set_pod_mode(Coasting, "Pod has negative acceleration in the X dir");
   }
 }
@@ -74,11 +72,11 @@ void pushing_state_checks(pod_state_t *state) {
 /**
  * Checks to be performed when the pod's state is Coasting
  */
-void coasting_state_checks(pod_state_t *state) {
-  if (get_value_f(&(state->position_x)) > maximumSafeDistanceBeforeBraking ||
-      get_value_f(&(state->velocity_x)) > maximumSafeForwardVelocity) {
+void coasting_state_checks(pod_t *pod) {
+  if (get_value_f(&(pod->position_x)) > maximumSafeDistanceBeforeBraking ||
+      get_value_f(&(pod->velocity_x)) > maximumSafeForwardVelocity) {
     set_pod_mode(Emergency, "Pod has travelled too far");
-  } else if (get_value_f(&(state->position_x)) >
+  } else if (get_value_f(&(pod->position_x)) >
              standardDistanceBeforeBraking) {
     set_pod_mode(Braking, "Pod has entered braking range of travel");
   }
@@ -87,16 +85,16 @@ void coasting_state_checks(pod_state_t *state) {
 /**
  * Checks to be performed when the pod's state is Braking
  */
-void braking_state_checks(pod_state_t *state) {
+void braking_state_checks(pod_t *pod) {
   // TODO: This is an issue, Engineers need the look at this
   //       Do Not Ship without this baking algorithm reviewed
-  if (PRIMARY_BRAKING_ACCEL_X_MAX > get_value_f(&(state->accel_x))) {
+  if (PRIMARY_BRAKING_ACCEL_X_MAX > get_value_f(&(pod->accel_x))) {
     set_pod_mode(Emergency, "Pod decelleration is too high");
-  } else if (PRIMARY_BRAKING_ACCEL_X_MIN < get_value_f(&(state->accel_x))) {
-    float ax = get_value_f(&(state->accel_x));
-    float vx = get_value_f(&(state->velocity_x));
+  } else if (PRIMARY_BRAKING_ACCEL_X_MIN < get_value_f(&(pod->accel_x))) {
+    float ax = get_value_f(&(pod->accel_x));
+    float vx = get_value_f(&(pod->velocity_x));
 
-    if (is_pod_stopped(state)) {
+    if (is_pod_stopped(pod)) {
       set_pod_mode(Shutdown, "Pod has stopped");
     } else if (ax > -vx) { // TODO: this calculation is BS.
       set_pod_mode(Emergency, "Pod decelleration is too low");
@@ -104,44 +102,44 @@ void braking_state_checks(pod_state_t *state) {
   }
 }
 
-void skate_sensor_checks(pod_state_t *state) {
+void skate_sensor_checks(pod_t *pod) {
   // TODO: Make these checks bounded by min and max values
-  bool ok = (get_value(&(state->skate_rear_left_z)) > 0) &&
-            (get_value(&(state->skate_rear_right_z)) > 0) &&
-            (get_value(&(state->skate_front_left_z)) > 0) &&
-            (get_value(&(state->skate_front_right_z)) > 0);
+  bool ok = (get_value(&(pod->skate_rear_left_z)) > 0) &&
+            (get_value(&(pod->skate_rear_right_z)) > 0) &&
+            (get_value(&(pod->skate_front_left_z)) > 0) &&
+            (get_value(&(pod->skate_front_right_z)) > 0);
 
   if (!ok) {
     set_pod_mode(Emergency, "A height sensor is returning 0");
   }
 }
 
-void lp_package_checks(pod_state_t *state) {
+void lp_package_checks(pod_t *pod) {
   int i;
   for (i = 0; i < N_LP_REGULATOR_THERMOCOUPLES; i++) {
-    int32_t temp = get_value(&(state->lp_reg_thermocouples[i]));
+    int32_t temp = get_value(&(pod->lp_reg_thermocouples[i]));
     if (temp < MIN_REGULATOR_THERMOCOUPLE_TEMP) {
       set_pod_mode(Emergency, "Thermocouple %d for skates is too low");
     }
   }
 }
 
-void lateral_sensor_checks(pod_state_t *state) {
+void lateral_sensor_checks(pod_t *pod) {
 
   int errors = 0;
-  if (outside(LATERAL_MIN, get_value(&(state->lateral_front_left)),
+  if (outside(LATERAL_MIN, get_value(&(pod->lateral_front_left)),
               LATERAL_MAX)) {
     errors |= 0x1;
   }
-  if (outside(LATERAL_MIN, get_value(&(state->lateral_front_right)),
+  if (outside(LATERAL_MIN, get_value(&(pod->lateral_front_right)),
               LATERAL_MAX)) {
     errors |= 0x2;
   }
-  if (outside(LATERAL_MIN, get_value(&(state->lateral_rear_left)),
+  if (outside(LATERAL_MIN, get_value(&(pod->lateral_rear_left)),
               LATERAL_MAX)) {
     errors |= 0x4;
   }
-  if (outside(LATERAL_MIN, get_value(&(state->lateral_rear_right)),
+  if (outside(LATERAL_MIN, get_value(&(pod->lateral_rear_right)),
               LATERAL_MAX)) {
     errors |= 0x8;
   }
@@ -154,51 +152,51 @@ void lateral_sensor_checks(pod_state_t *state) {
 
 int set_skate_target(int no, solenoid_state_t val, bool override) {
   // TODO: Implement Me
-  pod_state_t *state = get_pod_state();
+  pod_t *pod = get_pod();
   if (is_surface_overriden(SKATE_OVERRIDE_ALL) && !override &&
-      state->tmp_skates != val) {
+      pod->tmp_skates != val) {
     warn("Skates are in override mode!");
     return -1;
   }
 
-  state->tmp_skates = val;
+  pod->tmp_skates = val;
 
-  set_solenoid(&(state->skate_solonoids[no]), val);
+  set_solenoid(&(pod->skate_solonoids[no]), val);
   return 0;
 }
 
 int set_caliper_brakes(int no, solenoid_state_t val, bool override) {
   // TODO: Implement Me
-  pod_state_t *state = get_pod_state();
+  pod_t *pod = get_pod();
   uint64_t skate_override[] = SKATE_OVERRIDE_LIST;
   if (is_surface_overriden(skate_override[no]) && !override &&
-      state->tmp_brakes != val) {
+      pod->tmp_brakes != val) {
     warn("Skates are in override mode!");
     return -1;
   }
 
-  set_solenoid(&(state->wheel_solonoids[no]), val);
-  state->tmp_brakes = val;
+  set_solenoid(&(pod->wheel_solonoids[no]), val);
+  pod->tmp_brakes = val;
   return 0;
 }
 
 int set_emergency_brakes(int no, solenoid_state_t val, bool override) {
   // TODO: Implement actually and also implement locking
-  pod_state_t *state = get_pod_state();
+  pod_t *pod = get_pod();
   uint64_t ebrake_override[] = EBRAKE_OVERRIDE_LIST;
 
   if (is_surface_overriden(ebrake_override[no]) && !override &&
-      state->tmp_ebrakes != val) {
+      pod->tmp_ebrakes != val) {
     warn("Skates are in override mode!");
     return -1;
   }
 
-  set_solenoid(&(state->ebrake_solonoids[no]), val);
-  state->tmp_ebrakes = val;
+  set_solenoid(&(pod->ebrake_solonoids[no]), val);
+  pod->tmp_ebrakes = val;
   return 0;
 }
 
-void adjust_brakes(pod_state_t *state) {
+void adjust_brakes(pod_t *pod) {
   int i;
   switch (get_pod_mode()) {
   case Ready:
@@ -223,7 +221,7 @@ void adjust_brakes(pod_state_t *state) {
     }
     break;
   case Emergency:
-    if (get_value(&(state->accel_x)) <= A_ERR_X) {
+    if (get_value(&(pod->accel_x)) <= A_ERR_X) {
       for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
         set_caliper_brakes(i, kSolenoidOpen, false);
       }
@@ -242,7 +240,7 @@ void adjust_brakes(pod_state_t *state) {
   }
 }
 
-void adjust_skates(pod_state_t *state) {
+void adjust_skates(pod_t *pod) {
   // Skates are completely controlled by pod state, therefore we can just
   // switch over them
   int i;
@@ -272,13 +270,8 @@ void adjust_skates(pod_state_t *state) {
  */
 void *core_main(void *arg) {
 
-  pod_state_t *state = get_pod_state();
+  pod_t *pod = get_pod();
 
-  imufd = imu_connect(IMU_DEVICE);
-
-  if (imufd < 0) {
-    return NULL;
-  }
   size_t imu_score = 0, skate_score = 0;
   pod_mode_t mode;
   imu_datagram_t imu_data;
@@ -287,7 +280,7 @@ void *core_main(void *arg) {
     // SECTION: Read new information from sensors
     // --------------------------------------------
 
-    if (imu_read(imufd, &imu_data) < 0 && imu_score < IMU_SCORE_MAX) {
+    if (imu_read(pod->imu, &imu_data) < 0 && imu_score < IMU_SCORE_MAX) {
       imu_score += IMU_SCORE_STEP_UP;
       if (imu_score > IMU_SCORE_MAX) {
         DECLARE_EMERGENCY("IMU FAILED");
@@ -296,13 +289,13 @@ void *core_main(void *arg) {
       imu_score -= IMU_SCORE_STEP_DOWN;
     }
 
-    add_imu_data(&imu_data, state);
+    add_imu_data(&imu_data, pod);
 
-    if (skateRead(state) < 0 && skate_score < SKATE_SCORE_MAX) {
+    if (skateRead(pod) < 0 && skate_score < SKATE_SCORE_MAX) {
       DECLARE_EMERGENCY("SKATE READ FAILED");
     }
 
-    if (lateralRead(state) < 0) {
+    if (lateralRead(pod) < 0) {
       DECLARE_EMERGENCY("LATERAL READ FAILED");
     }
 
@@ -311,32 +304,32 @@ void *core_main(void *arg) {
     // -------------------------------------------
 
     // General Checks (Going too fast, going too high)
-    skate_sensor_checks(state);
-    lateral_sensor_checks(state);
+    skate_sensor_checks(pod);
+    lateral_sensor_checks(pod);
 
-    if (get_value_f(&(state->velocity_x)) < -V_ERR_X && state->calibrated) {
+    if (get_value_f(&(pod->velocity_x)) < -V_ERR_X && pod->calibrated) {
       set_pod_mode(Emergency, "Pod rolling backward");
     }
 
     // Mode Specific Checks
     switch (get_pod_mode()) {
     case Boot:
-      boot_state_checks(state);
+      boot_state_checks(pod);
       break;
     case Ready:
-      ready_state_checks(state);
+      ready_state_checks(pod);
       break;
     case Pushing:
-      pushing_state_checks(state);
+      pushing_state_checks(pod);
       break;
     case Coasting:
-      coasting_state_checks(state);
+      coasting_state_checks(pod);
       break;
     case Braking:
-      braking_state_checks(state);
+      braking_state_checks(pod);
       break;
     case Emergency:
-      emergency_state_checks(state);
+      emergency_state_checks(pod);
     default:
       break;
     }
@@ -346,15 +339,15 @@ void *core_main(void *arg) {
     // -------------------------------------------
 
     // Handle Skates
-    adjust_skates(state);
+    adjust_skates(pod);
 
     // Handle Wheel AND Ebrakes
-    adjust_brakes(state);
+    adjust_brakes(pod);
 
     // -------------------------------------------
     // SECTION: Telemetry collection
     // -------------------------------------------
-    logDump(state);
+    logDump(pod);
 
     // --------------------------------------------
     // Yield to other threads
@@ -362,7 +355,7 @@ void *core_main(void *arg) {
     usleep(CORE_THREAD_SLEEP);
   }
 
-  imu_disconnect(imufd);
+  imu_disconnect(pod->imu);
 
   return NULL;
 }

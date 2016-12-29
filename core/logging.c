@@ -18,9 +18,6 @@
 
 extern ring_buf_t logbuf;
 
-static int logging_socket = -1;
-
-
 // Much of this code is based on this CMU TCP client example
 // http://www.cs.cmu.edu/afs/cs/academic/class/15213-f99/www/class26/tcpclient.c
 
@@ -82,8 +79,10 @@ int log_connect() {
 // Use of any output macro in this function could lead to stack overflow...
 // Do not use output macros within this function
 int log_send(log_t *l) {
-  if (logging_socket < 0) {
-    fprintf(stderr, "Attempt to send before socket open: %d", logging_socket);
+  pod_t *pod = get_pod();
+
+  if (pod->logging_socket < 0) {
+    fprintf(stderr, "Attempt to send before socket open: %d", pod->logging_socket);
     return -1;
   }
 
@@ -107,7 +106,7 @@ int log_send(log_t *l) {
   }
 
   /* send the message line to the server */
-  int n = write(logging_socket, buf, strlen(buf));
+  int n = write(pod->logging_socket, buf, strlen(buf));
   if (n <= 0) {
     fprintf(stderr, "ERROR writing to socket\n");
     return -1;
@@ -121,20 +120,23 @@ int log_send(log_t *l) {
 void *logging_main(void *arg) {
   debug("[logging_main] Thread Start");
 
-  pod_state_t *state = get_pod_state();
-  logging_socket = log_connect();
+  pod_t *pod = get_pod();
 
-  if (logging_socket < 0) {
-    // attempt to put the pod into shutdown mode if we are in the boot state
-    // if we have already completed boot, then
-    set_pod_mode(Shutdown, "Logging socket failed to connect.");
+  while (pod->logging_socket < 0) {
+    pod->logging_socket = log_connect();
+    if (pod->logging_socket < 0) {
+      error("Logging Socket failed to connect: %s", strerror(errno));
+      sleep(1);
+    } else {
+      break;
+    }
   }
 
   // Post to the boot sem to tell the main thread that we have initialized
   // Main thread will assert that pod mode is still Boot
 
   info("punching boot_sem to proceed");
-  sem_post(state->boot_sem);
+  sem_post(pod->boot_sem);
 
   // Start the log forwarding loop until shutdown
   log_t l;

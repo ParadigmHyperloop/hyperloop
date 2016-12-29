@@ -56,13 +56,13 @@ int resetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 }
 
 int readyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
-  pod_state_t *state = get_pod_state();
+  pod_t *pod = get_pod();
 
   int n;
 
-  int32_t ready = get_value(&(state->ready));
+  int32_t ready = get_value(&(pod->ready));
   if (ready == 0) {
-    set_value(&(state->ready), 1);
+    set_value(&(pod->ready), 1);
     n = snprintf(&outbuf[0], outbufc, "OK: SET POD READY BIT => 1");
   } else {
     n = snprintf(&outbuf[0], outbufc, "FAIL: POD READY BIT = %d, POD MODE = %d",
@@ -73,17 +73,17 @@ int readyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 }
 
 int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
-  pod_state_t *state = get_pod_state();
+  pod_t *pod = get_pod();
   return snprintf(&outbuf[0], outbufc, "=== STATUS REPORT ===\n"
                                        "Mode:\t%d\n"
                                        "Ready:\t%d\n"
                                        "Ax:\t%f\n"
                                        "Vx:\t%f\n"
                                        "Px:\t%f\n",
-                  get_pod_mode(), get_value(&(state->ready)),
-                  get_value_f(&(state->accel_x)),
-                  get_value_f(&(state->velocity_x)),
-                  get_value_f(&(state->position_x)));
+                  get_pod_mode(), get_value(&(pod->ready)),
+                  get_value_f(&(pod->accel_x)),
+                  get_value_f(&(pod->velocity_x)),
+                  get_value_f(&(pod->position_x)));
 }
 
 int brakeCommand(int argc, char *argv[], int outbufc, char outbuf[]) {

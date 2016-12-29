@@ -19,17 +19,21 @@
 struct arguments {
   bool tests;
   bool ready;
+  char *imu_device;
 };
 
-struct arguments args = {0};
+struct arguments args = {
+  .tests = false,
+  .ready = false,
+  .imu_device = IMU_DEVICE
+};
 
 /**
- * WARNING: Do Not Directly Access this struct, use get_pod_state() instead to
- * get a pointer to the pod state.
+ * WARNING: Do Not Directly Access this struct, use get_pod() instead to
+ * get a pointer to the pod.
  */
-extern pod_state_t __state;
+extern pod_t _pod;
 extern int serverfd;
-extern int imufd;
 extern int clients[MAX_CMD_CLIENTS];
 extern int nclients;
 
@@ -45,13 +49,16 @@ void usage() {
 void parse_args(int argc, char *argv[]) {
   int ch;
 
-  while ((ch = getopt(argc, argv, "rt")) != -1) {
+  while ((ch = getopt(argc, argv, "rti:")) != -1) {
     switch (ch) {
     case 'r':
       args.ready = true;
       break;
     case 't':
       args.tests = true;
+      break;
+    case 'i':
+      args.imu_device = optarg;
       break;
     default:
       usage();
@@ -73,15 +80,16 @@ void set_pthread_priority(pthread_t task, int priority) {
 }
 
 /**
- * Wrapper for exit() function. Allows us to dump a constant state on exit
+ * Wrapper for exit() function. Allows us to exit cleanly
  * Note: atexit handlers don't always work (expecially if exiting in a signal
  * handler)
  */
 void pod_exit(int code) {
+  pod_t *pod = get_pod();
   fprintf(stderr, "=== POD IS SHUTTING DOWN NOW! ===\n");
 
-  fprintf(stderr, "Closing IMU (fd %d)\n", imufd);
-  imu_disconnect(imufd);
+  fprintf(stderr, "Closing IMU (fd %d)\n", pod->imu);
+  imu_disconnect(pod->imu);
 
   while (nclients > 0) {
     fprintf(stderr, "Closing client %d (fd %d)\n", nclients, clients[nclients]);
@@ -106,9 +114,14 @@ void pod_exit(int code) {
  * entire controller logic and just make the pod safe
  */
 void signal_handler(int sig) {
-  __state.mode = Emergency;
+  _pod.mode = Emergency;
 
   // TODO: Need to ensure that system is quit with emergency brakes applied
+
+  if (sig == SIGTERM) {
+    // Power button pulled low, power will be cut in < 1023ms
+    // TODO: Sync the filesystem and unmount root to prevent corruption
+  }
 
   exit(EXIT_FAILURE);
 }
@@ -117,7 +130,7 @@ void exit_signal_handler(int sig) {
 #ifdef DEBUG
   pod_exit(2);
 #else
-  switch (__state.mode) {
+  switch (_pod.mode) {
   case Boot:
   case Shutdown:
     error("Exiting by signal %d", sig);
@@ -136,21 +149,21 @@ int main(int argc, char *argv[]) {
   parse_args(argc, argv);
 
   info("POD Booting...");
-  info("Initializing Pod State");
+  info("Initializing Pod");
 
-  if (init_pod_state() < 0) {
-    fprintf(stderr, "Failed to Initialize Pod State");
+  if (init_pod() < 0) {
+    fprintf(stderr, "Failed to Initialize Pod");
     pod_exit(1);
   }
 
-  info("Loading POD state struct for the first time");
-  pod_state_t *state = get_pod_state();
+  info("Loading Pod struct for the first time");
+  pod_t *pod = get_pod();
 
   info("Setting Up Pins");
 
-  setup_pins(state);
+  setup_pins(pod);
   if (args.tests) {
-    self_tests(state);
+    self_tests(pod);
   }
 
   info("Registering POSIX signal handlers");
@@ -166,15 +179,26 @@ int main(int argc, char *argv[]) {
   signal(SIGTERM, exit_signal_handler);
   signal(SIGHUP, exit_signal_handler);
 
+  while (true) {
+    info("Connecting to IMU at: %s", args.imu_device);
+    pod->imu = imu_connect(args.imu_device);
+    if (pod->imu < 0) {
+      info("IMU connection failed: %s", args.imu_device);
+      sleep(1);
+    } else {
+      break;
+    }
+  }
+
   // -----------------------------------------
   // Logging - Remote Logging System
   // -----------------------------------------
   info("Starting the Logging Client Connection");
-  pthread_create(&(state->logging_thread), NULL, logging_main, NULL);
+  pthread_create(&(pod->logging_thread), NULL, logging_main, NULL);
 
   // Wait for logging thread to connect to the logging server
   if (!args.ready) {
-    boot_sem_ret = sem_wait(state->boot_sem);
+    boot_sem_ret = sem_wait(pod->boot_sem);
     if (boot_sem_ret != 0) {
       perror("sem_wait wait failed: ");
       pod_exit(1);
@@ -190,41 +214,41 @@ int main(int argc, char *argv[]) {
   // Commander - Remote Command Communication
   // -----------------------------------------
   info("Booting Command and Control Server");
-  pthread_create(&(state->cmd_thread), NULL, command_main, NULL);
+  pthread_create(&(pod->cmd_thread), NULL, command_main, NULL);
 
   // Wait for command thread to start it's server
   if (!args.ready) {
-    boot_sem_ret = sem_wait(state->boot_sem);
+    boot_sem_ret = sem_wait(pod->boot_sem);
     if (boot_sem_ret != 0) {
       perror("sem_wait wait failed: ");
       pod_exit(1);
     }
   }
 
-  // Assert State is still boot
+  // Assert pod is still boot
   if (get_pod_mode() != Boot) {
     error("Command thread has requested shutdown, See log for details");
     pod_exit(1);
   }
 
   info("Booting Core Controller Logic Thread");
-  pthread_create(&(state->core_thread), NULL, core_main, NULL);
+  pthread_create(&(pod->core_thread), NULL, core_main, NULL);
 
   // we're using the built-in linux Round Roboin scheduling
   // priorities are 1-99, higher is more important
   // important note: this is not hard real-time
-  set_pthread_priority(state->core_thread, 70);
-  set_pthread_priority(state->logging_thread, 10);
-  set_pthread_priority(state->cmd_thread, 20);
+  set_pthread_priority(pod->core_thread, 70);
+  set_pthread_priority(pod->logging_thread, 10);
+  set_pthread_priority(pod->cmd_thread, 20);
 
-  pthread_join(state->core_thread, NULL);
+  pthread_join(pod->core_thread, NULL);
 
   // TODO: Clean this up
   error("Core thread joined");
   exit(1);
 
-  pthread_join(state->logging_thread, NULL);
-  pthread_join(state->cmd_thread, NULL);
+  pthread_join(pod->logging_thread, NULL);
+  pthread_join(pod->cmd_thread, NULL);
 
   return 0;
 }
