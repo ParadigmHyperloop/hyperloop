@@ -31,19 +31,35 @@ float maximumSafeDistanceBeforeBraking = 125.0;
 void boot_state_checks(pod_t *pod) {
   if (get_value(&(pod->ready)) == 1) {
     // TODO: Other Pre-flight Checks that are not Human checked
-    set_pod_mode(Ready, "Pod's Ready bit has been set");
+    set_pod_mode(LPFill, "Pod's Ready bit has been set");
   } else {
     info("Pod state is Boot, waiting for operator...");
   }
 }
 
-/**
- * Checks to be performed when the pod's state is Boot
- */
-void ready_state_checks(pod_t *pod) {
-  if (get_value_f(&(pod->accel_x)) > PUSHING_MIN_ACCEL) {
-    set_pod_mode(Pushing, "Detecting Positive Acceleration");
-  }
+
+void post_state_checks(pod_t *pod) {
+
+}
+
+void lp_fill_state_checks(pod_t *pod) {
+
+}
+
+void hp_fill_state_checks(pod_t *pod) {
+
+}
+
+void load_state_checks(pod_t *pod) {
+
+}
+
+void standby_state_checks(pod_t *pod) {
+
+}
+
+void armed_state_checks(pod_t *pod) {
+
 }
 
 /**
@@ -52,7 +68,7 @@ void ready_state_checks(pod_t *pod) {
 void emergency_state_checks(pod_t *pod) {
   if (is_pod_stopped(pod) && any_emergency_brakes(pod) &&
       any_calipers(pod)) {
-    set_pod_mode(Shutdown, "Pod has been determined to be in a safe state");
+    set_pod_mode(Vent, "Pod has been determined to be ready for venting");
   }
 }
 
@@ -95,11 +111,20 @@ void braking_state_checks(pod_t *pod) {
     float vx = get_value_f(&(pod->velocity_x));
 
     if (is_pod_stopped(pod)) {
-      set_pod_mode(Shutdown, "Pod has stopped");
+      set_pod_mode(Vent, "Pod has stopped");
     } else if (ax > -vx) { // TODO: this calculation is BS.
       set_pod_mode(Emergency, "Pod decelleration is too low");
     }
   }
+}
+
+
+void vent_state_checks(pod_t *pod) {
+
+}
+
+void retrieval_state_checks(pod_t *pod) {
+
 }
 
 void skate_sensor_checks(pod_t *pod) {
@@ -199,14 +224,17 @@ int set_emergency_brakes(int no, solenoid_state_t val, bool override) {
 void adjust_brakes(pod_t *pod) {
   int i;
   switch (get_pod_mode()) {
-  case Ready:
+  case POST:
+  case Boot:
+  case LPFill:
+  case HPFill:
+  case Load:
+  case Standby:
+  case Armed:
   case Pushing:
   case Coasting:
-    for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-      set_caliper_brakes(i, kSolenoidClosed, false);
-    }
-    break;
-  case Boot:
+  case Vent:
+  case Retrieval:
   case Shutdown:
     for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
       set_caliper_brakes(i, kSolenoidClosed, false);
@@ -216,18 +244,14 @@ void adjust_brakes(pod_t *pod) {
     }
     break;
   case Braking:
-    for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-      set_caliper_brakes(i, kSolenoidOpen, false);
-    }
+    set_emergency_brakes(PRIMARY_BRAKING_CLAMP, kSolenoidOpen, false);
     break;
   case Emergency:
     if (get_value(&(pod->accel_x)) <= A_ERR_X) {
-      for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-        set_caliper_brakes(i, kSolenoidOpen, false);
-      }
       for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
         set_emergency_brakes(i, kSolenoidOpen, false);
       }
+      // TODO: If both ebrakes applied but not optimal decel, apply calipers
     } else {
       error("==== Emergency Emergency Emergency ====");
       error("State is Emergency but not applying any brakes because accel x is "
@@ -245,19 +269,26 @@ void adjust_skates(pod_t *pod) {
   // switch over them
   int i;
   switch (get_pod_mode()) {
-  case Ready:
-  case Pushing:
-  case Coasting:
-    for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, kSolenoidOpen, false);
-    }
-    break;
+  case POST:
   case Boot:
+  case LPFill:
+  case HPFill:
+  case Load:
+  case Standby:
+  case Armed:
+  case Vent:
+  case Retrieval:
   case Emergency:
-  case Shutdown:
-  case Braking:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
       set_skate_target(i, kSolenoidClosed, false);
+    }
+    break;
+  case Pushing:
+  case Coasting:
+  case Braking:
+  case Shutdown:
+    for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
+      set_skate_target(i, kSolenoidOpen, false);
     }
     break;
   default:
@@ -313,11 +344,26 @@ void *core_main(void *arg) {
 
     // Mode Specific Checks
     switch (get_pod_mode()) {
+    case POST:
+      post_state_checks(pod);
+      break;
     case Boot:
       boot_state_checks(pod);
       break;
-    case Ready:
-      ready_state_checks(pod);
+    case LPFill:
+      lp_fill_state_checks(pod);
+      break;
+    case HPFill:
+      hp_fill_state_checks(pod);
+      break;
+    case Load:
+      load_state_checks(pod);
+      break;
+    case Standby:
+      standby_state_checks(pod);
+      break;
+    case Armed:
+      armed_state_checks(pod);
       break;
     case Pushing:
       pushing_state_checks(pod);
@@ -328,9 +374,18 @@ void *core_main(void *arg) {
     case Braking:
       braking_state_checks(pod);
       break;
+    case Vent:
+      vent_state_checks(pod);
+      break;
+    case Retrieval:
+      retrieval_state_checks(pod);
+      break;
     case Emergency:
       emergency_state_checks(pod);
+    case Shutdown:
+      warn("pod in shutdown mode, but still running");
     default:
+      panic(POD_CORE_SUBSYSTEM, "Pod in unknown state!");
       break;
     }
 

@@ -17,6 +17,8 @@
 #include "pod.h"
 
 void setup_pins(pod_t * pod) {
+
+
   int i;
   for (i=0; i<N_SKATE_SOLONOIDS; i++) {
     initPin(pod->skate_solonoids[i].gpio);
