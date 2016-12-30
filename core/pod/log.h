@@ -31,9 +31,9 @@ int podLog(char *fmt, ...);
 
 
 /**
- * Dump entire pod_state_t to the network logging buffer
+ * Dump entire pod_t to the network logging buffer
  */
-void logDump(pod_state_t *state);
+void logDump(pod_t *pod);
 
 /**
  * Enqueue a telemetry packet for network transmission of the current state

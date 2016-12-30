@@ -19,30 +19,30 @@
 /**
  * Determine if emergency brakes are engaged
  */
-bool any_emergency_brakes(pod_state_t *state) {
+bool any_emergency_brakes(pod_t *pod) {
   // TODO: no transducers on ebrake lines
-  return state->tmp_ebrakes;
+  return pod->tmp_ebrakes;
 }
 
 /**
  * Determine if emergency brakes are engaged
  */
-bool any_calipers(pod_state_t *state) {
+bool any_calipers(pod_t *pod) {
   // TODO: no transducers on caliper lines
-  return state->tmp_brakes;
+  return pod->tmp_brakes;
 }
 
 /**
  * Determines if the pod is currently stationary accounting for error in
  * readings
  */
-bool is_pod_stopped(pod_state_t *state) {
-  return within(-A_ERR_X, get_value_f(&(state->accel_x)), A_ERR_X) &&
-         within(-A_ERR_Y, get_value_f(&(state->accel_y)), A_ERR_Y) &&
-         within(-A_ERR_Z, get_value_f(&(state->accel_z)), A_ERR_Z) &&
-         within(-V_ERR_X, get_value_f(&(state->velocity_x)), V_ERR_X) &&
-         within(-V_ERR_Y, get_value_f(&(state->velocity_y)), V_ERR_Y) &&
-         within(-V_ERR_Z, get_value_f(&(state->velocity_z)), V_ERR_Z);
+bool is_pod_stopped(pod_t *pod) {
+  return within(-A_ERR_X, get_value_f(&(pod->accel_x)), A_ERR_X) &&
+         within(-A_ERR_Y, get_value_f(&(pod->accel_y)), A_ERR_Y) &&
+         within(-A_ERR_Z, get_value_f(&(pod->accel_z)), A_ERR_Z) &&
+         within(-V_ERR_X, get_value_f(&(pod->velocity_x)), V_ERR_X) &&
+         within(-V_ERR_Y, get_value_f(&(pod->velocity_y)), V_ERR_Y) &&
+         within(-V_ERR_Z, get_value_f(&(pod->velocity_z)), V_ERR_Z);
 }
 
 void setRelay(int pin, relay_state_t state) {

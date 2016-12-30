@@ -7,7 +7,7 @@ char *pod_mode_names[N_POD_STATES] = {"Boot",     "Ready",   "Pushing",
                                       "Coasting", "Braking", "Emergency",
                                       "Shutdown", "(null)"};
 
-pod_state_t __state = {
+pod_t _pod = {
   .mode = Boot,
   .initialized = false,
   .start = 0ULL,
@@ -25,24 +25,24 @@ pod_state_t __state = {
   .skate_rear_left_z = POD_VALUE_INITIALIZER_INT32,
   .skate_rear_right_z = POD_VALUE_INITIALIZER_INT32,
   .overrides = 0ULL,
-  .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER
+  .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
+  .imu = -1,
+  .logging_socket = -1
 };
-
-
 
 /**
 * Sets the given control surfaces into override mode
 */
 void override_surface(uint64_t surfaces, bool override) {
- pod_state_t *state = get_pod_state();
+ pod_t *pod = get_pod();
  if (override) {
-   pthread_rwlock_wrlock(&(state->overrides_mutex));
-   state->overrides |= surfaces;
-   pthread_rwlock_unlock(&(state->overrides_mutex));
+   pthread_rwlock_wrlock(&(pod->overrides_mutex));
+   pod->overrides |= surfaces;
+   pthread_rwlock_unlock(&(pod->overrides_mutex));
  } else {
-   pthread_rwlock_wrlock(&(state->overrides_mutex));
-   state->overrides &= ~surfaces;
-   pthread_rwlock_unlock(&(state->overrides_mutex));
+   pthread_rwlock_wrlock(&(pod->overrides_mutex));
+   pod->overrides &= ~surfaces;
+   pthread_rwlock_unlock(&(pod->overrides_mutex));
  }
 }
 
@@ -51,25 +51,25 @@ void override_surface(uint64_t surfaces, bool override) {
 */
 bool is_surface_overriden(uint64_t surface) {
  bool manual = false;
- pod_state_t *state = get_pod_state();
- pthread_rwlock_rdlock(&(state->overrides_mutex));
- manual = (bool)((state->overrides & surface) != 0);
- pthread_rwlock_unlock(&(state->overrides_mutex));
+ pod_t *pod = get_pod();
+ pthread_rwlock_rdlock(&(pod->overrides_mutex));
+ manual = (bool)((pod->overrides & surface) != 0);
+ pthread_rwlock_unlock(&(pod->overrides_mutex));
  return manual;
 }
 
 
 
 
-int init_pod_state(void) {
-  pod_state_t *state = get_pod_state();
-  debug("initializing State at %p", state);
+int init_pod(void) {
+  pod_t *pod = get_pod();
+  debug("initializing pod at %p", pod);
 
   int i;
   int skate_pins[] = SKATE_SOLENOIDS;
   for (i=0;i<N_SKATE_SOLONOIDS;i++) {
 
-    state->skate_solonoids[i] = (pod_solenoid_t){
+    pod->skate_solonoids[i] = (pod_solenoid_t){
       .gpio = skate_pins[i],
       .value = 0,
       .type = kSolenoidNormallyClosed
@@ -78,7 +78,7 @@ int init_pod_state(void) {
 
   int ebrake_pins[] = EBRAKE_SOLONOIDS;
   for (i=0;i<N_EBRAKE_SOLONOIDS;i++) {
-    state->ebrake_solonoids[i] = (pod_solenoid_t){
+    pod->ebrake_solonoids[i] = (pod_solenoid_t){
       .gpio = ebrake_pins[i],
       .value = 0,
       .type = kSolenoidNormallyOpen
@@ -87,41 +87,41 @@ int init_pod_state(void) {
 
   int wheel_pins[] = WHEEL_SOLONOIDS;
   for (i=0;i<N_WHEEL_SOLONOIDS;i++) {
-    state->wheel_solonoids[i] = (pod_solenoid_t){
+    pod->wheel_solonoids[i] = (pod_solenoid_t){
       .gpio = wheel_pins[i],
       .value = 0,
       .type = kSolenoidNormallyClosed
     };
   }
 
-  pthread_rwlock_init(&(state->mode_mutex), NULL);
+  pthread_rwlock_init(&(pod->mode_mutex), NULL);
 
-  // assert(sem_init(&(state->boot_sem), 0, 0) == 0);
-  state->boot_sem = sem_open(POD_BOOT_SEM, O_CREAT, S_IRUSR | S_IWUSR, 0);
+  // assert(sem_init(&(pod->boot_sem), 0, 0) == 0);
+  pod->boot_sem = sem_open(POD_BOOT_SEM, O_CREAT, S_IRUSR | S_IWUSR, 0);
 
-  if (state->boot_sem == SEM_FAILED) {
+  if (pod->boot_sem == SEM_FAILED) {
     error("boot_sem failed to open");
     return -1;
   }
 
-  state->initialized = get_time();
+  pod->initialized = get_time();
   return 0;
 }
 
-pod_state_t *get_pod_state(void) {
-  if (!__state.initialized) {
-    warn("Pod State is not initialized");
+pod_t *get_pod(void) {
+  if (!_pod.initialized) {
+    warn("Pod is not initialized");
   }
 
-  return &__state;
+  return &_pod;
 }
 
 pod_mode_t get_pod_mode(void) {
-  pthread_rwlock_rdlock(&(get_pod_state()->mode_mutex));
+  pthread_rwlock_rdlock(&(get_pod()->mode_mutex));
 
-  pod_mode_t mode = get_pod_state()->mode;
+  pod_mode_t mode = get_pod()->mode;
 
-  pthread_rwlock_unlock(&(get_pod_state()->mode_mutex));
+  pthread_rwlock_unlock(&(get_pod()->mode_mutex));
 
   return mode;
 }
@@ -133,16 +133,16 @@ int set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   va_start(arg, reason);
   vsnprintf(&msg[0], MAX_LOG_LINE, reason, arg);
   va_end(arg);
-  pod_state_t *state = get_pod_state();
+  pod_t *pod = get_pod();
   pod_mode_t old_mode = get_pod_mode();
 
   warn("Pod Mode Transition %s => %s. reason: %s", pod_mode_names[old_mode],
        pod_mode_names[new_mode], msg);
 
   if (validate_transition(old_mode, new_mode)) {
-    pthread_rwlock_wrlock(&(state->mode_mutex));
-    get_pod_state()->mode = new_mode;
-    pthread_rwlock_unlock(&(state->mode_mutex));
+    pthread_rwlock_wrlock(&(pod->mode_mutex));
+    get_pod()->mode = new_mode;
+    pthread_rwlock_unlock(&(pod->mode_mutex));
     warn("Request to set mode from %s to %s: approved",
          pod_mode_names[old_mode], pod_mode_names[new_mode]);
     return 0;

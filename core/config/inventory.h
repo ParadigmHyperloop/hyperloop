@@ -52,6 +52,9 @@
 #define N_EBRAKE_SOLONOIDS 2
 #define EBRAKE_SOLONOIDS { 72, 70 }
 
+// Which solenoid (index) to use for primary braking
+#define PRIMARY_BRAKING_CLAMP 1
+
 #define N_EBRAKE_PAD_THERMOCOUPLES 2
 #define EBRAKE_PAD_THERMOCOUPLES_BASE (PRU_BASE + 0)
 

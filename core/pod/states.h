@@ -2,18 +2,27 @@
 #define OPENLOOP_POD_STATES_H
 #include "../pod.h"
 
-#define N_POD_STATES 8
+#define N_POD_STATES 15
 
 typedef enum {
-  Boot = 0,      // initializing systems, establishing network connections, ect
-  Ready = 1,     // idle, stationary, ready for push
-  Pushing = 2,   // pusher engaged,
-  Coasting = 3,  // pusher disengaged, just coasting
-  Braking = 4,   // normal braking mode
-  Emergency = 5, // emergency braking
-  Shutdown = 6,  // pod stationary and in a safe state
-  _nil = 7       // NULL STATE, not a valid state, used to terminate arrays
+  NonState = -1, // NULL STATE, not a valid state, used to terminate arrays
+  POST = 0,
+  Boot = 1,
+  LPFill = 2,
+  HPFill = 3,
+  Load = 4,
+  Standby = 5,
+  Armed = 6,
+  Pushing = 7,
+  Coasting = 8,
+  Braking = 9,
+  Vent = 10,
+  Retrieval = 11,
+  Emergency = 12,
+  Shutdown = 13,
 } pod_mode_t;
+
+
 
 typedef struct pod_value {
   union {
@@ -150,7 +159,8 @@ typedef enum pod_warning {
 /**
  * Defines the master state of the pod
  */
-typedef struct pod_state {
+typedef struct pod {
+  int version;
   pod_value_t accel_x;
   pod_value_t accel_y;
   pod_value_t accel_z;
@@ -222,6 +232,9 @@ typedef struct pod_state {
 
   pod_mux_t muxes[N_MUXES];
 
+  int imu;
+  int logging_socket;
+
   enum pod_caution cautions;
   enum pod_warning warnings;
 
@@ -239,7 +252,7 @@ typedef struct pod_state {
   pthread_rwlock_t overrides_mutex;
 
   bool initialized;
-} pod_state_t;
+} pod_t;
 
 /**
  * @brief Set the new state of the pod's control algorithms.
@@ -282,12 +295,12 @@ pod_mode_t get_pod_mode(void);
  *
  * @return the current pod state as of calling
  */
-pod_state_t *get_pod_state(void);
+pod_t *get_pod(void);
 
 /**
- * Intiializes the pod's pod_state_t returned by get_pod_state()
+ * Intiializes the pod's pod_t returned by get_pod()
  */
-int init_pod_state(void);
+int init_pod(void);
 
 /**
  * Helper method to read value from pod_state

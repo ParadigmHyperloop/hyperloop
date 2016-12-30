@@ -30,33 +30,33 @@
 void pod_panic(int subsystem, char *file, int line, char *notes, ...);
 
 /**
- * Set the given caution bit in the pod state indicating a cautionary Alert
+ * Set the given caution bit in the pod indicating a cautionary Alert
  */
-void set_caution(pod_warning_t caution, pod_state_t *state);
+void set_caution(pod_warning_t caution, pod_t *pod);
 
 /**
- * Set the given warning bit in the pod state indicating a warning Alert
+ * Set the given warning bit in the pod indicating a warning Alert
  */
-void set_warn(pod_warning_t warning, pod_state_t *state);
+void set_warn(pod_warning_t warning, pod_t *pod);
 
 /**
- * Clear the given caution bit in the pod state cancelling a cautionary Alert
+ * Clear the given caution bit in the pod cancelling a cautionary Alert
  */
-void clear_caution(pod_warning_t caution, pod_state_t *state);
+void clear_caution(pod_warning_t caution, pod_t *pod);
 
 /**
- * Clear the given warning bit in the pod state cancelling a warning Alert
+ * Clear the given warning bit in the pod cancelling a warning Alert
  */
-void clear_warn(pod_warning_t warning, pod_state_t *state);
+void clear_warn(pod_warning_t warning, pod_t *pod);
 
 /**
- * Check if the given caution bit is set in the pod state
+ * Check if the given caution bit is set in the pod
  */
-bool has_caution(pod_caution_t caution, pod_state_t *state);
+bool has_caution(pod_caution_t caution, pod_t *pod);
 
 /**
- * Check if the given warning bit is set in the pod state
+ * Check if the given warning bit is set in the pod
  */
-bool has_warning(pod_warning_t warning, pod_state_t *state);
+bool has_warning(pod_warning_t warning, pod_t *pod);
 
 #endif

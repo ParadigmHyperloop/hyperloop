@@ -50,39 +50,39 @@ int podLog(char *fmt, ...) {
   return logEnqueue(&l);
 }
 
-void logDump(pod_state_t *state) {
+void logDump(pod_t *pod) {
   note("Logging System -> Dumping");
 
   note("mode: %s, ready: %d", pod_mode_names[get_pod_mode()],
-       get_value(&(state->ready)));
+       get_value(&(pod->ready)));
 
-  note("acl m/s/s: x: %f, y: %f, z: %f", get_value_f(&(state->accel_x)),
-       get_value_f(&(state->accel_y)), get_value_f(&(state->accel_z)));
+  note("acl m/s/s: x: %f, y: %f, z: %f", get_value_f(&(pod->accel_x)),
+       get_value_f(&(pod->accel_y)), get_value_f(&(pod->accel_z)));
 
-  note("vel m/s  : x: %f, y: %f, z: %f", get_value_f(&(state->velocity_x)),
-       get_value_f(&(state->velocity_y)), get_value_f(&(state->velocity_z)));
+  note("vel m/s  : x: %f, y: %f, z: %f", get_value_f(&(pod->velocity_x)),
+       get_value_f(&(pod->velocity_y)), get_value_f(&(pod->velocity_z)));
 
-  note("pos m    : x: %f, y: %f, z: %f", get_value_f(&(state->position_x)),
-       get_value_f(&(state->position_y)), get_value_f(&(state->position_z)));
+  note("pos m    : x: %f, y: %f, z: %f", get_value_f(&(pod->position_x)),
+       get_value_f(&(pod->position_y)), get_value_f(&(pod->position_z)));
 
-  note("skates   : %d", state->tmp_skates);
-  note("brakes   : %d", state->tmp_brakes);
+  note("skates   : %d", pod->tmp_skates);
+  note("brakes   : %d", pod->tmp_brakes);
 
   // Send Telemetry
-  logTelemetry_f("accel_x", get_value_f(&(state->accel_x)));
-  logTelemetry_f("accel_y", get_value_f(&(state->accel_y)));
-  logTelemetry_f("accel_z", get_value_f(&(state->accel_z)));
+  logTelemetry_f("accel_x", get_value_f(&(pod->accel_x)));
+  logTelemetry_f("accel_y", get_value_f(&(pod->accel_y)));
+  logTelemetry_f("accel_z", get_value_f(&(pod->accel_z)));
 
-  logTelemetry_f("velocity_x", get_value_f(&(state->velocity_x)));
-  logTelemetry_f("velocity_y", get_value_f(&(state->velocity_y)));
-  logTelemetry_f("velocity_z", get_value_f(&(state->velocity_z)));
+  logTelemetry_f("velocity_x", get_value_f(&(pod->velocity_x)));
+  logTelemetry_f("velocity_y", get_value_f(&(pod->velocity_y)));
+  logTelemetry_f("velocity_z", get_value_f(&(pod->velocity_z)));
 
-  logTelemetry_f("position_x", get_value_f(&(state->position_x)));
-  logTelemetry_f("position_y", get_value_f(&(state->position_y)));
-  logTelemetry_f("position_z", get_value_f(&(state->position_z)));
+  logTelemetry_f("position_x", get_value_f(&(pod->position_x)));
+  logTelemetry_f("position_y", get_value_f(&(pod->position_y)));
+  logTelemetry_f("position_z", get_value_f(&(pod->position_z)));
 
-  logTelemetry("skates", state->tmp_skates);
-  logTelemetry("brakes", state->tmp_brakes);
+  logTelemetry("skates", pod->tmp_skates);
+  logTelemetry("brakes", pod->tmp_brakes);
 }
 
 

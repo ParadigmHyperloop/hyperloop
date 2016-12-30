@@ -14,26 +14,26 @@ void pod_panic(int subsystem, char *file, int line, char *notes, ...) {
   // exit(POD_EX_PANIC);
 }
 
-void set_caution(pod_warning_t caution, pod_state_t *state) {
-  state->cautions |= caution;
+void set_caution(pod_warning_t caution, pod_t *pod) {
+  pod->cautions |= caution;
 }
 
-void set_warn(pod_warning_t warning, pod_state_t *state) {
-  state->warnings |= warning;
+void set_warn(pod_warning_t warning, pod_t *pod) {
+  pod->warnings |= warning;
 }
 
-void clear_caution(pod_warning_t caution, pod_state_t *state) {
-  state->cautions &= ~(caution);
+void clear_caution(pod_warning_t caution, pod_t *pod) {
+  pod->cautions &= ~(caution);
 }
 
-void clear_warn(pod_warning_t warning, pod_state_t *state) {
-  state->warnings &= ~(warning);
+void clear_warn(pod_warning_t warning, pod_t *pod) {
+  pod->warnings &= ~(warning);
 }
 
-bool has_caution(pod_caution_t caution, pod_state_t *state) {
-  return ((state->cautions & caution) != PodCautionNone);
+bool has_caution(pod_caution_t caution, pod_t *pod) {
+  return ((pod->cautions & caution) != PodCautionNone);
 }
 
-bool has_warning(pod_warning_t warning, pod_state_t *state) {
-  return ((state->warnings & warning) != PodWarningNone);
+bool has_warning(pod_warning_t warning, pod_t *pod) {
+  return ((pod->warnings & warning) != PodWarningNone);
 }
