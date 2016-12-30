@@ -21,3 +21,4 @@ script:
   - ls -la
   - pwd
   - make && make install
+  - make style
