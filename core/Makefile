@@ -58,13 +58,19 @@ style:
 		echo "[Style Check]: $$f"; \
 		mkdir -p $$(dirname $(FMTROOT)/$$f); \
 		clang-format -style=llvm $$f > $(FMTROOT)/$$f; \
-		diff $(FMTROOT)/$$f $$f || { echo "Bad Style in $$f"; exit 1; } \
+		diff $(FMTROOT)/$$f $$f || { echo "[WARNING] Bad Style in $$f"} \
 	done
 
 format:
 	for f in $(FILES); do \
 		echo "[Formating]: $$f"; \
 		clang-format -style=llvm -i $$f; \
+	done
+
+format:
+	for f in $(FILES); do \
+		echo "[Formating]: $$f"; \
+		clang-format -style=llvm -i $$f
 	done
 
 clean:
