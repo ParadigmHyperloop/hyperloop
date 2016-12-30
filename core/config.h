@@ -26,7 +26,6 @@
 #define POD_COPY_OWNER "OpenLoop - Controls Team"
 #define POD_COPY_YEAR "2016"
 
-
 // Taken from interface.c
 #define COND 2
 #define COUNT 4

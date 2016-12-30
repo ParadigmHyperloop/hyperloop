@@ -22,8 +22,6 @@ typedef enum {
   Shutdown = 13,
 } pod_mode_t;
 
-
-
 typedef struct pod_value {
   union {
     int32_t int32;
@@ -48,10 +46,7 @@ typedef struct {
   int line_pin;
 } pod_mux_t;
 
-typedef enum solenoid_state {
-  kSolenoidOpen,
-  kSolenoidClosed
-} solenoid_state_t;
+typedef enum solenoid_state { kSolenoidOpen, kSolenoidClosed } solenoid_state_t;
 
 typedef enum relay_state {
   kRelayOff, // Relay is not actuated
@@ -136,7 +131,6 @@ typedef struct {
   double cal_c;
 } pod_analog_sensor_t;
 
-
 typedef enum pod_caution {
   PodCautionNone = 0x00,
   LPThermocoupleLow = 0x1,
@@ -154,7 +148,6 @@ typedef enum pod_warning {
   BatteryTempLow = 0x2,
   PodWarningAll = 0xFF,
 } pod_warning_t;
-
 
 /**
  * Defines the master state of the pod
@@ -313,7 +306,6 @@ float get_value_f(pod_value_t *pod_field);
  */
 void set_value(pod_value_t *pod_field, int32_t newValue);
 void set_value_f(pod_value_t *pod_field, float newValue);
-
 
 /**
  * Manual override handlers

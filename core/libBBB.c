@@ -712,7 +712,8 @@ int readADC(int helpnum, char *ach) {
   char buf[50];
 
   // build file path to read adc
-  snprintf(buf, sizeof(buf)/sizeof(char), "/sys/bus/iio/devices/iio:device0/in_voltage%d_raw", helpnum);
+  snprintf(buf, sizeof(buf) / sizeof(char),
+           "/sys/bus/iio/devices/iio:device0/in_voltage%d_raw", helpnum);
 
   aval = fopen(buf, "r");
   if (aval == NULL)

@@ -16,8 +16,6 @@
 
 #include "pod.h"
 
-
-
 // returns the time in microseconds
 uint64_t get_time() {
   struct timeval currentTime;
@@ -26,7 +24,6 @@ uint64_t get_time() {
 
   return (currentTime.tv_sec * 1000000ULL) + currentTime.tv_usec;
 }
-
 
 void pod_calibrate() {
   pod_t *pod = get_pod();
@@ -50,6 +47,4 @@ void pod_reset() {
   set_value_f(&(pod->position_z), 0.0);
 }
 
-int pru_read_pack(sensor_pack_t *pack) {
-    return -1;
-}
+int pru_read_pack(sensor_pack_t *pack) { return -1; }

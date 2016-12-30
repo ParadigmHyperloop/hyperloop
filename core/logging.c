@@ -82,7 +82,8 @@ int log_send(log_t *l) {
   pod_t *pod = get_pod();
 
   if (pod->logging_socket < 0) {
-    fprintf(stderr, "Attempt to send before socket open: %d", pod->logging_socket);
+    fprintf(stderr, "Attempt to send before socket open: %d",
+            pod->logging_socket);
     return -1;
   }
 

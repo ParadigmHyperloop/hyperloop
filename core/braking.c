@@ -47,13 +47,11 @@ int readBraking(pod_t *pod) {
   // TODO: Read in new values and put them into the pod struct
   int i;
 
-
   for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
     int32_t new_value =
         readWheelThermocouple(i); // Read in value for wheel thermal sensor i
     set_value(&(pod->wheel_thermocouples[i]), new_value);
   }
-
 
   for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
     int32_t new_value =

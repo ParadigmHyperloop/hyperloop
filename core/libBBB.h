@@ -66,7 +66,6 @@ typedef struct { struct termios u; } UART;
 #define OUTPUT "out"
 #define INPUT "in"
 
-
 #define USR1 "usr1"
 #define USR2 "usr2"
 #define USR3 "usr3"

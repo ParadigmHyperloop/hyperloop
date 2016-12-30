@@ -85,7 +85,6 @@ void logDump(pod_t *pod) {
   logTelemetry("brakes", pod->tmp_brakes);
 }
 
-
 int logEnqueue(log_t *l) {
   if (!logbuf.initialized) {
     ring_buf_init(&logbuf, &logbuf_data, LOG_BUF_SIZE, sizeof(log_t));

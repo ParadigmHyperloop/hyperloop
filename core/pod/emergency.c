@@ -18,9 +18,7 @@ void set_caution(pod_warning_t caution, pod_t *pod) {
   pod->cautions |= caution;
 }
 
-void set_warn(pod_warning_t warning, pod_t *pod) {
-  pod->warnings |= warning;
-}
+void set_warn(pod_warning_t warning, pod_t *pod) { pod->warnings |= warning; }
 
 void clear_caution(pod_warning_t caution, pod_t *pod) {
   pod->cautions &= ~(caution);

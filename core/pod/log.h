@@ -29,7 +29,6 @@ typedef struct log {
  */
 int podLog(char *fmt, ...);
 
-
 /**
  * Dump entire pod_t to the network logging buffer
  */

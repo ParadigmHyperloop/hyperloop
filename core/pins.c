@@ -16,21 +16,20 @@
 #include "libBBB.h"
 #include "pod.h"
 
-void setup_pins(pod_t * pod) {
-
+void setup_pins(pod_t *pod) {
 
   int i;
-  for (i=0; i<N_SKATE_SOLONOIDS; i++) {
+  for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
     initPin(pod->skate_solonoids[i].gpio);
     setPinValue(pod->skate_solonoids[i].gpio, ON);
   }
 
-  for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
+  for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
     initPin(pod->wheel_solonoids[i].gpio);
     setPinValue(pod->wheel_solonoids[i].gpio, ON);
   }
 
-  for (i=0; i<N_EBRAKE_SOLONOIDS; i++) {
+  for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
     initPin(pod->ebrake_solonoids[i].gpio);
     setPinValue(pod->ebrake_solonoids[i].gpio, ON);
   }

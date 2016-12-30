@@ -10,16 +10,15 @@
  * ring_buf_* utility functions will assume this is your use case.
  */
 typedef struct ring_buf {
-  void *start; // start pointer
-  void *end; // end pointer
-  void *head; // pointer to head of data
-  void *tail; // pointer to tail of data
-  int sz; // Size of each element
-  int count; // Number of elements
-  bool initialized; // If initialized
+  void *start;           // start pointer
+  void *end;             // end pointer
+  void *head;            // pointer to head of data
+  void *tail;            // pointer to tail of data
+  int sz;                // Size of each element
+  int count;             // Number of elements
+  bool initialized;      // If initialized
   pthread_mutex_t mutex; // mutex
 } ring_buf_t;
-
 
 /**
  * Initialize a ring_buf_t
