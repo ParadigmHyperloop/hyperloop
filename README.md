@@ -181,9 +181,16 @@ level Makefile in this repository that provides a few helpful targets.
 
 ## Coding Practices
 
+### Languages
+
 The code running on the BBB is mostly written in a single C application with
 a few different threads for critically different tasks. This minimizes the
-complexity of the application and dependency tree.
+complexity of the application and dependency tree, however it does have a few
+down sides. For one, operations on the core control loop absolutely must not
+block, and care must be taken to ensure that any I/O that occures in the core
+control loop will not lock up the controller. `O_NONBLOCK` is the best way to
+prevent blocking on a file descriptor. `select` and `poll` will not always
+indicate actual data available and may still allow a blocking read to occur.
 
 Anything running at the control point is fair game though. The control point
 is not limited in resources like the BBB so the only rule we really impose is
@@ -192,6 +199,10 @@ server running in the control area to receive and process data from the pod.
 The server will be virtualized with a VMware vSphere hypervisor that can host
 dozens of virtual machines at once. We hope to keep the control point simple
 for the time being though, so this is mostly over-preparing
+
+## Code Style
+
+Pep8 for Python, clang/llvm for C (`clang-format -i -style=llvm <file>`)
 
 # License
 
