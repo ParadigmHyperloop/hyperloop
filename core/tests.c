@@ -38,19 +38,19 @@ int set_all_surfaces(int lvl, int sleep, int sleep_block) {
     s = kSolenoidClosed;
   }
 
-  for (i=0; i<N_SKATE_SOLONOIDS; i++) {
+  for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
     set_skate_target(i, s, false);
     usleep(sleep);
   }
   usleep(sleep_block);
 
-  for (i=0; i<N_EBRAKE_SOLONOIDS; i++) {
+  for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
     set_emergency_brakes(i, s, false);
     usleep(sleep);
   }
   usleep(sleep_block);
 
-  for (i=0; i<N_WHEEL_SOLONOIDS; i++) {
+  for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
     set_caliper_brakes(i, s, false);
     usleep(sleep);
   }
@@ -97,11 +97,11 @@ int relay_walker() {
 }
 
 int sensor_walker() {
-  //sensor_pack_t sensors = read_pru_dataset();
+  // sensor_pack_t sensors = read_pru_dataset();
   return 0;
 }
 
-int self_tests(pod_t * state) {
+int self_tests(pod_t *state) {
   if (relay_walker() < 0) {
     error("Relay Walk Test Failed");
     exit(1);

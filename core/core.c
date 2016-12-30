@@ -37,37 +37,23 @@ void boot_state_checks(pod_t *pod) {
   }
 }
 
+void post_state_checks(pod_t *pod) {}
 
-void post_state_checks(pod_t *pod) {
+void lp_fill_state_checks(pod_t *pod) {}
 
-}
+void hp_fill_state_checks(pod_t *pod) {}
 
-void lp_fill_state_checks(pod_t *pod) {
+void load_state_checks(pod_t *pod) {}
 
-}
+void standby_state_checks(pod_t *pod) {}
 
-void hp_fill_state_checks(pod_t *pod) {
-
-}
-
-void load_state_checks(pod_t *pod) {
-
-}
-
-void standby_state_checks(pod_t *pod) {
-
-}
-
-void armed_state_checks(pod_t *pod) {
-
-}
+void armed_state_checks(pod_t *pod) {}
 
 /**
  * Checks to be performed when the pod's state is Emergency
  */
 void emergency_state_checks(pod_t *pod) {
-  if (is_pod_stopped(pod) && any_emergency_brakes(pod) &&
-      any_calipers(pod)) {
+  if (is_pod_stopped(pod) && any_emergency_brakes(pod) && any_calipers(pod)) {
     set_pod_mode(Vent, "Pod has been determined to be ready for venting");
   }
 }
@@ -92,8 +78,7 @@ void coasting_state_checks(pod_t *pod) {
   if (get_value_f(&(pod->position_x)) > maximumSafeDistanceBeforeBraking ||
       get_value_f(&(pod->velocity_x)) > maximumSafeForwardVelocity) {
     set_pod_mode(Emergency, "Pod has travelled too far");
-  } else if (get_value_f(&(pod->position_x)) >
-             standardDistanceBeforeBraking) {
+  } else if (get_value_f(&(pod->position_x)) > standardDistanceBeforeBraking) {
     set_pod_mode(Braking, "Pod has entered braking range of travel");
   }
 }
@@ -118,14 +103,9 @@ void braking_state_checks(pod_t *pod) {
   }
 }
 
+void vent_state_checks(pod_t *pod) {}
 
-void vent_state_checks(pod_t *pod) {
-
-}
-
-void retrieval_state_checks(pod_t *pod) {
-
-}
+void retrieval_state_checks(pod_t *pod) {}
 
 void skate_sensor_checks(pod_t *pod) {
   // TODO: Make these checks bounded by min and max values
@@ -160,8 +140,7 @@ void lateral_sensor_checks(pod_t *pod) {
               LATERAL_MAX)) {
     errors |= 0x2;
   }
-  if (outside(LATERAL_MIN, get_value(&(pod->lateral_rear_left)),
-              LATERAL_MAX)) {
+  if (outside(LATERAL_MIN, get_value(&(pod->lateral_rear_left)), LATERAL_MAX)) {
     errors |= 0x4;
   }
   if (outside(LATERAL_MIN, get_value(&(pod->lateral_rear_right)),

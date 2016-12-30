@@ -26,9 +26,9 @@ int ring_buf_append(log_t *l, ring_buf_t *buf) {
     }
     pthread_mutex_unlock(&(buf->mutex));
 
-    #ifdef DEBUG
+#ifdef DEBUG
     fprintf(stderr, "[RINGBUF] Buf Full Dropping oldest message from buffer");
-    #endif
+#endif
 
     // 1 indicates success but overwrote a queued log
     return 1;

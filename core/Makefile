@@ -24,13 +24,14 @@ CC= gcc
 DEPS = core.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c mux.c tests.c libBBBShims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
 SOURCES= main.c $(DEPS)
 OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
+FILES := $(wildcard **/*.c **/*.h *.c *.h)
 
 EXECUTABLE = core
 CFLAGS += -pthread -std=gnu99 -DDEBUG -I../libimu/BUILD/dst/usr/local/include
 LDFLAGS += -limu -L../libimu/BUILD/dst/usr/local/lib
 OBJROOT= ./BUILD/obj
 DSTROOT= ./BUILD/dst
-
+FMTROOT= ./BUILD/fmt
 
 $(EXECUTABLE):  $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)
@@ -50,6 +51,20 @@ install:
 
 run: clean all
 	./$(EXECUTABLE) -r
+
+style:
+	mkdir -p $(FMTROOT)
+	for f in $(FILES); do \
+		mkdir -p $$(dirname $(FMTROOT)/$$f); \
+		clang-format -style=llvm $$f > $(FMTROOT)/$$f; \
+		(diff $(FMTROOT)/$$f $$f && echo "[OK] $$f") || echo "[WARNING] Bad Style in $$f"; \
+	done
+
+format:
+	for f in $(FILES); do \
+		echo "[Formating]: $$f"; \
+		clang-format -style=llvm -i $$f; \
+	done
 
 clean:
 	rm -rf *.o pod/*.o *~ $(EXECUTABLE) BUILD

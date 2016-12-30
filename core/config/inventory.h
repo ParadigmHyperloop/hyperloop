@@ -18,7 +18,8 @@
 #define HP_THERMOCOUPLES_BASE (PRU_BASE + 0)
 
 #define N_HP_RELIEF 1
-#define HP_RELIEF_PINS { 15 }
+#define HP_RELIEF_PINS                                                         \
+  { 15 }
 
 // --------------------------
 // LP Package
@@ -37,7 +38,8 @@
 // --------------------------
 
 #define N_SKATE_SOLONOIDS 6
-#define SKATE_SOLENOIDS { 10, 9, 8, 78, 76, 74 }
+#define SKATE_SOLENOIDS                                                        \
+  { 10, 9, 8, 78, 76, 74 }
 
 #define N_SKATE_TRANSDUCERS 6
 #define SKATE_TRANSDUCERS_BASE (PRU_BASE + 0)
@@ -50,7 +52,8 @@
 // --------------------------
 
 #define N_EBRAKE_SOLONOIDS 2
-#define EBRAKE_SOLONOIDS { 72, 70 }
+#define EBRAKE_SOLONOIDS                                                       \
+  { 72, 70 }
 
 // Which solenoid (index) to use for primary braking
 #define PRIMARY_BRAKING_CLAMP 1
@@ -66,7 +69,8 @@
 // --------------------------
 
 #define N_WHEEL_SOLONOIDS 3
-#define WHEEL_SOLONOIDS { 11, 81, 80 }
+#define WHEEL_SOLONOIDS                                                        \
+  { 11, 81, 80 }
 
 #define N_WHEEL_THERMOCOUPLES 3
 #define WHEEL_THERMOCOUPLES_BASE (PRU_BASE + 0)
@@ -111,14 +115,13 @@
 #define N_POWER_THERMOCOUPLES 4
 #define POWER_THERMOCOUPLES_BASE (PRU_BASE + 0)
 
-
 // --------------------------
 // Batteries
 // --------------------------
 
 #define N_BATTERIES 4
-#define BATTERY_I2C_ADDRESSES { 6, 7, 8, 9 }
-
+#define BATTERY_I2C_ADDRESSES                                                  \
+  { 6, 7, 8, 9 }
 
 // --------------------------
 // HP Fill
@@ -131,7 +134,8 @@
 // --------------------------
 
 #define N_LP_FILL_SOLENOIDS 2
-#define LP_FILL { 77, 75 }
+#define LP_FILL                                                                \
+  { 77, 75 }
 
 // --------------------------
 // Releif solenoid
@@ -145,7 +149,7 @@
 
 #define N_MUXES 4
 #define N_MUX_SELECT_PINS 4
-#define MUX_SELECT_PINS { 45, 44, 117, 125 }
-
+#define MUX_SELECT_PINS                                                        \
+  { 45, 44, 117, 125 }
 
 #endif

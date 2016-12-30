@@ -23,10 +23,7 @@ struct arguments {
 };
 
 struct arguments args = {
-  .tests = false,
-  .ready = false,
-  .imu_device = IMU_DEVICE
-};
+    .tests = false, .ready = false, .imu_device = IMU_DEVICE};
 
 /**
  * WARNING: Do Not Directly Access this struct, use get_pod() instead to

@@ -81,8 +81,7 @@ int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
                                        "Vx:\t%f\n"
                                        "Px:\t%f\n",
                   get_pod_mode(), get_value(&(pod->ready)),
-                  get_value_f(&(pod->accel_x)),
-                  get_value_f(&(pod->velocity_x)),
+                  get_value_f(&(pod->accel_x)), get_value_f(&(pod->velocity_x)),
                   get_value_f(&(pod->position_x)));
 }
 
