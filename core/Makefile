@@ -67,11 +67,5 @@ format:
 		clang-format -style=llvm -i $$f; \
 	done
 
-format:
-	for f in $(FILES); do \
-		echo "[Formating]: $$f"; \
-		clang-format -style=llvm -i $$f
-	done
-
 clean:
 	rm -rf *.o pod/*.o *~ $(EXECUTABLE) BUILD
