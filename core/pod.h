@@ -54,10 +54,16 @@ int pru_read_pack(sensor_pack_t * pack);
 
 void pod_exit(int code);
 
-int set_skate_target(int no, int val, bool override);
+int set_skate_target(int no, solenoid_state_t val, bool override);
+int set_caliper_brakes(int no, solenoid_state_t val, bool override);
+int set_emergency_brakes(int no, solenoid_state_t val, bool override);
+
+
 int setBrakes(int no, int val, bool override);
 int setEBrakes(int no, int val, bool override);
 
-void add_imu_data(imu_datagram_t *data, pod_state_t *s);
+int self_tests(pod_state_t *state);
 
+void add_imu_data(imu_datagram_t *data, pod_state_t *s);
+void setup_pins(pod_state_t * state);
 #endif

@@ -96,7 +96,6 @@ int setUsrLedValue(char *led, int value);
 int initPin(int pinnum);
 int setPinDirection(int pinnum, char *dir);
 int setPinValue(int pinnum, int value);
-int digitalWrite(int pinnum, int value);
 int getPinValue(int pinnum);
 
 // PWM Prototypes

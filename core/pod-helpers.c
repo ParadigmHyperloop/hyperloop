@@ -44,3 +44,59 @@ bool is_pod_stopped(pod_state_t *state) {
          within(-V_ERR_Y, get_value_f(&(state->velocity_y)), V_ERR_Y) &&
          within(-V_ERR_Z, get_value_f(&(state->velocity_z)), V_ERR_Z);
 }
+
+void setRelay(int pin, relay_state_t state) {
+  switch (state) {
+    case kRelayOn:
+      setPinValue(pin, 0);
+      break;
+    case kRelayOff:
+      setPinValue(pin, 1);
+      break;
+    default:
+      DECLARE_EMERGENCY("UNKNOWN RELAY STATE");
+  }
+}
+
+bool is_solenoid_open(pod_solenoid_t * solenoid) {
+  switch (solenoid->type) {
+    case kSolenoidNormallyOpen:
+      return solenoid->value != 1;
+      break;
+    case kSolenoidNormallyClosed:
+      return solenoid->value == 1;
+      break;
+    default:
+      DECLARE_EMERGENCY("UNKNOWN SOLENOID TYPE");
+  }
+}
+
+void set_solenoid(pod_solenoid_t *s, solenoid_state_t val) {
+  switch (val) {
+    case kSolenoidOpen:
+      open_solenoid(s);
+      break;
+    case kSolenoidClosed:
+      close_solenoid(s);
+      break;
+    default:
+      DECLARE_EMERGENCY("UNKOWN SOLENOID STATE");
+  }
+}
+
+void open_solenoid(pod_solenoid_t *s) {
+  if (!is_solenoid_open(s)) {
+    // TODO: Prove
+    setRelay(s->gpio, (s->value ? kRelayOn : kRelayOff));
+    s->value = ! s->value;
+  }
+}
+
+
+void close_solenoid(pod_solenoid_t *s) {
+  if (is_solenoid_open(s)) {
+    // TODO: Prove
+    setRelay(s->gpio, (s->value ? kRelayOff : kRelayOn));
+    s->value = ! s->value;
+  }
+}
