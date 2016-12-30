@@ -55,10 +55,9 @@ run: clean all
 style:
 	mkdir -p $(FMTROOT)
 	for f in $(FILES); do \
-		echo "[Style Check]: $$f"; \
 		mkdir -p $$(dirname $(FMTROOT)/$$f); \
 		clang-format -style=llvm $$f > $(FMTROOT)/$$f; \
-		diff $(FMTROOT)/$$f $$f || { echo "[WARNING] Bad Style in $$f"} \
+		(diff $(FMTROOT)/$$f $$f && echo "[OK] $$f") || echo "[WARNING] Bad Style in $$f"; \
 	done
 
 format:
