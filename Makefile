@@ -15,6 +15,8 @@ install:
 test: all
 	./test
 
+style:
+	$(CORE_MAKE) style
 clean:
 	$(CORE_MAKE) clean
 	rm -f *.o *.csv *.log
