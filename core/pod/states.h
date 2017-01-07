@@ -61,6 +61,7 @@ typedef enum solenoid_type {
 typedef struct pod_solenoid {
   int gpio;
   int value;
+  bool locked;
   solenoid_type_t type;
 } pod_solenoid_t;
 /**
@@ -93,7 +94,7 @@ typedef struct {
   thermocouple_raw_t shell_thermocouples[N_SHELL_THERMOCOUPLES];
   thermocouple_raw_t regulator_thermocouples[N_LP_REGULATOR_THERMOCOUPLES];
   thermocouple_raw_t power_thermocouples[N_POWER_THERMOCOUPLES];
-  transducer_raw_t lp_transducers[N_LP_TRANSDUCERS];
+  transducer_raw_t lp_regulator_transducers[N_LP_REGULATOR_TRANSDUCERS];
   transducer_raw_t hp_transducer;
   transducer_raw_t shell_transducers[N_SHELL_TRANSDUCERS];
   transducer_raw_t skate_transducers[N_SKATE_TRANSDUCERS];
@@ -129,7 +130,17 @@ typedef struct {
   double cal_a;
   double cal_b;
   double cal_c;
-} pod_analog_sensor_t;
+  // low pass filter alpha
+  double alpha;
+  // Mannual offset
+  double offset;
+} sensor_t;
+
+#define SENSOR_INITIALIZER                                                     \
+  {                                                                            \
+    .sensor_id = 0, .name = {0}, .value = POD_VALUE_INITIALIZER_INT32,         \
+    .cal_a = 0.0, .cal_b = 0.0, .cal_c = 0.0, .alpha = 0.0, .offset = 0.0      \
+  }
 
 typedef enum pod_caution {
   PodCautionNone = 0x00,
@@ -187,17 +198,20 @@ typedef struct pod {
   pod_value_t skate_transducers[N_SKATE_TRANSDUCERS];
 
   // LP Packages
-  pod_value_t lp_reg_thermocouples[N_LP_REGULATOR_THERMOCOUPLES];
+  sensor_t lp_reg_thermocouples[N_LP_REGULATOR_THERMOCOUPLES];
+  sensor_t lp_reg_transducers[N_LP_REGULATOR_TRANSDUCERS];
 
   // EBrake Senors and Solonoids
   pod_solenoid_t ebrake_solonoids[N_EBRAKE_SOLONOIDS];
   // pod_value_t ebrake_pressures[N_EBRAKE_PRESSURES];
-  pod_value_t ebrake_thermocouples[N_EBRAKE_SOLONOIDS];
+  sensor_t ebrake_thermocouples[N_EBRAKE_SOLONOIDS];
+
+  sensor_t ebrake_transducers[N_EBRAKE_TRANSDUCERS];
 
   // Wheel Brake Sensors and Solonoids
   pod_solenoid_t wheel_solonoids[N_WHEEL_SOLONOIDS];
   // pod_value_t wheel_pressures[N_WHEEL_PRESSURES];
-  pod_value_t wheel_thermocouples[N_WHEEL_THERMOCOUPLES];
+  sensor_t wheel_thermocouples[N_WHEEL_THERMOCOUPLES];
 
   // Pusher plate
   pod_value_t pusher_plate;
@@ -218,16 +232,27 @@ typedef struct pod {
   pod_value_t ready;
 
   // Relief
-  pod_solenoid_t relief_valve;
+  pod_solenoid_t vent_solenoid;
 
-  // Fill
+  // HP Fill
   pod_solenoid_t hp_fill_valve;
+
+  // HP Transducer
+  sensor_t hp_transducer;
+
+  // LP Fill
+  pod_solenoid_t lp_fill_valve[N_LP_FILL_SOLENOIDS];
+
+  // Lateral Fill
+  pod_solenoid_t lateral_fill_solenoids[N_LAT_FILL_SOLENOIDS];
+  sensor_t lateral_fill_transducers[N_LAT_FILL_TRANSDUCERS];
 
   pod_mux_t muxes[N_MUXES];
 
   int imu;
   int logging_socket;
-
+  uint64_t last_ping;
+  pod_value_t core_speed;
   enum pod_caution cautions;
   enum pod_warning warnings;
 
@@ -261,9 +286,9 @@ typedef struct pod {
  * As a helper, this will also POST to a semaphore that will unlock any threads
  * waiting on a state change.
  *
- * @return Returns 0 in the event of a sucessful state change, -1 on error
+ * @return Returns true in the event of a sucessful state change, false on error
  */
-int set_pod_mode(pod_mode_t new_state, char *reason, ...);
+bool set_pod_mode(pod_mode_t new_state, char *reason, ...);
 
 /**
  * @brief Get the mode of the pod's control algorithms.

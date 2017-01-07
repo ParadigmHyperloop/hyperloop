@@ -44,8 +44,9 @@
 #define V_ERR_Y 0.1
 #define V_ERR_Z 0.1
 
+#define HEARTBEAT_TIMEOUT 1000 // (ms)
 // Signals
-#define POD_SIGPANIC SIGUSR2
+#define POD_SIGPANIC SIGUSR1
 
 // IMU Device
 #define IMU_DEVICE "/dev/ttyUSB0"
@@ -118,13 +119,6 @@
 #define PRIMARY_BRAKING_ENGAGED_NOM_F 100
 #define PRIMARY_BRAKING_ENGAGED_MAX_F 150
 
-#define PRIMARY_BRAKE_OVERRIDE_FRONT 0x0000000000000008
-#define PRIMARY_BRAKE_OVERRIDE_MID 0x0000000000000010
-#define PRIMARY_BRAKE_OVERRIDE_REAR 0x0000000000000020
-#define PRIMARY_BRAKE_OVERRIDE_ALL                                             \
-  (PRIMARY_BRAKE_OVERRIDE_FRONT) | (PRIMARY_BRAKE_OVERRIDE_MID) |              \
-      (PRIMARY_BRAKE_OVERRIDE_REAR)
-
 // ------------------
 // Emergency Braking Thresholds
 // ------------------
@@ -138,15 +132,6 @@
 #define EBRAKE_ENGAGED_MIN_F 800
 #define EBRAKE_ENGAGED_NOM_F 1000
 #define EBRAKE_ENGAGED_MAX_F 1500
-
-#define EBRAKE_OVERRIDE_FRONT 0x0000000000000001
-#define EBRAKE_OVERRIDE_MID 0x0000000000000002
-#define EBRAKE_OVERRIDE_REAR 0x0000000000000004
-#define EBRAKE_OVERRIDE_ALL                                                    \
-  (EBRAKE_OVERRIDE_FRONT) | (EBRAKE_OVERRIDE_MID) | (EBRAKE_OVERRIDE_REAR)
-
-#define EBRAKE_OVERRIDE_LIST                                                   \
-  { (EBRAKE_OVERRIDE_FRONT), (EBRAKE_OVERRIDE_FRONT), (EBRAKE_OVERRIDE_FRONT) }
 
 //----------------------
 // Pushing Thresholds
@@ -169,25 +154,6 @@
 // Skate config
 // ---------------------
 #define MIN_REGULATOR_THERMOCOUPLE_TEMP 5L // celcius?
-
-#define SKATE_OVERRIDE_FRONT_LEFT 0x0000000000000040
-#define SKATE_OVERRIDE_FRONT_RIGHT 0x0000000000000080
-#define SKATE_OVERRIDE_MID_LEFT 0x0000000000000100
-#define SKATE_OVERRIDE_MID_RIGHT 0x0000000000000200
-#define SKATE_OVERRIDE_REAR_LEFT 0x0000000000000400
-#define SKATE_OVERRIDE_REAR_RIGHT 0x0000000000000800
-
-#define SKATE_OVERRIDE_ALL                                                     \
-  (SKATE_OVERRIDE_FRONT_LEFT) | (SKATE_OVERRIDE_FRONT_RIGHT) |                 \
-      (SKATE_OVERRIDE_MID_LEFT) | (SKATE_OVERRIDE_MID_RIGHT) |                 \
-      (SKATE_OVERRIDE_REAR_LEFT) | (SKATE_OVERRIDE_REAR_RIGHT)
-
-#define SKATE_OVERRIDE_LIST                                                    \
-  {                                                                            \
-    (SKATE_OVERRIDE_FRONT_LEFT), (SKATE_OVERRIDE_FRONT_RIGHT),                 \
-        (SKATE_OVERRIDE_MID_LEFT), (SKATE_OVERRIDE_MID_RIGHT),                 \
-        (SKATE_OVERRIDE_REAR_LEFT), (SKATE_OVERRIDE_REAR_RIGHT)                \
-  }
 
 // ---------------------
 // Muxxing

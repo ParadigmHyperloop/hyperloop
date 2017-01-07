@@ -20,6 +20,7 @@
 #include "cdefs.h"
 #include "libBBB.h"
 #include "config.h"
+#include "core.h"
 #include <pthread.h>
 #include <sys/queue.h>
 

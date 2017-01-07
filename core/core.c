@@ -16,6 +16,7 @@
 
 #include "pod.h"
 #include "pod-helpers.h"
+#include "pru.h"
 
 int lateralRead(pod_t *pod);
 int skateRead(pod_t *pod);
@@ -37,17 +38,118 @@ void boot_state_checks(pod_t *pod) {
   }
 }
 
-void post_state_checks(pod_t *pod) {}
+bool core_pod_checklist(pod_t *pod) {
+  // TODO: is_battery_power_ok()  // Voltage > 28, current > 0.2 A @james
+  // TODO: is_rpm_ok()            // less than 6000 @akeating
+  // TODO: is_imu_ok()            // temp (-40°C to +75°C) VERIFIED
+  // TODO: is_velocity_too_fast() // 95 m/s (roughly 215 mph) @akeating
 
-void lp_fill_state_checks(pod_t *pod) {}
+  // TODO: is_reg_temp_ok()       // 0 -> 50 @akeating
+  // TODO: is_ebrake_temp_ok()    // 0 -> 100something @akeating
+  // TODO: is_battery_temp_ok()   // 0 -> 60something @james
+  // TODO: is_caliper_temp_ok()   // 0 -> 100something @akeating
+  // TODO: is_frame_temp_ok()     // 0 -> 40 C @edhurtig
 
-void hp_fill_state_checks(pod_t *pod) {}
+  // TODO: is_frame_pressure_ok() // 0 -> 20 PSIA VERIFIED
+  // TODO: is_hp_pressure_ok()    // 0 -> 1770 PSI... @akeating
+  // TODO: is_lp_pressure_ok()    // 0 -> 150 PSI... @akeating
+  int i;
+  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
+    if (is_solenoid_open(&(pod->lp_fill_valve[i]))) {
+      return false;
+    }
+  }
 
-void load_state_checks(pod_t *pod) {}
+  if (is_solenoid_open(&(pod->hp_fill_valve))) {
+    return false;
+  }
 
-void standby_state_checks(pod_t *pod) {}
+  return true;
+}
 
-void armed_state_checks(pod_t *pod) {}
+/**
+ * Is the pod safe. Used to inhibit transitions to various different states
+ */
+bool pod_safe_checklist(pod_t *pod) {
+  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_pod_vented(pod);
+}
+
+/**
+ * Is the pod safe to proceed to an HP Fill
+ */
+bool pod_hp_safe_checklist(pod_t *pod) {
+  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_hp_vented(pod);
+}
+
+/**
+ * Attempt to transition the the LP Fill state
+ */
+bool start_lp_fill() {
+  if (pod_safe_checklist(get_pod())) {
+    return set_pod_mode(LPFill, "Control Point Initiated LP Fill");
+  }
+  return false;
+}
+
+/**
+ * Attempt to transition to the HP FIll State
+ */
+bool start_hp_fill() {
+  if (pod_hp_safe_checklist(get_pod())) {
+    return set_pod_mode(HPFill, "Control Point Initiated LP Fill");
+  }
+  return false;
+}
+
+void post_state_checks(pod_t *pod) {
+  if (pod_safe_checklist(pod) && pod->last_ping > 0) {
+    set_pod_mode(Boot, "System POST checklist passed");
+  }
+}
+
+void lp_fill_state_checks(pod_t *pod) {
+  int i;
+
+  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
+    float psia = get_value_f(&(pod->ebrake_transducers[i]));
+
+    if (psia < NOMINAL_MINI_TANK_PSIA + LP_TRANS_ERR) {
+      open_solenoid(&(pod->lp_fill_valve[i]));
+    } else {
+      close_solenoid(&(pod->lp_fill_valve[i]));
+      lock_solenoid(&(pod->lp_fill_valve[i]));
+    }
+  }
+}
+
+void hp_fill_state_checks(pod_t *pod) {
+  float psia = get_value_f(&(pod->hp_transducer));
+
+  if (psia < NOMINAL_HP_PSIA + HP_TRANSDUCERS_ERR) {
+    open_solenoid(&(pod->hp_fill_valve));
+  } else {
+    close_solenoid(&(pod->hp_fill_valve));
+    lock_solenoid(&(pod->hp_fill_valve));
+  }
+}
+
+void load_state_checks(pod_t *pod) {
+  if (!core_pod_checklist(pod)) {
+    set_pod_mode(Emergency, "Core Checklist Failed");
+  }
+}
+
+void standby_state_checks(pod_t *pod) {
+  if (!core_pod_checklist(pod)) {
+    set_pod_mode(Emergency, "Core Checklist Failed");
+  }
+}
+
+void armed_state_checks(pod_t *pod) {
+  if (!core_pod_checklist(pod)) {
+    set_pod_mode(Emergency, "Core Checklist Failed");
+  }
+}
 
 /**
  * Checks to be performed when the pod's state is Emergency
@@ -280,11 +382,17 @@ void adjust_skates(pod_t *pod) {
  */
 void *core_main(void *arg) {
 
+  static double iteration_time = 0;
+  static uint64_t last = 0;
+
   pod_t *pod = get_pod();
 
-  size_t imu_score = 0, skate_score = 0;
+  size_t imu_score = 0;
   pod_mode_t mode;
   imu_datagram_t imu_data;
+  sensor_pack_t pack;
+  memset(&pack, 0, sizeof(sensor_pack_t));
+
   while ((mode = get_pod_mode()) != Shutdown) {
     // --------------------------------------------
     // SECTION: Read new information from sensors
@@ -300,20 +408,26 @@ void *core_main(void *arg) {
     }
 
     add_imu_data(&imu_data, pod);
+    // ADC_READ
 
-    if (skateRead(pod) < 0 && skate_score < SKATE_SCORE_MAX) {
-      DECLARE_EMERGENCY("SKATE READ FAILED");
-    }
+    // ------------
+    // If ADC buffer ready
+    // ------------
+    // else do nothing
+    // ------------
+    //  Done with ADC Read
+    // ------------
 
-    if (lateralRead(pod) < 0) {
-      DECLARE_EMERGENCY("LATERAL READ FAILED");
-    }
+    memset(&pack, 0, sizeof(sensor_pack_t));
+    pru_read(&pack);
 
     // -------------------------------------------
     // SECTION: State Machine to determine actions
     // -------------------------------------------
 
     // General Checks (Going too fast, going too high)
+
+    // TODO: Remove as the next section does this
     skate_sensor_checks(pod);
     lateral_sensor_checks(pod);
 
@@ -363,6 +477,7 @@ void *core_main(void *arg) {
       emergency_state_checks(pod);
     case Shutdown:
       warn("pod in shutdown mode, but still running");
+      break;
     default:
       panic(POD_CORE_SUBSYSTEM, "Pod in unknown state!");
       break;
@@ -384,12 +499,36 @@ void *core_main(void *arg) {
     logDump(pod);
 
     // --------------------------------------------
+    // Heartbeat handling
+    // --------------------------------------------
+    if (get_time() - pod->last_ping > HEARTBEAT_TIMEOUT * USEC_PER_SEC &&
+        pod->last_ping > 0) {
+      set_pod_mode(Emergency, "Heartbeat timeout");
+    }
+
+    // --------------------------------------------
     // Yield to other threads
     // --------------------------------------------
     usleep(CORE_THREAD_SLEEP);
-  }
+    usleep(1 * USEC_PER_SEC);
+    // -------------------------------------------------------
+    // Compute how long it is taking for the main loop to run
+    // -------------------------------------------------------
+    uint64_t now = get_time();
 
-  imu_disconnect(pod->imu);
+    if (last == 0) {
+      last = now;
+    } else {
+      if (iteration_time == 0) {
+        iteration_time = (double)((now - last));
+      } else {
+        iteration_time = 0.99 * iteration_time + 0.01 * (double)((now - last));
+      }
+      last = now;
+      set_value_f(&(pod->core_speed),
+                  1.0 / (iteration_time / (double)USEC_PER_SEC));
+    }
+  }
 
   return NULL;
 }

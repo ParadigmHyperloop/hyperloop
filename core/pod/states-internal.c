@@ -7,7 +7,6 @@
  */
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
-      {NonState, NonState},
       {POST, Boot, Emergency, NonState},
       {Boot, LPFill, Emergency, NonState},
       {LPFill, HPFill, Emergency, NonState},

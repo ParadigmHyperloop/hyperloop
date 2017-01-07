@@ -1,6 +1,7 @@
 #include "../pod.h"
 
 void pod_panic(int subsystem, char *file, int line, char *notes, ...) {
+
   static char msg[MAX_LOG_LINE];
   va_list arg;
   va_start(arg, notes);
@@ -8,6 +9,7 @@ void pod_panic(int subsystem, char *file, int line, char *notes, ...) {
   va_end(arg);
 
   fprintf(stderr, "[PANIC] %s:%d -> %s\n", file, line, msg);
+  fflush(stderr);
 
   kill(getpid(), POD_SIGPANIC);
   // Alternate

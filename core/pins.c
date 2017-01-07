@@ -33,4 +33,5 @@ void setup_pins(pod_t *pod) {
     initPin(pod->ebrake_solonoids[i].gpio);
     setPinValue(pod->ebrake_solonoids[i].gpio, ON);
   }
+
 }

@@ -21,14 +21,14 @@ ifeq ($(UNAME_S),Darwin)
 endif
 endif
 CC= gcc
-DEPS = core.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c mux.c tests.c libBBBShims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
+DEPS = core.c pru.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c mux.c tests.c libBBBShims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
 SOURCES= main.c $(DEPS)
 OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
 FILES := $(wildcard **/*.c **/*.h *.c *.h)
 
 EXECUTABLE = core
 CFLAGS += -pthread -std=gnu99 -DDEBUG -I../libimu/BUILD/dst/usr/local/include
-LDFLAGS += -limu -L../libimu/BUILD/dst/usr/local/lib
+LDFLAGS += -limu -lprussdrv -L../libimu/BUILD/dst/usr/local/lib
 OBJROOT= ./BUILD/obj
 DSTROOT= ./BUILD/dst
 FMTROOT= ./BUILD/fmt
@@ -39,7 +39,7 @@ $(EXECUTABLE):  $(OBJECTS)
 $(OBJECTS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-all: $(EXECUTABLE)
+all: $(EXECUTABLE) ADCCollector.bin
 
 core: main.c $(DEPS)
 
@@ -66,5 +66,10 @@ format:
 		clang-format -style=llvm -i $$f; \
 	done
 
+ADCCollector.bin: ./pru/ADCCollector.p
+	pasm -b $^
+
 clean:
 	rm -rf *.o pod/*.o *~ $(EXECUTABLE) BUILD
+	rm -f ./pru/ADCCollector ./pru/*.o ./pru/*.bin
+	find . -type f | xargs -n 5 touch

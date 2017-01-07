@@ -2,9 +2,10 @@
 
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
 
-char *pod_mode_names[N_POD_STATES] = {"Boot",     "Ready",   "Pushing",
-                                      "Coasting", "Braking", "Emergency",
-                                      "Shutdown", "(null)"};
+char *pod_mode_names[N_POD_STATES] = {
+    "POST",    "Boot",      "LPFill",    "HPFill",   "Load",
+    "Standby", "Armed",     "Pushing",   "Coasting", "Braking",
+    "Vent",    "Retrieval", "Emergency", "Shutdown"};
 
 pod_t _pod = {.mode = Boot,
               .initialized = false,
@@ -25,7 +26,8 @@ pod_t _pod = {.mode = Boot,
               .overrides = 0ULL,
               .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
               .imu = -1,
-              .logging_socket = -1};
+              .logging_socket = -1,
+              .last_ping = 0};
 
 /**
 * Sets the given control surfaces into override mode
@@ -63,21 +65,45 @@ int init_pod(void) {
   int skate_pins[] = SKATE_SOLENOIDS;
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
 
-    pod->skate_solonoids[i] = (pod_solenoid_t){
-        .gpio = skate_pins[i], .value = 0, .type = kSolenoidNormallyClosed};
+    pod->skate_solonoids[i] = (pod_solenoid_t){.gpio = skate_pins[i],
+                                               .value = 0,
+                                               .type = kSolenoidNormallyClosed,
+                                               .locked = false};
   }
 
   int ebrake_pins[] = EBRAKE_SOLONOIDS;
   for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
-    pod->ebrake_solonoids[i] = (pod_solenoid_t){
-        .gpio = ebrake_pins[i], .value = 0, .type = kSolenoidNormallyOpen};
+    pod->ebrake_solonoids[i] = (pod_solenoid_t){.gpio = ebrake_pins[i],
+                                                .value = 0,
+                                                .type = kSolenoidNormallyOpen,
+                                                .locked = false};
   }
 
   int wheel_pins[] = WHEEL_SOLONOIDS;
   for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    pod->wheel_solonoids[i] = (pod_solenoid_t){
-        .gpio = wheel_pins[i], .value = 0, .type = kSolenoidNormallyClosed};
+    pod->wheel_solonoids[i] = (pod_solenoid_t){.gpio = wheel_pins[i],
+                                               .value = 0,
+                                               .type = kSolenoidNormallyClosed,
+                                               .locked = false};
   }
+
+  int lp_fill_valves[] = LP_FILL_SOLENOIDS;
+  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
+    pod->lp_fill_valve[i] = (pod_solenoid_t){.gpio = lp_fill_valves[i],
+                                             .value = 0,
+                                             .type = kSolenoidNormallyClosed,
+                                             .locked = false};
+  }
+
+  pod->hp_fill_valve = (pod_solenoid_t){.gpio = HP_FILL_SOLENOID,
+                                        .value = 0,
+                                        .type = kSolenoidNormallyClosed,
+                                        .locked = false};
+
+  pod->vent_solenoid = (pod_solenoid_t){.gpio = VENT_SOLENOID,
+                                        .value = 0,
+                                        .type = kSolenoidNormallyOpen,
+                                        .locked = false};
 
   pthread_rwlock_init(&(pod->mode_mutex), NULL);
 
@@ -111,7 +137,7 @@ pod_mode_t get_pod_mode(void) {
   return mode;
 }
 
-int set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
+bool set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   static char msg[MAX_LOG_LINE];
 
   va_list arg;
@@ -130,11 +156,11 @@ int set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
     pthread_rwlock_unlock(&(pod->mode_mutex));
     warn("Request to set mode from %s to %s: approved",
          pod_mode_names[old_mode], pod_mode_names[new_mode]);
-    return 0;
+    return true;
   } else {
     warn("Request to set mode from %s to %s: denied", pod_mode_names[old_mode],
          pod_mode_names[new_mode]);
-    return -1;
+    return false;
   }
 }
 
@@ -162,4 +188,9 @@ void set_value_f(pod_value_t *pod_field, float newValue) {
   pthread_rwlock_wrlock(&(pod_field->lock));
   pod_field->value.fl = newValue;
   pthread_rwlock_unlock(&(pod_field->lock));
+}
+
+float get_sensor(sensor_t *sensor) {
+  float value = get_value_f(&(sensor->value)) + sensor->offset;
+  return value;
 }

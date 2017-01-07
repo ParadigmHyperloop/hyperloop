@@ -15,6 +15,7 @@
  ****************************************************************************/
 
 #include "pod.h"
+#include "pru.h"
 
 struct arguments {
   bool tests;
@@ -111,15 +112,10 @@ void pod_exit(int code) {
  * entire controller logic and just make the pod safe
  */
 void signal_handler(int sig) {
-  _pod.mode = Emergency;
-
-  // TODO: Need to ensure that system is quit with emergency brakes applied
-
   if (sig == SIGTERM) {
     // Power button pulled low, power will be cut in < 1023ms
     // TODO: Sync the filesystem and unmount root to prevent corruption
   }
-
   exit(EXIT_FAILURE);
 }
 
@@ -176,16 +172,21 @@ int main(int argc, char *argv[]) {
   signal(SIGTERM, exit_signal_handler);
   signal(SIGHUP, exit_signal_handler);
 
-  while (true) {
-    info("Connecting to IMU at: %s", args.imu_device);
-    pod->imu = imu_connect(args.imu_device);
-    if (pod->imu < 0) {
-      info("IMU connection failed: %s", args.imu_device);
-      sleep(1);
-    } else {
-      break;
+  // Disable IMU by starting with core -i -
+  if (args.imu_device[0] != '-') {
+    while (true) {
+      info("Connecting to IMU at: %s", args.imu_device);
+      pod->imu = imu_connect(args.imu_device);
+      if (pod->imu < 0) {
+        info("IMU connection failed: %s", args.imu_device);
+        sleep(1);
+      } else {
+        break;
+      }
     }
   }
+
+  init_pru();
 
   // -----------------------------------------
   // Logging - Remote Logging System
@@ -240,12 +241,12 @@ int main(int argc, char *argv[]) {
 
   pthread_join(pod->core_thread, NULL);
 
-  // TODO: Clean this up
+  if (pod->imu > -1) {
+    imu_disconnect(pod->imu);
+  }
+
+  // If the core thread joins, then there is a serious issue.  Fail immediately
   error("Core thread joined");
   exit(1);
-
-  pthread_join(pod->logging_thread, NULL);
-  pthread_join(pod->cmd_thread, NULL);
-
-  return 0;
+  return 1;
 }
