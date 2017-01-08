@@ -16,39 +16,44 @@ ifeq ($(OS),Windows_NT)
 else
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-	 LDFLAGS += -pthread -lprussdrv
+	 LDFLAGS += -pthread
+endif
+ifneq (,$(findstring -ti-,$(UNAME_R)))
+	 LDFLAGS += -lprussdrv
 endif
 ifeq ($(UNAME_S),Darwin)
 	CFLAGS += "-g"
 endif
 endif
-CC= gcc
-DEPS = core.c pru.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c mux.c tests.c shims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
-SOURCES= main.c $(DEPS)
-OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
-FILES := $(wildcard **/*.c **/*.h *.c *.h)
-
-EXECUTABLE = core
-CFLAGS += -pthread -std=gnu99 -DDEBUG -I../libimu/BUILD/dst/usr/local/include
-LDFLAGS += -limu -L../libimu/BUILD/dst/usr/local/lib
 OBJROOT= ./BUILD/obj
 DSTROOT= ./BUILD/dst
 FMTROOT= ./BUILD/fmt
+CC= gcc
+SOURCES = main.c core.c pru.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c mux.c tests.c shims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
+OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
+ROOTED_OBJECTS=$(patsubst %.c, $(OBJROOT)/%.o, $(SOURCES))
+FILES := $(wildcard **/*.c **/*.h *.c *.h)
 
-$(EXECUTABLE):  $(OBJECTS)
-	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)
+EXECUTABLE = $(OBJROOT)/core
+CFLAGS += -pthread -std=gnu99 -DDEBUG -I../libimu/BUILD/dst/usr/local/include
+LDFLAGS += -limu -L../libimu/BUILD/dst/usr/local/lib
+
+$(EXECUTABLE): setup $(OBJECTS)
+	$(CC) -o $@ $(ROOTED_OBJECTS) $(LDFLAGS)
 
 $(OBJECTS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	mkdir -p $(shell dirname $(OBJROOT)/$<)
+	$(CC) $(CFLAGS) -c $< -o $(OBJROOT)/$@
+
 
 all: $(EXECUTABLE) ADCCollector.bin
 
-core: main.c $(DEPS)
+setup:
+	mkdir -p $(OBJROOT)
+	mkdir -p $(DSTROOT)
 
 install:
 	mkdir -p $(DSTROOT)/usr/local/bin
-	mkdir -p $(OBJROOT)
-	install -m 755 $(OBJECTS) $(OBJROOT)
 	install -m 755 $(EXECUTABLE) $(DSTROOT)/usr/local/bin
 
 run: clean all
@@ -76,6 +81,9 @@ else
 	@echo "You are compiling on a machine without pasm, assuming this is a dev machine"
 	@echo "WARNING WARNING WARNING"
 endif
+
+dist:
+	zip -r $(DSTROOT).zip $(DSTROOT)
 
 clean:
 	rm -rf *.o pod/*.o *~ $(EXECUTABLE) BUILD

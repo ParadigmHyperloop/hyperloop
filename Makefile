@@ -15,6 +15,9 @@ install:
 test: all
 	./test
 
+dist:
+	$(CORE_MAKE) dist
+
 style:
 	$(CORE_MAKE) style
 
