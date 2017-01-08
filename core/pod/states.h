@@ -61,8 +61,16 @@ typedef enum solenoid_type {
 typedef struct pod_solenoid {
   int gpio;
   int value;
+  bool locked;
   solenoid_type_t type;
-} pod_solenoid_t;
+} solenoid_t;
+
+typedef enum clamp_brake_state {
+  kClampBrakeClosed,
+  kClampBrakeEngaged,
+  kClampBrakeReleased
+} clamp_brake_state_t;
+
 /**
  * Information from the battery control boards
  */
@@ -78,36 +86,37 @@ typedef uint32_t thermocouple_raw_t;
 typedef uint32_t transducer_raw_t;
 typedef uint32_t photodiode_raw_t;
 typedef uint32_t aux_raw_t;
-typedef uint32_t sharp_raw_t;
-typedef uint32_t omron_raw_t;
+typedef uint32_t distance_raw_t;
+typedef uint32_t spare_raw_t;
 
 /**
  * Structure of the sensor data in the Shared PRU Memory
  */
 typedef struct {
-  thermocouple_raw_t lp_thermocouples[N_LP_THERMOCOUPLES];
-  thermocouple_raw_t hp_thermocouple;
-  thermocouple_raw_t caliper_thermocouples[N_WHEEL_THERMOCOUPLES];
-  thermocouple_raw_t ebrake_line_thermocouples[N_EBRAKE_LINE_THERMOCOUPLES];
-  thermocouple_raw_t ebrake_pad_thermocouples[N_EBRAKE_PAD_THERMOCOUPLES];
-  thermocouple_raw_t shell_thermocouples[N_SHELL_THERMOCOUPLES];
-  thermocouple_raw_t regulator_thermocouples[N_LP_REGULATOR_THERMOCOUPLES];
-  thermocouple_raw_t power_thermocouples[N_POWER_THERMOCOUPLES];
-  transducer_raw_t lp_transducers[N_LP_TRANSDUCERS];
-  transducer_raw_t hp_transducer;
-  transducer_raw_t shell_transducers[N_SHELL_TRANSDUCERS];
-  transducer_raw_t skate_transducers[N_SKATE_TRANSDUCERS];
-  photodiode_raw_t shell_photodiodes[N_SHELL_PHOTODIODES];
-  photodiode_raw_t wheel_photodiodes[N_WHEEL_PHOTODIODES];
-  aux_raw_t aux_A;
-  // TODO: Break out N_LATERAL_SENSORS into Left and Right
-  photodiode_raw_t left_lateral_distance[N_LATERAL_SENSORS / 2];
-  aux_raw_t aux_B;
-  photodiode_raw_t right_lateral_distance[N_LATERAL_SENSORS / 2];
-  aux_raw_t aux_C;
-  omron_raw_t skate_omrons[N_SKATE_OMRONS];
-  omron_raw_t wheel_omrons[N_WHEEL_OMRONS];
-  aux_raw_t aux_D;
+  // MUX 0
+  thermocouple_raw_t reg_thermo[N_REG_THERMO];
+  thermocouple_raw_t hp_thermo[N_HP_THERMO];
+  spare_raw_t thermo_0_spare[16-N_REG_THERMO-N_HP_THERMO];
+
+  // MUX 1
+  thermocouple_raw_t reg_surf_thermo[N_REG_SURF_THERMO];
+  thermocouple_raw_t clamp_line_thermo[N_CLAMP_PAD_THERMO];
+  thermocouple_raw_t clamp_pad_thermo[N_POWER_THERMO];
+  thermocouple_raw_t frame_thermo[N_FRAME_THERMO];
+  spare_raw_t thermo_1_spare[16-N_REG_SURF_THERMO-N_CLAMP_PAD_THERMO-N_POWER_THERMO-N_FRAME_THERMO];
+
+  // MUX 2
+  transducer_raw_t reg_pressure[N_REG_PRESSURE];
+  transducer_raw_t clamp_pressure[N_CLAMP_PRESSURE];
+  transducer_raw_t lateral_pressure[N_LAT_FILL_PRESSURE];
+  transducer_raw_t skate_pressure[N_SKATE_PRESSURE];
+  transducer_raw_t hp_pressure[N_HP_PRESSURE];
+  spare_raw_t pressure_spare[16-N_REG_PRESSURE-N_CLAMP_PRESSURE-N_LAT_FILL_PRESSURE-N_SKATE_PRESSURE-N_HP_PRESSURE];
+
+  // MUX 3
+  distance_raw_t corner_distance[N_CORNER_DISTANCE];
+  distance_raw_t wheel_distance[N_WHEEL_DISTANCE];
+  distance_raw_t lateral_distance[N_LATERAL_DISTANCE];
 } sensor_pack_t;
 
 typedef struct {
@@ -129,7 +138,17 @@ typedef struct {
   double cal_a;
   double cal_b;
   double cal_c;
-} pod_analog_sensor_t;
+  // low pass filter alpha
+  double alpha;
+  // Mannual offset
+  double offset;
+} sensor_t;
+
+#define SENSOR_INITIALIZER                                                     \
+  {                                                                            \
+    .sensor_id = 0, .name = {0}, .value = POD_VALUE_INITIALIZER_INT32,         \
+    .cal_a = 0.0, .cal_b = 0.0, .cal_c = 0.0, .alpha = 0.0, .offset = 0.0      \
+  }
 
 typedef enum pod_caution {
   PodCautionNone = 0x00,
@@ -171,33 +190,29 @@ typedef struct pod {
   pod_value_t imu_calibration_z;
 
   // Lateral Sensors
-  pod_value_t lateral_front_left;
-  pod_value_t lateral_front_right;
-  pod_value_t lateral_rear_left;
-  pod_value_t lateral_rear_right;
+  sensor_t lateral_distance[N_LATERAL_DISTANCE];
 
   // Distance From Tube Bottom
-  pod_value_t skate_front_left_z;
-  pod_value_t skate_front_right_z;
-  pod_value_t skate_rear_left_z;
-  pod_value_t skate_rear_right_z;
+  sensor_t corner_distance[N_CORNER_DISTANCE];
+  sensor_t wheel_distance[N_WHEEL_DISTANCE];
 
   // Skate Sensors and Solonoids
-  pod_solenoid_t skate_solonoids[N_SKATE_SOLONOIDS];
-  pod_value_t skate_transducers[N_SKATE_TRANSDUCERS];
+  solenoid_t skate_solonoids[N_SKATE_SOLONOIDS];
+  sensor_t skate_transducers[N_SKATE_PRESSURE];
 
   // LP Packages
-  pod_value_t lp_reg_thermocouples[N_LP_REGULATOR_THERMOCOUPLES];
+  sensor_t lp_reg_thermocouples[N_REG_THERMO];
+  sensor_t lp_reg_transducers[N_REG_PRESSURE];
 
-  // EBrake Senors and Solonoids
-  pod_solenoid_t ebrake_solonoids[N_EBRAKE_SOLONOIDS];
-  // pod_value_t ebrake_pressures[N_EBRAKE_PRESSURES];
-  pod_value_t ebrake_thermocouples[N_EBRAKE_SOLONOIDS];
+  // Clamping Brakes
+  solenoid_t clamp_engage_solonoids[N_CLAMP_ENGAGE_SOLONOIDS];
+  solenoid_t clamp_release_solonoids[N_CLAMP_RELEASE_SOLONOIDS];
+  sensor_t clamp_transducers[N_CLAMP_PRESSURE];
+  // The clamp pad thermocouples
+  sensor_t clamp_thermocouples[N_CLAMP_PAD_THERMO];
 
   // Wheel Brake Sensors and Solonoids
-  pod_solenoid_t wheel_solonoids[N_WHEEL_SOLONOIDS];
-  // pod_value_t wheel_pressures[N_WHEEL_PRESSURES];
-  pod_value_t wheel_thermocouples[N_WHEEL_THERMOCOUPLES];
+  solenoid_t wheel_solonoids[N_WHEEL_SOLONOIDS];
 
   // Pusher plate
   pod_value_t pusher_plate;
@@ -218,23 +233,35 @@ typedef struct pod {
   pod_value_t ready;
 
   // Relief
-  pod_solenoid_t relief_valve;
+  solenoid_t vent_solenoid;
 
-  // Fill
-  pod_solenoid_t hp_fill_valve;
+  // HP Fill
+  solenoid_t hp_fill_valve;
+
+  // HP Transducer
+  sensor_t hp_transducer;
+
+  // LP Fill
+  solenoid_t lp_fill_valve[N_LP_FILL_SOLENOIDS];
+
+  // Lateral Fill
+  solenoid_t lateral_fill_solenoids[N_LAT_FILL_SOLENOIDS];
+  sensor_t lateral_fill_transducers[N_LAT_FILL_PRESSURE];
 
   pod_mux_t muxes[N_MUXES];
 
   int imu;
   int logging_socket;
-
+  uint64_t last_ping;
+  uint64_t last_transition;
+  pod_value_t core_speed;
   enum pod_caution cautions;
   enum pod_warning warnings;
 
   // TODO: Temporary
   int tmp_skates;
   int tmp_brakes;
-  int tmp_ebrakes;
+  int tmp_clamps;
 
   bool calibrated;
 
@@ -261,9 +288,9 @@ typedef struct pod {
  * As a helper, this will also POST to a semaphore that will unlock any threads
  * waiting on a state change.
  *
- * @return Returns 0 in the event of a sucessful state change, -1 on error
+ * @return Returns true in the event of a sucessful state change, false on error
  */
-int set_pod_mode(pod_mode_t new_state, char *reason, ...);
+bool set_pod_mode(pod_mode_t new_state, char *reason, ...);
 
 /**
  * @brief Get the mode of the pod's control algorithms.
@@ -307,10 +334,15 @@ float get_value_f(pod_value_t *pod_field);
 void set_value(pod_value_t *pod_field, int32_t newValue);
 void set_value_f(pod_value_t *pod_field, float newValue);
 
+float get_sensor(sensor_t *sensor);
+void set_sensor(sensor_t *sensor, float val);
+float update_sensor(sensor_t *sensor, int32_t raw);
+
 /**
  * Manual override handlers
  */
 void override_surface(uint64_t surfaces, bool override);
 bool is_surface_overriden(uint64_t surface);
 
+uint64_t time_in_state(void);
 #endif

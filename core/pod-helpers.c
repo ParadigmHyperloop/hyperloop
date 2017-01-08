@@ -19,9 +19,9 @@
 /**
  * Determine if emergency brakes are engaged
  */
-bool any_emergency_brakes(pod_t *pod) {
-  // TODO: no transducers on ebrake lines
-  return pod->tmp_ebrakes;
+bool any_clamp_brakes(pod_t *pod) {
+  // TODO: no transducers on clamp lines
+  return pod->tmp_clamps;
 }
 
 /**
@@ -30,6 +30,22 @@ bool any_emergency_brakes(pod_t *pod) {
 bool any_calipers(pod_t *pod) {
   // TODO: no transducers on caliper lines
   return pod->tmp_brakes;
+}
+
+float get_stopping_distance(pod_t *pod) {
+  float v = get_value_f(&(pod->velocity_x));
+  return (-(v * v) / (2.0 * NOMINAL_CLAMP_BRAKING_ACCEL));
+}
+
+float get_remaining_distance(pod_t *pod) {
+  float x = get_value_f(&(pod->position_x));
+  return (TUBE_LENGTH - STOP_MARGIN) - x;
+}
+
+float get_stopping_deccel(pod_t *pod) {
+  float remaining_distance = get_remaining_distance(pod);
+  float v = get_value_f(&(pod->velocity_x));
+  return -(v * v) / (2.0 * remaining_distance);
 }
 
 /**
@@ -45,6 +61,33 @@ bool is_pod_stopped(pod_t *pod) {
          within(-V_ERR_Z, get_value_f(&(pod->velocity_z)), V_ERR_Z);
 }
 
+bool is_pod_vented(pod_t *pod) {
+  return is_hp_vented(pod) && is_lp_vented(pod);
+}
+
+bool is_hp_vented(pod_t *pod) {
+  int i;
+  for (i = 0; i < N_REG_PRESSURE; i++) {
+    float psia = get_sensor(&(pod->lp_reg_transducers[i]));
+    if (outside(MIN_SAFE_PSIA, psia, MAX_SAFE_PSIA)) {
+      return false;
+    }
+  }
+  return within(MIN_SAFE_PSIA, get_sensor(&(pod->hp_transducer)),
+                MAX_SAFE_PSIA);
+}
+
+bool is_lp_vented(pod_t *pod) {
+  int i;
+  for (i = 0; i < N_CLAMP_PRESSURE; i++) {
+    float psia = get_sensor(&(pod->clamp_transducers[i]));
+    if (outside(MIN_SAFE_PSIA, psia, MAX_SAFE_PSIA)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void setRelay(int pin, relay_state_t state) {
   switch (state) {
   case kRelayOn:
@@ -58,7 +101,7 @@ void setRelay(int pin, relay_state_t state) {
   }
 }
 
-bool is_solenoid_open(pod_solenoid_t *solenoid) {
+bool is_solenoid_open(solenoid_t *solenoid) {
   switch (solenoid->type) {
   case kSolenoidNormallyOpen:
     return solenoid->value != 1;
@@ -71,7 +114,11 @@ bool is_solenoid_open(pod_solenoid_t *solenoid) {
   }
 }
 
-void set_solenoid(pod_solenoid_t *s, solenoid_state_t val) {
+bool is_solenoid_closed(solenoid_t *solenoid) {
+  return !is_solenoid_open(solenoid);
+}
+
+void set_solenoid(solenoid_t *s, solenoid_state_t val) {
   switch (val) {
   case kSolenoidOpen:
     open_solenoid(s);
@@ -84,7 +131,11 @@ void set_solenoid(pod_solenoid_t *s, solenoid_state_t val) {
   }
 }
 
-void open_solenoid(pod_solenoid_t *s) {
+void open_solenoid(solenoid_t *s) {
+  if (is_solenoid_locked(s)) {
+    return;
+  }
+
   if (!is_solenoid_open(s)) {
     // TODO: Prove
     setRelay(s->gpio, (s->value ? kRelayOn : kRelayOff));
@@ -92,10 +143,20 @@ void open_solenoid(pod_solenoid_t *s) {
   }
 }
 
-void close_solenoid(pod_solenoid_t *s) {
+void close_solenoid(solenoid_t *s) {
+  if (is_solenoid_locked(s)) {
+    return;
+  }
+
   if (is_solenoid_open(s)) {
     // TODO: Prove
     setRelay(s->gpio, (s->value ? kRelayOff : kRelayOn));
     s->value = !s->value;
   }
 }
+
+bool is_solenoid_locked(solenoid_t *s) { return s->locked; }
+
+void lock_solenoid(solenoid_t *s) { s->locked = true; }
+
+void unlock_solenoid(solenoid_t *s) { s->locked = false; }

@@ -1,24 +1,28 @@
 language: c
 compiler:
-  - clang
-  - gcc
-
+- clang
+- gcc
 os:
-  - linux
-  - osx
+- linux
+- osx
 before_install:
-  - echo -e "machine github.com\n  login $CI_USER_TOKEN" >> ~/.netrc
-  - git clone https://github.com/EdHurtig/libimu-private.git libimu
-
+- echo -e "machine github.com\n  login $CI_USER_TOKEN" >> ~/.netrc
+- git clone https://github.com/EdHurtig/libimu-private.git libimu
 before_script:
-  - ls -la
-  - pwd
-  - cd libimu && make && make install && cd ..
-  - $CC --version
-
+- ls -la
+- pwd
+- cd libimu && make && make install && cd ..
+- "$CC --version"
 script:
-  - $CC --version
-  - ls -la
-  - pwd
-  - make && make install
-  - make style
+- "$CC --version"
+- ls -la
+- pwd
+- make && make install && make dist
+- make style
+deploy:
+  provider: releases
+  api_key:
+    secure: ail1SPquyJjX1YIAKFWAN/Sr70OtvRDazgDaNtazF5b/dUsZrFykA7ndBVXDGyKlCIBRumM1jLY7nhFhIjHKQwAF+d5zxBb+bldNN5GXljHRY/gjeh1CwtColf0pz1a+L3XynxdSiTSyW/+zGa0qoIfalFHJWJe8XxQmNmdLcTx4RlcNM/zLPhbPz+V5Z5adyxz29wBhPOKTFTi3hX947zRE/1EO5MSzIjHCQJ4l46cJN2bJNjbjML0IUZkYTiFeq6peCZNND4HKHYUOxHcLl77OClhSls4OrR+XGaeJY8d8hl2gClK/0eOpvTGSB6EmDXtqd64DUIvMy5Yo2tqkJfNgKwMxek8JEJPP4XBmg2uHttgghxGlvuTForkbqYlLmyEcRAu5TUOSu37d9hvWKPz+3vfUbviRc0qkokWDzKo1WyPBU/xoEeJcrSuhMPVPVNa0OpxZGTL0b/iVvnIeenp5HM+gKX3/8GlZAI2yB/pyl+A2em9sk8HGLBUpVDkxGbiEplW//7PnAh+hbfcrfBKiC7tA3hLM6qaL8902oBzjcNygRoHbNF4ecddTSR+jgdwt4uHndyNDOjyq3p3xXtO0PYwt5Q8yb1JLM0o2j8PIiwPrt0hqzADQq6sDJig3BLr6ShIbD/ZGmwUAbrkod8YV6PbC/xfdQd8+J9kSko8=
+  file: core/BUILD/dst.zip
+  on:
+    repo: openloopalliance/hyperloop-core

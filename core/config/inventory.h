@@ -1,147 +1,25 @@
-
 #ifndef _OPENLOOP_POD_CONFIG_INVENTORY_
 #define _OPENLOOP_POD_CONFIG_INVENTORY_
 
+#include "airsupply.h"
+#include "power.h"
+#include "photo.h"
+#include "overrides.h"
+
+/// MISC Sensors and other constants.
+#define TUBE_LENGTH 1600
+#define STOP_MARGIN 200
 // --------------------------
 // Relay
 // --------------------------
 #define N_RELAY_CHANNELS 16
-#define RELAY_I2C_ADDRESS 5
 
 // --------------------------
-// HP Package
-// --------------------------
-#define N_HP_TRANSDUCERS 1
-#define HP_TRANSDUCERS_BASE (PRU_BASE + 0)
-
-#define N_HP_THERMOCOUPLES 1
-#define HP_THERMOCOUPLES_BASE (PRU_BASE + 0)
-
-#define N_HP_RELIEF 1
-#define HP_RELIEF_PINS                                                         \
-  { 15 }
-
-// --------------------------
-// LP Package
-// --------------------------
-#define N_LP_TRANSDUCERS 4
-#define LP_TRANSDUCERS_BASE (PRU_BASE + 0)
-
-#define N_LP_THERMOCOUPLES 4
-#define LP_THERMOCOUPLES_BASE (PRU_BASE + 0)
-
-#define N_LP_REGULATOR_THERMOCOUPLES 4
-#define LP_REGULATOR_THERMOCOUPLES_BASE (PRU_BASE + 0)
-
-// --------------------------
-// Skates
+// Frame
 // --------------------------
 
-#define N_SKATE_SOLONOIDS 6
-#define SKATE_SOLENOIDS                                                        \
-  { 10, 9, 8, 78, 76, 74 }
-
-#define N_SKATE_TRANSDUCERS 6
-#define SKATE_TRANSDUCERS_BASE (PRU_BASE + 0)
-
-#define N_MPYES 6
-#define MPYE_I2C_DAC_ADDR 14
-
-// --------------------------
-// Emergency Brakes
-// --------------------------
-
-#define N_EBRAKE_SOLONOIDS 2
-#define EBRAKE_SOLONOIDS                                                       \
-  { 72, 70 }
-
-// Which solenoid (index) to use for primary braking
-#define PRIMARY_BRAKING_CLAMP 1
-
-#define N_EBRAKE_PAD_THERMOCOUPLES 2
-#define EBRAKE_PAD_THERMOCOUPLES_BASE (PRU_BASE + 0)
-
-#define N_EBRAKE_LINE_THERMOCOUPLES 2
-#define EBRAKE_LINE_THERMOCOUPLES_BASE (PRU_BASE + 0)
-
-// --------------------------
-// Wheels
-// --------------------------
-
-#define N_WHEEL_SOLONOIDS 3
-#define WHEEL_SOLONOIDS                                                        \
-  { 11, 81, 80 }
-
-#define N_WHEEL_THERMOCOUPLES 3
-#define WHEEL_THERMOCOUPLES_BASE (PRU_BASE + 0)
-
-#define N_WHEEL_PHOTODIODES 3
-#define WHEEL_PHOTODIODES_BASE (PRU_BASE + 0)
-
-// --------------------------
-// Lateral
-// --------------------------
-
-#define N_LATERAL_SENSORS 6
-#define LATERAL_SENSORS_BASE (PRU_BASE + 0)
-
-// --------------------------
-// OMRONS
-// --------------------------
-
-#define N_WHEEL_OMRONS 3
-#define WHEEL_OMRONS_BASE (PRU_BASE + 0)
-
-#define N_SKATE_OMRONS 4
-#define SKATE_OMRONS_BASE (PRU_BASE + 0)
-
-// --------------------------
-// Shell
-// --------------------------
-
-#define N_SHELL_TRANSDUCERS 3
-#define SHELL_TRANSDUCERS_BASE (PRU_BASE + 0)
-
-#define N_SHELL_THERMOCOUPLES 4
-#define SHELL_THERMOCOUPLES_BASE (PRU_BASE + 0)
-
-#define N_SHELL_PHOTODIODES 6
-#define SHELL_PHOTODIODES_BASE (PRU_BASE + 0)
-
-// --------------------------
-// Power Board
-// --------------------------
-
-#define N_POWER_THERMOCOUPLES 4
-#define POWER_THERMOCOUPLES_BASE (PRU_BASE + 0)
-
-// --------------------------
-// Batteries
-// --------------------------
-
-#define N_BATTERIES 4
-#define BATTERY_I2C_ADDRESSES                                                  \
-  { 6, 7, 8, 9 }
-
-// --------------------------
-// HP Fill
-// --------------------------
-
-#define HP_FILL_SOLENOID 79
-
-// --------------------------
-// LP FILL
-// --------------------------
-
-#define N_LP_FILL_SOLENOIDS 2
-#define LP_FILL                                                                \
-  { 77, 75 }
-
-// --------------------------
-// Releif solenoid
-// --------------------------
-
-#define RELEIF_SOLENOID 73
+#define N_SHELL_PRESSURE 3
+#define N_SHELL_THERMO 4
 
 // --------------------------
 // MUX
@@ -152,4 +30,11 @@
 #define MUX_SELECT_PINS                                                        \
   { 45, 44, 117, 125 }
 
+#define THERMO_MUX_0 0
+#define THERMO_MUX_1 1
+#define PRESSURE_MUX 2
+#define DISTANCE_MUX 3
+#define PHOTO_MUX 4
+#define SPARE_MUX_0 5
+#define SPARE_MUX_1 6
 #endif

@@ -25,14 +25,14 @@
  *
  * Usage: Commands can be issued on the CLI where hyperloop-core was launched,
  * or by connecting to the command server on port 7779 and typing a command,
- * like "ebrake"
+ * like "clamp"
  *
  *   $ telnet <beaglebone> 7779
  *   Trying <ip>...
  *   Connected to <hostname>.
  *   Escape character is '^]'.
  *   ping  <<< You type this line as "ping" plus enter
- *   PONG  >>> BBB Command Server replies with "PONG\n"
+ *   PONG  >>> OPC Command Server replies with "PONG\n"
  */
 #include "pod.h"
 #include "commands.h"

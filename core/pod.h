@@ -20,6 +20,7 @@
 #include "cdefs.h"
 #include "libBBB.h"
 #include "config.h"
+#include "core.h"
 #include <pthread.h>
 #include <sys/queue.h>
 
@@ -55,8 +56,8 @@ int pru_read_pack(sensor_pack_t *pack);
 void pod_exit(int code);
 
 int set_skate_target(int no, solenoid_state_t val, bool override);
-int set_caliper_brakes(int no, solenoid_state_t val, bool override);
-int set_emergency_brakes(int no, solenoid_state_t val, bool override);
+int ensure_caliper_brakes(int no, solenoid_state_t val, bool override);
+int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override);
 
 int setBrakes(int no, int val, bool override);
 int setEBrakes(int no, int val, bool override);

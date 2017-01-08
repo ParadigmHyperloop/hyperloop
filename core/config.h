@@ -44,8 +44,9 @@
 #define V_ERR_Y 0.1
 #define V_ERR_Z 0.1
 
+#define HEARTBEAT_TIMEOUT 1000 // (ms)
 // Signals
-#define POD_SIGPANIC SIGUSR2
+#define POD_SIGPANIC SIGUSR1
 
 // IMU Device
 #define IMU_DEVICE "/dev/ttyUSB0"
@@ -118,35 +119,19 @@
 #define PRIMARY_BRAKING_ENGAGED_NOM_F 100
 #define PRIMARY_BRAKING_ENGAGED_MAX_F 150
 
-#define PRIMARY_BRAKE_OVERRIDE_FRONT 0x0000000000000008
-#define PRIMARY_BRAKE_OVERRIDE_MID 0x0000000000000010
-#define PRIMARY_BRAKE_OVERRIDE_REAR 0x0000000000000020
-#define PRIMARY_BRAKE_OVERRIDE_ALL                                             \
-  (PRIMARY_BRAKE_OVERRIDE_FRONT) | (PRIMARY_BRAKE_OVERRIDE_MID) |              \
-      (PRIMARY_BRAKE_OVERRIDE_REAR)
-
 // ------------------
 // Emergency Braking Thresholds
 // ------------------
 /// NOMINAL: 1.2 G = 1.2 * 9.8 m/s/s * 1000 mm / m
-#define EBRAKE_BRAKING_ACCEL_X_MIN -7.84  // -0.8 G => mm/s/s
-#define EBRAKE_BRAKING_ACCEL_X_NOM -11.76 // -1.2 G => mm/s/s
-#define EBRAKE_BRAKING_ACCEL_X_MAX -49.00 // -5.0 G => mm/s/s
+#define CLAMP_BRAKING_ACCEL_X_MIN -7.84  // -0.8 G => mm/s/s
+#define CLAMP_BRAKING_ACCEL_X_NOM -11.76 // -1.2 G => mm/s/s
+#define CLAMP_BRAKING_ACCEL_X_MAX -49.00 // -5.0 G => mm/s/s
 
 /// TODO: Need Real Values
 /// NOMINAL: 1000N /// REVIEW: Guess
-#define EBRAKE_ENGAGED_MIN_F 800
-#define EBRAKE_ENGAGED_NOM_F 1000
-#define EBRAKE_ENGAGED_MAX_F 1500
-
-#define EBRAKE_OVERRIDE_FRONT 0x0000000000000001
-#define EBRAKE_OVERRIDE_MID 0x0000000000000002
-#define EBRAKE_OVERRIDE_REAR 0x0000000000000004
-#define EBRAKE_OVERRIDE_ALL                                                    \
-  (EBRAKE_OVERRIDE_FRONT) | (EBRAKE_OVERRIDE_MID) | (EBRAKE_OVERRIDE_REAR)
-
-#define EBRAKE_OVERRIDE_LIST                                                   \
-  { (EBRAKE_OVERRIDE_FRONT), (EBRAKE_OVERRIDE_FRONT), (EBRAKE_OVERRIDE_FRONT) }
+#define CLAMP_ENGAGED_MIN_F 800
+#define CLAMP_ENGAGED_NOM_F 1000
+#define CLAMP_ENGAGED_MAX_F 1500
 
 //----------------------
 // Pushing Thresholds
@@ -162,32 +147,16 @@
 // ---------------------
 // Lateral Sensor Config
 // ---------------------
-#define LATERAL_MIN 5
-#define LATERAL_MAX 7
+#define LATERAL_MIN 5.0
+#define LATERAL_MAX 7.0
 
 // ---------------------
 // Skate config
 // ---------------------
-#define MIN_REGULATOR_THERMOCOUPLE_TEMP 5L // celcius?
+#define REG_THERMO_MIN 5.0
+#define HEIGHT_MIN 2.0
+#define HEIGHT_MAX 16.0
 
-#define SKATE_OVERRIDE_FRONT_LEFT 0x0000000000000040
-#define SKATE_OVERRIDE_FRONT_RIGHT 0x0000000000000080
-#define SKATE_OVERRIDE_MID_LEFT 0x0000000000000100
-#define SKATE_OVERRIDE_MID_RIGHT 0x0000000000000200
-#define SKATE_OVERRIDE_REAR_LEFT 0x0000000000000400
-#define SKATE_OVERRIDE_REAR_RIGHT 0x0000000000000800
-
-#define SKATE_OVERRIDE_ALL                                                     \
-  (SKATE_OVERRIDE_FRONT_LEFT) | (SKATE_OVERRIDE_FRONT_RIGHT) |                 \
-      (SKATE_OVERRIDE_MID_LEFT) | (SKATE_OVERRIDE_MID_RIGHT) |                 \
-      (SKATE_OVERRIDE_REAR_LEFT) | (SKATE_OVERRIDE_REAR_RIGHT)
-
-#define SKATE_OVERRIDE_LIST                                                    \
-  {                                                                            \
-    (SKATE_OVERRIDE_FRONT_LEFT), (SKATE_OVERRIDE_FRONT_RIGHT),                 \
-        (SKATE_OVERRIDE_MID_LEFT), (SKATE_OVERRIDE_MID_RIGHT),                 \
-        (SKATE_OVERRIDE_REAR_LEFT), (SKATE_OVERRIDE_REAR_RIGHT)                \
-  }
 
 // ---------------------
 // Muxxing

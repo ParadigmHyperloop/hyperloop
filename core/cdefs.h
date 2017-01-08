@@ -43,8 +43,8 @@
 #include <signal.h>
 #include <semaphore.h>
 
-#define within(low, val, high) ((low <= val) && (val <= high))
-#define outside(low, val, high) (!(within((low), (val), (high))))
+#define within(__low, __val, __high) ((__low <= __val) && (__val <= __high))
+#define outside(__low, __val, __high) (!(within((__low), (__val), (__high))))
 
 #define MIN(a, b)                                                              \
   ({                                                                           \
