@@ -68,19 +68,19 @@ bool is_pod_vented(pod_t *pod) {
 bool is_hp_vented(pod_t *pod) {
   int i;
   for (i = 0; i < N_REG_PRESSURE; i++) {
-    float psia = get_sensor(&(pod->lp_reg_transducers[i]));
+    float psia = get_sensor(&(pod->reg_pressure[i]));
     if (outside(MIN_SAFE_PSIA, psia, MAX_SAFE_PSIA)) {
       return false;
     }
   }
-  return within(MIN_SAFE_PSIA, get_sensor(&(pod->hp_transducer)),
+  return within(MIN_SAFE_PSIA, get_sensor(&(pod->hp_pressure)),
                 MAX_SAFE_PSIA);
 }
 
 bool is_lp_vented(pod_t *pod) {
   int i;
   for (i = 0; i < N_CLAMP_PRESSURE; i++) {
-    float psia = get_sensor(&(pod->clamp_transducers[i]));
+    float psia = get_sensor(&(pod->clamp_pressure[i]));
     if (outside(MIN_SAFE_PSIA, psia, MAX_SAFE_PSIA)) {
       return false;
     }

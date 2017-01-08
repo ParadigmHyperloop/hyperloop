@@ -23,7 +23,25 @@ pod_t _pod = {.mode = Boot,
               .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
               .imu = -1,
               .logging_socket = -1,
-              .last_ping = 0};
+              .last_ping = 0,
+              .relays = {
+                &(_pod.hp_fill_valve),
+                &(_pod.lp_fill_valve[0]),
+                &(_pod.clamp_engage_solonoids[0]),
+                &(_pod.clamp_release_solonoids[0]),
+                &(_pod.skate_solonoids[0]),
+                &(_pod.skate_solonoids[2]),
+                &(_pod.wheel_solonoids[1]),
+                &(_pod.lateral_fill_solenoids[0]),
+                &(_pod.vent_solenoid),
+                &(_pod.lp_fill_valve[1]),
+                &(_pod.clamp_engage_solonoids[1]),
+                &(_pod.clamp_release_solonoids[1]),
+                &(_pod.skate_solonoids[1]),
+                &(_pod.wheel_solonoids[0]),
+                &(_pod.wheel_solonoids[2]),
+                &(_pod.lateral_fill_solenoids[1])
+              }};
 
 uint64_t time_in_state(void) {
   return (get_time() - get_pod()->last_transition);
@@ -112,6 +130,8 @@ int init_pod(void) {
                                     .value = 0,
                                     .type = kSolenoidNormallyOpen,
                                     .locked = false};
+
+  // TODO: Just assign to pod->relays
 
   pthread_rwlock_init(&(pod->mode_mutex), NULL);
 

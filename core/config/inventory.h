@@ -15,21 +15,8 @@
 #define N_RELAY_CHANNELS 16
 
 // --------------------------
-// Frame
-// --------------------------
-
-#define N_SHELL_PRESSURE 3
-#define N_SHELL_THERMO 4
-
-// --------------------------
 // MUX
 // --------------------------
-
-#define N_MUXES 4
-#define N_MUX_SELECT_PINS 4
-#define MUX_SELECT_PINS                                                        \
-  { 45, 44, 117, 125 }
-
 #define THERMO_MUX_0 0
 #define THERMO_MUX_1 1
 #define PRESSURE_MUX 2

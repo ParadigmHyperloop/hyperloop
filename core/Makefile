@@ -20,7 +20,7 @@ OBJROOT= ./BUILD/obj
 DSTROOT= ./BUILD/dst
 FMTROOT= ./BUILD/fmt
 CC= gcc
-SOURCES = main.c core.c pru.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c mux.c tests.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
+SOURCES = main.c core.c pru.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c tests.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
 
 ifeq ($(UNAME_S),Linux)
 	 LDFLAGS += -pthread
@@ -63,7 +63,7 @@ install:
 	install -m 755 $(EXECUTABLE) $(DSTROOT)/usr/local/bin
 
 run: clean all
-	./$(EXECUTABLE) -r
+	$(EXECUTABLE) -r -i -
 
 style:
 	mkdir -p $(FMTROOT)

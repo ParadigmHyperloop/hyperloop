@@ -41,11 +41,6 @@ typedef struct pod_value {
     , PTHREAD_RWLOCK_INITIALIZER                                               \
   }
 
-typedef struct {
-  int select_pins[N_MUX_SELECT_PINS];
-  int line_pin;
-} pod_mux_t;
-
 typedef enum solenoid_state { kSolenoidOpen, kSolenoidClosed } solenoid_state_t;
 
 typedef enum relay_state {
@@ -198,27 +193,49 @@ typedef struct pod {
 
   // Skate Sensors and Solonoids
   solenoid_t skate_solonoids[N_SKATE_SOLONOIDS];
-  sensor_t skate_transducers[N_SKATE_PRESSURE];
+  sensor_t skate_pressure[N_SKATE_PRESSURE];
 
   // LP Packages
-  sensor_t lp_reg_thermocouples[N_REG_THERMO];
-  sensor_t lp_reg_transducers[N_REG_PRESSURE];
+  sensor_t reg_thermo[N_REG_THERMO];
+  sensor_t reg_surf_thermo[N_REG_THERMO];
+  sensor_t reg_pressure[N_REG_PRESSURE];
+
+  // Frame Temperature
+  sensor_t frame_thermo;
 
   // Clamping Brakes
   solenoid_t clamp_engage_solonoids[N_CLAMP_ENGAGE_SOLONOIDS];
   solenoid_t clamp_release_solonoids[N_CLAMP_RELEASE_SOLONOIDS];
-  sensor_t clamp_transducers[N_CLAMP_PRESSURE];
-  // The clamp pad thermocouples
+
+  // Clamp Tank Pressure
+  sensor_t clamp_pressure[N_CLAMP_PRESSURE];
+
+  // Clamp pad thermocouples
   sensor_t clamp_thermocouples[N_CLAMP_PAD_THERMO];
 
   // Wheel Brake Sensors and Solonoids
   solenoid_t wheel_solonoids[N_WHEEL_SOLONOIDS];
 
+  // RPM State
+  pod_value_t rpms[N_WHEEL_PHOTO];
+  uint64_t last_wheel_stripe[N_WHEEL_PHOTO];
+
+  // Tube Stripe State
+
+  // time when stripe was last seen by each sensor
+  uint64_t last_tube_stripe[N_WHEEL_PHOTO];
+  // Stripe counts as seem by each sensor individually
+  pod_value_t stripe_counts[N_WHEEL_PHOTO];
+  // Average time between stripes
+  uint64_t stripe_intervals[N_WHEEL_PHOTO];
+  // The actual stripe count
+  pod_value_t stripe_count;
+
   // Pusher plate
   pod_value_t pusher_plate;
 
   // Batteries
-  pod_battery_t batteries[N_BATTERIES];
+  pod_battery_t battery[N_BATTERIES];
 
   // Thread Tracking
   pthread_t core_thread;
@@ -239,7 +256,8 @@ typedef struct pod {
   solenoid_t hp_fill_valve;
 
   // HP Transducer
-  sensor_t hp_transducer;
+  sensor_t hp_pressure;
+  sensor_t hp_thermo;
 
   // LP Fill
   solenoid_t lp_fill_valve[N_LP_FILL_SOLENOIDS];
@@ -248,7 +266,9 @@ typedef struct pod {
   solenoid_t lateral_fill_solenoids[N_LAT_FILL_SOLENOIDS];
   sensor_t lateral_fill_transducers[N_LAT_FILL_PRESSURE];
 
-  pod_mux_t muxes[N_MUXES];
+  // Pointers to all the solenoids that are connected to the relays
+  // (Don't think too much about this one, it is really just a convienience)
+  solenoid_t *relays[N_RELAY_CHANNELS];
 
   int imu;
   int logging_socket;
