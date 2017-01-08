@@ -34,8 +34,14 @@ int set_all_surfaces(int lvl, int sleep, int sleep_block) {
   int i;
 
   solenoid_state_t s = kSolenoidOpen;
+  clamp_brake_state_t b = kClampBrakeClosed;
   if (lvl == 0) {
     s = kSolenoidClosed;
+    b = kClampBrakeEngaged;
+  }
+
+  if (lvl == 2) {
+    b = kClampBrakeReleased;
   }
 
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
@@ -44,14 +50,14 @@ int set_all_surfaces(int lvl, int sleep, int sleep_block) {
   }
   usleep(sleep_block);
 
-  for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
-    set_emergency_brakes(i, s, false);
+  for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+    ensure_clamp_brakes(i, b, false);
     usleep(sleep);
   }
   usleep(sleep_block);
 
   for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    set_caliper_brakes(i, s, false);
+    ensure_caliper_brakes(i, s, false);
     usleep(sleep);
   }
   usleep(sleep_block);
@@ -71,27 +77,16 @@ int relay_walker() {
   int n = 0;
   int lvl = 0;
   int half_second = 5000000;
-  while (n <= 10) {
-    lvl = n % 2;
+
+  // Walk through 5 times (closed, on (-clamp release), on (-clamp engage))
+  while (n < 15) {
+    lvl = n % 3;
     set_all_surfaces(lvl, half_second, 0);
     n++;
   }
 
-  n = 0;
-  while (n <= 10) {
-    lvl = n % 2;
-    set_all_surfaces(lvl, 0, half_second);
-    n++;
-  }
-  sleep(2);
-
-  n = 0;
-  while (n <= 10) {
-    lvl = n % 2;
-    set_all_surfaces(lvl, 0, 0);
-    usleep(half_second);
-    n++;
-  }
+  // Clear all surfaces
+  set_all_surfaces(0, 0, 0);
 
   return 0;
 }

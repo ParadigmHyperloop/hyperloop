@@ -1,5 +1,5 @@
 #include "libBBB.h"
-
+#include "shims.h"
 // GPIO Prototypes
 int initPin(int pinnum) { return 0; }
 int setPinDirection(int pinnum, char *dir) { return 0; }
@@ -54,3 +54,22 @@ int readADC(int helpnum, char *ach) { return 0; }
 // Time Prototypes
 void pauseSec(int sec) { return; }
 int pauseNanoSec(long nano) { return 0; }
+
+int prussdrv_init(void) { return 0; }
+int prussdrv_open(unsigned int host_interrupt) { return 0; }
+int prussdrv_pruintc_init(const tpruss_intc_initdata *prussintc_init_data) {
+  return 0;
+}
+
+int __pru_shared_mem__[4096];
+int prussdrv_map_prumem(unsigned int pru_ram_id, void **address) {
+  *address = &__pru_shared_mem__[0];
+  return 0;
+}
+int prussdrv_pru_disable(unsigned int prunum) { return 0; }
+int prussdrv_exit(void) { return 0; }
+int prussdrv_exec_program(int prunum, const char *filename) { return 0; }
+int prussdrv_pru_clear_event(unsigned int host_interrupt,
+                             unsigned int sysevent) {
+  return 0;
+}

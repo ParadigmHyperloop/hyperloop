@@ -45,7 +45,7 @@ bool core_pod_checklist(pod_t *pod) {
   // TODO: is_velocity_too_fast() // 95 m/s (roughly 215 mph) @akeating
 
   // TODO: is_reg_temp_ok()       // 0 -> 50 @akeating
-  // TODO: is_ebrake_temp_ok()    // 0 -> 100something @akeating
+  // TODO: is_clamp_temp_ok()    // 0 -> 100something @akeating
   // TODO: is_battery_temp_ok()   // 0 -> 60something @james
   // TODO: is_caliper_temp_ok()   // 0 -> 100something @akeating
   // TODO: is_frame_temp_ok()     // 0 -> 40 C @edhurtig
@@ -111,9 +111,9 @@ void lp_fill_state_checks(pod_t *pod) {
   int i;
 
   for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    float psia = get_value_f(&(pod->ebrake_transducers[i]));
+    float psia = get_sensor(&(pod->clamp_transducers[i]));
 
-    if (psia < NOMINAL_MINI_TANK_PSIA + LP_TRANS_ERR) {
+    if (psia < NOMINAL_MINI_TANK_PSIA + CLAMP_PRESSURE_ERR) {
       open_solenoid(&(pod->lp_fill_valve[i]));
     } else {
       close_solenoid(&(pod->lp_fill_valve[i]));
@@ -123,9 +123,9 @@ void lp_fill_state_checks(pod_t *pod) {
 }
 
 void hp_fill_state_checks(pod_t *pod) {
-  float psia = get_value_f(&(pod->hp_transducer));
+  float psia = get_sensor(&(pod->hp_transducer));
 
-  if (psia < NOMINAL_HP_PSIA + HP_TRANSDUCERS_ERR) {
+  if (psia < NOMINAL_HP_PSIA + HP_PRESSURE_ERR) {
     open_solenoid(&(pod->hp_fill_valve));
   } else {
     close_solenoid(&(pod->hp_fill_valve));
@@ -155,7 +155,7 @@ void armed_state_checks(pod_t *pod) {
  * Checks to be performed when the pod's state is Emergency
  */
 void emergency_state_checks(pod_t *pod) {
-  if (is_pod_stopped(pod) && any_emergency_brakes(pod) && any_calipers(pod)) {
+  if (is_pod_stopped(pod) && any_clamp_brakes(pod) && any_calipers(pod)) {
     set_pod_mode(Vent, "Pod has been determined to be ready for venting");
   }
 }
@@ -210,22 +210,19 @@ void vent_state_checks(pod_t *pod) {}
 void retrieval_state_checks(pod_t *pod) {}
 
 void skate_sensor_checks(pod_t *pod) {
-  // TODO: Make these checks bounded by min and max values
-  bool ok = (get_value(&(pod->skate_rear_left_z)) > 0) &&
-            (get_value(&(pod->skate_rear_right_z)) > 0) &&
-            (get_value(&(pod->skate_front_left_z)) > 0) &&
-            (get_value(&(pod->skate_front_right_z)) > 0);
-
-  if (!ok) {
-    set_pod_mode(Emergency, "A height sensor is returning 0");
+  int i;
+  for (i=0;i<N_CORNER_DISTANCE;i++) {
+    if (outside(HEIGHT_MIN, get_sensor(&(pod->corner_distance[i])), HEIGHT_MAX)) {
+      set_pod_mode(Emergency, "Height sensor %d out of range", i);
+    }
   }
 }
 
 void lp_package_checks(pod_t *pod) {
   int i;
-  for (i = 0; i < N_LP_REGULATOR_THERMOCOUPLES; i++) {
-    int32_t temp = get_value(&(pod->lp_reg_thermocouples[i]));
-    if (temp < MIN_REGULATOR_THERMOCOUPLE_TEMP) {
+  for (i = 0; i < N_REG_THERMO; i++) {
+    float temp = get_sensor(&(pod->lp_reg_thermocouples[i]));
+    if (temp < REG_THERMO_MIN) {
       set_pod_mode(Emergency, "Thermocouple %d for skates is too low");
     }
   }
@@ -234,20 +231,12 @@ void lp_package_checks(pod_t *pod) {
 void lateral_sensor_checks(pod_t *pod) {
 
   int errors = 0;
-  if (outside(LATERAL_MIN, get_value(&(pod->lateral_front_left)),
-              LATERAL_MAX)) {
-    errors |= 0x1;
-  }
-  if (outside(LATERAL_MIN, get_value(&(pod->lateral_front_right)),
-              LATERAL_MAX)) {
-    errors |= 0x2;
-  }
-  if (outside(LATERAL_MIN, get_value(&(pod->lateral_rear_left)), LATERAL_MAX)) {
-    errors |= 0x4;
-  }
-  if (outside(LATERAL_MIN, get_value(&(pod->lateral_rear_right)),
-              LATERAL_MAX)) {
-    errors |= 0x8;
+  int i;
+  for (i=0;i<N_LATERAL_DISTANCE;i++) {
+    if (outside(LATERAL_MIN, get_sensor(&(pod->lateral_distance[i])),
+                LATERAL_MAX)) {
+      errors |= (0x1 << i);
+    }
   }
 
   if (errors) {
@@ -271,7 +260,7 @@ int set_skate_target(int no, solenoid_state_t val, bool override) {
   return 0;
 }
 
-int set_caliper_brakes(int no, solenoid_state_t val, bool override) {
+int ensure_caliper_brakes(int no, solenoid_state_t val, bool override) {
   // TODO: Implement Me
   pod_t *pod = get_pod();
   uint64_t skate_override[] = SKATE_OVERRIDE_LIST;
@@ -286,19 +275,35 @@ int set_caliper_brakes(int no, solenoid_state_t val, bool override) {
   return 0;
 }
 
-int set_emergency_brakes(int no, solenoid_state_t val, bool override) {
+int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override) {
   // TODO: Implement actually and also implement locking
   pod_t *pod = get_pod();
-  uint64_t ebrake_override[] = EBRAKE_OVERRIDE_LIST;
+  uint64_t clamp_override[] = CLAMP_OVERRIDE_LIST;
 
-  if (is_surface_overriden(ebrake_override[no]) && !override &&
-      pod->tmp_ebrakes != val) {
-    warn("Skates are in override mode!");
+  if (is_surface_overriden(clamp_override[no]) && !override) {
+    warn("Clamps are in override mode!");
     return -1;
   }
 
-  set_solenoid(&(pod->ebrake_solonoids[no]), val);
-  pod->tmp_ebrakes = val;
+  switch (val) {
+  case kClampBrakeClosed:
+    set_solenoid(&(pod->clamp_engage_solonoids[no]), kSolenoidClosed);
+    set_solenoid(&(pod->clamp_release_solonoids[no]), kSolenoidClosed);
+    break;
+  case kClampBrakeEngaged:
+    set_solenoid(&(pod->clamp_engage_solonoids[no]), kSolenoidOpen);
+    set_solenoid(&(pod->clamp_release_solonoids[no]), kSolenoidClosed);
+    break;
+  case kClampBrakeReleased:
+    set_solenoid(&(pod->clamp_engage_solonoids[no]), kSolenoidClosed);
+    set_solenoid(&(pod->clamp_release_solonoids[no]), kSolenoidOpen);
+    break;
+  default:
+    DECLARE_EMERGENCY("Invalid clamp_brake_state_t");
+  }
+
+  // TODO: Remove
+  pod->tmp_clamps = val;
   return 0;
 }
 
@@ -318,21 +323,21 @@ void adjust_brakes(pod_t *pod) {
   case Retrieval:
   case Shutdown:
     for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-      set_caliper_brakes(i, kSolenoidClosed, false);
+      ensure_caliper_brakes(i, kSolenoidClosed, false);
     }
-    for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
-      set_emergency_brakes(i, kSolenoidClosed, false);
+    for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+      ensure_clamp_brakes(i, kClampBrakeReleased, false);
     }
     break;
   case Braking:
-    set_emergency_brakes(PRIMARY_BRAKING_CLAMP, kSolenoidOpen, false);
+    ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
     break;
   case Emergency:
     if (get_value(&(pod->accel_x)) <= A_ERR_X) {
-      for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
-        set_emergency_brakes(i, kSolenoidOpen, false);
+      for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+        ensure_clamp_brakes(i, kClampBrakeEngaged, false);
       }
-      // TODO: If both ebrakes applied but not optimal decel, apply calipers
+      // TODO: If both clamps applied but not optimal decel, apply calipers
     } else {
       error("==== Emergency Emergency Emergency ====");
       error("State is Emergency but not applying any brakes because accel x is "
@@ -426,14 +431,6 @@ void *core_main(void *arg) {
     // -------------------------------------------
 
     // General Checks (Going too fast, going too high)
-
-    // TODO: Remove as the next section does this
-    skate_sensor_checks(pod);
-    lateral_sensor_checks(pod);
-
-    if (get_value_f(&(pod->velocity_x)) < -V_ERR_X && pod->calibrated) {
-      set_pod_mode(Emergency, "Pod rolling backward");
-    }
 
     // Mode Specific Checks
     switch (get_pod_mode()) {

@@ -9,17 +9,7 @@
 
 // Handles all the PRU Magic
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <prussdrv.h>
-#include <pruss_intc_mapping.h>
-#include <unistd.h>
-#include <string.h>
-#include <time.h>
-#include "pod.h"
+#include "pru.h"
 
 /******************************************************************************
 * Local Macro Declarations                                                    *
@@ -41,11 +31,11 @@ static unsigned int ProcessingADC1(unsigned int value);
 static void *sharedMem;
 static unsigned int *sharedMem_int;
 
-int init_pru() {
+int pru_init() {
   unsigned int ret;
   tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
   int num_samples = 16000000; // TODO: Change this
-
+  // TODO: Remove print
   /* Initializing PRU */
   prussdrv_init();
   ret = prussdrv_open(PRU_EVTOUT_0);
@@ -67,6 +57,8 @@ int init_pru() {
   prussdrv_exec_program(PRU_NUM, "./ADCCollector.bin");
   printf("\tINFO: Sampling is started for %d samples\n", num_samples);
   printf("\tINFO: Collecting");
+  // TODO: Blindly returning 0
+  return 0;
 }
 
 int pru_shutdown() {
@@ -77,6 +69,8 @@ int pru_shutdown() {
   /* Disable PRU*/
   prussdrv_pru_disable(PRU_NUM);
   prussdrv_exit();
+  // TODO: Blindly returning 0
+  return 0;
 }
 
 /******************************************************************************
@@ -89,13 +83,20 @@ int pru_shutdown() {
 int pru_read(sensor_pack_t *pack) {
   int i;
   /* Read ADC */
-
+  // TODO: Remove Print
   printf("\n\n AIN0  AIN1  AIN2  AIN3  AIN4  AIN5  AIN6 \n");
   printf(" ----  ----  ----  ----  ----  ----  ----\n\n");
   for (i = 0; i < 16; i++) {
+    int j = 0;
+    while (!sharedMem_int[OFFSET_SHAREDRAM + 2] && j < 1000) {
+      //sleep(0.00000000001);
+      usleep(1);
+      j++;
+    }
 
-    while (!sharedMem_int[OFFSET_SHAREDRAM + 2]) {
-      sleep(0.00000000001);
+    if (j >= 1000) {
+      error("PRU Timeout Occured");
+      return -1;
     }
 
     // memcpy(pack+(i*7), &(sharedMem_int[OFFSET_SHAREDRAM + 3]),

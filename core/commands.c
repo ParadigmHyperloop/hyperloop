@@ -106,10 +106,11 @@ int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
         (is_solenoid_open(&(pod->wheel_solonoids[i])) ? "open" : "closed"));
   }
 
-  for (i = 0; i < N_EBRAKE_SOLONOIDS; i++) {
-    c += snprintf(
-        &outbuf[c], outbufc - c, "Clamp %d:\t%s\n", i,
-        (is_solenoid_open(&(pod->ebrake_solonoids[i])) ? "open" : "closed"));
+  for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+    c += snprintf(&outbuf[c], outbufc - c, "Clamp %d:\t%s\n", i,
+                  (is_solenoid_open(&(pod->clamp_engage_solonoids[i]))
+                       ? "open"
+                       : "closed"));
   }
 
   for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
@@ -197,7 +198,7 @@ int offsetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   } else if (strncmp(argv[1], "hp_transducer", 13)) {
     sensor = &(pod->hp_transducer);
   } else if (strncmp(argv[1], "clamp_transducer", 16)) {
-    sensor = &(pod->ebrake_transducers[no]);
+    sensor = &(pod->clamp_transducers[no]);
   } else if (strncmp(argv[1], "lat_transducer", 14)) {
     sensor = &(pod->lateral_fill_transducers[no]);
   }

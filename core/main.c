@@ -95,6 +95,8 @@ void pod_exit(int code) {
     nclients--;
   }
 
+  pru_shutdown();
+
   fprintf(stderr, "Closing command server (fd %d)\n", serverfd);
   close(serverfd);
   exit(code);
@@ -104,7 +106,7 @@ void pod_exit(int code) {
  * Panic Signal Handler.  This is only called if the shit has hit the fan
  * This function fires whenever the controller looses complete control in itself
  *
- * The controller sets the EBRAKE pins to LOW (engage) and then kills all it's
+ * The controller sets the CLAMP pins to LOW (engage) and then kills all it's
  * threads.  This is done to prevent threads from toggling the Ebrake pins OFF
  * for whatever reason.
  *
@@ -186,7 +188,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  init_pru();
+  pru_init();
 
   // -----------------------------------------
   // Logging - Remote Logging System
@@ -244,6 +246,7 @@ int main(int argc, char *argv[]) {
   if (pod->imu > -1) {
     imu_disconnect(pod->imu);
   }
+  pru_shutdown();
 
   // If the core thread joins, then there is a serious issue.  Fail immediately
   error("Core thread joined");

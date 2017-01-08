@@ -14,21 +14,21 @@ ifeq ($(OS),Windows_NT)
 else
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-	 LDFLAGS += -pthread
+	 LDFLAGS += -pthread -lprussdrv
 endif
 ifeq ($(UNAME_S),Darwin)
-
+	CFLAGS += "-g"
 endif
 endif
 CC= gcc
-DEPS = core.c pru.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c mux.c tests.c libBBBShims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
+DEPS = core.c pru.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c mux.c tests.c shims.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
 SOURCES= main.c $(DEPS)
 OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
 FILES := $(wildcard **/*.c **/*.h *.c *.h)
 
 EXECUTABLE = core
 CFLAGS += -pthread -std=gnu99 -DDEBUG -I../libimu/BUILD/dst/usr/local/include
-LDFLAGS += -limu -lprussdrv -L../libimu/BUILD/dst/usr/local/lib
+LDFLAGS += -limu -L../libimu/BUILD/dst/usr/local/lib
 OBJROOT= ./BUILD/obj
 DSTROOT= ./BUILD/dst
 FMTROOT= ./BUILD/fmt
@@ -67,7 +67,14 @@ format:
 	done
 
 ADCCollector.bin: ./pru/ADCCollector.p
+
+ifeq ($(UNAME_S),Linux)¬
 	pasm -b $^
+else
+	@echo "WARNING WARNING WARNING"
+	@echo "You are compiling on a machine without pasm, assuming this is a dev machine"
+	@echo "WARNING WARNING WARNING"
+endif
 
 clean:
 	rm -rf *.o pod/*.o *~ $(EXECUTABLE) BUILD

@@ -123,15 +123,15 @@
 // Emergency Braking Thresholds
 // ------------------
 /// NOMINAL: 1.2 G = 1.2 * 9.8 m/s/s * 1000 mm / m
-#define EBRAKE_BRAKING_ACCEL_X_MIN -7.84  // -0.8 G => mm/s/s
-#define EBRAKE_BRAKING_ACCEL_X_NOM -11.76 // -1.2 G => mm/s/s
-#define EBRAKE_BRAKING_ACCEL_X_MAX -49.00 // -5.0 G => mm/s/s
+#define CLAMP_BRAKING_ACCEL_X_MIN -7.84  // -0.8 G => mm/s/s
+#define CLAMP_BRAKING_ACCEL_X_NOM -11.76 // -1.2 G => mm/s/s
+#define CLAMP_BRAKING_ACCEL_X_MAX -49.00 // -5.0 G => mm/s/s
 
 /// TODO: Need Real Values
 /// NOMINAL: 1000N /// REVIEW: Guess
-#define EBRAKE_ENGAGED_MIN_F 800
-#define EBRAKE_ENGAGED_NOM_F 1000
-#define EBRAKE_ENGAGED_MAX_F 1500
+#define CLAMP_ENGAGED_MIN_F 800
+#define CLAMP_ENGAGED_NOM_F 1000
+#define CLAMP_ENGAGED_MAX_F 1500
 
 //----------------------
 // Pushing Thresholds
@@ -147,13 +147,16 @@
 // ---------------------
 // Lateral Sensor Config
 // ---------------------
-#define LATERAL_MIN 5
-#define LATERAL_MAX 7
+#define LATERAL_MIN 5.0
+#define LATERAL_MAX 7.0
 
 // ---------------------
 // Skate config
 // ---------------------
-#define MIN_REGULATOR_THERMOCOUPLE_TEMP 5L // celcius?
+#define REG_THERMO_MIN 5.0
+#define HEIGHT_MIN 2.0
+#define HEIGHT_MAX 16.0
+
 
 // ---------------------
 // Muxxing
