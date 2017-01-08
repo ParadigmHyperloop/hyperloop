@@ -38,17 +38,20 @@
 
 #define N_REG_PRESSURE 4
 #define REG_PRESSURE_MUX PRESSURE_MUX
-#define REG_PRESSURE_INPUTS { 0, 1, 2, 3 }
+#define REG_PRESSURE_INPUTS                                                    \
+  { 0, 1, 2, 3 }
 #define REG_PRESSURE_ERR LP_PRESSURE_ERR
 
 #define N_REG_THERMO 4
 #define REG_THERMO_MUX THERMO_MUX_0
-#define REG_THERMO_INPUTS { 0, 1, 2, 3 }
+#define REG_THERMO_INPUTS                                                      \
+  { 0, 1, 2, 3 }
 #define REG_THERMO_ERR 10
 
 #define N_REG_SURF_THERMO 4
 #define REG_SURF_THERMO_MUX THERMO_MUX_1
-#define REG_SURF_THERMO_INPUTS { 0, 1, 2, 3 }
+#define REG_SURF_THERMO_INPUTS                                                 \
+  { 0, 1, 2, 3 }
 #define REG_SURF_THERMO_ERR SURF_THERMO_ERR
 
 // --------------------------
@@ -63,23 +66,24 @@
 // Mid Left and Mid Right
 #define N_SKATE_PRESSURE 2
 #define SKATE_PRESSURE_MUX PRESSURE_MUX
-#define SKATE_PRESSURE_INPUTS { 8, 9 }
+#define SKATE_PRESSURE_INPUTS                                                  \
+  { 8, 9 }
 #define SKATE_PRESSURE_ERR LP_PRESSURE_ERR
 
-
 #define N_MPYES 6
-#define MPYE_I2C_DAC_ADDR { 0, 1, 2, 3, 4, 5 }
+#define MPYE_I2C_DAC_ADDR                                                      \
+  { 0, 1, 2, 3, 4, 5 }
 
 // --------------------------
 // Clamp Brakes
 // --------------------------
 
 #define N_CLAMP_ENGAGE_SOLONOIDS 2
-#define CLAMP_ENGAGE_SOLONOIDS                                                       \
+#define CLAMP_ENGAGE_SOLONOIDS                                                 \
   { 8, 75 }
 
 #define N_CLAMP_RELEASE_SOLONOIDS 2
-#define CLAMP_RELEASE_SOLONOIDS                                                       \
+#define CLAMP_RELEASE_SOLONOIDS                                                \
   { 78, 77 }
 
 // Which solenoid (index) to use for primary braking
@@ -87,11 +91,13 @@
 
 #define N_CLAMP_PAD_THERMO 2
 #define CLAMP_PAD_THERMO_MUX THERMO_MUX_1
-#define CLAMP_PAD_THERMO_INPUTS { 4, 5 }
+#define CLAMP_PAD_THERMO_INPUTS                                                \
+  { 4, 5 }
 
 #define N_CLAMP_PRESSURE 2
 #define CLAMP_PRESSURE_MUX PRESSURE_MUX
-#define CLAMP_PRESSURE_INPUTS { 4, 5 }
+#define CLAMP_PRESSURE_INPUTS                                                  \
+  { 4, 5 }
 #define CLAMP_PRESSURE_ERR _LP_PRESSURE_ERR
 
 #define NOMINAL_CLAMP_BRAKING_ACCEL -8.134 // m/s^2 (-0.83 G)
@@ -128,7 +134,8 @@
 
 #define N_LAT_FILL_PRESSURE 2
 #define LAT_FILL_PRESSURE_MUX PRESSURE_MUX
-#define LAT_FILL_PRESSURE_INPUTS { 6, 7 }
+#define LAT_FILL_PRESSURE_INPUTS                                               \
+  { 6, 7 }
 
 // --------------------------
 // Releif solenoid

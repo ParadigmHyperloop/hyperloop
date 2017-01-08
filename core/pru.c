@@ -89,7 +89,7 @@ int pru_read(sensor_pack_t *pack) {
   for (i = 0; i < 16; i++) {
     int j = 0;
     while (!sharedMem_int[OFFSET_SHAREDRAM + 2] && j < 1000) {
-      //sleep(0.00000000001);
+      // sleep(0.00000000001);
       usleep(1);
       j++;
     }

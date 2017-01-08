@@ -11,7 +11,6 @@
 #include "shims.h"
 #endif
 
-
 int pru_init(void);
 int pru_read(sensor_pack_t *pack);
 int pru_shutdown(void);

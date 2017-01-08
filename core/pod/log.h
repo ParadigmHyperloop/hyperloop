@@ -2,7 +2,12 @@
 #define OPENLOOP_POD_LOG_H
 #include "../pod.h"
 
-typedef enum { Message = 1, Telemetry_float = 2, Telemetry_int32 = 3, Packet = 4 } log_type_t;
+typedef enum {
+  Message = 1,
+  Telemetry_float = 2,
+  Telemetry_int32 = 3,
+  Packet = 4
+} log_type_t;
 
 typedef struct {
   char name[64];
@@ -13,7 +18,6 @@ typedef struct {
   char name[64];
   int32_t value;
 } log_int32_data_t;
-
 
 typedef uint16_t solenoid_mask_t;
 

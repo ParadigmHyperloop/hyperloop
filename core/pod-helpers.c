@@ -73,8 +73,7 @@ bool is_hp_vented(pod_t *pod) {
       return false;
     }
   }
-  return within(MIN_SAFE_PSIA, get_sensor(&(pod->hp_pressure)),
-                MAX_SAFE_PSIA);
+  return within(MIN_SAFE_PSIA, get_sensor(&(pod->hp_pressure)), MAX_SAFE_PSIA);
 }
 
 bool is_lp_vented(pod_t *pod) {
