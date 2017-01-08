@@ -111,7 +111,7 @@ void lp_fill_state_checks(pod_t *pod) {
   int i;
 
   for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    float psia = get_sensor(&(pod->clamp_transducers[i]));
+    float psia = get_sensor(&(pod->clamp_pressure[i]));
 
     if (psia < NOMINAL_MINI_TANK_PSIA + CLAMP_PRESSURE_ERR) {
       open_solenoid(&(pod->lp_fill_valve[i]));
@@ -123,7 +123,7 @@ void lp_fill_state_checks(pod_t *pod) {
 }
 
 void hp_fill_state_checks(pod_t *pod) {
-  float psia = get_sensor(&(pod->hp_transducer));
+  float psia = get_sensor(&(pod->hp_pressure));
 
   if (psia < NOMINAL_HP_PSIA + HP_PRESSURE_ERR) {
     open_solenoid(&(pod->hp_fill_valve));
@@ -221,7 +221,7 @@ void skate_sensor_checks(pod_t *pod) {
 void lp_package_checks(pod_t *pod) {
   int i;
   for (i = 0; i < N_REG_THERMO; i++) {
-    float temp = get_sensor(&(pod->lp_reg_thermocouples[i]));
+    float temp = get_sensor(&(pod->reg_thermo[i]));
     if (temp < REG_THERMO_MIN) {
       set_pod_mode(Emergency, "Thermocouple %d for skates is too low");
     }

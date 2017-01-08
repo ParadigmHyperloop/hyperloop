@@ -159,13 +159,6 @@
 
 
 // ---------------------
-// Muxxing
-// ---------------------
-
-#define MUX_0_PINS                                                             \
-  {}
-
-// ---------------------
 // Logging Configuration
 // ---------------------
 #define LOG_FILE_PATH "./hyperloop-core.log"

@@ -192,13 +192,13 @@ int offsetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   sensor_t *sensor = NULL;
 
   if (strncmp(argv[1], "skate_transducer", 16)) {
-    sensor = &(pod->skate_transducers[no]);
+    sensor = &(pod->skate_pressure[no]);
   } else if (strncmp(argv[1], "lp_transducer", 13)) {
-    sensor = &(pod->lp_reg_transducers[no]);
-  } else if (strncmp(argv[1], "hp_transducer", 13)) {
-    sensor = &(pod->hp_transducer);
+    sensor = &(pod->reg_pressure[no]);
+  } else if (strncmp(argv[1], "hp_pressure", 13)) {
+    sensor = &(pod->hp_pressure);
   } else if (strncmp(argv[1], "clamp_transducer", 16)) {
-    sensor = &(pod->clamp_transducers[no]);
+    sensor = &(pod->clamp_pressure[no]);
   } else if (strncmp(argv[1], "lat_transducer", 14)) {
     sensor = &(pod->lateral_fill_transducers[no]);
   }

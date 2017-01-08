@@ -101,6 +101,10 @@ int log_send(log_t *l) {
     snprintf(&buf[0], MAX_PACKET_SIZE, "POD2%s %d\n", l->v.int32_data.name,
              l->v.int32_data.value);
     break;
+  case Packet:
+    assert(sizeof(l->v.packet) < MAX_PACKET_SIZE);
+    memcpy(&buf[0], &(l->v.packet), sizeof(l->v.packet));
+    break;
   default:
     fprintf(stderr, "Unknown Log Type: %d", l->type);
     return -1;
