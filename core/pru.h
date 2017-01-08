@@ -4,7 +4,7 @@
 #include "pod.h"
 #include <sys/mman.h>
 #include <errno.h>
-#ifdef __linux__
+#ifdef HAS_PRU
 #include <prussdrv.h>
 #include <pruss_intc_mapping.h>
 #else
