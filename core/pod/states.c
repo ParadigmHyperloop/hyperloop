@@ -7,41 +7,33 @@ char *pod_mode_names[N_POD_STATES] = {
     "Standby", "Armed",     "Pushing",   "Coasting", "Braking",
     "Vent",    "Retrieval", "Emergency", "Shutdown"};
 
-pod_t _pod = {.mode = Boot,
-              .initialized = false,
-              .start = 0ULL,
-              .accel_x = POD_VALUE_INITIALIZER_FL,
-              .accel_y = POD_VALUE_INITIALIZER_FL,
-              .accel_z = POD_VALUE_INITIALIZER_FL,
-              .velocity_x = POD_VALUE_INITIALIZER_FL,
-              .velocity_z = POD_VALUE_INITIALIZER_FL,
-              .velocity_y = POD_VALUE_INITIALIZER_FL,
-              .position_x = POD_VALUE_INITIALIZER_FL,
-              .position_y = POD_VALUE_INITIALIZER_FL,
-              .position_z = POD_VALUE_INITIALIZER_FL,
-              .overrides = 0ULL,
-              .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
-              .imu = -1,
-              .logging_socket = -1,
-              .last_ping = 0,
-              .relays = {
-                &(_pod.hp_fill_valve),
-                &(_pod.lp_fill_valve[0]),
-                &(_pod.clamp_engage_solonoids[0]),
-                &(_pod.clamp_release_solonoids[0]),
-                &(_pod.skate_solonoids[0]),
-                &(_pod.skate_solonoids[2]),
-                &(_pod.wheel_solonoids[1]),
-                &(_pod.lateral_fill_solenoids[0]),
-                &(_pod.vent_solenoid),
-                &(_pod.lp_fill_valve[1]),
-                &(_pod.clamp_engage_solonoids[1]),
-                &(_pod.clamp_release_solonoids[1]),
-                &(_pod.skate_solonoids[1]),
-                &(_pod.wheel_solonoids[0]),
-                &(_pod.wheel_solonoids[2]),
-                &(_pod.lateral_fill_solenoids[1])
-              }};
+pod_t _pod = {
+    .mode = Boot,
+    .initialized = false,
+    .start = 0ULL,
+    .accel_x = POD_VALUE_INITIALIZER_FL,
+    .accel_y = POD_VALUE_INITIALIZER_FL,
+    .accel_z = POD_VALUE_INITIALIZER_FL,
+    .velocity_x = POD_VALUE_INITIALIZER_FL,
+    .velocity_z = POD_VALUE_INITIALIZER_FL,
+    .velocity_y = POD_VALUE_INITIALIZER_FL,
+    .position_x = POD_VALUE_INITIALIZER_FL,
+    .position_y = POD_VALUE_INITIALIZER_FL,
+    .position_z = POD_VALUE_INITIALIZER_FL,
+    .overrides = 0ULL,
+    .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
+    .imu = -1,
+    .logging_socket = -1,
+    .last_ping = 0,
+    .relays = {&(_pod.hp_fill_valve), &(_pod.lp_fill_valve[0]),
+               &(_pod.clamp_engage_solonoids[0]),
+               &(_pod.clamp_release_solonoids[0]), &(_pod.skate_solonoids[0]),
+               &(_pod.skate_solonoids[2]), &(_pod.wheel_solonoids[1]),
+               &(_pod.lateral_fill_solenoids[0]), &(_pod.vent_solenoid),
+               &(_pod.lp_fill_valve[1]), &(_pod.clamp_engage_solonoids[1]),
+               &(_pod.clamp_release_solonoids[1]), &(_pod.skate_solonoids[1]),
+               &(_pod.wheel_solonoids[0]), &(_pod.wheel_solonoids[2]),
+               &(_pod.lateral_fill_solenoids[1])}};
 
 uint64_t time_in_state(void) {
   return (get_time() - get_pod()->last_transition);
@@ -99,10 +91,11 @@ int init_pod(void) {
 
   int clamp_release_pins[] = CLAMP_RELEASE_SOLONOIDS;
   for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-    pod->clamp_release_solonoids[i] = (solenoid_t){.gpio = clamp_release_pins[i],
-                                              .value = 0,
-                                              .type = kSolenoidNormallyClosed,
-                                              .locked = false};
+    pod->clamp_release_solonoids[i] =
+        (solenoid_t){.gpio = clamp_release_pins[i],
+                     .value = 0,
+                     .type = kSolenoidNormallyClosed,
+                     .locked = false};
   }
 
   int wheel_pins[] = WHEEL_SOLONOIDS;
@@ -230,9 +223,11 @@ void set_sensor(sensor_t *sensor, float value) {
 }
 
 float update_sensor(sensor_t *sensor, int32_t new_value) {
-  float x = (float) new_value;
-  float calibrated = (sensor->cal_a * x * x) + (sensor->cal_b * x) + sensor->cal_c;
-  float filtered = (1.0 - sensor->alpha) * get_sensor(sensor) + (sensor->alpha) * calibrated;
+  float x = (float)new_value;
+  float calibrated =
+      (sensor->cal_a * x * x) + (sensor->cal_b * x) + sensor->cal_c;
+  float filtered =
+      (1.0 - sensor->alpha) * get_sensor(sensor) + (sensor->alpha) * calibrated;
   set_sensor(sensor, filtered);
   return filtered;
 }

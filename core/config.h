@@ -157,7 +157,6 @@
 #define HEIGHT_MIN 2.0
 #define HEIGHT_MAX 16.0
 
-
 // ---------------------
 // Logging Configuration
 // ---------------------

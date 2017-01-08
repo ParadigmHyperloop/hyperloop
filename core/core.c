@@ -211,8 +211,9 @@ void retrieval_state_checks(pod_t *pod) {}
 
 void skate_sensor_checks(pod_t *pod) {
   int i;
-  for (i=0;i<N_CORNER_DISTANCE;i++) {
-    if (outside(HEIGHT_MIN, get_sensor(&(pod->corner_distance[i])), HEIGHT_MAX)) {
+  for (i = 0; i < N_CORNER_DISTANCE; i++) {
+    if (outside(HEIGHT_MIN, get_sensor(&(pod->corner_distance[i])),
+                HEIGHT_MAX)) {
       set_pod_mode(Emergency, "Height sensor %d out of range", i);
     }
   }
@@ -232,7 +233,7 @@ void lateral_sensor_checks(pod_t *pod) {
 
   int errors = 0;
   int i;
-  for (i=0;i<N_LATERAL_DISTANCE;i++) {
+  for (i = 0; i < N_LATERAL_DISTANCE; i++) {
     if (outside(LATERAL_MIN, get_sensor(&(pod->lateral_distance[i])),
                 LATERAL_MAX)) {
       errors |= (0x1 << i);

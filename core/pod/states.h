@@ -91,14 +91,15 @@ typedef struct {
   // MUX 0
   thermocouple_raw_t reg_thermo[N_REG_THERMO];
   thermocouple_raw_t hp_thermo[N_HP_THERMO];
-  spare_raw_t thermo_0_spare[16-N_REG_THERMO-N_HP_THERMO];
+  spare_raw_t thermo_0_spare[16 - N_REG_THERMO - N_HP_THERMO];
 
   // MUX 1
   thermocouple_raw_t reg_surf_thermo[N_REG_SURF_THERMO];
   thermocouple_raw_t clamp_line_thermo[N_CLAMP_PAD_THERMO];
   thermocouple_raw_t clamp_pad_thermo[N_POWER_THERMO];
   thermocouple_raw_t frame_thermo[N_FRAME_THERMO];
-  spare_raw_t thermo_1_spare[16-N_REG_SURF_THERMO-N_CLAMP_PAD_THERMO-N_POWER_THERMO-N_FRAME_THERMO];
+  spare_raw_t thermo_1_spare[16 - N_REG_SURF_THERMO - N_CLAMP_PAD_THERMO -
+                             N_POWER_THERMO - N_FRAME_THERMO];
 
   // MUX 2
   transducer_raw_t reg_pressure[N_REG_PRESSURE];
@@ -106,7 +107,9 @@ typedef struct {
   transducer_raw_t lateral_pressure[N_LAT_FILL_PRESSURE];
   transducer_raw_t skate_pressure[N_SKATE_PRESSURE];
   transducer_raw_t hp_pressure[N_HP_PRESSURE];
-  spare_raw_t pressure_spare[16-N_REG_PRESSURE-N_CLAMP_PRESSURE-N_LAT_FILL_PRESSURE-N_SKATE_PRESSURE-N_HP_PRESSURE];
+  spare_raw_t pressure_spare[16 - N_REG_PRESSURE - N_CLAMP_PRESSURE -
+                             N_LAT_FILL_PRESSURE - N_SKATE_PRESSURE -
+                             N_HP_PRESSURE];
 
   // MUX 3
   distance_raw_t corner_distance[N_CORNER_DISTANCE];

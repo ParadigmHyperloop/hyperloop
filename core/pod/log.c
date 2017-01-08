@@ -11,14 +11,14 @@ int logTelemetry_f(char *name, float f) {
   log_t l = {.type = Telemetry_float,
              .v = {.float_data = {.name = {0}, .value = f}}};
   snprintf(&l.v.float_data.name[0], 64, "%s", name);
-  return 0; //logEnqueue(&l);
+  return 0; // logEnqueue(&l);
 }
 
 int logTelemetry(char *name, int32_t i) {
   log_t l = {.type = Telemetry_int32,
              .v = {.int32_data = {.name = {0}, .value = i}}};
   snprintf(&l.v.int32_data.name[0], 64, "%s", name);
-  return 0; //logEnqueue(&l);
+  return 0; // logEnqueue(&l);
 }
 
 int podLog(char *fmt, ...) {
@@ -48,9 +48,8 @@ int podLog(char *fmt, ...) {
     fsync(fileno(log_file));
   }
 
-  return 0; //logEnqueue(&l);
+  return 0; // logEnqueue(&l);
 }
-
 
 /* Ordered like pod->relays
 HP Fill Line
@@ -74,7 +73,7 @@ solenoid_mask_t get_solenoid_mask(pod_t *pod) {
   solenoid_mask_t mask = 0x0000;
 
   int i;
-  for (i=0;i<N_RELAY_CHANNELS;i++) {
+  for (i = 0; i < N_RELAY_CHANNELS; i++) {
     if (is_solenoid_open(pod->relays[i])) {
       mask |= (0x01 << i);
     }
@@ -85,67 +84,66 @@ solenoid_mask_t get_solenoid_mask(pod_t *pod) {
 telemetry_packet_t make_telemetry(pod_t *pod) {
   int i;
 
-  telemetry_packet_t packet = {
-    .version = 1,
-    .length = sizeof(telemetry_packet_t),
-    .timestamp = get_time(),
-    // IMU
-    .position_x = get_value_f(&(pod->position_x)),
-    .position_y = get_value_f(&(pod->position_y)),
-    .position_z = get_value_f(&(pod->position_z)),
-    .velocity_x = get_value_f(&(pod->velocity_x)),
-    .velocity_y = get_value_f(&(pod->velocity_y)),
-    .velocity_z = get_value_f(&(pod->velocity_z)),
-    .acceleration_x = get_value_f(&(pod->accel_x)),
-    .acceleration_y = get_value_f(&(pod->accel_y)),
-    .acceleration_z = get_value_f(&(pod->accel_z)),
+  telemetry_packet_t packet = {.version = 1,
+                               .length = sizeof(telemetry_packet_t),
+                               .timestamp = get_time(),
+                               // IMU
+                               .position_x = get_value_f(&(pod->position_x)),
+                               .position_y = get_value_f(&(pod->position_y)),
+                               .position_z = get_value_f(&(pod->position_z)),
+                               .velocity_x = get_value_f(&(pod->velocity_x)),
+                               .velocity_y = get_value_f(&(pod->velocity_y)),
+                               .velocity_z = get_value_f(&(pod->velocity_z)),
+                               .acceleration_x = get_value_f(&(pod->accel_x)),
+                               .acceleration_y = get_value_f(&(pod->accel_y)),
+                               .acceleration_z = get_value_f(&(pod->accel_z)),
 
-    // Distance sensors
-    .corners = {0},
-    .wheels = {0},
-    .lateral = {0},
+                               // Distance sensors
+                               .corners = {0},
+                               .wheels = {0},
+                               .lateral = {0},
 
-    // Photo
-    .rpms = {0},
-    .stripe_count = get_value_f(&(pod->stripe_count)),
+                               // Photo
+                               .rpms = {0},
+                               .stripe_count =
+                                   get_value_f(&(pod->stripe_count)),
 
-    // Solenoids
-    .solenoids = get_solenoid_mask(pod),
+                               // Solenoids
+                               .solenoids = get_solenoid_mask(pod),
 
-    // state
-    .state = get_pod_mode()
-  };
+                               // state
+                               .state = get_pod_mode()};
 
   // Distance sensors
-  for (i=0;i<N_CORNER_DISTANCE;i++) {
+  for (i = 0; i < N_CORNER_DISTANCE; i++) {
     packet.corners[i] = get_sensor(&(pod->corner_distance[i]));
   }
 
-  for (i=0;i<N_WHEEL_DISTANCE;i++) {
+  for (i = 0; i < N_WHEEL_DISTANCE; i++) {
     packet.wheels[i] = get_sensor(&(pod->wheel_distance[i]));
   }
 
-  for (i=0;i<N_LATERAL_DISTANCE;i++) {
+  for (i = 0; i < N_LATERAL_DISTANCE; i++) {
     packet.lateral[i] = get_sensor(&(pod->lateral_distance[i]));
   }
 
   // Photo
-  for (i=0;i<N_WHEEL_PHOTO;i++) {
+  for (i = 0; i < N_WHEEL_PHOTO; i++) {
     packet.rpms[i] = get_value_f(&(pod->rpms[i]));
   }
 
   // Pressures
   packet.hp_pressure = get_sensor(&(pod->hp_pressure));
 
-  for (i=0;i<N_REG_PRESSURE;i++) {
+  for (i = 0; i < N_REG_PRESSURE; i++) {
     packet.reg_pressure[i] = get_sensor(&(pod->reg_pressure[i]));
   }
 
-  for (i=0;i<N_CLAMP_PRESSURE;i++) {
+  for (i = 0; i < N_CLAMP_PRESSURE; i++) {
     packet.clamp_pressure[i] = get_sensor(&(pod->clamp_pressure[i]));
   }
 
-  for (i=0;i<N_SKATE_PRESSURE;i++) {
+  for (i = 0; i < N_SKATE_PRESSURE; i++) {
     packet.skate_pressure[i] = get_sensor(&(pod->skate_pressure[i]));
   }
 
@@ -153,15 +151,15 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
   packet.hp_thermo = get_sensor(&(pod->hp_thermo));
   packet.frame_thermo = get_sensor(&(pod->frame_thermo));
 
-  for (i=0;i<N_REG_THERMO;i++) {
+  for (i = 0; i < N_REG_THERMO; i++) {
     packet.reg_thermo[i] = get_sensor(&(pod->reg_thermo[i]));
   }
 
-  for (i=0;i<N_REG_SURF_THERMO;i++) {
+  for (i = 0; i < N_REG_SURF_THERMO; i++) {
     packet.reg_surf_thermo[i] = get_sensor(&(pod->reg_surf_thermo[i]));
   }
 
-  for (i=0;i<N_POWER_THERMO;i++) {
+  for (i = 0; i < N_POWER_THERMO; i++) {
     packet.power_thermo[i] = get_sensor(&(pod->battery[i].temperature));
   }
 
@@ -189,12 +187,12 @@ void logDump(pod_t *pod) {
 
   static uint64_t last_packet = 0;
 
-  if (last_packet == 0) last_packet = get_time();
+  if (last_packet == 0)
+    last_packet = get_time();
 
   if (get_time() - last_packet > PACKET_INTERVAL) {
     telemetry_packet_t packet = make_telemetry(pod);
-    log_t l = {.type = Packet,
-               .v = {.packet = packet}};
+    log_t l = {.type = Packet, .v = {.packet = packet}};
     logEnqueue(&l);
   }
 }

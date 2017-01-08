@@ -24,6 +24,7 @@
 // --------------------------
 #define N_FRAME_THERMO 1
 #define FRAME_THERMO_MUX THERMO_MUX_1
-#define FRAME_THERMO_INPUTS { 10 }
+#define FRAME_THERMO_INPUTS                                                    \
+  { 10 }
 
 #endif
