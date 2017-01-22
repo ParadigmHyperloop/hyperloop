@@ -20,7 +20,7 @@
 #include "cdefs.h"
 #include "libBBB.h"
 #include "config.h"
-#include "core.h"
+
 #include <pthread.h>
 #include <sys/queue.h>
 
@@ -29,6 +29,7 @@
 #include "pod/states.h"
 #include "pod/log.h"
 #include "pod/emergency.h"
+#include "core.h"
 #include "ring_buffer.h"
 /**
  * Get the current time of the pod in microseconds

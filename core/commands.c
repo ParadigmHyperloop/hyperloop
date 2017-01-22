@@ -25,23 +25,23 @@ int helpCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
       &outbuf[0], outbufc, "%s",
       "OpenLoop Pod CLI " POD_CLI_VERSION ". Copyright " POD_COPY_YEAR "\n"
       "This tool allows you to control various aspects of the pod\n"
-      " - TCP:" __XSTR__(CMD_SVR_PORT) "\n"
-                                       " - STDIN\n"
-                                       "\n"
-                                       "Available Commands:\n"
-                                       " - help\n"
-                                       " - ping\n"
-                                       " - ready\n"
-                                       " - brake\n"
-                                       " - fill\n"
-                                       " - skate\n"
-                                       " - status\n"
-                                       " - offset\n"
-                                       " - calibrate\n"
-                                       " - reset\n"
-                                       " - emergency (alias: e)\n"
-                                       " - exit\n"
-                                       " - kill\n");
+      " - TCP:"
+      __XSTR__(CMD_SVR_PORT)
+      "\n - STDIN\n\n"
+      "Available Commands:\n"
+      " - help\n"
+      " - ping\n"
+      " - ready\n"
+      " - brake\n"
+      " - fill\n"
+      " - skate\n"
+      " - status\n"
+      " - offset\n"
+      " - calibrate\n"
+      " - reset\n"
+      " - emergency (alias: e)\n"
+      " - exit\n"
+      " - kill\n");
   return count;
 }
 
@@ -77,6 +77,30 @@ int readyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   }
 
   return n;
+}
+
+int armCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+  pod_t *pod = get_pod();
+  if (get_value(&(pod->pusher_plate)) == 1) {
+    return snprintf(outbuf, outbufc, "ERROR: PUSHER PLATE DEPRESSED CANNOT ARM");
+  }
+
+  if (!core_pod_checklist(pod)) {
+    return snprintf(outbuf, outbufc, "Pod not ready to arm. core checklist");
+  }
+
+  set_pod_mode(Armed, "Remote Command Armed Pod");
+  return snprintf(outbuf, outbufc, "Armed");
+}
+
+int ventCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+  pod_t *pod = get_pod();
+
+  if (is_pod_stopped(pod)) {
+    return snprintf(outbuf, outbufc, "Venting Started");
+  } else {
+    return snprintf(outbuf, outbufc, "Pod Not Determined to be Stopped, override solenoid to vent");
+  }
 }
 
 int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
@@ -183,28 +207,16 @@ int offsetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 
   if (argc < 4) {
     return snprintf(outbuf, outbufc,
-                    "Usage: offset <sensor> <number> <offset>%d",
+                    "Usage: offset <sensor> <offset>%d",
                     get_pod_mode());
   }
+  sensor_t *sensor = get_sensor_by_name(pod, argv[1]);
+  double offset = atoi(argv[2]);
 
-  int no = atoi(argv[2]);
-  int offset = atoi(argv[3]);
-  sensor_t *sensor = NULL;
-
-  if (strncmp(argv[1], "skate_transducer", 16)) {
-    sensor = &(pod->skate_pressure[no]);
-  } else if (strncmp(argv[1], "lp_transducer", 13)) {
-    sensor = &(pod->reg_pressure[no]);
-  } else if (strncmp(argv[1], "hp_pressure", 13)) {
-    sensor = &(pod->hp_pressure);
-  } else if (strncmp(argv[1], "clamp_transducer", 16)) {
-    sensor = &(pod->clamp_pressure[no]);
-  } else if (strncmp(argv[1], "lat_transducer", 14)) {
-    sensor = &(pod->lateral_fill_transducers[no]);
-  }
-
+  double old_offset = sensor->offset;
   sensor->offset = offset;
-  return 0;
+  return snprintf(outbuf, outbufc, "Changed offset of %s: %lf -> %lf. Reading: %f", sensor->name,
+                  old_offset, offset, get_sensor(sensor));
 }
 
 int emergencyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
@@ -227,20 +239,22 @@ int killCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 }
 
 // You must keep this list in order from Longest String to Shortest,
-// Doesn't matter the order umongst names of equal length.
+// Doesn't matter the order amongst names of equal length.
 // Has to deal with how commands are located, where "e" undercuts any command
 // that starts with "e", like "exit"
 command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
-                        {.name = "status", .func = statusCommand},
+                        {.name = "calibrate", .func = calibrateCommand},
                         {.name = "override", .func = overrideCommand},
+                        {.name = "status", .func = statusCommand},
                         {.name = "offset", .func = offsetCommand},
                         {.name = "ready", .func = readyCommand},
+                        {.name = "reset", .func = resetCommand},
+                        {.name = "vent", .func = ventCommand},
                         {.name = "help", .func = helpCommand},
                         {.name = "fill", .func = fillCommand},
                         {.name = "ping", .func = pingCommand},
                         {.name = "exit", .func = exitCommand},
                         {.name = "kill", .func = killCommand},
-                        {.name = "calibrate", .func = calibrateCommand},
-                        {.name = "reset", .func = resetCommand},
+                        {.name = "arm", .func = armCommand},
                         {.name = "e", .func = emergencyCommand},
                         {.name = NULL}};

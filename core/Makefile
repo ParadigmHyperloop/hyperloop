@@ -14,20 +14,22 @@ ifeq ($(OS),Windows_NT)
 	echo "You are compiling on windows, this is an unsupported environment"
 	echo "WARNING WARNING WARNING"
 else
+UNAME_R := $(shell uname -r)
 UNAME_S := $(shell uname -s)
 
 OBJROOT= ./BUILD/obj
 DSTROOT= ./BUILD/dst
 FMTROOT= ./BUILD/fmt
 CC= gcc
-SOURCES = main.c core.c pru.c imu_data.c braking.c lateral.c logging.c skates.c pins.c pod.c pod-helpers.c commands.c commander.c tests.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
+SOURCES = main.c core.c pru.c imu_data.c braking.c lateral.c logging.c skates.c pod.c pod-helpers.c commands.c commander.c tests.c ring_buffer.c pod/states.c pod/states-internal.c pod/emergency.c pod/log.c
 
 ifeq ($(UNAME_S),Linux)
 	 LDFLAGS += -pthread
 endif
 ifneq (,$(findstring -ti-,$(UNAME_R)))
 	LDFLAGS += -lprussdrv
-	CFLAGS += "-DHAS_PRU"
+	CFLAGS += "-DHAS_PRU -DBBB"
+	SOURCES += libBBB.c
 else
 	SOURCES += shims.c
 endif
@@ -63,7 +65,7 @@ install:
 	install -m 755 $(EXECUTABLE) $(DSTROOT)/usr/local/bin
 
 run: clean all
-	$(EXECUTABLE) -r -i -
+	$(EXECUTABLE) -i -
 
 style:
 	mkdir -p $(FMTROOT)

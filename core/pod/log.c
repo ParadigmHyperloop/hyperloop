@@ -185,10 +185,12 @@ void logDump(pod_t *pod) {
 #define PACKET_INTERVAL USEC_PER_SEC / 10 // 0.1 seconds in usec
 #endif
 
+  // Telemetry streaming
   static uint64_t last_packet = 0;
 
-  if (last_packet == 0)
+  if (last_packet == 0) {
     last_packet = get_time();
+  }
 
   if (get_time() - last_packet > PACKET_INTERVAL) {
     telemetry_packet_t packet = make_telemetry(pod);

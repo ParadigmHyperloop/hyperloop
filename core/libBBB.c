@@ -256,10 +256,12 @@ int setPinValue(int pinnum, int value) {
   // build path to value file
   sprintf(buf, "%i", pinnum);
   strcat(buf2, strcat(buf, "/value"));
-
+  printf("Set: %d > %s\n", value, buf2);
   val = fopen(buf2, "w");
-  if (val == NULL)
+  if (val == NULL) {
     printf("Value failed to open\n");
+    return -1;
+  }
   fseek(val, 0, SEEK_SET);
   fprintf(val, "%d", value);
   fflush(val);
@@ -279,8 +281,10 @@ int getPinValue(int pinnum) {
   strcat(buf2, strcat(buf, "/value"));
 
   val = fopen(buf2, "r");
-  if (val == NULL)
+  if (val == NULL) {
     printf("Input value failed to open\n");
+    return -1;
+  }
   fseek(val, 0, SEEK_SET);
   fscanf(val, "%d", &value);
   fclose(val);
@@ -466,6 +470,7 @@ int initI2C(int modnum, int addr) {
     return -1;
   }
 
+#ifdef I2C_SLAVE
   // acquire the bus
   if (ioctl(device, I2C_SLAVE, addr) < 0) {
     printf("Failed to get I2C bus\n");
@@ -473,6 +478,9 @@ int initI2C(int modnum, int addr) {
   }
 
   return device;
+#else
+  return -1;
+#endif
 }
 
 void closeI2C(int device) { close(device); }

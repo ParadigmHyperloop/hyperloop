@@ -41,9 +41,10 @@ typedef struct pod_value {
     , PTHREAD_RWLOCK_INITIALIZER                                               \
   }
 
-typedef enum solenoid_state { kSolenoidOpen, kSolenoidClosed } solenoid_state_t;
+typedef enum solenoid_state { kSolenoidError, kSolenoidOpen, kSolenoidClosed } solenoid_state_t;
 
 typedef enum relay_state {
+  kRelayError,
   kRelayOff, // Relay is not actuated
   kRelayOn   // Relay is actuated
 } relay_state_t;
@@ -54,9 +55,15 @@ typedef enum solenoid_type {
 } solenoid_type_t;
 
 typedef struct pod_solenoid {
+  // The GPIO pin used to control this solenoid
   int gpio;
+  // The Human Readable name of the solenoid
+  char name[MAX_NAME];
+  // The current value of this solenoid (0 for default position, 1 for active)
   int value;
+  // Prevent this solenoid from changing state without an explicit unlock
   bool locked;
+  // The logic type of the solenoid (Normally Open or Normally Closed)
   solenoid_type_t type;
 } solenoid_t;
 
@@ -65,17 +72,6 @@ typedef enum clamp_brake_state {
   kClampBrakeEngaged,
   kClampBrakeReleased
 } clamp_brake_state_t;
-
-/**
- * Information from the battery control boards
- */
-typedef struct {
-  pod_value_t voltage;
-  pod_value_t current;
-  pod_value_t temperature;
-  pod_value_t charge;
-  pod_value_t remaining_time;
-} pod_battery_t;
 
 typedef uint32_t thermocouple_raw_t;
 typedef uint32_t transducer_raw_t;
@@ -129,7 +125,7 @@ typedef struct {
   // The internal id number for the sensor
   int sensor_id;
   // The Human readable name of the sensor
-  char name[63];
+  char name[MAX_NAME];
   // The last calibrated sensor value
   pod_value_t value;
   // quadratic calibration coefficients ax^2 + bx + c where x is the raw value
@@ -147,6 +143,18 @@ typedef struct {
     .sensor_id = 0, .name = {0}, .value = POD_VALUE_INITIALIZER_INT32,         \
     .cal_a = 0.0, .cal_b = 0.0, .cal_c = 0.0, .alpha = 0.0, .offset = 0.0      \
   }
+
+/**
+ * Information from the battery control boards
+ */
+typedef struct {
+  sensor_t voltage;
+  sensor_t current;
+  sensor_t temperature;
+  sensor_t charge;
+  sensor_t remaining_time;
+} pod_battery_t;
+
 
 typedef enum pod_caution {
   PodCautionNone = 0x00,
@@ -236,7 +244,8 @@ typedef struct pod {
 
   // Pusher plate
   pod_value_t pusher_plate;
-
+  pod_value_t pusher_plate_raw;
+  uint64_t last_pusher_plate_low;
   // Batteries
   pod_battery_t battery[N_BATTERIES];
 
@@ -267,11 +276,12 @@ typedef struct pod {
 
   // Lateral Fill
   solenoid_t lateral_fill_solenoids[N_LAT_FILL_SOLENOIDS];
-  sensor_t lateral_fill_transducers[N_LAT_FILL_PRESSURE];
+  sensor_t lateral_pressure[N_LAT_FILL_PRESSURE];
 
   // Pointers to all the solenoids that are connected to the relays
   // (Don't think too much about this one, it is really just a convienience)
   solenoid_t *relays[N_RELAY_CHANNELS];
+  sensor_t *sensors[N_MUX_INPUTS*N_MUXES];
 
   int imu;
   int logging_socket;

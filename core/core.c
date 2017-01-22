@@ -16,7 +16,9 @@
 
 #include "pod.h"
 #include "pod-helpers.h"
+#ifdef HAS_PRU
 #include "pru.h"
+#endif
 
 int lateralRead(pod_t *pod);
 int skateRead(pod_t *pod);
@@ -148,6 +150,10 @@ void standby_state_checks(pod_t *pod) {
 void armed_state_checks(pod_t *pod) {
   if (!core_pod_checklist(pod)) {
     set_pod_mode(Emergency, "Core Checklist Failed");
+  }
+
+  if (get_value(&(pod->pusher_plate)) == 1) {
+    set_pod_mode(Pushing, "Pusher Plate depressed for at least 0.1s");
   }
 }
 
@@ -425,7 +431,19 @@ void *core_main(void *arg) {
     // ------------
 
     memset(&pack, 0, sizeof(sensor_pack_t));
+  #ifdef HAS_PRU
     pru_read(&pack);
+  #endif
+
+    // Pusher Plate D-Bounce
+    if (get_value(&(pod->pusher_plate_raw)) == 1) {
+      uint64_t last_low = pod->last_pusher_plate_low;
+      if (get_time() - last_low > 0.1 * USEC_PER_SEC) {
+        set_value(&(pod->pusher_plate_raw), 1);
+      }
+    } else {
+      pod->last_pusher_plate_low = get_time();
+    }
 
     // -------------------------------------------
     // SECTION: State Machine to determine actions

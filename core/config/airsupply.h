@@ -61,7 +61,7 @@
 // Front, Mid, Rear
 #define N_SKATE_SOLONOIDS 3
 #define SKATE_SOLENOIDS                                                        \
-  { 76, 79, 74 }
+  { 71, 73, 75 }
 
 // Mid Left and Mid Right
 #define N_SKATE_PRESSURE 2
@@ -80,11 +80,11 @@
 
 #define N_CLAMP_ENGAGE_SOLONOIDS 2
 #define CLAMP_ENGAGE_SOLONOIDS                                                 \
-  { 8, 75 }
+  { 77, 80 }
 
 #define N_CLAMP_RELEASE_SOLONOIDS 2
 #define CLAMP_RELEASE_SOLONOIDS                                                \
-  { 78, 77 }
+  { 79, 81 }
 
 // Which solenoid (index) to use for primary braking
 #define PRIMARY_BRAKING_CLAMP 1
@@ -108,13 +108,13 @@
 
 #define N_WHEEL_SOLONOIDS 3
 #define WHEEL_SOLONOIDS                                                        \
-  { 80, 72, 81 }
+  { 11, 70, 72 }
 
 // --------------------------
 // HP Fill
 // --------------------------
 
-#define HP_FILL_SOLENOID 10
+#define HP_FILL_SOLENOID 74
 
 // --------------------------
 // LP FILL
@@ -122,7 +122,7 @@
 
 #define N_LP_FILL_SOLENOIDS 2
 #define LP_FILL_SOLENOIDS                                                      \
-  { 9, 73 }
+  { 78, 8 }
 
 // --------------------------
 // LP FILL
@@ -130,7 +130,7 @@
 
 #define N_LAT_FILL_SOLENOIDS 2
 #define LAT_FILL_SOLENOIDS                                                     \
-  { 70, 11 }
+  { 9, 10 }
 
 #define N_LAT_FILL_PRESSURE 2
 #define LAT_FILL_PRESSURE_MUX PRESSURE_MUX
@@ -141,6 +141,6 @@
 // Releif solenoid
 // --------------------------
 
-#define VENT_SOLENOID 71
+#define VENT_SOLENOID 76
 
 #endif

@@ -95,7 +95,9 @@ void pod_exit(int code) {
     nclients--;
   }
 
+#ifdef HAS_PRU
   pru_shutdown();
+#endif
 
   fprintf(stderr, "Closing command server (fd %d)\n", serverfd);
   close(serverfd);
@@ -154,9 +156,6 @@ int main(int argc, char *argv[]) {
   info("Loading Pod struct for the first time");
   pod_t *pod = get_pod();
 
-  info("Setting Up Pins");
-
-  setup_pins(pod);
   if (args.tests) {
     self_tests(pod);
   }
@@ -188,8 +187,9 @@ int main(int argc, char *argv[]) {
     }
   }
 
+#ifdef HAS_PRU
   pru_init();
-
+#endif
   // -----------------------------------------
   // Logging - Remote Logging System
   // -----------------------------------------

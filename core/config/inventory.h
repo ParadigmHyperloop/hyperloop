@@ -17,6 +17,8 @@
 // --------------------------
 // MUX
 // --------------------------
+#define N_MUXES 7
+#define N_MUX_INPUTS 16
 #define THERMO_MUX_0 0
 #define THERMO_MUX_1 1
 #define PRESSURE_MUX 2

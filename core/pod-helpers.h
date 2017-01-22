@@ -104,9 +104,17 @@ bool is_solenoid_open(solenoid_t *s);
 /**
  * Determines if a solenoid is in it's closed state
  */
-bool is_solenoid_open(solenoid_t *s);
+bool is_solenoid_closed(solenoid_t *s);
 
 /**
  * Determines if a solenoid is in a locked out state
  */
 bool is_solenoid_locked(solenoid_t *s);
+
+
+sensor_t * get_sensor_by_name(pod_t *pod, char *name);
+
+/**
+ * Setup the given pin as a standard output pin
+ */
+bool setup_pin(int no);
