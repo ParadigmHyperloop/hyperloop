@@ -191,6 +191,15 @@ typedef struct pod {
   pod_value_t position_y;
   pod_value_t position_z;
 
+  pod_value_t rotvel_x;
+  pod_value_t rotvel_y;
+  pod_value_t rotvel_z;
+
+  pod_value_t quaternion_real;
+  pod_value_t quaternion_i;
+  pod_value_t quaternion_j;
+  pod_value_t quaternion_k;
+
   pod_value_t imu_calibration_x;
   pod_value_t imu_calibration_y;
   pod_value_t imu_calibration_z;
