@@ -8,6 +8,10 @@
 -After all 7 analog inputs are read the mux input is switched to the next signal (0 - 15)
 
 To set pru gpio pins:
+   -cd boot
+   -vi uEnv.tx
+   -uncomment
+   -cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
    -dtc -O dtb -I dts -o /lib/firmware/PRU-GPIO-EXAMPLE-00A0.dtbo -b 0 -@ PRU-GPIO-EXAMPLE-00A0.dts  
    -reboot 
    -echo PRU-GPIO-EXAMPLE > /sys/devices/bone_capemgr.?/slots  
