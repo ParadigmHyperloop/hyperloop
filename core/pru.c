@@ -82,6 +82,7 @@ int pru_shutdown() {
  */
 int pru_read(sensor_pack_t *pack) {
   int i;
+  uint32_t *packp = pack;
   /* Read ADC */
   // TODO: Remove Print
   printf("\n\n AIN0  AIN1  AIN2  AIN3  AIN4  AIN5  AIN6 \n");
@@ -99,19 +100,46 @@ int pru_read(sensor_pack_t *pack) {
       return -1;
     }
 
-    // memcpy(pack+(i*7), &(sharedMem_int[OFFSET_SHAREDRAM + 3]),
-    // sizeof(unsigned int) * 7);
 
-    printf(" %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 3]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 4]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 5]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 6]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 7]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 8]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 9]));
+    // sizeof(unsigned int) * 7);
+    uint32_t a0 = ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 3]);
+    uint32_t a1 = ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 4]);
+    uint32_t a2 = ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 5]);
+    uint32_t a3 = ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 6]);
+    uint32_t a4 = ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 7]);
+    uint32_t a5 = ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 8]);
+    uint32_t a6 = ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 9]);
+
+
+    *(packp+i+(0*16)) = a0;
+    *(packp+i+(1*16)) = a1;
+    *(packp+i+(2*16)) = a2;
+    *(packp+i+(3*16)) = a3;
+    *(packp+i+(4*16)) = a4;
+    *(packp+i+(5*16)) = a5;
+    *(packp+i+(6*16)) = a6;
+
+    // memcpy(packp+i+(2*16), &(a2), sizeof(a2));
+    // memcpy(packp+i+(3*16), &(a3), sizeof(a3));
+    // memcpy(pack+i+(4*16), &(a4), sizeof(a4));
+    // memcpy(pack+i+(5*16), &(a5), sizeof(a5));
+    // memcpy(pack+i+(6*16), &(a6), sizeof(a6));
+    //
+    printf(" %4d", a0);
+    printf(" %4d", a1);
+    printf(" %4d", a2);
+    printf(" %4d", a3);
+    printf(" %4d", a4);
+    printf(" %4d", a5);
+    printf(" %4d", a6);
     printf("\n");
 
     sharedMem_int[OFFSET_SHAREDRAM + 2] = 0;
+  }
+
+  printf("========= Sensor Pack ===========\n");
+  for (i=0;i<sizeof(sensor_pack_t)/sizeof(uint32_t); i++) {
+    printf("%d %d: %4d\n", i / 16, i % 16, *(packp+i));
   }
 
   return (0);

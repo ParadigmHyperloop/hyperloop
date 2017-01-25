@@ -7,10 +7,15 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
   float velocity = get_value_f(v);
   float position = get_value_f(x);
 
+  if (outside(-10.0, accel, 10.0)) {
+    warn("Value out of range for IMU (%f)", accel);
+    return -1;
+  }
+
   // Exponential Moving Average
   float new_accel =
       (1.0 - IMU_EMA_ALPHA) * acceleration + (IMU_EMA_ALPHA * accel);
-
+  debug("RAW %f, old: %f, filtered %f, ema: %f", accel, acceleration, new_accel, IMU_EMA_ALPHA);
   // Calculate the new_velocity (oldv + (olda + newa) / 2)
 
   // float dv = calcDu(dt, acceleration, new_accel);
@@ -35,18 +40,16 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
  * of the pod
  */
 void add_imu_data(imu_datagram_t *data, pod_t *s) {
-  if (!imu_valid(data)) {
-    printf("NOT VALID: %X == %X; STAT: %X\n", data->computed_crc, data->crc,
-           data->status);
-    if (data->x > 0.0) {
-      exit(101);
-    }
-    return;
-  }
 
   static uint64_t last_imu_reading = 0;
   if (last_imu_reading == 0) {
     last_imu_reading = get_time();
+    return;
+  }
+
+  if (!imu_valid(data)) {
+    warn("IMU NOT VALID: %X != %X; STAT: %X\n", data->computed_crc, data->crc,
+           data->status);
     return;
   }
 

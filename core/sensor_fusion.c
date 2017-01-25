@@ -1,21 +1,22 @@
 #include "pod.h"
 #include <imu.h>
+#include <math.h>
 
-void integrate_imu(double timestep, const double acc[3], double vel[3], double pos[3]
-                   const double rotvel[3], double quat[4])
+void integrate_imu(float timestep, const float acc[3], float vel[3], float pos[3],
+    const float rotvel[3], float quat[4])
 {
-  double dv2[16];
-  double dv3[16];
+  float dv2[16];
+  float dv3[16];
   int k;
-  double dv4[4];
+  float dv4[4];
   int i0;
-  double y[4];
-  double b_y;
-  double b_quat;
-  double normQuat;
-  double dv5[9];
-  double dv6[3];
-  double d0;
+  float y[4];
+  float b_y;
+  float b_quat;
+  float normQuat;
+  float dv5[9];
+  float dv6[3];
+  float d0;
   static const signed char iv0[3] = { 0, 0, 1 };
 
   /*  numerical integration of quaternions */
@@ -84,32 +85,76 @@ void integrate_imu(double timestep, const double acc[3], double vel[3], double p
       d0 += dv5[k + 3 * i0] * acc[i0];
     }
 
-    dv6[k] = d0 - (double)iv0[k];
+    dv6[k] = d0 - (float)iv0[k];
     vel[k] += b_y * dv6[k];
     pos[k] += timestep * vel[k];
   }
 }
 
-void sensor_fusion(imu_datagram_t *data_imu, pod_t *s) {
+void sensor_fusion(imu_datagram_t *data, pod_t *s) {
+  if (!imu_valid(data)) {
+    warn("IMU NOT VALID: %X != %X; STAT: %X\n", data->computed_crc, data->crc,
+           data->status);
+    return;
+  }
 
   float ax = data->x + get_value_f(&(s->imu_calibration_x));
   float ay = data->y + get_value_f(&(s->imu_calibration_y));
   float az = data->z + get_value_f(&(s->imu_calibration_z));
 
+  if (outside(-10.0, ax, 10.0)) {
+    warn("Unacceptable IMU Accelleration %f in X", ax);
+    return;
+  }
+
+  if (outside(-10.0, ay, 10.0)) {
+    warn("Unacceptable IMU Accelleration %f in Y", ay);
+    return;
+  }
+
+  if (outside(-10.0, az, 10.0)) {
+    warn("Unacceptable IMU Accelleration %f in Z", az);
+    return;
+  }
 
   // unpack state data types into arrays that work better with calculations
-  double acc[3] = {x,y,z};
-  double vel[3] = {get_value_f(&(s->velocity_x)), get_value_f(&(s->velocity_y)), 
-  					get_value_f(&(s->velocity_z)});
-  double pos[3] = {get_value_f(&(s->position_x)), get_value_f(&(s->position_y)), 
-  					get_value_f(&(s->position_z)});
+  float acc[3] = {ax,ay,az};
+  float vel[3] = {
+    get_value_f(&(s->velocity_x)),
+    get_value_f(&(s->velocity_y)),
+    get_value_f(&(s->velocity_z))
+  };
+  float pos[3] = {
+    get_value_f(&(s->position_x)),
+    get_value_f(&(s->position_y)),
+    get_value_f(&(s->position_z))
+  };
 
-  double rotvel[3] = {data->wx, data->wy, data->wz};
-  double quat[4] = {get_value_f(&(s->quaternion_real)), get_value_f(&(s->quaternion_i)), 
-  					get_value_f(&(s->quaternion_j), get_value_f(&(s->quaternion_k))};
+  float rotvel[3] = {data->wx, data->wy, data->wz};
+  float quat[4] = {
+    get_value_f(&(s->quaternion_real)),
+    get_value_f(&(s->quaternion_i)),
+    get_value_f(&(s->quaternion_j)),
+    get_value_f(&(s->quaternion_k))
+  };
+
+  static uint64_t last_time = 0;
+
+  if (last_time == 0) {
+    last_time = get_time();
+    return;
+  }
+
+  uint64_t now = get_time();
+  if (now-last_time <= 0) {
+    warn("Called Within 1us of last");
+    return;
+  }
 
   //TODO: fix the magic timestep number to something global
   integrate_imu(.001, acc, vel, pos, rotvel, quat);
+
+  last_time = now;
 
   // because we don't have the actual buffer of PE sensors yet
   // and we don't even use the sensor pack data we read in
@@ -118,32 +163,30 @@ void sensor_fusion(imu_datagram_t *data_imu, pod_t *s) {
 
   // iterate through the photoelectric sensors recorded since the last Kalman ran
   	// easy mode - if we see obvious strip, snap to nearest if within ~5 meters
-  	// detect whether there's a strip by low pass filtering the data 
+  	// detect whether there's a strip by low pass filtering the data
   	// and comparing to a moving avg/median
   	// hard mode - do whatever Kalman does with that shit
 
 
   // pack it all back up into neat little boxes
-  set_value_f(s->accel_x, acc[0]);
-  set_value_f(s->accel_y, acc[1]);
-  set_value_f(s->accel_z, acc[2]);
+  set_value_f(&(s->accel_x), acc[0]);
+  set_value_f(&(s->accel_y), acc[1]);
+  set_value_f(&(s->accel_z), acc[2]);
 
-  set_value_f(s->velocity_x, vel[0]);
-  set_value_f(s->velocity_y, vel[1]);
-  set_value_f(s->velocity_z, vel[2]);
+  set_value_f(&(s->velocity_x), vel[0]);
+  set_value_f(&(s->velocity_y), vel[1]);
+  set_value_f(&(s->velocity_z), vel[2]);
 
-  set_value_f(s->position_x, pos[0]);
-  set_value_f(s->position_y, pos[1]);
-  set_value_f(s->position_z, pos[2]);
+  set_value_f(&(s->position_x), pos[0]);
+  set_value_f(&(s->position_y), pos[1]);
+  set_value_f(&(s->position_z), pos[2]);
 
-  set_value_f(s->rotvel_x, rotvel[0]);
-  set_value_f(s->rotvel_y, rotvel[1]);
-  set_value_f(s->rotvel_z, rotvel[2]);
+  set_value_f(&(s->rotvel_x), rotvel[0]);
+  set_value_f(&(s->rotvel_y), rotvel[1]);
+  set_value_f(&(s->rotvel_z), rotvel[2]);
 
-  set_value_f(s->quaternion_real, quat[0]);
-  set_value_f(s->quaternion_i,  quat[1]);
-  set_value_f(s->quaternion_j,  quat[2]);
-  set_value_f(s->quaternion_k,  quat[3]);
-
+  set_value_f(&(s->quaternion_real), quat[0]);
+  set_value_f(&(s->quaternion_i), quat[1]);
+  set_value_f(&(s->quaternion_j), quat[2]);
+  set_value_f(&(s->quaternion_k), quat[3]);
 }
-

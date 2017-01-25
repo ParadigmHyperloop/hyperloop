@@ -86,8 +86,10 @@ void pod_exit(int code) {
   pod_t *pod = get_pod();
   fprintf(stderr, "=== POD IS SHUTTING DOWN NOW! ===\n");
 
-  fprintf(stderr, "Closing IMU (fd %d)\n", pod->imu);
-  imu_disconnect(pod->imu);
+  if (pod->imu > -1) {
+    fprintf(stderr, "Closing IMU (fd %d)\n", pod->imu);
+    imu_disconnect(pod->imu);
+  }
 
   while (nclients > 0) {
     fprintf(stderr, "Closing client %d (fd %d)\n", nclients, clients[nclients]);
@@ -96,6 +98,7 @@ void pod_exit(int code) {
   }
 
 #ifdef HAS_PRU
+  fprintf(stderr, "Shutting down PRU\n");
   pru_shutdown();
 #endif
 

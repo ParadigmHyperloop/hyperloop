@@ -26,7 +26,8 @@ SOURCES = main.c core.c pru.c imu_data.c braking.c lateral.c logging.c skates.c 
 ifeq ($(UNAME_S),Linux)
 	 LDFLAGS += -pthread
 endif
-ifneq (,$(findstring -ti-,$(UNAME_R)))
+
+ifneq (,$(findstring bone,$(UNAME_R)))
 	LDFLAGS += -lprussdrv
 	CFLAGS += "-DHAS_PRU -DBBB"
 	SOURCES += libBBB.c

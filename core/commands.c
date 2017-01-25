@@ -131,8 +131,15 @@ int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   }
 
   for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-    c += snprintf(&outbuf[c], outbufc - c, "Clamp %d:\t%s\n", i,
+    c += snprintf(&outbuf[c], outbufc - c, "Clamp Eng %d:\t%s\n", i,
                   (is_solenoid_open(&(pod->clamp_engage_solonoids[i]))
+                       ? "open"
+                       : "closed"));
+  }
+
+  for (i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
+    c += snprintf(&outbuf[c], outbufc - c, "Clamp Rel %d:\t%s\n", i,
+                  (is_solenoid_open(&(pod->clamp_release_solonoids[i]))
                        ? "open"
                        : "closed"));
   }
@@ -205,12 +212,15 @@ int overrideCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 int offsetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
 
-  if (argc < 4) {
-    return snprintf(outbuf, outbufc,
-                    "Usage: offset <sensor> <offset>%d",
-                    get_pod_mode());
+  if (argc < 3) {
+    return snprintf(outbuf, outbufc, "Usage: offset <sensor> <offset>");
   }
   sensor_t *sensor = get_sensor_by_name(pod, argv[1]);
+
+  if (sensor == NULL) {
+    return snprintf(outbuf, outbufc, "Sensor '%s' not found", argv[1]);
+  }
+
   double offset = atoi(argv[2]);
 
   double old_offset = sensor->offset;
@@ -238,6 +248,24 @@ int killCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   return -1;
 }
 
+int pushCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+  pod_t *pod = get_pod();
+
+  if (argc > 1) {
+    pod->pusher_plate_override = 1;
+    set_value(&(pod->pusher_plate), atoi(argv[1]));
+    return snprintf(outbuf, outbufc, "Set Pusher plate override to %s",
+                    (atoi(argv[1]) == 1 ? "ACTIVE" : "INACTIVE"));
+  } else {
+    if (pod->pusher_plate_override == 1) {
+      pod->pusher_plate_override = 0;
+      return snprintf(outbuf, outbufc, "Disabled Pusher Plate Override");
+    } else {
+      return snprintf(outbuf, outbufc, "No Pusher Plate Override In Effect");
+    }
+  }
+}
+
 // You must keep this list in order from Longest String to Shortest,
 // Doesn't matter the order amongst names of equal length.
 // Has to deal with how commands are located, where "e" undercuts any command
@@ -254,6 +282,7 @@ command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "fill", .func = fillCommand},
                         {.name = "ping", .func = pingCommand},
                         {.name = "exit", .func = exitCommand},
+                        {.name = "push", .func = pushCommand},
                         {.name = "kill", .func = killCommand},
                         {.name = "arm", .func = armCommand},
                         {.name = "e", .func = emergencyCommand},

@@ -28,7 +28,6 @@ pod_t _pod = {
     .quaternion_i = POD_VALUE_INITIALIZER_FL,
     .quaternion_j = POD_VALUE_INITIALIZER_FL,
     .quaternion_k = POD_VALUE_INITIALIZER_FL,
-
     .overrides = 0ULL,
     .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
     .imu = -1,
@@ -45,7 +44,8 @@ pod_t _pod = {
                &(_pod.lp_fill_valve[1]),
                &(_pod.lateral_fill_solenoids[0]),
                &(_pod.lateral_fill_solenoids[1])},
-    .sensors = {0}};
+    .sensors = {0},
+    .pusher_plate = POD_VALUE_INITIALIZER_INT32};
 
 uint64_t time_in_state(void) {
   return (get_time() - get_pod()->last_transition);
@@ -83,6 +83,9 @@ int init_pod(void) {
   pod_t *pod = get_pod();
   debug("initializing pod at %p", pod);
 
+  // --------------------
+  // INITIALIZE SOLENOIDS
+  // --------------------
   int i;
   int skate_pins[] = SKATE_SOLENOIDS;
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
@@ -161,7 +164,9 @@ int init_pod(void) {
   snprintf(pod->vent_solenoid.name, MAX_NAME, "vent");
   setup_pin(VENT_SOLENOID);
 
-  // Sensors
+  // ----------------
+  // Distance Sensors
+  // ----------------
   int corner_distance[] = CORNER_DISTANCE_INPUTS;
   for (i = 0; i < N_CORNER_DISTANCE; i++) {
     int id = N_MUX_INPUTS*CORNER_DISTANCE_MUX + corner_distance[i];
@@ -174,7 +179,9 @@ int init_pod(void) {
       .cal_b = 1,
       .cal_c = 0,
       .alpha = 1.0,
-      .offset = 0.0
+      .offset = 0.0,
+      .mux = DISTANCE_MUX,
+      .input = corner_distance[i]
     };
     snprintf(pod->sensors[id]->name, MAX_NAME, "vert_dist_%d", i);
   }
@@ -191,7 +198,9 @@ int init_pod(void) {
       .cal_b = 1,
       .cal_c = 0,
       .alpha = 1.0,
-      .offset = 0.0
+      .offset = 0.0,
+      .mux = DISTANCE_MUX,
+      .input = lateral_distance[i]
     };
     snprintf(pod->sensors[id]->name, MAX_NAME, "lat_dist_%d", i);
   }
@@ -208,12 +217,16 @@ int init_pod(void) {
       .cal_b = 1,
       .cal_c = 0,
       .alpha = 1.0,
-      .offset = 0.0
+      .offset = 0.0,
+      .mux = DISTANCE_MUX,
+      .input = wheel_distance[i]
     };
     snprintf(pod->sensors[id]->name, MAX_NAME, "wheel_dist_%d", i);
   }
 
+  // --------------------
   // Pressure Transducers
+  // --------------------
 
   int hp_pressure = HP_PRESSURE_INPUT;
   int id = N_MUX_INPUTS*PRESSURE_MUX + hp_pressure;
@@ -226,7 +239,9 @@ int init_pod(void) {
     .cal_b = 1,
     .cal_c = 0,
     .alpha = 1.0,
-    .offset = 0.0
+    .offset = 0.0,
+    .mux = PRESSURE_MUX,
+    .input = HP_PRESSURE_INPUT
   };
   snprintf(pod->sensors[id]->name, MAX_NAME, "hp_psi");
 
@@ -242,7 +257,9 @@ int init_pod(void) {
       .cal_b = 1,
       .cal_c = 0,
       .alpha = 1.0,
-      .offset = 0.0
+      .offset = 0.0,
+      .mux = PRESSURE_MUX,
+      .input = reg_pressures[i]
     };
     snprintf(pod->sensors[id]->name, MAX_NAME, "reg_psi_%c", i + 'a');
   }
@@ -259,7 +276,9 @@ int init_pod(void) {
       .cal_b = 1,
       .cal_c = 0,
       .alpha = 1.0,
-      .offset = 0.0
+      .offset = 0.0,
+      .mux = PRESSURE_MUX,
+      .input = clamp_pressure[i]
     };
     snprintf(pod->sensors[id]->name, MAX_NAME, "clmp_psi_%d", i);
   }
@@ -276,13 +295,17 @@ int init_pod(void) {
       .cal_b = 1,
       .cal_c = 0,
       .alpha = 1.0,
-      .offset = 0.0
+      .offset = 0.0,
+      .mux = PRESSURE_MUX,
+      .input = lateral_pressure[i]
     };
 
     snprintf(pod->sensors[id]->name, MAX_NAME, "lat_psi_%d", i);
   }
 
-
+  // -------------
+  // Thermocouples
+  // -------------
 
   pthread_rwlock_init(&(pod->mode_mutex), NULL);
 
@@ -366,6 +389,11 @@ void set_value(pod_value_t *pod_field, int32_t newValue) {
 }
 
 void set_value_f(pod_value_t *pod_field, float newValue) {
+  if (newValue != newValue) {
+    warn("Attempted to set NaN");
+    return;
+  }
+
   pthread_rwlock_wrlock(&(pod_field->lock));
   pod_field->value.fl = newValue;
   pthread_rwlock_unlock(&(pod_field->lock));

@@ -91,8 +91,7 @@ typedef struct {
 
   // MUX 1
   thermocouple_raw_t reg_surf_thermo[N_REG_SURF_THERMO];
-  thermocouple_raw_t clamp_line_thermo[N_CLAMP_PAD_THERMO];
-  thermocouple_raw_t clamp_pad_thermo[N_POWER_THERMO];
+  thermocouple_raw_t clamp_pad_thermo[N_CLAMP_PAD_THERMO];
   thermocouple_raw_t frame_thermo[N_FRAME_THERMO];
   spare_raw_t thermo_1_spare[16 - N_REG_SURF_THERMO - N_CLAMP_PAD_THERMO -
                              N_POWER_THERMO - N_FRAME_THERMO];
@@ -126,6 +125,8 @@ typedef struct {
   int sensor_id;
   // The Human readable name of the sensor
   char name[MAX_NAME];
+  int mux;
+  int input;
   // The last calibrated sensor value
   pod_value_t value;
   // quadratic calibration coefficients ax^2 + bx + c where x is the raw value
@@ -255,8 +256,13 @@ typedef struct pod {
   pod_value_t pusher_plate;
   pod_value_t pusher_plate_raw;
   uint64_t last_pusher_plate_low;
+  bool pusher_plate_override;
+
+  uint64_t begin_time;
+
   // Batteries
   pod_battery_t battery[N_BATTERIES];
+  sensor_t power_thermo[N_POWER_THERMO];
 
   // Thread Tracking
   pthread_t core_thread;

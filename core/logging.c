@@ -88,22 +88,24 @@ int log_send(log_t *l) {
   }
 
   char buf[MAX_PACKET_SIZE];
-
+  int len = 0;
   switch (l->type) {
   case Message:
-    snprintf(&buf[0], MAX_PACKET_SIZE, "POD1%s", l->v.message);
+    len = snprintf(&buf[0], MAX_PACKET_SIZE, "POD1%s", l->v.message);
+
     break;
   case Telemetry_float:
-    snprintf(&buf[0], MAX_PACKET_SIZE, "POD2%s %f\n", l->v.float_data.name,
+    len = snprintf(&buf[0], MAX_PACKET_SIZE, "POD2%s %f\n", l->v.float_data.name,
              l->v.float_data.value);
     break;
   case Telemetry_int32:
-    snprintf(&buf[0], MAX_PACKET_SIZE, "POD2%s %d\n", l->v.int32_data.name,
+    len = snprintf(&buf[0], MAX_PACKET_SIZE, "POD2%s %d\n", l->v.int32_data.name,
              l->v.int32_data.value);
     break;
   case Packet:
     assert(sizeof(l->v.packet) < MAX_PACKET_SIZE);
     memcpy(&buf[0], &(l->v.packet), sizeof(l->v.packet));
+    len = sizeof(l->v.packet);
     break;
   default:
     fprintf(stderr, "Unknown Log Type: %d", l->type);
@@ -111,7 +113,7 @@ int log_send(log_t *l) {
   }
 
   /* send the message line to the server */
-  int n = write(pod->logging_socket, buf, strlen(buf));
+  int n = write(pod->logging_socket, buf, len);
   if (n <= 0) {
     fprintf(stderr, "ERROR writing to socket\n");
     return -1;

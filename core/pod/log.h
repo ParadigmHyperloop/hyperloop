@@ -19,15 +19,13 @@ typedef struct {
   int32_t value;
 } log_int32_data_t;
 
-typedef uint16_t solenoid_mask_t;
+typedef uint16_t relay_mask_t;
 
 typedef struct telemetry_packet {
-  uint8_t version;
-  uint16_t length;
   // state
-  pod_mode_t state;
+  uint32_t state;
   // Solenoids
-  solenoid_mask_t solenoids;
+  uint32_t solenoids;
   uint64_t timestamp;
   // IMU
   float position_x;
@@ -43,26 +41,31 @@ typedef struct telemetry_packet {
   float acceleration_z;
 
   // Distance sensors
-  float corners[N_CORNER_DISTANCE];
-  float wheels[N_CORNER_DISTANCE];
-  float lateral[N_CORNER_DISTANCE];
+  float corners[N_CORNER_DISTANCE];                // 4
+  float wheels[N_WHEEL_DISTANCE];                  // 3
+  float lateral[N_LATERAL_DISTANCE];               // 3
 
   // Pressures
-  float hp_pressure;
-  float reg_pressure[N_REG_PRESSURE];
-  float clamp_pressure[N_CLAMP_PRESSURE];
-  float skate_pressure[N_SKATE_PRESSURE];
+  float hp_pressure;                               // 1
+  float reg_pressure[N_REG_PRESSURE];              // 4
+  float clamp_pressure[N_CLAMP_PRESSURE];          // 2
+  float skate_pressure[N_SKATE_PRESSURE];          // 2
+  float lateral_pressure[N_LAT_FILL_PRESSURE];     // 2
 
   // Thermocouples
-  float hp_thermo;
-  float reg_thermo[N_REG_THERMO];
-  float reg_surf_thermo[N_REG_SURF_THERMO];
-  float power_thermo[POWER_THERMO_MUX];
-  float frame_thermo;
+  float hp_thermo;                                 // 1
+  float reg_thermo[N_REG_THERMO];                  // 4
+  float reg_surf_thermo[N_REG_SURF_THERMO];        // 4
+  float power_thermo[N_POWER_THERMO];              // 4
+  float frame_thermo;                              // 1
+
+  // Batteries
+  float voltages[N_BATTERIES];                     // 3
+  float currents[N_BATTERIES];                     // 3
 
   // Photo
-  float rpms[N_WHEEL_PHOTO];
-  float stripe_count;
+  float rpms[N_WHEEL_PHOTO];                       // 3
+  uint32_t stripe_count;
 } telemetry_packet_t;
 
 typedef struct log {

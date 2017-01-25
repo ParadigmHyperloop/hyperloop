@@ -205,11 +205,13 @@ void lock_solenoid(solenoid_t *s) { s->locked = true; }
 void unlock_solenoid(solenoid_t *s) { s->locked = false; }
 
 sensor_t * get_sensor_by_name(pod_t *pod, char *name) {
-  int i = 0;
+  int i;
   sensor_t *s = NULL;
-  while ((s = pod->sensors[i]) != NULL) {
-    if (strcmp(s->name, name) == 0) {
-      return s;
+  for (i=0;i<sizeof(pod->sensors)/sizeof(pod->sensors[0]);i++) {
+    if ((s = pod->sensors[i]) != NULL) {
+      if (strcmp(s->name, name) == 0) {
+        return s;
+      }
     }
   }
   return NULL;
@@ -219,8 +221,8 @@ bool setup_pin(int no) {
   // I am being incredibly verbose in my order of operations... can just be
   // a single if with some &&
   if (initPin(no) == 0) {
-      if (setPinDirection(no, "out")) {
-          if (setPinValue(no, 0)) {
+      if (setPinDirection(no, "out") == 0) {
+          if (setPinValue(no, 0) == 0) {
             return true;
           }
       }
