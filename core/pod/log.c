@@ -11,14 +11,14 @@ int logTelemetry_f(char *name, float f) {
   log_t l = {.type = Telemetry_float,
              .v = {.float_data = {.name = {0}, .value = f}}};
   snprintf(&l.v.float_data.name[0], 64, "%s", name);
-  return 0; // logEnqueue(&l);
+  return 0; // log_enqueue(&l);
 }
 
 int logTelemetry(char *name, int32_t i) {
   log_t l = {.type = Telemetry_int32,
              .v = {.int32_data = {.name = {0}, .value = i}}};
   snprintf(&l.v.int32_data.name[0], 64, "%s", name);
-  return 0; // logEnqueue(&l);
+  return 0; // log_enqueue(&l);
 }
 
 int podLog(char *fmt, ...) {
@@ -48,7 +48,7 @@ int podLog(char *fmt, ...) {
     fsync(fileno(log_file));
   }
 
-  return 0; // logEnqueue(&l);
+  return 0; // log_enqueue(&l);
 }
 
 /* Ordered like pod->relays
@@ -105,6 +105,8 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
     .reg_pressure = {0},
     .clamp_pressure = {0},
     .skate_pressure = {0},
+    .lateral_pressure = {0},
+
     // Distance sensors
     .corners = {0},
     .wheels = {0},
@@ -116,7 +118,7 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
     .reg_surf_thermo = {0},
     .power_thermo = {0},
     .frame_thermo = 0.0,
-    .lateral_distance = {0},
+
     // batteries
     .voltages = {0},
     .currents = {0},
@@ -256,14 +258,14 @@ int status_dump(pod_t *pod, char *buf, int len) {
    return c;
 }
 
-void logDump(pod_t *pod) {
+void log_dump(pod_t *pod) {
   note("Logging System -> Dumping");
 
   char s[8096];
 
   status_dump(pod, s, sizeof(s)/sizeof(s[0]));
 
-  printf(s);
+  printf("%s", s);
 
 #ifndef PACKET_INTERVAL
 #define PACKET_INTERVAL USEC_PER_SEC / 10 // 0.1 seconds in usec
@@ -280,11 +282,11 @@ void logDump(pod_t *pod) {
     debug("Dumping telemetry packet");
     telemetry_packet_t packet = make_telemetry(pod);
     log_t l = {.type = Packet, .v = {.packet = packet}};
-    logEnqueue(&l);
+    log_enqueue(&l);
   }
 }
 
-int logEnqueue(log_t *l) {
+int log_enqueue(log_t *l) {
   if (!logbuf.initialized) {
     ring_buf_init(&logbuf, &logbuf_data, LOG_BUF_SIZE, sizeof(log_t));
   }

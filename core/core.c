@@ -462,15 +462,14 @@ void *core_main(void *arg) {
   size_t imu_score = 0;
   pod_mode_t mode;
   imu_datagram_t imu_data;
-  sensor_pack_t pack;
-  memset(&pack, 0, sizeof(sensor_pack_t));
 
   while ((mode = get_pod_mode()) != Shutdown) {
     // --------------------------------------------
     // SECTION: Read new information from sensors
     // --------------------------------------------
 
-    if (imu_read(pod->imu, &imu_data) <= 0 && imu_score < IMU_SCORE_MAX) {
+    if (pod->imu > -1 && imu_read(pod->imu, &imu_data) <= 0 &&
+        imu_score < IMU_SCORE_MAX) {
       warn("BAD IMU READ");
       imu_score += IMU_SCORE_STEP_UP;
       if (imu_score > IMU_SCORE_MAX) {
@@ -492,9 +491,8 @@ void *core_main(void *arg) {
     // Done with ADC Read
     // ------------
 
-    memset(&pack, 0, sizeof(sensor_pack_t));
   #ifdef HAS_PRU
-    pru_read(&pack);
+    pru_read(pod);
   #endif
 
     // Pusher Plate D-Bounce
@@ -578,10 +576,13 @@ void *core_main(void *arg) {
     // Handle Vent
     adjust_vent(pod);
 
+    // Set hp fill
+    adjust_hp_fill(pod);
+
     // -------------------------------------------
     // SECTION: Telemetry collection
     // -------------------------------------------
-    logDump(pod);
+    log_dump(pod);
 
     // --------------------------------------------
     // Heartbeat handling
@@ -608,7 +609,7 @@ void *core_main(void *arg) {
       if (iteration_time == 0) {
         iteration_time = (double)((now - last));
       } else {
-        iteration_time = 0.99 * iteration_time + 0.01 * (double)((now - last));
+        iteration_time = (1.0 - ITERATION_TIME_ALPHA) * iteration_time + ITERATION_TIME_ALPHA * (double)((now - last));
       }
       last = now;
       set_value_f(&(pod->core_speed),

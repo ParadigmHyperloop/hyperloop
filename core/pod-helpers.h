@@ -113,6 +113,7 @@ bool is_solenoid_locked(solenoid_t *s);
 
 
 sensor_t * get_sensor_by_name(pod_t *pod, char *name);
+sensor_t * get_sensor_by_address(pod_t *pod, int mux, int input);
 
 /**
  * Setup the given pin as a standard output pin

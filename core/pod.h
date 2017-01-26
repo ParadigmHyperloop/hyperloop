@@ -52,8 +52,6 @@ void pod_calibrate(void);
  */
 void pod_reset(void);
 
-int pru_read_pack(sensor_pack_t *pack);
-
 void pod_exit(int code);
 
 int set_skate_target(int no, solenoid_state_t val, bool override);

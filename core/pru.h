@@ -2,6 +2,8 @@
 #define OPENLOOP_PRU_H
 
 #include "pod.h"
+#include "pod-helpers.h"
+
 #include <sys/mman.h>
 #include <errno.h>
 #ifdef HAS_PRU
@@ -12,7 +14,7 @@
 #endif
 
 int pru_init(void);
-int pru_read(sensor_pack_t *pack);
+int pru_read(pod_t *pod);
 int pru_shutdown(void);
 
 #endif

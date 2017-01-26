@@ -217,6 +217,19 @@ sensor_t * get_sensor_by_name(pod_t *pod, char *name) {
   return NULL;
 }
 
+sensor_t * get_sensor_by_address(pod_t *pod, int mux, int input) {
+  int i;
+  sensor_t *s = NULL;
+  for (i=0;i<sizeof(pod->sensors)/sizeof(pod->sensors[0]);i++) {
+    if ((s = pod->sensors[i]) != NULL) {
+      if (s->mux == mux && s->input == input) {
+        return s;
+      }
+    }
+  }
+  return NULL;
+}
+
 bool setup_pin(int no) {
   // I am being incredibly verbose in my order of operations... can just be
   // a single if with some &&

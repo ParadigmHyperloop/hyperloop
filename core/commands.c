@@ -105,58 +105,9 @@ int ventCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 
 int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
-  int i, c = 0;
-  c += snprintf(&outbuf[0], outbufc, "=== STATUS REPORT ===\n"
-                                     "State:\t%s\n"
-                                     "Ready:\t%d\n"
-                                     "Core:\t%f loops/sec\n"
-                                     "Ax:\t%f\n"
-                                     "Vx:\t%f\n"
-                                     "Px:\t%f\n",
-                pod_mode_names[get_pod_mode()], get_value(&(pod->ready)),
-                get_value_f(&(pod->core_speed)), get_value_f(&(pod->accel_x)),
-                get_value_f(&(pod->velocity_x)),
-                get_value_f(&(pod->position_x)));
 
-  for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-    c += snprintf(
-        &outbuf[c], outbufc - c, "Skate %d:\t%s\n", i,
-        (is_solenoid_open(&(pod->skate_solonoids[i])) ? "open" : "closed"));
-  }
+  return status_dump(pod, outbuf, outbufc);
 
-  for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    c += snprintf(
-        &outbuf[c], outbufc - c, "Caliper %d:\t%s\n", i,
-        (is_solenoid_open(&(pod->wheel_solonoids[i])) ? "open" : "closed"));
-  }
-
-  for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-    c += snprintf(&outbuf[c], outbufc - c, "Clamp Eng %d:\t%s\n", i,
-                  (is_solenoid_open(&(pod->clamp_engage_solonoids[i]))
-                       ? "open"
-                       : "closed"));
-  }
-
-  for (i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
-    c += snprintf(&outbuf[c], outbufc - c, "Clamp Rel %d:\t%s\n", i,
-                  (is_solenoid_open(&(pod->clamp_release_solonoids[i]))
-                       ? "open"
-                       : "closed"));
-  }
-
-  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    c += snprintf(
-        &outbuf[c], outbufc - c, "LP Fill %d:\t%s\n", i,
-        (is_solenoid_open(&(pod->lp_fill_valve[i])) ? "open" : "closed"));
-  }
-
-  c += snprintf(&outbuf[c], outbufc - c, "HP Fill:\t%s\n",
-                (is_solenoid_open(&(pod->hp_fill_valve)) ? "open" : "closed"));
-
-  c += snprintf(&outbuf[c], outbufc - c, "LP Vent:\t%s\n",
-                (is_solenoid_open(&(pod->vent_solenoid)) ? "open" : "closed"));
-
-  return c;
 }
 
 int fillCommand(int argc, char *argv[], int outbufc, char outbuf[]) {

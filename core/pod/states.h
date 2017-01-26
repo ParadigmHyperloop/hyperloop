@@ -81,43 +81,6 @@ typedef uint32_t distance_raw_t;
 typedef uint32_t spare_raw_t;
 
 /**
- * Structure of the sensor data in the Shared PRU Memory
- */
-typedef struct {
-  // MUX 0
-  thermocouple_raw_t reg_thermo[N_REG_THERMO];
-  thermocouple_raw_t hp_thermo[N_HP_THERMO];
-  spare_raw_t thermo_0_spare[16 - N_REG_THERMO - N_HP_THERMO];
-
-  // MUX 1
-  thermocouple_raw_t reg_surf_thermo[N_REG_SURF_THERMO];
-  thermocouple_raw_t clamp_pad_thermo[N_CLAMP_PAD_THERMO];
-  thermocouple_raw_t frame_thermo[N_FRAME_THERMO];
-  spare_raw_t thermo_1_spare[16 - N_REG_SURF_THERMO - N_CLAMP_PAD_THERMO -
-                             N_POWER_THERMO - N_FRAME_THERMO];
-
-  // MUX 2
-  transducer_raw_t reg_pressure[N_REG_PRESSURE];
-  transducer_raw_t clamp_pressure[N_CLAMP_PRESSURE];
-  transducer_raw_t lateral_pressure[N_LAT_FILL_PRESSURE];
-  transducer_raw_t skate_pressure[N_SKATE_PRESSURE];
-  transducer_raw_t hp_pressure[N_HP_PRESSURE];
-  spare_raw_t pressure_spare[16 - N_REG_PRESSURE - N_CLAMP_PRESSURE -
-                             N_LAT_FILL_PRESSURE - N_SKATE_PRESSURE -
-                             N_HP_PRESSURE];
-
-  // MUX 3
-  distance_raw_t corner_distance[N_CORNER_DISTANCE];
-  distance_raw_t wheel_distance[N_WHEEL_DISTANCE];
-  distance_raw_t lateral_distance[N_LATERAL_DISTANCE];
-} sensor_pack_t;
-
-typedef struct {
-  uint32_t request_lock;
-  const uint32_t lock_confirmed;
-  sensor_pack_t data;
-} pru_com_t;
-/**
  * Bundles information for analog sensor reading
  */
 typedef struct {
