@@ -253,9 +253,9 @@ int init_pod(void) {
       .sensor_id = id,
       .name = {0},
       .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = 0,
-      .cal_b = 1,
-      .cal_c = 0,
+      .cal_a = LP_TRANSDUCER_CALIBRATION_A,
+      .cal_b = LP_TRANSDUCER_CALIBRATION_B,
+      .cal_c = LP_TRANSDUCER_CALIBRATION_C,
       .alpha = 1.0,
       .offset = 0.0,
       .mux = PRESSURE_MUX,
@@ -272,9 +272,9 @@ int init_pod(void) {
       .sensor_id = id,
       .name = {0},
       .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = 0,
-      .cal_b = 1,
-      .cal_c = 0,
+      .cal_a = LP_TRANSDUCER_CALIBRATION_A,
+      .cal_b = LP_TRANSDUCER_CALIBRATION_B,
+      .cal_c = LP_TRANSDUCER_CALIBRATION_C,
       .alpha = 1.0,
       .offset = 0.0,
       .mux = PRESSURE_MUX,
@@ -291,9 +291,9 @@ int init_pod(void) {
       .sensor_id = id,
       .name = {0},
       .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = 0,
-      .cal_b = 1,
-      .cal_c = 0,
+      .cal_a = LP_TRANSDUCER_CALIBRATION_A,
+      .cal_b = LP_TRANSDUCER_CALIBRATION_B,
+      .cal_c = LP_TRANSDUCER_CALIBRATION_C,
       .alpha = 1.0,
       .offset = 0.0,
       .mux = PRESSURE_MUX,
@@ -306,6 +306,102 @@ int init_pod(void) {
   // -------------
   // Thermocouples
   // -------------
+  int reg_thermo[] = REG_THERMO_INPUTS;
+  for (i = 0; i < N_REG_THERMO; i++) {
+    int id = N_MUX_INPUTS*REG_THERMO_MUX + reg_thermo[i];
+    pod->sensors[id] = &(pod->reg_thermo[i]);
+    pod->reg_thermo[i] = (sensor_t){
+      .sensor_id = id,
+      .name = {0},
+      .value = POD_VALUE_INITIALIZER_FL,
+      .cal_a = FLOW_THERMO_CALIBRATION_A,
+      .cal_b = FLOW_THERMO_CALIBRATION_B,
+      .cal_c = FLOW_THERMO_CALIBRATION_C,
+      .alpha = 0.01,
+      .offset = 0.0,
+      .mux = REG_THERMO_MUX,
+      .input = reg_thermo[i]
+    };
+
+    snprintf(pod->sensors[id]->name, MAX_NAME, "reg_thermo_%d", i);
+  }
+
+  int reg_surf_thermo[] = REG_SURF_THERMO_INPUTS;
+  for (i = 0; i < N_REG_SURF_THERMO; i++) {
+    int id = N_MUX_INPUTS*REG_SURF_THERMO_MUX + reg_surf_thermo[i];
+    pod->sensors[id] = &(pod->reg_surf_thermo[i]);
+    pod->reg_surf_thermo[i] = (sensor_t){
+      .sensor_id = id,
+      .name = {0},
+      .value = POD_VALUE_INITIALIZER_FL,
+      .cal_a = WHITE_THERMO_CALIBRATION_A,
+      .cal_b = WHITE_THERMO_CALIBRATION_B,
+      .cal_c = WHITE_THERMO_CALIBRATION_C,
+      .alpha = 0.01,
+      .offset = 0.0,
+      .mux = REG_SURF_THERMO_MUX,
+      .input = reg_surf_thermo[i]
+    };
+
+    snprintf(pod->sensors[id]->name, MAX_NAME, "reg_surf_thermo_%d", i);
+  }
+
+  int power_thermo[] = POWER_THERMO_INPUTS;
+  for (i = 0; i < N_POWER_THERMO; i++) {
+    int id = N_MUX_INPUTS*POWER_THERMO_MUX + power_thermo[i];
+    pod->sensors[id] = &(pod->power_thermo[i]);
+    pod->power_thermo[i] = (sensor_t){
+      .sensor_id = id,
+      .name = {0},
+      .value = POD_VALUE_INITIALIZER_FL,
+      .cal_a = WHITE_THERMO_CALIBRATION_A,
+      .cal_b = WHITE_THERMO_CALIBRATION_B,
+      .cal_c = WHITE_THERMO_CALIBRATION_C,
+      .alpha = 0.01,
+      .offset = 0.0,
+      .mux = POWER_THERMO_MUX,
+      .input = power_thermo[i]
+    };
+
+    snprintf(pod->sensors[id]->name, MAX_NAME, "power_thermo_%d", i);
+  }
+
+  int clamp_pad_thermo[] = CLAMP_PAD_THERMO_INPUTS;
+  for (i = 0; i < N_CLAMP_PAD_THERMO; i++) {
+    int id = N_MUX_INPUTS*CLAMP_PAD_THERMO_MUX + clamp_pad_thermo[i];
+    pod->sensors[id] = &(pod->clamp_thermo[i]);
+    pod->clamp_thermo[i] = (sensor_t){
+      .sensor_id = id,
+      .name = {0},
+      .value = POD_VALUE_INITIALIZER_FL,
+      .cal_a = WHITE_THERMO_CALIBRATION_A,
+      .cal_b = WHITE_THERMO_CALIBRATION_B,
+      .cal_c = WHITE_THERMO_CALIBRATION_C,
+      .alpha = 0.01,
+      .offset = 0.0,
+      .mux = CLAMP_PAD_THERMO_MUX,
+      .input = clamp_pad_thermo[i]
+    };
+
+    snprintf(pod->sensors[id]->name, MAX_NAME, "clamp_pad_%d", i);
+  }
+
+
+  id = N_MUX_INPUTS*HP_THERMO_MUX + HP_THERMO_INPUT;
+  pod->sensors[id] = &(pod->hp_thermo);
+  pod->hp_thermo = (sensor_t){
+    .sensor_id = id,
+    .name = {0},
+    .value = POD_VALUE_INITIALIZER_FL,
+    .cal_a = FLOW_THERMO_CALIBRATION_A,
+    .cal_b = FLOW_THERMO_CALIBRATION_B,
+    .cal_c = FLOW_THERMO_CALIBRATION_C,
+    .alpha = 1.0,
+    .offset = 0.0,
+    .mux = HP_THERMO_MUX,
+    .input = HP_THERMO_INPUT
+  };
+  snprintf(pod->sensors[id]->name, MAX_NAME, "hp_thermo");
 
   pthread_rwlock_init(&(pod->mode_mutex), NULL);
 

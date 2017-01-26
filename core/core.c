@@ -597,7 +597,7 @@ void *core_main(void *arg) {
     // --------------------------------------------
     usleep(CORE_THREAD_SLEEP);
 
-    usleep(USEC_PER_SEC);
+    usleep(0.1 * USEC_PER_SEC);
     // -------------------------------------------------------
     // Compute how long it is taking for the main loop to run
     // -------------------------------------------------------

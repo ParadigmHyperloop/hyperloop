@@ -195,7 +195,7 @@ typedef struct pod {
   sensor_t clamp_pressure[N_CLAMP_PRESSURE];
 
   // Clamp pad thermocouples
-  sensor_t clamp_thermocouples[N_CLAMP_PAD_THERMO];
+  sensor_t clamp_thermo[N_CLAMP_PAD_THERMO];
 
   // Wheel Brake Sensors and Solonoids
   solenoid_t wheel_solonoids[N_WHEEL_SOLONOIDS];

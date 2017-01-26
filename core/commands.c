@@ -52,9 +52,10 @@ int pingCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
 }
 
 int calibrateCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+  pod_t *pod = get_pod();
   pod_calibrate();
   pod_reset();
-  return snprintf(&outbuf[0], outbufc, "CALIBRATION SET");
+  return snprintf(&outbuf[0], outbufc, "CALIBRATION SET\nX: %f\nY: %f\nZ: %f\n", get_value_f(&(pod->imu_calibration_x)), get_value_f(&(pod->imu_calibration_y)), get_value_f(&(pod->imu_calibration_z)));
 }
 
 int resetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {

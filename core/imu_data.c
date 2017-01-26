@@ -48,7 +48,7 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
   }
 
   if (!imu_valid(data)) {
-    warn("IMU NOT VALID: %X != %X; STAT: %X\n", data->computed_crc, data->crc,
+    warn("IMU INVALID! CRC:%X EXPECTED:%X; STAT:%X\n", data->crc, data->computed_crc,
            data->status);
     return;
   }
@@ -63,7 +63,7 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
 
   last_imu_reading = new_imu_reading;
 
-  float x = data->x + get_value_f(&(s->imu_calibration_x));
+  float x = data->x + get_value_f(&(s->imu_calibration_x)) + 5.0;
   float y = data->y + get_value_f(&(s->imu_calibration_y));
   float z = data->z + get_value_f(&(s->imu_calibration_z));
 
