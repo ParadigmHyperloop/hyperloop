@@ -167,7 +167,7 @@ int addOverlay(char *dtb, char *overname) {
   if (over == NULL)
     printf("File didn't open\n");
   fseek(over, 0, SEEK_SET);
-  fprintf(over, name);
+  fprintf(over, "%s", name);
   fflush(over);
   fclose(over);
 

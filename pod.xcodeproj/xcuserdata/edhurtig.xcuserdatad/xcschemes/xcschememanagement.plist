@@ -9,6 +9,11 @@
 			<key>orderHint</key>
 			<integer>3</integer>
 		</dict>
+		<key>bbb.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>5</integer>
+		</dict>
 		<key>core.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -68,6 +73,11 @@
 			<true/>
 		</dict>
 		<key>77B18BCA1E5845DD00DDD8B5</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>77F29D4B1E585B9A00EC907D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
