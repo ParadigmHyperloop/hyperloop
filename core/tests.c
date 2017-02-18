@@ -23,8 +23,6 @@
  * Test to stress the pod's electrical system by bursting it under full load
  * and trying to generate worst case senario rush currents
  *
- * @param state A pointer
- *
  * @return 0 on success. -1 on failure
  */
 int relay_walk() {

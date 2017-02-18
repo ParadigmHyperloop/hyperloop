@@ -13,8 +13,6 @@
 
 #define WATCHDOG_TIMER 16 * USEC_PER_SEC
 
-
-
 /*
 
 Phase

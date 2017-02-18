@@ -43,22 +43,8 @@
 #include <signal.h>
 #include <semaphore.h>
 
-#define within(__low, __val, __high) ((__low <= __val) && (__val <= __high))
-#define outside(__low, __val, __high) (!(within((__low), (__val), (__high))))
-
-#define MIN(a, b)                                                              \
-  ({                                                                           \
-    __typeof__(a) _a = (a);                                                    \
-    __typeof__(b) _b = (b);                                                    \
-    _a < _b ? _a : _b;                                                         \
-  })
-
-#define MAX(a, b)                                                              \
-  ({                                                                           \
-    __typeof__(a) _a = (a);                                                    \
-    __typeof__(b) _b = (b);                                                    \
-    _a > _b ? _a : _b;                                                         \
-  })
+#define WITHIN(__low, __val, __high) ((__low <= __val) && (__val <= __high))
+#define OUTSIDE(__low, __val, __high) (!(WITHIN((__low), (__val), (__high))))
 
 #define __STR__(s) #s
 #define __XSTR__(s) __STR__(s)

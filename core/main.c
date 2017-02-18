@@ -122,12 +122,24 @@ void signal_handler(int sig) {
   if (sig == SIGTERM) {
     // Power button pulled low, power will be cut in < 1023ms
     // TODO: Sync the filesystem and unmount root to prevent corruption
+      
+#ifdef __linux__
+      FILE *fp = fopen("/proc/sys/kernel/sysrq", "w");
+      fwrite("1", sizeof(char), 1, fp);
+      fclose(fp);
+      
+      umount2("/", MNT_FORCE);
+      setPinValue(KILL_PIN, KILL_PIN_KILL_VALUE);
+      FILE *fp = fopen("/proc/sysrq-trigger", "w");
+      fwrite("o", sizeof(char), 1, fp);
+      fclose(fp);
+#endif
   }
   exit(EXIT_FAILURE);
 }
 
 void exit_signal_handler(int sig) {
-#ifdef DEBUG
+#ifdef POD_DEBUG
   pod_exit(2);
 #else
   switch (_pod.mode) {

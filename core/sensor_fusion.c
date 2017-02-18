@@ -102,17 +102,17 @@ void sensor_fusion(imu_datagram_t *data, pod_t *s) {
   float ay = data->y + get_value_f(&(s->imu_calibration_y));
   float az = data->z + get_value_f(&(s->imu_calibration_z));
 
-  if (outside(-10.0, ax, 10.0)) {
+  if (OUTSIDE(-10.0, ax, 10.0)) {
     warn("Unacceptable IMU Accelleration %f in X", ax);
     return;
   }
 
-  if (outside(-10.0, ay, 10.0)) {
+  if (OUTSIDE(-10.0, ay, 10.0)) {
     warn("Unacceptable IMU Accelleration %f in Y", ay);
     return;
   }
 
-  if (outside(-10.0, az, 10.0)) {
+  if (OUTSIDE(-10.0, az, 10.0)) {
     warn("Unacceptable IMU Accelleration %f in Z", az);
     return;
   }
@@ -162,7 +162,7 @@ void sensor_fusion(imu_datagram_t *data, pod_t *s) {
   // I'll just put pseudocode down
 
   // iterate through the photoelectric sensors recorded since the last Kalman ran
-  	// easy mode - if we see obvious strip, snap to nearest if within ~5 meters
+  	// easy mode - if we see obvious strip, snap to nearest if in ~5 meters
   	// detect whether there's a strip by low pass filtering the data
   	// and comparing to a moving avg/median
   	// hard mode - do whatever Kalman does with that shit

@@ -1,2 +1,0 @@
-   all: bbb-io.c Makefile
-		gcc -Wall -o bbb-io bbb-io.c /usr/local/lib/freebasic/linux-arm/fbrt0.o -lpruio -L"/usr/local/lib/freebasic/linux-arm" -lfb -lpthread -lprussdrv -ltermcap -lsupc++ -Wno-unused-variable

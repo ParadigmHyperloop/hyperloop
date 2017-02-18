@@ -7,7 +7,7 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
   float velocity = get_value_f(v);
   float position = get_value_f(x);
 
-  if (outside(-10.0, accel, 10.0)) {
+  if (OUTSIDE(-10.0, accel, 10.0)) {
     warn("Value out of range for IMU (%f)", accel);
     return -1;
   }

@@ -81,14 +81,13 @@
 // --------------
 // Debug Printing
 // --------------
-#ifdef DEBUG
+#ifdef POD_DEBUG
 #define FLINE __FILE__ ":" __XSTR__(__LINE__)
 #define output(prefix_, fmt_, ...)                                             \
-  podLog((prefix_ "[%s] {" FLINE "} " fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
-
+  pod_log((prefix_ "[%s] {" FLINE "} " fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
 #else
 #define output(prefix_, fmt_, ...)                                             \
-  podLog((prefix_ fmt_), __FUNCTION__, ##__VA_ARGS__)
+  pod_log((prefix_ fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
 #endif
 #define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
 #define warn(fmt_, ...) output("[WARN]  ", fmt_, ##__VA_ARGS__)

@@ -6,6 +6,15 @@
 // Power Board
 // --------------------------
 
+#define KILL_PIN 86
+
+#define KILL_PIN_KILL_VALUE 0
+#define KILL_PIN_OK_VALUE 1
+
+#define PB_PIN 87
+#define PB_ON_VAL 1
+#define PB_OFF_VAL 0
+
 #define N_POWER_THERMO 4
 #define POWER_THERMO_MUX THERMO_MUX_1
 #define POWER_THERMO_INPUTS                                                    \

@@ -1,0 +1,17 @@
+{
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884" : 9223372036854775807,
+    "F4190118DFDE29326BA549B9F22B991A427C2A95" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "7EB3EF04-5693-442B-ADEE-47C3C1851D15",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "pod",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "pod.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+  ]
+}

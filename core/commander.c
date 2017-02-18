@@ -199,17 +199,17 @@ int cmd_reject_client(int serverfd) {
 /**
  * Sends whatever is in buf and then sends a new prompt line
  */
-int cmd_respond(int fd, char *buf, int n) {
+ssize_t cmd_respond(int fd, char *buf, int n) {
   if (n <= 0) {
     error("Asked to cmd_respond with a null or corrupt buffer");
     return -1;
   }
-  int a = write(fd, buf, n);
+  ssize_t a = write(fd, buf, n);
   if (a < 0) {
     return -1;
   }
 
-  int b = write(fd, "\n> ", 3);
+  ssize_t b = write(fd, "\n> ", 3);
   if (b < 0) {
     return -1;
   }
@@ -237,7 +237,7 @@ int cmd_accept_client(int serverfd) {
 int cmd_process_request(int infd, int outfd) {
   char inbuf[MAX_PACKET_SIZE];
 
-  int nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE);
+  ssize_t nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE);
   int base = 0;
   if (nbytes <= 0) {
     warn("read error on fd %d", infd);
@@ -259,7 +259,6 @@ int cmd_process_request(int infd, int outfd) {
     nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
     write(outfd, cmdbuffer, nbytesout);
     write(outfd, "\n> ", 3);
-    base = i+1;
     return 0;
   }
 }
@@ -285,7 +284,7 @@ int cmd_server() {
   int cmdbufferc = 0;
   note("=== Waiting for first commander connection ===", CMD_SVR_PORT);
 
-  while (1) {
+  while (get_pod_mode() != Shutdown) {
     // Setup All File Descriptors we are going to read from
     FD_ZERO(&active_fd_set);
     FD_SET(serverfd, &active_fd_set);

@@ -24,10 +24,13 @@
 #include <pthread.h>
 #include <sys/queue.h>
 
+#include <int.h>
+#include "pod/states.h"
+
 // proprietary libimu header
 #include <imu.h>
-#include "pod/states.h"
-#include "pod/log.h"
+#include <log.h>
+
 #include "pod/emergency.h"
 #include "core.h"
 #include "ring_buffer.h"

@@ -41,31 +41,7 @@ typedef struct pod_value {
     , PTHREAD_RWLOCK_INITIALIZER                                               \
   }
 
-typedef enum solenoid_state { kSolenoidError, kSolenoidOpen, kSolenoidClosed } solenoid_state_t;
 
-typedef enum relay_state {
-  kRelayError,
-  kRelayOff, // Relay is not actuated
-  kRelayOn   // Relay is actuated
-} relay_state_t;
-
-typedef enum solenoid_type {
-  kSolenoidNormallyOpen,
-  kSolenoidNormallyClosed
-} solenoid_type_t;
-
-typedef struct pod_solenoid {
-  // The GPIO pin used to control this solenoid
-  int gpio;
-  // The Human Readable name of the solenoid
-  char name[MAX_NAME];
-  // The current value of this solenoid (0 for default position, 1 for active)
-  int value;
-  // Prevent this solenoid from changing state without an explicit unlock
-  bool locked;
-  // The logic type of the solenoid (Normally Open or Normally Closed)
-  solenoid_type_t type;
-} solenoid_t;
 
 typedef enum clamp_brake_state {
   kClampBrakeClosed,

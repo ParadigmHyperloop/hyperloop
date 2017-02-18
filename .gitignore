@@ -1,9 +1,0 @@
-core/core
-/pod
-*.o
-*.dSYM
-*.log
-libimu-private
-libimu
-core/BUILD
-BUILD
