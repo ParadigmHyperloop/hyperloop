@@ -46,5 +46,3 @@ void pod_reset() {
   set_value_f(&(pod->position_y), 0.0);
   set_value_f(&(pod->position_z), 0.0);
 }
-
-int pru_read_pack(sensor_pack_t *pack) { return -1; }

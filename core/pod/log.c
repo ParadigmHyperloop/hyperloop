@@ -11,14 +11,14 @@ int logTelemetry_f(char *name, float f) {
   log_t l = {.type = Telemetry_float,
              .v = {.float_data = {.name = {0}, .value = f}}};
   snprintf(&l.v.float_data.name[0], 64, "%s", name);
-  return 0; // logEnqueue(&l);
+  return 0; // log_enqueue(&l);
 }
 
 int logTelemetry(char *name, int32_t i) {
   log_t l = {.type = Telemetry_int32,
              .v = {.int32_data = {.name = {0}, .value = i}}};
   snprintf(&l.v.int32_data.name[0], 64, "%s", name);
-  return 0; // logEnqueue(&l);
+  return 0; // log_enqueue(&l);
 }
 
 int podLog(char *fmt, ...) {
@@ -48,7 +48,7 @@ int podLog(char *fmt, ...) {
     fsync(fileno(log_file));
   }
 
-  return 0; // logEnqueue(&l);
+  return 0; // log_enqueue(&l);
 }
 
 /* Ordered like pod->relays
@@ -69,8 +69,8 @@ Caliper Front
 Caliper Back
 Lateral Control Fill B
 */
-solenoid_mask_t get_solenoid_mask(pod_t *pod) {
-  solenoid_mask_t mask = 0x0000;
+relay_mask_t get_relay_mask(pod_t *pod) {
+  relay_mask_t mask = 0x0000;
 
   int i;
   for (i = 0; i < N_RELAY_CHANNELS; i++) {
@@ -84,35 +84,48 @@ solenoid_mask_t get_solenoid_mask(pod_t *pod) {
 telemetry_packet_t make_telemetry(pod_t *pod) {
   int i;
 
-  telemetry_packet_t packet = {.version = 1,
-                               .length = sizeof(telemetry_packet_t),
-                               .timestamp = get_time(),
-                               // IMU
-                               .position_x = get_value_f(&(pod->position_x)),
-                               .position_y = get_value_f(&(pod->position_y)),
-                               .position_z = get_value_f(&(pod->position_z)),
-                               .velocity_x = get_value_f(&(pod->velocity_x)),
-                               .velocity_y = get_value_f(&(pod->velocity_y)),
-                               .velocity_z = get_value_f(&(pod->velocity_z)),
-                               .acceleration_x = get_value_f(&(pod->accel_x)),
-                               .acceleration_y = get_value_f(&(pod->accel_y)),
-                               .acceleration_z = get_value_f(&(pod->accel_z)),
+  telemetry_packet_t packet = {
+    // state
+    .state = get_pod_mode(),
+    // Solenoids
+    .solenoids = get_relay_mask(pod),
+    .timestamp = get_time(),
+    // IMU
+    .position_x = get_value_f(&(pod->position_x)),
+    .position_y = get_value_f(&(pod->position_y)),
+    .position_z = get_value_f(&(pod->position_z)),
+    .velocity_x = get_value_f(&(pod->velocity_x)),
+    .velocity_y = get_value_f(&(pod->velocity_y)),
+    .velocity_z = get_value_f(&(pod->velocity_z)),
+    .acceleration_x = get_value_f(&(pod->accel_x)),
+    .acceleration_y = get_value_f(&(pod->accel_y)),
+    .acceleration_z = get_value_f(&(pod->accel_z)),
+    // PSI
+    .hp_pressure = 0.0,
+    .reg_pressure = {0},
+    .clamp_pressure = {0},
+    .skate_pressure = {0},
+    .lateral_pressure = {0},
 
-                               // Distance sensors
-                               .corners = {0},
-                               .wheels = {0},
-                               .lateral = {0},
+    // Distance sensors
+    .corners = {0},
+    .wheels = {0},
+    .lateral = {0},
 
-                               // Photo
-                               .rpms = {0},
-                               .stripe_count =
-                                   get_value_f(&(pod->stripe_count)),
+    // Thermo
+    .hp_thermo = 0.0,
+    .reg_thermo = {0},
+    .reg_surf_thermo = {0},
+    .power_thermo = {0},
+    .frame_thermo = 0.0,
 
-                               // Solenoids
-                               .solenoids = get_solenoid_mask(pod),
-
-                               // state
-                               .state = get_pod_mode()};
+    // batteries
+    .voltages = {0},
+    .currents = {0},
+    // Photo
+    .rpms = {0},
+    .stripe_count = get_value_f(&(pod->stripe_count))
+  };
 
   // Distance sensors
   for (i = 0; i < N_CORNER_DISTANCE; i++) {
@@ -147,6 +160,10 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
     packet.skate_pressure[i] = get_sensor(&(pod->skate_pressure[i]));
   }
 
+  for (i = 0; i < N_LAT_FILL_PRESSURE; i++) {
+    packet.lateral_pressure[i] = get_sensor(&(pod->lateral_pressure[i]));
+  }
+
   // Temperatures
   packet.hp_thermo = get_sensor(&(pod->hp_thermo));
   packet.frame_thermo = get_sensor(&(pod->frame_thermo));
@@ -160,44 +177,116 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
   }
 
   for (i = 0; i < N_POWER_THERMO; i++) {
-    packet.power_thermo[i] = get_sensor(&(pod->battery[i].temperature));
+    packet.power_thermo[i] = get_sensor(&(pod->power_thermo[i]));
   }
+
+  for (i = 0; i < N_BATTERIES; i++) {
+    packet.voltages[i] = get_sensor(&(pod->battery[i].voltage));
+  }
+
+  for (i = 0; i < N_BATTERIES; i++) {
+    packet.currents[i] = get_sensor(&(pod->battery[i].current));
+  }
+
+  printf("%d floats", N_CORNER_DISTANCE + N_WHEEL_DISTANCE + N_LATERAL_DISTANCE + N_WHEEL_PHOTO + N_REG_PRESSURE + N_CLAMP_PRESSURE + N_SKATE_PRESSURE + N_REG_THERMO + N_REG_SURF_THERMO + N_POWER_THERMO);
 
   return packet;
 }
 
-void logDump(pod_t *pod) {
+int status_dump(pod_t *pod, char *buf, int len) {
+  int c = 0;
+  int i = 0;
+
+  c += snprintf(&buf[c], len, "mode: %s\n"
+           "acl m/s/s: x: %f, y: %f, z: %f\n"
+           "vel m/s  : x: %f, y: %f, z: %f\n"
+           "pos m    : x: %f, y: %f, z: %f\n",
+           pod_mode_names[get_pod_mode()], get_value_f(&(pod->accel_x)),
+           get_value_f(&(pod->accel_y)), get_value_f(&(pod->accel_z)), get_value_f(&(pod->velocity_x)),
+           get_value_f(&(pod->velocity_y)), get_value_f(&(pod->velocity_z)), get_value_f(&(pod->position_x)),
+           get_value_f(&(pod->position_y)), get_value_f(&(pod->position_z)));
+
+   c += snprintf(&buf[c], len - c, "Pusher Plate: \t%s\n",
+                 (get_value(&(pod->pusher_plate)) ? "ACTIVE" : "INACTIVE"));
+
+   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
+     c += snprintf(
+         &buf[c], len - c, "Skate %d:\t%s\n", i,
+         (is_solenoid_open(&(pod->skate_solonoids[i])) ? "open" : "closed"));
+   }
+
+   for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
+     c += snprintf(
+         &buf[c], len - c, "Caliper %d:\t%s\n", i,
+         (is_solenoid_open(&(pod->wheel_solonoids[i])) ? "open" : "closed"));
+   }
+
+   for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+     c += snprintf(&buf[c], len - c, "Clamp Eng %d:\t%s\n", i,
+                   (is_solenoid_open(&(pod->clamp_engage_solonoids[i]))
+                        ? "open"
+                        : "closed"));
+   }
+
+   for (i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
+     c += snprintf(&buf[c], len - c, "Clamp Rel %d:\t%s\n", i,
+                   (is_solenoid_open(&(pod->clamp_release_solonoids[i]))
+                        ? "open"
+                        : "closed"));
+   }
+
+   for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
+     c += snprintf(
+         &buf[c], len - c, "LP Fill %d:\t%s\n", i,
+         (is_solenoid_open(&(pod->lp_fill_valve[i])) ? "open" : "closed"));
+   }
+
+   c += snprintf(&buf[c], len - c, "HP Fill:\t%s\n",
+                 (is_solenoid_open(&(pod->hp_fill_valve)) ? "open" : "closed"));
+
+   c += snprintf(&buf[c], len - c, "LP Vent:\t%s\n",
+                 (is_solenoid_open(&(pod->vent_solenoid)) ? "open" : "closed"));
+
+   sensor_t *s = NULL;
+   for (i=0;i<sizeof(pod->sensors)/sizeof(pod->sensors[0]);i++) {
+     s = pod->sensors[i];
+     if (s != NULL) {
+       c += snprintf(&buf[c], len - c, "%s: \t%f\n", s->name, get_sensor(s));
+     }
+   }
+
+   return c;
+}
+
+void log_dump(pod_t *pod) {
   note("Logging System -> Dumping");
 
-  note("mode: %s, ready: %d", pod_mode_names[get_pod_mode()],
-       get_value(&(pod->ready)));
+  char s[8096];
 
-  note("acl m/s/s: x: %f, y: %f, z: %f", get_value_f(&(pod->accel_x)),
-       get_value_f(&(pod->accel_y)), get_value_f(&(pod->accel_z)));
+  status_dump(pod, s, sizeof(s)/sizeof(s[0]));
 
-  note("vel m/s  : x: %f, y: %f, z: %f", get_value_f(&(pod->velocity_x)),
-       get_value_f(&(pod->velocity_y)), get_value_f(&(pod->velocity_z)));
-
-  note("pos m    : x: %f, y: %f, z: %f", get_value_f(&(pod->position_x)),
-       get_value_f(&(pod->position_y)), get_value_f(&(pod->position_z)));
+  printf("%s", s);
 
 #ifndef PACKET_INTERVAL
 #define PACKET_INTERVAL USEC_PER_SEC / 10 // 0.1 seconds in usec
 #endif
 
+  // Telemetry streaming
   static uint64_t last_packet = 0;
 
-  if (last_packet == 0)
+  if (last_packet == 0) {
     last_packet = get_time();
+  }
 
   if (get_time() - last_packet > PACKET_INTERVAL) {
+    debug("Dumping telemetry packet");
     telemetry_packet_t packet = make_telemetry(pod);
     log_t l = {.type = Packet, .v = {.packet = packet}};
-    logEnqueue(&l);
+    log_enqueue(&l);
   }
 }
 
-int logEnqueue(log_t *l) {
+int log_enqueue(log_t *l) {
   if (!logbuf.initialized) {
     ring_buf_init(&logbuf, &logbuf_data, LOG_BUF_SIZE, sizeof(log_t));
   }

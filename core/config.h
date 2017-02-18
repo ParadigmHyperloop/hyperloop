@@ -183,5 +183,5 @@
 
 // Misc
 #define POD_BOOT_SEM "/openloop.pod.boot"
-
+#define MAX_NAME 63
 #endif

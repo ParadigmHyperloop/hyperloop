@@ -54,7 +54,7 @@ int nclients = 0;
 /**
  * Start the TCP server: open the listen socket and bind to the given port
  */
-int startTCPCommandServer(int portno) {
+int cmd_start_tcp_server(int portno) {
   int fd;
   struct sockaddr_in self;
 
@@ -109,9 +109,9 @@ int startTCPCommandServer(int portno) {
 /**
  * Process A single command
  */
-int doCommand(int inputc, char *input, int outputc, char output[]) {
-
+int cmd_do_command(int inputc, char *input, int outputc, char output[]) {
   int i = 0;
+  int count = 0;
   while (commands[i].name != NULL) {
     if (strncmp(commands[i].name, input,
                 MIN(inputc, strlen(commands[i].name))) == 0) {
@@ -121,7 +121,7 @@ int doCommand(int inputc, char *input, int outputc, char output[]) {
   }
 
   if (commands[i].name == NULL) {
-    int count = snprintf(output, outputc, "FAIL: Unknown Command, try 'help'");
+    count = snprintf(output, outputc, "FAIL: Unknown Command, try 'help'");
     return count;
   }
 
@@ -152,7 +152,7 @@ int doCommand(int inputc, char *input, int outputc, char output[]) {
 /**
  * Accept the connection from the waiting client and set the socket params
  */
-int processClient(int serverfd) {
+int cmd_process_client(int serverfd) {
   int clientfd;
   struct sockaddr_in client_addr;
   unsigned int addrlen = sizeof(client_addr);
@@ -180,11 +180,11 @@ int processClient(int serverfd) {
 }
 
 /**
- * Given a server file descriptor, accept the new client respond with an error
+ * Given a server file descriptor, accept the new client cmd_respond with an error
  * message, and then close them down
  */
-int rejectClient(int serverfd) {
-  int clientfd = processClient(serverfd);
+int cmd_reject_client(int serverfd) {
+  int clientfd = cmd_process_client(serverfd);
 
   if (clientfd < 0) {
     return -1;
@@ -199,9 +199,9 @@ int rejectClient(int serverfd) {
 /**
  * Sends whatever is in buf and then sends a new prompt line
  */
-int respond(int fd, char *buf, int n) {
+int cmd_respond(int fd, char *buf, int n) {
   if (n <= 0) {
-    error("Asked to respond with a null or corrupt buffer");
+    error("Asked to cmd_respond with a null or corrupt buffer");
     return -1;
   }
   int a = write(fd, buf, n);
@@ -221,8 +221,8 @@ int respond(int fd, char *buf, int n) {
  * Given a server file descriptor, accept the new client and return the
  * client's filedescriptor
  */
-int acceptClient(int serverfd) {
-  int clientfd = processClient(serverfd);
+int cmd_accept_client(int serverfd) {
+  int clientfd = cmd_process_client(serverfd);
 
   if (clientfd < 0) {
     return -1;
@@ -232,21 +232,34 @@ int acceptClient(int serverfd) {
 }
 
 /**
- * Read in a command, process it with doCommand(), and write out the respnse
+ * Read in a command, process it with cmd_do_command(), and write out the respnse
  */
-int processRequest(int infd, int outfd) {
+int cmd_process_request(int infd, int outfd) {
   char inbuf[MAX_PACKET_SIZE];
 
   int nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE);
-
-  if (nbytes < 0) {
+  int base = 0;
+  if (nbytes <= 0) {
     warn("read error on fd %d", infd);
     return -1;
   } else {
-    // Process the command
-    int nbytesout = doCommand(nbytes, inbuf, CMD_OUT_BUF, cmdbuffer);
+    int i = 0;
+    int nbytesout = 0;
+    while (i < nbytes) {
+      if (inbuf[i] == ';') {
+        inbuf[i] = '\0';
+        // Process the command
+        nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
+        write(outfd, cmdbuffer, nbytesout);
+        base = i+1;
+      }
+      i++;
+    }
+
+    nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
     write(outfd, cmdbuffer, nbytesout);
     write(outfd, "\n> ", 3);
+    base = i+1;
     return 0;
   }
 }
@@ -254,12 +267,12 @@ int processRequest(int infd, int outfd) {
 /**
  * Muxes all command inputs from the TCP clients and STDIN
  */
-int commandServer() {
+int cmd_server() {
   // TODO: There is a minor bug where one of the input/output buffers is not
   // being cleared or capped with a null terminator
 
   debug("Starting TCP Network Command Server");
-  serverfd = startTCPCommandServer(CMD_SVR_PORT);
+  serverfd = cmd_start_tcp_server(CMD_SVR_PORT);
 
   if (serverfd < 0) {
     return -1;
@@ -297,16 +310,16 @@ int commandServer() {
     if (FD_ISSET(serverfd, &read_fd_set)) {
       if (nclients >= MAX_CMD_CLIENTS - 1) {
         // Send an error response and close them down
-        rejectClient(serverfd);
+        cmd_reject_client(serverfd);
       } else {
         // Accept the client
-        int clientfd = acceptClient(serverfd);
+        int clientfd = cmd_accept_client(serverfd);
         clients[nclients] = clientfd;
         nclients++;
 
         // Fake a command to print a welcome message
-        cmdbufferc = doCommand(5, "help\n", CMD_OUT_BUF, cmdbuffer);
-        respond(clientfd, cmdbuffer, cmdbufferc);
+        cmdbufferc = cmd_do_command(5, "help\n", CMD_OUT_BUF, cmdbuffer);
+        cmd_respond(clientfd, cmdbuffer, cmdbufferc);
 
         // We wait for a client to connect before the pod progresses with it's
         // boot phase (i.e. it starts up it's core)
@@ -319,14 +332,14 @@ int commandServer() {
 
     // STDIN
     if (FD_ISSET(STDIN_FILENO, &read_fd_set)) {
-      processRequest(STDIN_FILENO, STDOUT_FILENO);
+      cmd_process_request(STDIN_FILENO, STDOUT_FILENO);
     }
 
     // Existing Clients
     for (i = 0; i < nclients; i++) {
       if (FD_ISSET(clients[i], &read_fd_set)) {
         debug("Recv new command from existing client (fd %d)", clients[i]);
-        if (processRequest(clients[i], clients[i]) < 0) {
+        if (cmd_process_request(clients[i], clients[i]) < 0) {
           // remove the client
           set_pod_mode(Emergency, "Operator Client %d (fd %d) disconnected", i,
                        clients[i]);
@@ -355,7 +368,7 @@ int commandServer() {
  * command server
  */
 void *command_main(void *arg) {
-  int retval = commandServer();
+  int retval = cmd_server();
 
   if (retval < 0) {
     switch (get_pod_mode()) {

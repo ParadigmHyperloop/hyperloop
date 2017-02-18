@@ -90,10 +90,10 @@ bool is_lp_vented(pod_t *pod) {
 void setRelay(int pin, relay_state_t state) {
   switch (state) {
   case kRelayOn:
-    setPinValue(pin, 0);
+    setPinValue(pin, 1);
     break;
   case kRelayOff:
-    setPinValue(pin, 1);
+    setPinValue(pin, 0);
     break;
   default:
     DECLARE_EMERGENCY("UNKNOWN RELAY STATE");
@@ -114,7 +114,16 @@ bool is_solenoid_open(solenoid_t *solenoid) {
 }
 
 bool is_solenoid_closed(solenoid_t *solenoid) {
-  return !is_solenoid_open(solenoid);
+  switch (solenoid->type) {
+  case kSolenoidNormallyOpen:
+    return solenoid->value == 1;
+    break;
+  case kSolenoidNormallyClosed:
+    return solenoid->value != 1;
+    break;
+  default:
+    DECLARE_EMERGENCY("UNKNOWN SOLENOID TYPE");
+  }
 }
 
 void set_solenoid(solenoid_t *s, solenoid_state_t val) {
@@ -130,27 +139,62 @@ void set_solenoid(solenoid_t *s, solenoid_state_t val) {
   }
 }
 
+relay_state_t read_relay_state(int pin) {
+  switch (getPinValue(pin)) {
+    case 0:
+      return kRelayOff;
+      break;
+    case 1:
+      return kRelayOn;
+      break;
+    default:
+      DECLARE_EMERGENCY("Relay in unknown state");
+      return kRelayError;
+  }
+}
+
+solenoid_state_t read_solenoid_state(solenoid_t *solenoid) {
+  relay_state_t r = read_relay_state(solenoid->gpio);
+  switch (r) {
+    case kRelayOn:
+      return (solenoid->type == kSolenoidNormallyClosed ? kSolenoidOpen : kSolenoidClosed);
+      break;
+    case kRelayOff:
+      return (solenoid->type == kSolenoidNormallyClosed ? kSolenoidClosed : kSolenoidOpen);
+      break;
+    default:
+      DECLARE_EMERGENCY("UNKOWN SOLENOID STATE");
+      return kSolenoidError;
+  }
+}
+
 void open_solenoid(solenoid_t *s) {
   if (is_solenoid_locked(s)) {
+    debug("Solenoid '%s' Locked! (request to open solenoid denied)", s->name);
     return;
   }
 
   if (!is_solenoid_open(s)) {
     // TODO: Prove
-    setRelay(s->gpio, (s->value ? kRelayOn : kRelayOff));
-    s->value = !s->value;
+    setRelay(s->gpio, (s->value ? kRelayOff : kRelayOn));
+    s->value = (s->value == 0 ? 1 : 0);
+  } else {
+    debug("Solenoid '%s' is already open", s->name);
   }
 }
 
 void close_solenoid(solenoid_t *s) {
   if (is_solenoid_locked(s)) {
+    debug("Solenoid '%s' Locked! (request to close solenoid denied)", s->name);
     return;
   }
 
   if (is_solenoid_open(s)) {
     // TODO: Prove
     setRelay(s->gpio, (s->value ? kRelayOff : kRelayOn));
-    s->value = !s->value;
+    s->value = (s->value == 0 ? 1 : 0);
+  } else {
+    debug("Solenoid '%s' is already closed", s->name);
   }
 }
 
@@ -159,3 +203,44 @@ bool is_solenoid_locked(solenoid_t *s) { return s->locked; }
 void lock_solenoid(solenoid_t *s) { s->locked = true; }
 
 void unlock_solenoid(solenoid_t *s) { s->locked = false; }
+
+sensor_t * get_sensor_by_name(pod_t *pod, char *name) {
+  int i;
+  sensor_t *s = NULL;
+  for (i=0;i<sizeof(pod->sensors)/sizeof(pod->sensors[0]);i++) {
+    if ((s = pod->sensors[i]) != NULL) {
+      if (strcmp(s->name, name) == 0) {
+        return s;
+      }
+    }
+  }
+  return NULL;
+}
+
+sensor_t * get_sensor_by_address(pod_t *pod, int mux, int input) {
+  int i;
+  sensor_t *s = NULL;
+  for (i=0;i<sizeof(pod->sensors)/sizeof(pod->sensors[0]);i++) {
+    if ((s = pod->sensors[i]) != NULL) {
+      if (s->mux == mux && s->input == input) {
+        return s;
+      }
+    }
+  }
+  return NULL;
+}
+
+bool setup_pin(int no) {
+  // I am being incredibly verbose in my order of operations... can just be
+  // a single if with some &&
+  if (initPin(no) == 0) {
+      if (setPinDirection(no, "out") == 0) {
+          if (setPinValue(no, 0) == 0) {
+            return true;
+          }
+      }
+  }
+  error("Failed to setup pin %d", no);
+
+  return false;
+}

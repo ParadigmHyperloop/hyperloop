@@ -112,9 +112,9 @@ Starting TCP Server on 0.0.0.0:7778
     [NOTE]  [log_connect] {logging.c:130} Connected to pod-server.openloopalliance.com:7778 on fd 5
     [INFO]  [logging_main] {logging.c:244} punching boot_sem to proceed
     [INFO]  [main] {main.c:101} Booting Command and Control Server
-    [DEBUG] [commandServer] {commander.c:224} Starting TCP Network Command Server
-    [NOTE]  [commandServer] {commander.c:231} TCP Network Command Server Started on port: 7779
-    [NOTE]  [commandServer] {commander.c:239} === Waiting for first commander connection ===
+    [DEBUG] [cmd_server] {commander.c:224} Starting TCP Network Command Server
+    [NOTE]  [cmd_server] {commander.c:231} TCP Network Command Server Started on port: 7779
+    [NOTE]  [cmd_server] {commander.c:239} === Waiting for first commander connection ===
     ```
 
 2. The controller is is waiting for an operator to connect to it. This is the

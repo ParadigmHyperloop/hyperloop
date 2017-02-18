@@ -20,7 +20,7 @@
 #include "cdefs.h"
 #include "libBBB.h"
 #include "config.h"
-#include "core.h"
+
 #include <pthread.h>
 #include <sys/queue.h>
 
@@ -29,6 +29,7 @@
 #include "pod/states.h"
 #include "pod/log.h"
 #include "pod/emergency.h"
+#include "core.h"
 #include "ring_buffer.h"
 /**
  * Get the current time of the pod in microseconds
@@ -50,8 +51,6 @@ void pod_calibrate(void);
  * Reset positional and sensor data to blank slate
  */
 void pod_reset(void);
-
-int pru_read_pack(sensor_pack_t *pack);
 
 void pod_exit(int code);
 

@@ -23,13 +23,13 @@
 /******************************************************************************
 * Functions declarations                                                      *
 ******************************************************************************/
-static unsigned int ProcessingADC1(unsigned int value);
+static unsigned int pru_get_int(unsigned int value);
 
 /******************************************************************************
 * Global variable Declarations                                                *
 ******************************************************************************/
 static void *sharedMem;
-static unsigned int *sharedMem_int;
+static unsigned int *pru_shared_mem_int;
 
 int pru_init() {
   unsigned int ret;
@@ -48,10 +48,10 @@ int pru_init() {
   printf("\tINFO: Initializing.\r\n");
   prussdrv_map_prumem(PRUSS0_SHARED_DATARAM, &sharedMem);
 
-  sharedMem_int = (unsigned int *)sharedMem;
-  sharedMem_int[OFFSET_SHAREDRAM + 0] = NUM_ADS;
-  sharedMem_int[OFFSET_SHAREDRAM + 1] = num_samples;
-  sharedMem_int[OFFSET_SHAREDRAM + 2] = 0;
+  pru_shared_mem_int = (unsigned int *)sharedMem;
+  pru_shared_mem_int[OFFSET_SHAREDRAM + 0] = NUM_ADS;
+  pru_shared_mem_int[OFFSET_SHAREDRAM + 1] = num_samples;
+  pru_shared_mem_int[OFFSET_SHAREDRAM + 2] = 0;
 
   /* Executing PRU. */
   prussdrv_exec_program(PRU_NUM, "./ADCCollector.bin");
@@ -78,18 +78,19 @@ int pru_shutdown() {
 ******************************************************************************/
 
 /**
- * Read a complete sensor pack into the given sensor_pack_t
+ * Read a complete set of sensors from the PRU
  */
-int pru_read(sensor_pack_t *pack) {
-  int i;
+int pru_read(pod_t * pod) {
+  int input;
   /* Read ADC */
   // TODO: Remove Print
   printf("\n\n AIN0  AIN1  AIN2  AIN3  AIN4  AIN5  AIN6 \n");
   printf(" ----  ----  ----  ----  ----  ----  ----\n\n");
-  for (i = 0; i < 16; i++) {
+
+  // Loop over the external 16 channels
+  for (input = 0; input < 16; input++) {
     int j = 0;
-    while (!sharedMem_int[OFFSET_SHAREDRAM + 2] && j < 1000) {
-      // sleep(0.00000000001);
+    while (!pru_shared_mem_int[OFFSET_SHAREDRAM + 2] && j < 1000) {
       usleep(1);
       j++;
     }
@@ -99,25 +100,30 @@ int pru_read(sensor_pack_t *pack) {
       return -1;
     }
 
-    // memcpy(pack+(i*7), &(sharedMem_int[OFFSET_SHAREDRAM + 3]),
-    // sizeof(unsigned int) * 7);
+    int mux;
+    // Get the 7 internal AIN readings
+    for (mux=0;mux<7;mux++) {
+      sensor_t *s = get_sensor_by_address(pod, mux, input);
+      if (s != NULL) {
+        uint32_t val = pru_get_int(pru_shared_mem_int[OFFSET_SHAREDRAM + 3 + mux]);
 
-    printf(" %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 3]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 4]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 5]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 6]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 7]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 8]));
-    printf("  %4d", ProcessingADC1(sharedMem_int[OFFSET_SHAREDRAM + 9]));
+        printf(" %4d", val);
+
+        update_sensor(s, val);
+      } else {
+        printf("     ");
+      }
+    }
+
     printf("\n");
 
-    sharedMem_int[OFFSET_SHAREDRAM + 2] = 0;
+    pru_shared_mem_int[OFFSET_SHAREDRAM + 2] = 0;
   }
 
   return (0);
 }
 
-static unsigned int ProcessingADC1(unsigned int value) {
+static unsigned int pru_get_int(unsigned int value) {
   // Clear upper 20 bits
   return value & 0x00000FFF;
 }
