@@ -68,7 +68,7 @@ int main() {
   int k = 0;
   while (1) {
     char cmd[64] = CONFIG_CMD;
-    int i = 0;
+    size_t i = 0;
     for (i=0; i < strlen(cmd); i++) {
       write(fd, &cmd[i], 1);
       write(STDOUT_FILENO, &cmd[i], 1);
@@ -123,7 +123,7 @@ int main() {
     } else {
       printf("Sending Command: %s", cmd);
 
-      int i = 0;
+      size_t i = 0;
       for (i=0; i < strlen(cmd); i++) {
         write(fd, &cmd[i], 1);
         write(STDOUT_FILENO, &cmd[i], 1);

@@ -245,11 +245,6 @@ typedef struct pod {
   enum pod_caution cautions;
   enum pod_warning warnings;
 
-  // TODO: Temporary
-  int tmp_skates;
-  int tmp_brakes;
-  int tmp_clamps;
-
   bool calibrated;
 
   sem_t *boot_sem;

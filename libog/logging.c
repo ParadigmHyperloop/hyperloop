@@ -53,6 +53,7 @@ int log_connect() {
 
   // Get the server's IP Address from DNS
   server = gethostbyname(hostname);
+  
   if (server == NULL) {
     error("ERROR, no such host as %s\n", hostname);
     return -1;
@@ -63,6 +64,7 @@ int log_connect() {
   serveraddr.sin_family = AF_INET;
   bcopy((char *)server->h_addr, (char *)&serveraddr.sin_addr.s_addr,
         server->h_length);
+  info("Resolved %s => %s", hostname, inet_ntoa(serveraddr.sin_addr));
   serveraddr.sin_port = htons(portno);
 
   // Start TCP connection
@@ -102,8 +104,9 @@ int log_send(log_t *l) {
 
   /* send the message line to the server */
   ssize_t n = write(pod->logging_socket, buf, len);
+  info("LOG LENGTH: %d", len);
   if (n <= 0) {
-    fprintf(stderr, "ERROR writing to socket\n");
+    fprintf(stderr, "ERROR writing to socket: %s\n", strerror(errno));
     return -1;
   }
   /* print the server's reply */
@@ -112,7 +115,7 @@ int log_send(log_t *l) {
   return 0;
 }
 
-void *logging_main(void *arg) {
+void *logging_main(__unused void *arg) {
   debug("[logging_main] Thread Start");
 
   pod_t *pod = get_pod();
@@ -130,7 +133,7 @@ void *logging_main(void *arg) {
   // Post to the boot sem to tell the main thread that we have initialized
   // Main thread will assert that pod mode is still Boot
 
-  info("punching boot_sem to proceed");
+  info("Logging has connected, conntinuing with boot process");
   sem_post(pod->boot_sem);
 
   // Start the log forwarding loop until shutdown

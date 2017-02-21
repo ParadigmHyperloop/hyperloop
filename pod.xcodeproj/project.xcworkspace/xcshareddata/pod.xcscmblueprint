@@ -1,18 +1,20 @@
 {
-  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "C8B596C39EBB6348D8080F24973E0230300BE9F5",
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884+++C887218",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
 
   },
   "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
-    "C8B596C39EBB6348D8080F24973E0230300BE9F5" : 9223372036854775807,
-    "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884" : 9223372036854775807,
-    "F4190118DFDE29326BA549B9F22B991A427C2A95" : 9223372036854775807
+    "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884+++C887218" : 9223372036854775807,
+    "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884+++B3328EC" : 9223372036854775807,
+    "F4190118DFDE29326BA549B9F22B991A427C2A95+++30B26B2" : 9223372036854775807,
+    "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884+++197A278" : 9223372036854775807
   },
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "7EB3EF04-5693-442B-ADEE-47C3C1851D15",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
-    "C8B596C39EBB6348D8080F24973E0230300BE9F5" : "pod\/",
-    "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884" : "hyperloop-core\/",
-    "F4190118DFDE29326BA549B9F22B991A427C2A95" : "libimu-private\/"
+    "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884+++C887218" : "pod\/",
+    "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884+++B3328EC" : "hyperloop-core\/",
+    "F4190118DFDE29326BA549B9F22B991A427C2A95+++30B26B2" : "libimu-private\/",
+    "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884+++197A278" : "hyperloop-core\/"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "pod",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
@@ -21,17 +23,22 @@
     {
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:ParadigmTransportation\/hyperloop-core.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884"
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884+++197A278"
     },
     {
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:ParadigmTransportation\/hyperloop-core.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "C8B596C39EBB6348D8080F24973E0230300BE9F5"
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884+++B3328EC"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:ParadigmTransportation\/hyperloop-core.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "9071B2E3B6E4E2ADE31D0ECDF8A4D56D16835884+++C887218"
     },
     {
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:EdHurtig\/libimu-private.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F4190118DFDE29326BA549B9F22B991A427C2A95"
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F4190118DFDE29326BA549B9F22B991A427C2A95+++30B26B2"
     }
   ]
 }

@@ -109,7 +109,7 @@ int cmd_start_tcp_server(int portno) {
 /**
  * Process A single command
  */
-int cmd_do_command(int inputc, char *input, int outputc, char output[]) {
+int cmd_do_command(size_t inputc, char *input, size_t outputc, char output[]) {
   int i = 0;
   int count = 0;
   while (commands[i].name != NULL) {
@@ -127,7 +127,7 @@ int cmd_do_command(int inputc, char *input, int outputc, char output[]) {
 
   char *argv[CMD_MAX_ARGS];
   argv[0] = input;
-  int ci, argc = 1;
+  size_t ci, argc = 1;
 
   for (ci = 0; ci < (inputc - 1) && argc < CMD_MAX_ARGS; ci++) {
     if (input[ci] == ' ') {
@@ -159,7 +159,7 @@ int cmd_process_client(int serverfd) {
 
   // Accept the connection
   clientfd = accept(serverfd, (struct sockaddr *)&client_addr, &addrlen);
-  info("%s:%d connected as %d\n", inet_ntoa(client_addr.sin_addr),
+  info("Client %s:%d connected as fd %d", inet_ntoa(client_addr.sin_addr),
        ntohs(client_addr.sin_port), clientfd);
 
   if (clientfd < 0) {
@@ -237,30 +237,37 @@ int cmd_accept_client(int serverfd) {
 int cmd_process_request(int infd, int outfd) {
   char inbuf[MAX_PACKET_SIZE];
 
-  ssize_t nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE);
-  int base = 0;
+  ssize_t nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE - 1);
+  
   if (nbytes <= 0) {
-    warn("read error on fd %d", infd);
+    warn("read error on fd %d: %s", infd, strerror(errno));
     return -1;
-  } else {
-    int i = 0;
-    int nbytesout = 0;
-    while (i < nbytes) {
-      if (inbuf[i] == ';') {
-        inbuf[i] = '\0';
-        // Process the command
-        nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
-        write(outfd, cmdbuffer, nbytesout);
-        base = i+1;
-      }
-      i++;
-    }
-
-    nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
-    write(outfd, cmdbuffer, nbytesout);
-    write(outfd, "\n> ", 3);
-    return 0;
   }
+
+  int base = 0;
+  inbuf[nbytes] = '\0';
+  
+  debug("Recv new command '%s' from existing client (fd %d)", inbuf, infd);
+
+  int i = 0;
+  int nbytesout = 0;
+  while (i < nbytes) {
+    if (inbuf[i] == ';') {
+      inbuf[i] = '\0';
+      
+      // Process the command
+      nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
+      write(outfd, cmdbuffer, nbytesout);
+      base = i+1;
+    }
+    i++;
+  }
+
+  nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
+  write(outfd, cmdbuffer, nbytesout);
+  write(outfd, "\n> ", 3);
+  return 0;
+
 }
 
 /**
@@ -337,7 +344,6 @@ int cmd_server() {
     // Existing Clients
     for (i = 0; i < nclients; i++) {
       if (FD_ISSET(clients[i], &read_fd_set)) {
-        debug("Recv new command from existing client (fd %d)", clients[i]);
         if (cmd_process_request(clients[i], clients[i]) < 0) {
           // remove the client
           set_pod_mode(Emergency, "Operator Client %d (fd %d) disconnected", i,
@@ -366,7 +372,7 @@ int cmd_server() {
  * command server that will recieve commands from both stdin and over the TCP
  * command server
  */
-void *command_main(void *arg) {
+void *command_main(__unused void *arg) {
   int retval = cmd_server();
 
   if (retval < 0) {

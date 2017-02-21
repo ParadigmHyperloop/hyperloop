@@ -40,6 +40,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "libBBB.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
 // Local functions not used by outside world
 int checkOverlay(char *file);
 void initCMD(unsigned char cmd);
@@ -66,7 +69,7 @@ int addOverlay(char *dtb, char *overname) {
       printf("Copying to correct folder\n");
 
       FILE *f, *fnew;
-      long num;
+      size_t num;
       char *fileread;
       size_t result;
 
@@ -292,6 +295,7 @@ int getPinValue(int pinnum) {
   return value;
 }
 
+#pragma diagnostic ignored -Wunused-parameter
 //*************************************************
 //*                PWM FUNCTIONS                  *
 //*************************************************
@@ -319,6 +323,7 @@ int initPWM(int mgrnum, char *pin) {
 
   return 0;
 }
+
 
 int setPWMPeriod(int helpnum, char *pin, int period) {
   FILE *pwm;
@@ -448,9 +453,7 @@ unsigned char rxUART(int uart) {
 }
 
 int strUART(int uart, char *buf) {
-
-  int i;
-
+  size_t i;
   for (i = 0; i < strlen(buf); i++)
     txUART(uart, buf[i]);
 
@@ -760,3 +763,4 @@ int pauseNanoSec(long nano) {
   }
   return 0;
 }
+#pragma clang diagnostic pop

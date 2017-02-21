@@ -115,7 +115,7 @@
 #define CLAMP_PRESSURE_INPUTS                                                  \
   { 4, 5 }
 #define CLAMP_PRESSURE_ERR _LP_PRESSURE_ERR
-#define NOMINAL_CLAMP_BRAKING_ACCEL -8.134 // m/s^2 (-0.83 G)
+#define NOMINAL_CLAMP_BRAKING_ACCEL -8.134f // m/s^2 (-0.83 G)
 
 // --------------------------
 // Wheels

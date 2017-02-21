@@ -111,12 +111,12 @@ int main(int argc, char *argv[]) {
       printf("[TEST] hd: %X\tx: %f\ty: %f\tz: %f\twx: %f\twy: %f\twz: %f\t seq: %d\t stat: %X\t tp: %u\t crc: %X \t ckc: %X\t t: %llu\n", data.hd, data.x, data.y, data.z, data.wx, data.wy, data.wz, data.sequence, data.status, data.temperature, data.crc, data.computed_crc, getTime());
     }
 
-    average.x = (average.x + data.x) / 2.0;
-    average.y = (average.y + data.y) / 2.0;
-    average.z = (average.z + data.z) / 2.0;
-    average.wx = (average.wx + data.wx) / 2.0;
-    average.wy = (average.wy + data.wy) / 2.0;
-    average.wz = (average.wz + data.wz) / 2.0;
+    average.x = (average.x + data.x) / 2.0f;
+    average.y = (average.y + data.y) / 2.0f;
+    average.z = (average.z + data.z) / 2.0f;
+    average.wx = (average.wx + data.wx) / 2.0f;
+    average.wy = (average.wy + data.wy) / 2.0f;
+    average.wz = (average.wz + data.wz) / 2.0f;
 
     if (i >= config.spinup) {
       if (success < 0) {

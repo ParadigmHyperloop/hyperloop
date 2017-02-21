@@ -1,6 +1,6 @@
 #include "../pod.h"
 
-void pod_panic(int subsystem, char *file, int line, char *notes, ...) {
+void pod_panic(__unused int subsystem, char *file, int line, char *notes, ...) {
 
   static char msg[MAX_LOG_LINE];
   va_list arg;

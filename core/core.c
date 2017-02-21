@@ -29,7 +29,7 @@ void common_checks(pod_t *pod) {
 
   // Watchdog Timer
   if (pod->begin_time > 0) {
-    uint64_t now = get_time();
+    uint64_t now = get_time_usec();
     if (now - pod->begin_time >= WATCHDOG_TIMER) {
       if (!is_pod_stopped(pod)) {
         if (!(get_pod_mode() == Braking ||
@@ -44,7 +44,7 @@ void common_checks(pod_t *pod) {
 /**
  * Checks to be performed when the pod's state is Boot
  */
-void boot_state_checks(pod_t *pod) {
+void boot_state_checks(__unused pod_t *pod) {
   // Waiting for lp fill command to transition to LP Fill State
 }
 
@@ -193,7 +193,7 @@ void pushing_state_checks(pod_t *pod) {
   }
 
   if (pod->begin_time == 0) {
-    pod->begin_time = get_time();
+    pod->begin_time = get_time_usec();
   }
 }
 
@@ -234,7 +234,7 @@ void vent_state_checks(pod_t *pod) {
   }
 }
 
-void retrieval_state_checks(pod_t *pod) {
+void retrieval_state_checks(__unused pod_t *pod) {
 
 }
 
@@ -277,13 +277,10 @@ void lateral_sensor_checks(pod_t *pod) {
 int set_skate_target(int no, solenoid_state_t val, bool override) {
   // TODO: Implement Me
   pod_t *pod = get_pod();
-  if (is_surface_overriden(SKATE_OVERRIDE_ALL) && !override &&
-      pod->tmp_skates != val) {
+  if (is_surface_overriden(SKATE_OVERRIDE_ALL) && !override) {
     warn("Skates are in override mode!");
     return -1;
   }
-
-  pod->tmp_skates = val;
 
   set_solenoid(&(pod->skate_solonoids[no]), val);
   return 0;
@@ -293,14 +290,12 @@ int ensure_caliper_brakes(int no, solenoid_state_t val, bool override) {
   // TODO: Implement Me
   pod_t *pod = get_pod();
   uint64_t skate_override[] = SKATE_OVERRIDE_LIST;
-  if (is_surface_overriden(skate_override[no]) && !override &&
-      pod->tmp_brakes != val) {
+  if (is_surface_overriden(skate_override[no]) && !override) {
     warn("Skates are in override mode!");
     return -1;
   }
 
   set_solenoid(&(pod->wheel_solonoids[no]), val);
-  pod->tmp_brakes = val;
   return 0;
 }
 
@@ -331,12 +326,10 @@ int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override) {
     DECLARE_EMERGENCY("Invalid clamp_brake_state_t");
   }
 
-  // TODO: Remove
-  pod->tmp_clamps = val;
   return 0;
 }
 
-void adjust_brakes(pod_t *pod) {
+void adjust_brakes(__unused pod_t *pod) {
   int i;
   switch (get_pod_mode()) {
   case POST:
@@ -366,7 +359,7 @@ void adjust_brakes(pod_t *pod) {
   }
 }
 
-void adjust_skates(pod_t *pod) {
+void adjust_skates(__unused pod_t *pod) {
   // Skates are completely controlled by pod state, therefore we can just
   // switch over them
   int i;
@@ -452,57 +445,65 @@ void adjust_hp_fill(pod_t *pod) {
 /**
  * The Core Run Loop
  */
-void *core_main(void *arg) {
+void *core_main(__unused void *arg) {
 
   static double iteration_time = 0;
   static uint64_t last = 0;
 
+  info("Core Control Thread Started");
   pod_t *pod = get_pod();
 
   size_t imu_score = 0;
   pod_mode_t mode;
   imu_datagram_t imu_data;
+  
+  struct timespec next, now, scratch;
+  get_timespec(&next);
 
   while ((mode = get_pod_mode()) != Shutdown) {
+    // --------------------------------------------
+    // SECTION: Realtime Deadline Miss Detection
+    // --------------------------------------------
+
+    
+    clock_gettime(CLOCK_REALTIME, &now);
+    timespec_add_us(&next, CORE_PERIOD_USEC);
+    if (timespec_cmp(&now, &next) > 0) {
+      fprintf(stderr, "Deadline miss for core thread\n");
+      fprintf(stderr, "now: %ld sec %ld nsec next: %ld sec %ldnsec \n",
+              now.tv_sec, now.tv_nsec, next.tv_sec, next.tv_nsec);
+      exit(-1);
+    }
+    
     // --------------------------------------------
     // SECTION: Read new information from sensors
     // --------------------------------------------
 
-    if (pod->imu > -1 && imu_read(pod->imu, &imu_data) <= 0 &&
-        imu_score < IMU_SCORE_MAX) {
-      warn("BAD IMU READ");
-      imu_score += IMU_SCORE_STEP_UP;
-      if (imu_score > IMU_SCORE_MAX) {
-        DECLARE_EMERGENCY("IMU FAILED");
+    if (pod->imu > -1) {
+      if (imu_read(pod->imu, &imu_data) <= 0 && imu_score < IMU_SCORE_MAX) {
+        warn("BAD IMU READ");
+        imu_score += IMU_SCORE_STEP_UP;
+        if (imu_score > IMU_SCORE_MAX) {
+          DECLARE_EMERGENCY("IMU FAILED");
+        }
+      } else if (imu_score > 0) {
+        imu_score -= IMU_SCORE_STEP_DOWN;
       }
-    } else if (imu_score > 0) {
-      imu_score -= IMU_SCORE_STEP_DOWN;
+      add_imu_data(&imu_data, pod);
     }
 
-
-    add_imu_data(&imu_data, pod);
-    // ADC_READ
-
-    // ------------
-    // If ADC buffer ready
-    // ------------
-    // else do nothing
-    // ------------
-    // Done with ADC Read
-    // ------------
-
-  #ifdef HAS_PRU
+#ifdef HAS_PRU
     pru_read(pod);
-  #endif
+#endif
 
     // Pusher Plate D-Bounce
     if (pod->pusher_plate_override != 1) {
       if (get_value(&(pod->pusher_plate_raw)) == 1) {
-        if (get_time() - pod->last_pusher_plate_low > 0.1 * USEC_PER_SEC) {
+        if (get_time_usec() - pod->last_pusher_plate_low > 0.1 * USEC_PER_SEC) {
           set_value(&(pod->pusher_plate_raw), 1);
         }
       } else {
-        pod->last_pusher_plate_low = get_time();
+        pod->last_pusher_plate_low = get_time_usec();
         set_value(&(pod->pusher_plate), 0);
       }
     }
@@ -553,6 +554,7 @@ void *core_main(void *arg) {
       break;
     case Emergency:
       emergency_state_checks(pod);
+      break;
     case Shutdown:
       warn("pod in shutdown mode, but still running");
       break;
@@ -587,7 +589,7 @@ void *core_main(void *arg) {
     // --------------------------------------------
     // Heartbeat handling
     // --------------------------------------------
-    if (get_time() - pod->last_ping > HEARTBEAT_TIMEOUT * USEC_PER_SEC &&
+    if (get_time_usec() - pod->last_ping > HEARTBEAT_TIMEOUT * USEC_PER_SEC &&
         pod->last_ping > 0) {
       set_pod_mode(Emergency, "Heartbeat timeout");
     }
@@ -595,13 +597,23 @@ void *core_main(void *arg) {
     // --------------------------------------------
     // Yield to other threads
     // --------------------------------------------
-    usleep(CORE_THREAD_SLEEP);
+#ifdef __linux__
+    clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &next, NULL);
+#else
+    int64_t next_ns = timespec_to_nsec(&next);
+    get_timespec(&scratch);
+    int64_t scratch_ns = timespec_to_nsec(&scratch);
+    
+    assert(next_ns > -1);
+    assert(scratch_ns > -1);
+    assert(next_ns > scratch_ns);
 
-    usleep(0.1 * USEC_PER_SEC);
+    usleep((uint32_t) ((float)(next_ns - scratch_ns) * 0.9f / (float)NSEC_PER_USEC));
+#endif
     // -------------------------------------------------------
     // Compute how long it is taking for the main loop to run
     // -------------------------------------------------------
-    uint64_t now = get_time();
+    uint64_t now = get_time_usec();
 
     if (last == 0) {
       last = now;
@@ -612,10 +624,11 @@ void *core_main(void *arg) {
         iteration_time = (1.0 - ITERATION_TIME_ALPHA) * iteration_time + ITERATION_TIME_ALPHA * (double)((now - last));
       }
       last = now;
-      set_value_f(&(pod->core_speed),
-                  1.0 / (iteration_time / (double)USEC_PER_SEC));
+      set_value_f(&(pod->core_speed), 1.0f / ((float)iteration_time / (float)USEC_PER_SEC));
     }
   }
+  
+  info("Core Control Thread Exiting");
 
   return NULL;
 }

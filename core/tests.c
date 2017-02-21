@@ -62,7 +62,7 @@ int sensor_walker() {
   return 0;
 }
 
-int self_tests(pod_t *state) {
+int self_tests(__unused pod_t *state) {
   info("Starting Self Tests");
   int i;
   for (i=0;i<N_WALKS;i++) {

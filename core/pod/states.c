@@ -48,7 +48,7 @@ pod_t _pod = {
     .pusher_plate = POD_VALUE_INITIALIZER_INT32};
 
 uint64_t time_in_state(void) {
-  return (get_time() - get_pod()->last_transition);
+  return (get_time_usec() - get_pod()->last_transition);
 }
 
 /**
@@ -80,8 +80,8 @@ bool is_surface_overriden(uint64_t surface) {
 }
 
 int init_pod(void) {
-  pod_t *pod = get_pod();
-  debug("initializing pod at %p", pod);
+  pod_t *pod = &_pod;
+  debug("Pod struct located at %p", pod);
 
   // --------------------
   // INITIALIZE SOLENOIDS
@@ -413,7 +413,7 @@ int init_pod(void) {
     return -1;
   }
 
-  pod->initialized = get_time();
+  pod->initialized = get_time_usec();
   return 0;
 }
 
@@ -451,7 +451,7 @@ bool set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   if (validate_transition(old_mode, new_mode)) {
     pthread_rwlock_wrlock(&(pod->mode_mutex));
     get_pod()->mode = new_mode;
-    pod->last_transition = get_time();
+    pod->last_transition = get_time_usec();
     pthread_rwlock_unlock(&(pod->mode_mutex));
     warn("Request to set mode from %s to %s: approved",
          pod_mode_names[old_mode], pod_mode_names[new_mode]);
@@ -496,7 +496,7 @@ void set_value_f(pod_value_t *pod_field, float newValue) {
 }
 
 float get_sensor(sensor_t *sensor) {
-  float value = get_value_f(&(sensor->value)) + sensor->offset;
+  float value = get_value_f(&(sensor->value)) + (float)sensor->offset;
   return value;
 }
 
@@ -507,9 +507,9 @@ void set_sensor(sensor_t *sensor, float value) {
 float update_sensor(sensor_t *sensor, int32_t new_value) {
   float x = (float)new_value;
   float calibrated =
-      (sensor->cal_a * x * x) + (sensor->cal_b * x) + sensor->cal_c;
+      ((float)sensor->cal_a * x * x) + ((float)sensor->cal_b * x) + (float)sensor->cal_c;
   float filtered =
-      (1.0 - sensor->alpha) * get_sensor(sensor) + (sensor->alpha) * calibrated;
+      (1.0f - (float)sensor->alpha) * get_sensor(sensor) + ((float)sensor->alpha) * calibrated;
   set_sensor(sensor, filtered);
   return filtered;
 }

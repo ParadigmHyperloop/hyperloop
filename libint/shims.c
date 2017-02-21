@@ -1,6 +1,9 @@
 #include "libBBB.h"
 #include "shims.h"
 // GPIO Prototypes
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
 int initPin(int pinnum) { return 0; }
 int setPinDirection(int pinnum, char *dir) { return 0; }
 int setPinValue(int pinnum, int value) { return 0; }
@@ -73,3 +76,4 @@ int prussdrv_pru_clear_event(unsigned int host_interrupt,
                              unsigned int sysevent) {
   return 0;
 }
+#pragma clang diagnostic pop

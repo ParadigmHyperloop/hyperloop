@@ -4,8 +4,10 @@
 #include "../pod-helpers.h"
 
 #ifndef PACKET_INTERVAL
-#define PACKET_INTERVAL USEC_PER_SEC / 10 // 0.1 seconds in usec
+#define PACKET_INTERVAL (USEC_PER_SEC / 100) // 1000 Packets per second
 #endif
+
+#define TELEMETRY_PACKET_VERSION 2
 
 typedef enum {
   Message = 1,
@@ -26,9 +28,12 @@ typedef struct {
 
 typedef uint16_t relay_mask_t;
 
+//#pragma pack(
 typedef struct telemetry_packet {
+  uint8_t version;
+  uint16_t size;
   // state
-  uint32_t state;
+  uint8_t state;
   // Solenoids
   uint32_t solenoids;
   uint64_t timestamp;
@@ -101,6 +106,6 @@ void log_dump(pod_t *pod);
 int log_enqueue(log_t *l);
 
 
-int status_dump(pod_t *pod, char *buf, int len);
+int status_dump(pod_t *pod, char *buf, size_t len);
 
 #endif

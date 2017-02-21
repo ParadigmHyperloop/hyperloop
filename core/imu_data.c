@@ -14,16 +14,16 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
 
   // Exponential Moving Average
   float new_accel =
-      (1.0 - IMU_EMA_ALPHA) * acceleration + (IMU_EMA_ALPHA * accel);
+      (1.0f - IMU_EMA_ALPHA) * acceleration + (IMU_EMA_ALPHA * accel);
   debug("RAW %f, old: %f, filtered %f, ema: %f", accel, acceleration, new_accel, IMU_EMA_ALPHA);
   // Calculate the new_velocity (oldv + (olda + newa) / 2)
 
   // float dv = calcDu(dt, acceleration, new_accel);
-  float dv = ((dt * new_accel) / USEC_PER_SEC);
+  float dv = (float)((dt * new_accel) / USEC_PER_SEC);
   float new_velocity = (velocity + dv);
 
   // float dx = calcDu(dt, velocity, new_velocity);
-  float dx = ((dt * new_velocity) / USEC_PER_SEC);
+  float dx = (float)((dt * new_velocity) / USEC_PER_SEC);
   float new_position = (position + dx);
 
   // debug("dt: %lf us, dv: %f m/s, dx: %f m", dt, dv, dx);
@@ -43,7 +43,7 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
 
   static uint64_t last_imu_reading = 0;
   if (last_imu_reading == 0) {
-    last_imu_reading = get_time();
+    last_imu_reading = get_time_usec();
     return;
   }
 
@@ -53,7 +53,7 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
     return;
   }
 
-  uint64_t new_imu_reading = get_time();
+  uint64_t new_imu_reading = get_time_usec();
 
   uint64_t dt = new_imu_reading - last_imu_reading;
 
@@ -63,7 +63,7 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
 
   last_imu_reading = new_imu_reading;
 
-  float x = data->x + get_value_f(&(s->imu_calibration_x)) + 5.0;
+  float x = data->x + get_value_f(&(s->imu_calibration_x));
   float y = data->y + get_value_f(&(s->imu_calibration_y));
   float z = data->z + get_value_f(&(s->imu_calibration_z));
 

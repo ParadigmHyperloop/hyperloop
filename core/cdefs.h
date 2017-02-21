@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -50,5 +51,6 @@
 #define __XSTR__(s) __STR__(s)
 
 #define USEC_PER_SEC 1000000ull
-
+#define NSEC_PER_SEC 1000000000ull
+#define NSEC_PER_USEC 1000ull
 #endif

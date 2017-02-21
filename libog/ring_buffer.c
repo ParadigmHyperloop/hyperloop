@@ -2,7 +2,7 @@
 
 void ring_buf_init(ring_buf_t *buf, void *block, int size, int item_sz) {
   buf->head = buf->start = buf->tail = block;
-  buf->end = block + size * item_sz;
+  buf->end = (unsigned char *)block + size * item_sz;
   buf->sz = item_sz;
   buf->initialized = true;
   pthread_mutex_init(&(buf->mutex), NULL);
@@ -19,13 +19,13 @@ int ring_buf_append(const void *l, int size, ring_buf_t *buf) {
   
   memcpy(buf->head, l, size);
 
-  buf->head += buf->sz;
+  buf->head = (unsigned char *)buf->head + buf->sz;
   if (buf->head >= buf->end) {
     buf->head = buf->start;
   }
 
   if (buf->head == buf->tail) {
-    buf->tail += buf->sz;
+    buf->tail = (unsigned char *)buf->tail + buf->sz;
     if (buf->tail == buf->end) {
       buf->tail = buf->start;
     }
@@ -48,11 +48,13 @@ int ring_buf_pop(void *l, int size, ring_buf_t *buf) {
     pthread_mutex_unlock(&(buf->mutex));
     return -1;
   }
-
+  if (buf->sz < size) {
+    size = buf->sz;
+  }
   // Copy the element into the given location `l`
-  memcpy(l, buf->tail, buf->sz);
+  memcpy(l, buf->tail, size);
 
-  buf->tail += buf->sz;
+  buf->tail = (unsigned char *)buf->tail + buf->sz;
   if (buf->tail >= buf->end) {
     buf->tail = buf->start;
   }

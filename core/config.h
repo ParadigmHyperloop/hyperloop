@@ -23,18 +23,10 @@
 // --------------------------
 // Branding
 // --------------------------
-#define POD_COPY_OWNER "OpenLoop - Controls Team"
+#define POD_COPY_OWNER "Paradigm - Controls Team"
 #define POD_COPY_YEAR "2016"
-
-// Taken from interface.c
-#define COND 2
-#define COUNT 4
-#define PUSH_ACC 16
-#define TRACK_LENGTH 100 // Meters
-#define ACC_LENGTH 250
-#define POD_MASS 800 // Kg
-#define SIM_TIME 65
-#define LOOP_DURATION 1000;
+#define POD_CREDITS "Eddie Hurtig - Software Engineering Lead\n" \
+                    "Upen Naidoo - Embedded Systems Engineer\n"
 
 // Error Thresholds
 #define A_ERR_X 0.02
@@ -56,7 +48,7 @@
 // filter for the IMU input.
 // The formula used is:
 //   (new_accel = (1.0-IMU_EMA_ALPHA)*old_accel + IMU_EMA_ALPHA*accel_reading)
-#define IMU_EMA_ALPHA 0.01
+#define IMU_EMA_ALPHA 0.01f
 
 // -------------------------
 // Subsystem Identifiers
@@ -76,32 +68,43 @@
 // Each thread is a loop, how long should the thread sleep for each iteration
 // --------------------------------------------------------------------------
 #define CORE_THREAD_SLEEP 0
+#define CORE_PERIOD_USEC (USEC_PER_SEC / 1000)
 #define LOGGING_THREAD_SLEEP 5000
 
 // --------------
 // Debug Printing
 // --------------
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+
 #ifdef POD_DEBUG
 #define FLINE __FILE__ ":" __XSTR__(__LINE__)
 #define output(prefix_, fmt_, ...)                                             \
   pod_log((prefix_ "[%s] {" FLINE "} " fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
 #else
 #define output(prefix_, fmt_, ...)                                             \
-  pod_log((prefix_ fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
+  pod_log((prefix_ fmt_ "\n"), ##__VA_ARGS__)
 #endif
+
+#ifdef POD_DEBUG
 #define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
+#else 
+#define debug(fmt_, ...)
+#endif
+
 #define warn(fmt_, ...) output("[WARN]  ", fmt_, ##__VA_ARGS__)
-#define error(fmt_, ...) output("[ERROR] ", fmt_, ##__VA_ARGS__)
+#define error(fmt_, ...) output("[ERROR]  ", fmt_, ##__VA_ARGS__)
 #define info(fmt_, ...) output("[INFO]  ", fmt_, ##__VA_ARGS__)
 #define note(fmt_, ...) output("[NOTE]  ", fmt_, ##__VA_ARGS__)
 #define fatal(fmt_, ...) output("[FATAL] ", fmt_, ##__VA_ARGS__)
 #define panic(subsystem, notes, ...)                                           \
   pod_panic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 
+#pragma clang diagnostic pop
+
 // Helper that wraps set_pod_mode but adds file and line number
 // REVIEW: Probably should remove
-#define DECLARE_EMERGENCY(message)                                             \
-  set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
+#define DECLARE_EMERGENCY(message, ...)                                             \
+  set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message, ##__VA_ARGS__)
 
 // ------------------
 // Primary Braking Thresholds

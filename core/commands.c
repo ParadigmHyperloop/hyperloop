@@ -20,10 +20,14 @@
 
 extern char *pod_mode_names[];
 
-int helpCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   int count = snprintf(
       &outbuf[0], outbufc, "%s",
-      "OpenLoop Pod CLI " POD_CLI_VERSION ". Copyright " POD_COPY_YEAR "\n"
+      "OpenLoop Pod CLI " POD_CLI_VERSION ". Copyright " POD_COPY_YEAR " "
+      POD_COPY_OWNER "\n"
+      POD_CREDITS
       "This tool allows you to control various aspects of the pod\n"
       " - TCP:"
       __XSTR__(CMD_SVR_PORT)
@@ -45,25 +49,25 @@ int helpCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   return count;
 }
 
-int pingCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int pingCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
-  pod->last_ping = get_time();
+  pod->last_ping = get_time_usec();
   return snprintf(&outbuf[0], outbufc, "PONG");
 }
 
-int calibrateCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   pod_calibrate();
   pod_reset();
   return snprintf(&outbuf[0], outbufc, "CALIBRATION SET\nX: %f\nY: %f\nZ: %f\n", get_value_f(&(pod->imu_calibration_x)), get_value_f(&(pod->imu_calibration_y)), get_value_f(&(pod->imu_calibration_z)));
 }
 
-int resetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int resetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_reset();
   return snprintf(&outbuf[0], outbufc, "OK");
 }
 
-int readyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
 
   int n;
@@ -80,7 +84,7 @@ int readyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   return n;
 }
 
-int armCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   if (get_value(&(pod->pusher_plate)) == 1) {
     return snprintf(outbuf, outbufc, "ERROR: PUSHER PLATE DEPRESSED CANNOT ARM");
@@ -94,7 +98,7 @@ int armCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   return snprintf(outbuf, outbufc, "Armed");
 }
 
-int ventCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
 
   if (is_pod_stopped(pod)) {
@@ -104,14 +108,14 @@ int ventCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   }
 }
 
-int statusCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int statusCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
 
   return status_dump(pod, outbuf, outbufc);
 
 }
 
-int fillCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int fillCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (argc == 2) {
     if (strncmp(argv[1], "lp", 2) == 0) {
       if (start_lp_fill()) {
@@ -130,7 +134,7 @@ int fillCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   return snprintf(outbuf, outbufc, "Usage: fill <lp|hp>");
 }
 
-int overrideCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (argc < 3) {
     return snprintf(outbuf, outbufc,
                     "Usage: override <surface> [<number>] <new_value>%d",
@@ -161,7 +165,7 @@ int overrideCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   return 0;
 }
 
-int offsetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int offsetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
 
   if (argc < 3) {
@@ -181,12 +185,12 @@ int offsetCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
                   old_offset, offset, get_sensor(sensor));
 }
 
-int emergencyCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int emergencyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   set_pod_mode(Emergency, "Command Line Initialized Emergency");
   return snprintf(outbuf, outbufc, "Pod Mode: %d", get_pod_mode());
 }
 
-int exitCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int exitCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (argc > 1) {
     pod_exit(atoi(argv[1]));
   } else {
@@ -195,12 +199,12 @@ int exitCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
   return -1;
 }
 
-int killCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int killCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   panic(POD_COMMAND_SUBSYSTEM, "Command Line Initiated Kill Command");
   return -1;
 }
 
-int pushCommand(int argc, char *argv[], int outbufc, char outbuf[]) {
+int pushCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
 
   if (argc > 1) {
@@ -239,3 +243,4 @@ command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "arm", .func = armCommand},
                         {.name = "e", .func = emergencyCommand},
                         {.name = NULL}};
+#pragma clang diagnostic pop

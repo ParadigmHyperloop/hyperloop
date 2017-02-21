@@ -16,5 +16,5 @@
 
 typedef struct {
   char *name;
-  int (*func)(int argc, char *argv[], int outbufc, char outbuf[]);
+  int (*func)(size_t argc, char *argv[], size_t outbufc, char outbuf[]);
 } command_t;

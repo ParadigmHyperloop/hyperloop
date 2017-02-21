@@ -69,13 +69,14 @@ relay_mask_t get_relay_mask(pod_t *pod) {
 
 telemetry_packet_t make_telemetry(pod_t *pod) {
   int i;
-
+  
   telemetry_packet_t packet = {
-    // state
+//    .version = TELEMETRY_PACKET_VERSION,
+//    .size = (uint16_t)sizeof(telemetry_packet_t),
     .state = get_pod_mode(),
     // Solenoids
     .solenoids = get_relay_mask(pod),
-    .timestamp = get_time(),
+    .timestamp = get_time_usec(),
     // IMU
     .position_x = get_value_f(&(pod->position_x)),
     .position_y = get_value_f(&(pod->position_y)),
@@ -110,7 +111,7 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
     .currents = {0},
     // Photo
     .rpms = {0},
-    .stripe_count = get_value_f(&(pod->stripe_count))
+    .stripe_count = (uint16_t)get_value_f(&(pod->stripe_count))
   };
 
   // Distance sensors
@@ -182,7 +183,7 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
   return packet;
 }
 
-int status_dump(pod_t *pod, char *buf, int len) {
+int status_dump(pod_t *pod, char *buf, size_t len) {
   int c = 0;
   int i = 0;
 
@@ -237,15 +238,18 @@ int status_dump(pod_t *pod, char *buf, int len) {
                  (is_solenoid_open(&(pod->vent_solenoid)) ? "open" : "closed"));
 
    sensor_t *s = NULL;
-   for (i=0;i<sizeof(pod->sensors)/sizeof(pod->sensors[0]);i++) {
-     s = pod->sensors[i];
+  size_t j;
+  for (j=0;j<sizeof(pod->sensors)/sizeof(pod->sensors[0]);j++) {
+     s = pod->sensors[j];
      if (s != NULL) {
        c += snprintf(&buf[c], len - c, "%s: \t%f\n", s->name, get_sensor(s));
      }
-   }
+  }
 
-   return c;
+  return c;
 }
+
+
 
 void log_dump(pod_t *pod) {
 #ifdef POD_DEBUG
@@ -257,20 +261,18 @@ void log_dump(pod_t *pod) {
 
   printf("%s", s);
 #endif
-
+  
+  
   // Telemetry streaming
   static uint64_t last_packet = 0;
 
-  if (last_packet == 0) {
-    last_packet = get_time();
-  }
-
-  if (get_time() - last_packet > PACKET_INTERVAL) {
-    debug("Dumping telemetry packet");
+  if (get_time_usec() - last_packet > PACKET_INTERVAL) {
+    last_packet = get_time_usec();
     telemetry_packet_t packet = make_telemetry(pod);
     log_t l = {.type = Packet, .v = {.packet = packet}};
     log_enqueue(&l);
   }
+  
 }
 
 int log_enqueue(log_t *l) {

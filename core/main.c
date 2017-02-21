@@ -153,13 +153,16 @@ void exit_signal_handler(int sig) {
 #endif
 }
 
-void sigpipe_handler(int sig) { error("SIGPIPE Recieved"); }
+void sigpipe_handler(__unused int sig) { error("SIGPIPE Recieved"); }
 
 int main(int argc, char *argv[]) {
+  printf("<<< Paradigm HyperLoop Pod Controller >>>\n\nCopyright " POD_COPY_YEAR " "
+         POD_COPY_OWNER "\n\nCredits:\n" POD_CREDITS "\n");
+
   int boot_sem_ret = 0;
 
   parse_args(argc, argv);
-
+  
   info("POD Booting...");
   info("Initializing Pod");
 
@@ -200,6 +203,8 @@ int main(int argc, char *argv[]) {
         break;
       }
     }
+  } else {
+    pod->imu = -1;
   }
 
 #ifdef HAS_PRU
@@ -247,6 +252,7 @@ int main(int argc, char *argv[]) {
   }
 
   info("Booting Core Controller Logic Thread");
+
   pthread_create(&(pod->core_thread), NULL, core_main, NULL);
 
   // we're using the built-in linux Round Roboin scheduling
@@ -255,7 +261,7 @@ int main(int argc, char *argv[]) {
   set_pthread_priority(pod->core_thread, 70);
   set_pthread_priority(pod->logging_thread, 10);
   set_pthread_priority(pod->cmd_thread, 20);
-
+  
   pthread_join(pod->core_thread, NULL);
 
   if (pod->imu > -1) {

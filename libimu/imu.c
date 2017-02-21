@@ -63,7 +63,7 @@ union bytes_to_float
 // };
 
 unsigned char imubuf[IMU_MESSAGE_SIZE] = {0};
-unsigned int imubufc = 0;
+int imubufc = 0;
 /**
  * fills the buffer pointed to (should be imubuf) until it contains n elements
  */
@@ -145,7 +145,7 @@ ssize_t imu_read(int fd, imu_datagram_t * gram) {
     .z = ((union bytes_to_float) { .b = { imubuf[27], imubuf[26], imubuf[25], imubuf[24] } }).f,
     .status = imubuf[28],
     .sequence = imubuf[29],
-    .temperature = (imubuf[30] << 8) | (imubuf[31]),
+    .temperature = (uint16_t)(imubuf[30] << 8) | (imubuf[31]),
     .crc = (imubuf[32] << 24) | (imubuf[33] << 16) | (imubuf[34] << 8) | (imubuf[35] << 0),
     .computed_crc = crc_calc(&imubuf[0], 32)
   };

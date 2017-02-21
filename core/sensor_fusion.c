@@ -38,10 +38,10 @@ void integrate_imu(float timestep, const float acc[3], float vel[3], float pos[3
   dv2[3] = -rotvel[0];
   dv2[7] = -rotvel[1];
   dv2[11] = -rotvel[2];
-  dv2[15] = 0.0;
+  dv2[15] = 0.0f;
   for (k = 0; k < 4; k++) {
     for (i0 = 0; i0 < 4; i0++) {
-      dv3[i0 + (k << 2)] = 0.5 * dv2[i0 + (k << 2)];
+      dv3[i0 + (k << 2)] = 0.5f * dv2[i0 + (k << 2)];
     }
   }
 
@@ -64,21 +64,21 @@ void integrate_imu(float timestep, const float acc[3], float vel[3], float pos[3
     b_y += y[k + 1];
   }
 
-  normQuat = sqrt(b_y);
+  normQuat = (float)sqrt(b_y);
   for (k = 0; k < 4; k++) {
     quat[k] /= normQuat;
   }
 
-  b_y = timestep * 9.8;
-  dv5[0] = (1.0 - 2.0 * (quat[2] * quat[2])) - 2.0 * (quat[3] * quat[3]);
-  dv5[3] = 2.0 * (quat[1] * quat[2] - quat[0] * quat[3]);
-  dv5[6] = 2.0 * (quat[1] * quat[3] + quat[0] * quat[2]);
-  dv5[1] = 2.0 * (quat[1] * quat[2] + quat[0] * quat[3]);
-  dv5[4] = (1.0 - 2.0 * (quat[1] * quat[1])) - 2.0 * (quat[3] * quat[3]);
-  dv5[7] = 2.0 * (quat[2] * quat[3] - quat[0] * quat[1]);
-  dv5[2] = 2.0 * (quat[1] * quat[3] - quat[0] * quat[2]);
-  dv5[5] = 2.0 * (quat[2] * quat[3] + quat[0] * quat[1]);
-  dv5[8] = (1.0 - 2.0 * (quat[1] * quat[1])) - 2.0 * (quat[2] * quat[2]);
+  b_y = timestep * 9.8f;
+  dv5[0] = (1.0f - 2.0f * (quat[2] * quat[2])) - 2.0f * (quat[3] * quat[3]);
+  dv5[3] = 2.0f * (quat[1] * quat[2] - quat[0] * quat[3]);
+  dv5[6] = 2.0f * (quat[1] * quat[3] + quat[0] * quat[2]);
+  dv5[1] = 2.0f * (quat[1] * quat[2] + quat[0] * quat[3]);
+  dv5[4] = (1.0f - 2.0f * (quat[1] * quat[1])) - 2.0f * (quat[3] * quat[3]);
+  dv5[7] = 2.0f * (quat[2] * quat[3] - quat[0] * quat[1]);
+  dv5[2] = 2.0f * (quat[1] * quat[3] - quat[0] * quat[2]);
+  dv5[5] = 2.0f * (quat[2] * quat[3] + quat[0] * quat[1]);
+  dv5[8] = (1.0f - 2.0f * (quat[1] * quat[1])) - 2.0f * (quat[2] * quat[2]);
   for (k = 0; k < 3; k++) {
     d0 = 0.0;
     for (i0 = 0; i0 < 3; i0++) {
@@ -141,18 +141,18 @@ void sensor_fusion(imu_datagram_t *data, pod_t *s) {
   static uint64_t last_time = 0;
 
   if (last_time == 0) {
-    last_time = get_time();
+    last_time = get_time_usec();
     return;
   }
 
-  uint64_t now = get_time();
+  uint64_t now = get_time_usec();
   if (now-last_time <= 0) {
     warn("Called Within 1us of last");
     return;
   }
 
   //TODO: fix the magic timestep number to something global
-  integrate_imu(.001, acc, vel, pos, rotvel, quat);
+  integrate_imu(.001f, acc, vel, pos, rotvel, quat);
 
   last_time = now;
 

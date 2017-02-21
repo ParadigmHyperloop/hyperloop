@@ -43,7 +43,15 @@
  *
  * @return The current timestamp in microseconds
  */
-uint64_t get_time(void);
+uint64_t get_time_usec(void);
+
+void get_timespec(struct timespec *t);
+
+void timespec_add_us(struct timespec *t, long us);
+
+int timespec_cmp(struct timespec *a, struct timespec *b);
+
+int64_t timespec_to_nsec(struct timespec *t);
 
 /**
  * Calibrate sensors based on currently read values (zero out)

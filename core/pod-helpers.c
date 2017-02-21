@@ -19,22 +19,22 @@
 /**
  * Determine if emergency brakes are engaged
  */
-bool any_clamp_brakes(pod_t *pod) {
+bool any_clamp_brakes(__unused pod_t *pod) {
   // TODO: no transducers on clamp lines
-  return pod->tmp_clamps;
+  return false;
 }
 
 /**
  * Determine if emergency brakes are engaged
  */
-bool any_calipers(pod_t *pod) {
+bool any_calipers(__unused pod_t *pod) {
   // TODO: no transducers on caliper lines
-  return pod->tmp_brakes;
+  return false;
 }
 
 float get_stopping_distance(pod_t *pod) {
   float v = get_value_f(&(pod->velocity_x));
-  return (-(v * v) / (2.0 * NOMINAL_CLAMP_BRAKING_ACCEL));
+  return (-(v * v) / (2.0f * NOMINAL_CLAMP_BRAKING_ACCEL));
 }
 
 float get_remaining_distance(pod_t *pod) {
@@ -45,7 +45,7 @@ float get_remaining_distance(pod_t *pod) {
 float get_stopping_deccel(pod_t *pod) {
   float remaining_distance = get_remaining_distance(pod);
   float v = get_value_f(&(pod->velocity_x));
-  return -(v * v) / (2.0 * remaining_distance);
+  return -(v * v) / (2.0f * remaining_distance);
 }
 
 /**
@@ -88,7 +88,7 @@ bool is_lp_vented(pod_t *pod) {
 }
 
 sensor_t * get_sensor_by_name(pod_t *pod, char *name) {
-  int i;
+  size_t i;
   sensor_t *s = NULL;
   for (i=0;i<sizeof(pod->sensors)/sizeof(pod->sensors[0]);i++) {
     if ((s = pod->sensors[i]) != NULL) {
@@ -101,7 +101,7 @@ sensor_t * get_sensor_by_name(pod_t *pod, char *name) {
 }
 
 sensor_t * get_sensor_by_address(pod_t *pod, int mux, int input) {
-  int i;
+  size_t i;
   sensor_t *s = NULL;
   for (i=0;i<sizeof(pod->sensors)/sizeof(pod->sensors[0]);i++) {
     if ((s = pod->sensors[i]) != NULL) {
