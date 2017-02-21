@@ -57,5 +57,5 @@ float get_stopping_distance(pod_t *pod);
 
 float get_stopping_deccel(pod_t *pod);
 
-sensor_t * get_sensor_by_name(pod_t *pod, char *name);
-sensor_t * get_sensor_by_address(pod_t *pod, int mux, int input);
+sensor_t *get_sensor_by_name(pod_t *pod, char *name);
+sensor_t *get_sensor_by_address(pod_t *pod, int mux, int input);

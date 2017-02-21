@@ -14,38 +14,35 @@
  * Please see http://www.opnlp.co for contact information
  ****************************************************************************/
 
-#include "pod.h"
-#include "pod-helpers.h"
 #include "commands.h"
+#include "pod-helpers.h"
+#include "pod.h"
 
 extern char *pod_mode_names[];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
-  int count = snprintf(
-      &outbuf[0], outbufc, "%s",
-      "OpenLoop Pod CLI " POD_CLI_VERSION ". Copyright " POD_COPY_YEAR " "
-      POD_COPY_OWNER "\n"
-      POD_CREDITS
-      "This tool allows you to control various aspects of the pod\n"
-      " - TCP:"
-      __XSTR__(CMD_SVR_PORT)
-      "\n - STDIN\n\n"
-      "Available Commands:\n"
-      " - help\n"
-      " - ping\n"
-      " - ready\n"
-      " - brake\n"
-      " - fill\n"
-      " - skate\n"
-      " - status\n"
-      " - offset\n"
-      " - calibrate\n"
-      " - reset\n"
-      " - emergency (alias: e)\n"
-      " - exit\n"
-      " - kill\n");
+  int count =
+      snprintf(&outbuf[0], outbufc, "%s",
+               "OpenLoop Pod CLI " POD_CLI_VERSION ". Copyright " POD_COPY_YEAR
+               " " POD_COPY_OWNER "\n" POD_CREDITS
+               "This tool allows you to control various aspects of the pod\n"
+               " - TCP:" __XSTR__(CMD_SVR_PORT) "\n - STDIN\n\n"
+                                                "Available Commands:\n"
+                                                " - help\n"
+                                                " - ping\n"
+                                                " - ready\n"
+                                                " - brake\n"
+                                                " - fill\n"
+                                                " - skate\n"
+                                                " - status\n"
+                                                " - offset\n"
+                                                " - calibrate\n"
+                                                " - reset\n"
+                                                " - emergency (alias: e)\n"
+                                                " - exit\n"
+                                                " - kill\n");
   return count;
 }
 
@@ -59,7 +56,10 @@ int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   pod_calibrate();
   pod_reset();
-  return snprintf(&outbuf[0], outbufc, "CALIBRATION SET\nX: %f\nY: %f\nZ: %f\n", get_value_f(&(pod->imu_calibration_x)), get_value_f(&(pod->imu_calibration_y)), get_value_f(&(pod->imu_calibration_z)));
+  return snprintf(&outbuf[0], outbufc, "CALIBRATION SET\nX: %f\nY: %f\nZ: %f\n",
+                  get_value_f(&(pod->imu_calibration_x)),
+                  get_value_f(&(pod->imu_calibration_y)),
+                  get_value_f(&(pod->imu_calibration_z)));
 }
 
 int resetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
@@ -87,7 +87,8 @@ int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   if (get_value(&(pod->pusher_plate)) == 1) {
-    return snprintf(outbuf, outbufc, "ERROR: PUSHER PLATE DEPRESSED CANNOT ARM");
+    return snprintf(outbuf, outbufc,
+                    "ERROR: PUSHER PLATE DEPRESSED CANNOT ARM");
   }
 
   if (!core_pod_checklist(pod)) {
@@ -104,7 +105,9 @@ int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (is_pod_stopped(pod)) {
     return snprintf(outbuf, outbufc, "Venting Started");
   } else {
-    return snprintf(outbuf, outbufc, "Pod Not Determined to be Stopped, override solenoid to vent");
+    return snprintf(
+        outbuf, outbufc,
+        "Pod Not Determined to be Stopped, override solenoid to vent");
   }
 }
 
@@ -112,7 +115,6 @@ int statusCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
 
   return status_dump(pod, outbuf, outbufc);
-
 }
 
 int fillCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
@@ -181,7 +183,8 @@ int offsetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 
   double old_offset = sensor->offset;
   sensor->offset = offset;
-  return snprintf(outbuf, outbufc, "Changed offset of %s: %lf -> %lf. Reading: %f", sensor->name,
+  return snprintf(outbuf, outbufc,
+                  "Changed offset of %s: %lf -> %lf. Reading: %f", sensor->name,
                   old_offset, offset, get_sensor(sensor));
 }
 

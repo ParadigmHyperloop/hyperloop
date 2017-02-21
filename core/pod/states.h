@@ -31,17 +31,9 @@ typedef struct pod_value {
 } pod_value_t;
 
 #define POD_VALUE_INITIALIZER_FL                                               \
-  {                                                                            \
-    { .fl = 0.0 }                                                              \
-    , PTHREAD_RWLOCK_INITIALIZER                                               \
-  }
+  { {.fl = 0.0}, PTHREAD_RWLOCK_INITIALIZER }
 #define POD_VALUE_INITIALIZER_INT32                                            \
-  {                                                                            \
-    { .int32 = 0 }                                                             \
-    , PTHREAD_RWLOCK_INITIALIZER                                               \
-  }
-
-
+  { {.int32 = 0}, PTHREAD_RWLOCK_INITIALIZER }
 
 typedef enum clamp_brake_state {
   kClampBrakeClosed,
@@ -94,7 +86,6 @@ typedef struct {
   sensor_t charge;
   sensor_t remaining_time;
 } pod_battery_t;
-
 
 typedef enum pod_caution {
   PodCautionNone = 0x00,
@@ -235,7 +226,7 @@ typedef struct pod {
   // Pointers to all the solenoids that are connected to the relays
   // (Don't think too much about this one, it is really just a convienience)
   solenoid_t *relays[N_RELAY_CHANNELS];
-  sensor_t *sensors[N_MUX_INPUTS*N_MUXES];
+  sensor_t *sensors[N_MUX_INPUTS * N_MUXES];
 
   int imu;
   int logging_socket;

@@ -14,8 +14,8 @@
  * Please see http://www.opnlp.co for contact information
  ****************************************************************************/
 
-#include "pod.h"
 #include "pod-helpers.h"
+#include "pod.h"
 
 #define N_WALKS 10
 
@@ -29,7 +29,7 @@ int relay_walk() {
   pod_t *pod = get_pod();
   solenoid_t *s;
   int i;
-  for (i=0;i<N_RELAY_CHANNELS;i++) {
+  for (i = 0; i < N_RELAY_CHANNELS; i++) {
     s = pod->relays[i];
     info("Opening Solenoid on relay %d", i);
     info(" > gpio: %d", s->gpio);
@@ -65,7 +65,7 @@ int sensor_walker() {
 int self_tests(__unused pod_t *state) {
   info("Starting Self Tests");
   int i;
-  for (i=0;i<N_WALKS;i++) {
+  for (i = 0; i < N_WALKS; i++) {
     if (relay_walk() < 0) {
       error("Relay Walk Test Failed");
       exit(1);

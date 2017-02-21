@@ -14,8 +14,8 @@
  * Please see http://www.opnlp.co for contact information
  ****************************************************************************/
 
-#include "pod.h"
 #include "pod-helpers.h"
+#include "pod.h"
 #ifdef HAS_PRU
 #include "pru.h"
 #endif
@@ -24,7 +24,6 @@ int lateralRead(pod_t *pod);
 int skateRead(pod_t *pod);
 int brakingRead(pod_t *pod);
 
-
 void common_checks(pod_t *pod) {
 
   // Watchdog Timer
@@ -32,8 +31,7 @@ void common_checks(pod_t *pod) {
     uint64_t now = get_time_usec();
     if (now - pod->begin_time >= WATCHDOG_TIMER) {
       if (!is_pod_stopped(pod)) {
-        if (!(get_pod_mode() == Braking ||
-              get_pod_mode() == Vent ||
+        if (!(get_pod_mode() == Braking || get_pod_mode() == Vent ||
               get_pod_mode() == Retrieval)) {
           set_pod_mode(Emergency, "Watchdog Timer Expired");
         }
@@ -234,9 +232,7 @@ void vent_state_checks(pod_t *pod) {
   }
 }
 
-void retrieval_state_checks(__unused pod_t *pod) {
-
-}
+void retrieval_state_checks(__unused pod_t *pod) {}
 
 void skate_sensor_checks(pod_t *pod) {
   int i;
@@ -437,10 +433,10 @@ void adjust_hp_fill(pod_t *pod) {
     open_solenoid(&(pod->hp_fill_valve));
     break;
   default:
-    panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a hp fill decsion");
+    panic(POD_CORE_SUBSYSTEM,
+          "Pod Mode unknown, cannot make a hp fill decsion");
   }
 }
-
 
 /**
  * The Core Run Loop
@@ -456,7 +452,7 @@ void *core_main(__unused void *arg) {
   size_t imu_score = 0;
   pod_mode_t mode;
   imu_datagram_t imu_data;
-  
+
   struct timespec next, now, scratch;
   get_timespec(&next);
 
@@ -465,7 +461,6 @@ void *core_main(__unused void *arg) {
     // SECTION: Realtime Deadline Miss Detection
     // --------------------------------------------
 
-    
     clock_gettime(CLOCK_REALTIME, &now);
     timespec_add_us(&next, CORE_PERIOD_USEC);
     if (timespec_cmp(&now, &next) > 0) {
@@ -474,7 +469,7 @@ void *core_main(__unused void *arg) {
               now.tv_sec, now.tv_nsec, next.tv_sec, next.tv_nsec);
       exit(-1);
     }
-    
+
     // --------------------------------------------
     // SECTION: Read new information from sensors
     // --------------------------------------------
@@ -563,7 +558,6 @@ void *core_main(__unused void *arg) {
       break;
     }
 
-
     common_checks(pod);
     // -------------------------------------------
     // SECTION: Change the control surfaces
@@ -594,21 +588,22 @@ void *core_main(__unused void *arg) {
       set_pod_mode(Emergency, "Heartbeat timeout");
     }
 
-    // --------------------------------------------
-    // Yield to other threads
-    // --------------------------------------------
+// --------------------------------------------
+// Yield to other threads
+// --------------------------------------------
 #ifdef __linux__
     clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &next, NULL);
 #else
     int64_t next_ns = timespec_to_nsec(&next);
     get_timespec(&scratch);
     int64_t scratch_ns = timespec_to_nsec(&scratch);
-    
+
     assert(next_ns > -1);
     assert(scratch_ns > -1);
     assert(next_ns > scratch_ns);
 
-    usleep((uint32_t) ((float)(next_ns - scratch_ns) * 0.9f / (float)NSEC_PER_USEC));
+    usleep((uint32_t)((float)(next_ns - scratch_ns) * 0.9f /
+                      (float)NSEC_PER_USEC));
 #endif
     // -------------------------------------------------------
     // Compute how long it is taking for the main loop to run
@@ -621,13 +616,15 @@ void *core_main(__unused void *arg) {
       if (iteration_time == 0) {
         iteration_time = (double)((now - last));
       } else {
-        iteration_time = (1.0 - ITERATION_TIME_ALPHA) * iteration_time + ITERATION_TIME_ALPHA * (double)((now - last));
+        iteration_time = (1.0 - ITERATION_TIME_ALPHA) * iteration_time +
+                         ITERATION_TIME_ALPHA * (double)((now - last));
       }
       last = now;
-      set_value_f(&(pod->core_speed), 1.0f / ((float)iteration_time / (float)USEC_PER_SEC));
+      set_value_f(&(pod->core_speed),
+                  1.0f / ((float)iteration_time / (float)USEC_PER_SEC));
     }
   }
-  
+
   info("Core Control Thread Exiting");
 
   return NULL;

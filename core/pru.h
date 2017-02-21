@@ -1,14 +1,14 @@
 #ifndef OPENLOOP_PRU_H
 #define OPENLOOP_PRU_H
 
-#include "pod.h"
 #include "pod-helpers.h"
+#include "pod.h"
 
-#include <sys/mman.h>
 #include <errno.h>
+#include <sys/mman.h>
 #ifdef HAS_PRU
-#include <prussdrv.h>
 #include <pruss_intc_mapping.h>
+#include <prussdrv.h>
 #else
 #include "shims.h"
 #endif

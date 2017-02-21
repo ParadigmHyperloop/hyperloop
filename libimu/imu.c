@@ -15,13 +15,13 @@
  ****************************************************************************/
 
 #include "imu.h"
-#include <termios.h>
+#include "crc.h"
+#include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <assert.h>
-#include "crc.h"
+#include <termios.h>
 
 #define IMU_MESSAGE_SIZE 36
 
@@ -41,12 +41,10 @@
 #define IMU_STATUS_OK 0x77
 #endif
 
-union bytes_to_float
-{
-   unsigned char b[4];
-   float f;
+union bytes_to_float {
+  unsigned char b[4];
+  float f;
 } b2f;
-
 
 // example datagram, MSB is always printed first
 // uint8_t example[32] = {
@@ -83,7 +81,7 @@ ssize_t serial_read(int fd, unsigned char *buf, int n) {
   return r;
 }
 
-ssize_t imu_read(int fd, imu_datagram_t * gram) {
+ssize_t imu_read(int fd, imu_datagram_t *gram) {
   int i = 0;
   int remaining = IMU_MESSAGE_SIZE - imubufc;
 
@@ -109,9 +107,8 @@ ssize_t imu_read(int fd, imu_datagram_t * gram) {
 
   assert(imubufc == 36);
 
-  unsigned char ideal[4] = {0xFE, 0x81, 0xFF,0x55};
+  unsigned char ideal[4] = {0xFE, 0x81, 0xFF, 0x55};
   assert(imubufc == 36);
-
 
   int success = 1;
   assert(imubufc == 36);
@@ -126,8 +123,8 @@ ssize_t imu_read(int fd, imu_datagram_t * gram) {
   if (!success) {
     imubufc--;
     assert(imubufc == 35);
-    for (i=0; i<imubufc; i++) {
-      imubuf[i] = imubuf[i+1];
+    for (i = 0; i < imubufc; i++) {
+      imubuf[i] = imubuf[i + 1];
     }
     memset(gram, 0, sizeof(imu_datagram_t));
     return -1;
@@ -136,28 +133,40 @@ ssize_t imu_read(int fd, imu_datagram_t * gram) {
   // Massive Bit Shifting Operation.
   // See the example imu_datagram_t in the comment at the top of this file
   *gram = (imu_datagram_t){
-    .hd = (imubuf[0] << 24) | (imubuf[1] << 16) | (imubuf[2] << 8) | imubuf[3],
-    .wx = ((union bytes_to_float) { .b = { imubuf[7], imubuf[6], imubuf[5], imubuf[4] } }).f,
-    .wy = ((union bytes_to_float) { .b = { imubuf[11], imubuf[10], imubuf[9], imubuf[8] } }).f,
-    .wz = ((union bytes_to_float) { .b = { imubuf[15], imubuf[14], imubuf[13], imubuf[12] } }).f,
-    .x = ((union bytes_to_float) { .b = { imubuf[19], imubuf[18], imubuf[17], imubuf[16] } }).f,
-    .y = ((union bytes_to_float) { .b = { imubuf[23], imubuf[22], imubuf[21], imubuf[20] } }).f,
-    .z = ((union bytes_to_float) { .b = { imubuf[27], imubuf[26], imubuf[25], imubuf[24] } }).f,
-    .status = imubuf[28],
-    .sequence = imubuf[29],
-    .temperature = (uint16_t)(imubuf[30] << 8) | (imubuf[31]),
-    .crc = (imubuf[32] << 24) | (imubuf[33] << 16) | (imubuf[34] << 8) | (imubuf[35] << 0),
-    .computed_crc = crc_calc(&imubuf[0], 32)
-  };
+      .hd =
+          (imubuf[0] << 24) | (imubuf[1] << 16) | (imubuf[2] << 8) | imubuf[3],
+      .wx = ((union bytes_to_float){
+                 .b = {imubuf[7], imubuf[6], imubuf[5], imubuf[4]}})
+                .f,
+      .wy = ((union bytes_to_float){
+                 .b = {imubuf[11], imubuf[10], imubuf[9], imubuf[8]}})
+                .f,
+      .wz = ((union bytes_to_float){
+                 .b = {imubuf[15], imubuf[14], imubuf[13], imubuf[12]}})
+                .f,
+      .x = ((union bytes_to_float){
+                .b = {imubuf[19], imubuf[18], imubuf[17], imubuf[16]}})
+               .f,
+      .y = ((union bytes_to_float){
+                .b = {imubuf[23], imubuf[22], imubuf[21], imubuf[20]}})
+               .f,
+      .z = ((union bytes_to_float){
+                .b = {imubuf[27], imubuf[26], imubuf[25], imubuf[24]}})
+               .f,
+      .status = imubuf[28],
+      .sequence = imubuf[29],
+      .temperature = (uint16_t)(imubuf[30] << 8) | (imubuf[31]),
+      .crc = (imubuf[32] << 24) | (imubuf[33] << 16) | (imubuf[34] << 8) |
+             (imubuf[35] << 0),
+      .computed_crc = crc_calc(&imubuf[0], 32)};
 
   imubufc = 0;
 
   return 1;
 }
 
-
 // Connect the serial device for the IMU
-int imu_connect(const char * device) {
+int imu_connect(const char *device) {
   crc_generate_table();
 
   // note("Connecting to IMU at: %s", device);
@@ -174,26 +183,26 @@ int imu_connect(const char * device) {
     return -1;
   }
 
-
   struct termios tty;
 
   if (tcgetattr(fd, &tty) < 0) {
-      printf("Error from tcgetattr: %s\n", strerror(errno));
-      return -1;
+    printf("Error from tcgetattr: %s\n", strerror(errno));
+    return -1;
   }
 
   cfsetospeed(&tty, (speed_t)B921600);
   cfsetispeed(&tty, (speed_t)B921600);
 
-  tty.c_cflag |= (CLOCAL | CREAD);    /* ignore modem controls */
+  tty.c_cflag |= (CLOCAL | CREAD); /* ignore modem controls */
   tty.c_cflag &= ~CSIZE;
-  tty.c_cflag |= CS8;         /* 8-bit characters */
-  tty.c_cflag &= ~PARENB;     /* no parity bit */
-  tty.c_cflag &= ~CSTOPB;     /* 1 Stop bit */
-  tty.c_cflag &= ~CRTSCTS;    /* no hardware flowcontrol */
+  tty.c_cflag |= CS8;      /* 8-bit characters */
+  tty.c_cflag &= ~PARENB;  /* no parity bit */
+  tty.c_cflag &= ~CSTOPB;  /* 1 Stop bit */
+  tty.c_cflag &= ~CRTSCTS; /* no hardware flowcontrol */
 
   /* setup for non-canonical mode */
-  tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+  tty.c_iflag &=
+      ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
   tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
   tty.c_oflag &= ~OPOST;
 
@@ -202,8 +211,8 @@ int imu_connect(const char * device) {
   tty.c_cc[VTIME] = 1;
 
   if (tcsetattr(fd, TCSANOW, &tty) != 0) {
-      printf("Error from tcsetattr: %s\n", strerror(errno));
-      return -1;
+    printf("Error from tcsetattr: %s\n", strerror(errno));
+    return -1;
   }
 
   return fd;
@@ -216,16 +225,15 @@ int imu_disconnect(int fd) {
     return -1;
   }
 
-
   // TODO: Reset Settings?
 
   return close(fd);
 }
 
-int imu_valid(imu_datagram_t * data) {
+int imu_valid(imu_datagram_t *data) {
   return (data->crc == data->computed_crc) && (data->status == IMU_STATUS_OK);
 }
 
-int imu_ok(imu_datagram_t * data) {
+int imu_ok(imu_datagram_t *data) {
   return (data->temperature > IMU_TEMP_MIN && data->temperature < IMU_TEMP_MAX);
 }

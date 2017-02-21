@@ -1,7 +1,7 @@
 #ifndef OPENLOOP_POD_EMERGENCY_H
 #define OPENLOOP_POD_EMERGENCY_H
-#include "states.h"
 #include "../pod.h"
+#include "states.h"
 
 /**
  * WARNING! TAKE EXTREME CARE IN WHERE YOU USE THIS! THIS WILL KILL THE PROG!

@@ -127,6 +127,7 @@
 		7744EE251E5854CB004EC3F9 /* pins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pins.c; path = libint/pins.c; sourceTree = "<group>"; };
 		7744EE261E5854CB004EC3F9 /* pins.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pins.h; path = libint/pins.h; sourceTree = "<group>"; };
 		7744EE291E5856C0004EC3F9 /* int.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = int.h; path = libint/int.h; sourceTree = "<group>"; };
+		77AF89251E5C4569000E5D11 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tools; sourceTree = "<group>"; };
 		77B145891E5820D700988FE3 /* core */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = core; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B145C71E58210F00988FE3 /* libimu.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libimu.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B145D91E58226B00988FE3 /* cdefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cdefs.h; sourceTree = "<group>"; };
@@ -251,6 +252,7 @@
 				77B145CB1E58212800988FE3 /* libimu */,
 				77B1458B1E5820D700988FE3 /* core */,
 				77B145F91E58226B00988FE3 /* pru */,
+				77AF89251E5C4569000E5D11 /* tools */,
 				77B1458A1E5820D700988FE3 /* Products */,
 			);
 			sourceTree = "<group>";

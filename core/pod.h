@@ -18,8 +18,8 @@
 #define OPENLOOP_POD_H
 
 #include "cdefs.h"
-#include "libBBB.h"
 #include "config.h"
+#include "libBBB.h"
 
 #include <pthread.h>
 #include <sys/queue.h>
@@ -27,12 +27,13 @@
 #include <int.h>
 #include "pod/states.h"
 
+
 // proprietary libimu header
 #include <imu.h>
 #include <log.h>
 
-#include "pod/emergency.h"
 #include "core.h"
+#include "pod/emergency.h"
 #include "ring_buffer.h"
 /**
  * Get the current time of the pod in microseconds

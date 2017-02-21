@@ -71,8 +71,8 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
   int i;
   
   telemetry_packet_t packet = {
-//    .version = TELEMETRY_PACKET_VERSION,
-//    .size = (uint16_t)sizeof(telemetry_packet_t),
+    .version = TELEMETRY_PACKET_VERSION,
+    .size = (uint16_t)sizeof(telemetry_packet_t),
     .state = get_pod_mode(),
     // Solenoids
     .solenoids = get_relay_mask(pod),

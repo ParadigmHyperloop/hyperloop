@@ -2,9 +2,9 @@
 #define _OPENLOOP_POD_CONFIG_INVENTORY_
 
 #include "airsupply.h"
-#include "power.h"
-#include "photo.h"
 #include "overrides.h"
+#include "photo.h"
+#include "power.h"
 
 /// MISC Sensors and other constants.
 #define TUBE_LENGTH 1600
@@ -36,8 +36,6 @@ Braking
 0.83
 10.4
 */
-
-
 
 // --------------------------
 // Relay

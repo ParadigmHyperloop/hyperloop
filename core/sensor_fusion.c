@@ -2,9 +2,8 @@
 #include <imu.h>
 #include <math.h>
 
-void integrate_imu(float timestep, const float acc[3], float vel[3], float pos[3],
-    const float rotvel[3], float quat[4])
-{
+void integrate_imu(float timestep, const float acc[3], float vel[3],
+                   float pos[3], const float rotvel[3], float quat[4]) {
   float dv2[16];
   float dv3[16];
   int k;
@@ -17,7 +16,7 @@ void integrate_imu(float timestep, const float acc[3], float vel[3], float pos[3
   float dv5[9];
   float dv6[3];
   float d0;
-  static const signed char iv0[3] = { 0, 0, 1 };
+  static const signed char iv0[3] = {0, 0, 1};
 
   /*  numerical integration of quaternions */
 
@@ -94,7 +93,7 @@ void integrate_imu(float timestep, const float acc[3], float vel[3], float pos[3
 void sensor_fusion(imu_datagram_t *data, pod_t *s) {
   if (!imu_valid(data)) {
     warn("IMU NOT VALID: %X != %X; STAT: %X\n", data->computed_crc, data->crc,
-           data->status);
+         data->status);
     return;
   }
 
@@ -118,25 +117,16 @@ void sensor_fusion(imu_datagram_t *data, pod_t *s) {
   }
 
   // unpack state data types into arrays that work better with calculations
-  float acc[3] = {ax,ay,az};
-  float vel[3] = {
-    get_value_f(&(s->velocity_x)),
-    get_value_f(&(s->velocity_y)),
-    get_value_f(&(s->velocity_z))
-  };
-  float pos[3] = {
-    get_value_f(&(s->position_x)),
-    get_value_f(&(s->position_y)),
-    get_value_f(&(s->position_z))
-  };
+  float acc[3] = {ax, ay, az};
+  float vel[3] = {get_value_f(&(s->velocity_x)), get_value_f(&(s->velocity_y)),
+                  get_value_f(&(s->velocity_z))};
+  float pos[3] = {get_value_f(&(s->position_x)), get_value_f(&(s->position_y)),
+                  get_value_f(&(s->position_z))};
 
   float rotvel[3] = {data->wx, data->wy, data->wz};
   float quat[4] = {
-    get_value_f(&(s->quaternion_real)),
-    get_value_f(&(s->quaternion_i)),
-    get_value_f(&(s->quaternion_j)),
-    get_value_f(&(s->quaternion_k))
-  };
+      get_value_f(&(s->quaternion_real)), get_value_f(&(s->quaternion_i)),
+      get_value_f(&(s->quaternion_j)), get_value_f(&(s->quaternion_k))};
 
   static uint64_t last_time = 0;
 
@@ -146,12 +136,12 @@ void sensor_fusion(imu_datagram_t *data, pod_t *s) {
   }
 
   uint64_t now = get_time_usec();
-  if (now-last_time <= 0) {
+  if (now - last_time <= 0) {
     warn("Called Within 1us of last");
     return;
   }
 
-  //TODO: fix the magic timestep number to something global
+  // TODO: fix the magic timestep number to something global
   integrate_imu(.001f, acc, vel, pos, rotvel, quat);
 
   last_time = now;
@@ -161,12 +151,12 @@ void sensor_fusion(imu_datagram_t *data, pod_t *s) {
   // and ideally everything I write will be replaced by (?Kalman?)
   // I'll just put pseudocode down
 
-  // iterate through the photoelectric sensors recorded since the last Kalman ran
-  	// easy mode - if we see obvious strip, snap to nearest if in ~5 meters
-  	// detect whether there's a strip by low pass filtering the data
-  	// and comparing to a moving avg/median
-  	// hard mode - do whatever Kalman does with that shit
-
+  // iterate through the photoelectric sensors recorded since the last Kalman
+  // ran
+  // easy mode - if we see obvious strip, snap to nearest if in ~5 meters
+  // detect whether there's a strip by low pass filtering the data
+  // and comparing to a moving avg/median
+  // hard mode - do whatever Kalman does with that shit
 
   // pack it all back up into neat little boxes
   set_value_f(&(s->accel_x), acc[0]);

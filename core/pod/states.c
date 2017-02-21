@@ -1,5 +1,5 @@
-#include "../pod.h"
 #include "../pod-helpers.h"
+#include "../pod.h"
 
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
 
@@ -37,11 +37,10 @@ pod_t _pod = {
                &(_pod.skate_solonoids[2]), &(_pod.clamp_engage_solonoids[0]),
                &(_pod.clamp_release_solonoids[0]),
                &(_pod.clamp_engage_solonoids[1]),
-               &(_pod.clamp_release_solonoids[1]),
-               &(_pod.wheel_solonoids[0]), &(_pod.wheel_solonoids[1]),
-               &(_pod.wheel_solonoids[2]), &(_pod.hp_fill_valve),
-               &(_pod.vent_solenoid), &(_pod.lp_fill_valve[0]),
-               &(_pod.lp_fill_valve[1]),
+               &(_pod.clamp_release_solonoids[1]), &(_pod.wheel_solonoids[0]),
+               &(_pod.wheel_solonoids[1]), &(_pod.wheel_solonoids[2]),
+               &(_pod.hp_fill_valve), &(_pod.vent_solenoid),
+               &(_pod.lp_fill_valve[0]), &(_pod.lp_fill_valve[1]),
                &(_pod.lateral_fill_solenoids[0]),
                &(_pod.lateral_fill_solenoids[1])},
     .sensors = {0},
@@ -93,7 +92,8 @@ int init_pod(void) {
                                            .value = 0,
                                            .type = kSolenoidNormallyClosed,
                                            .locked = false};
-    snprintf(pod->skate_solonoids[i].name, MAX_NAME, "skt_%c%c", (i*2) + 'a', (i*2) + 'b');
+    snprintf(pod->skate_solonoids[i].name, MAX_NAME, "skt_%c%c", (i * 2) + 'a',
+             (i * 2) + 'b');
     setup_pin(skate_pins[i]);
   }
 
@@ -142,10 +142,11 @@ int init_pod(void) {
 
   int lat_fill_solenoids[] = LAT_FILL_SOLENOIDS;
   for (i = 0; i < N_LAT_FILL_SOLENOIDS; i++) {
-    pod->lateral_fill_solenoids[i] = (solenoid_t){.gpio = lat_fill_solenoids[i],
-                                         .value = 0,
-                                         .type = kSolenoidNormallyClosed,
-                                         .locked = false};
+    pod->lateral_fill_solenoids[i] =
+        (solenoid_t){.gpio = lat_fill_solenoids[i],
+                     .value = 0,
+                     .type = kSolenoidNormallyClosed,
+                     .locked = false};
     snprintf(pod->lateral_fill_solenoids[i].name, MAX_NAME, "lat_%d", i);
     setup_pin(lat_fill_solenoids[i]);
   }
@@ -169,58 +170,52 @@ int init_pod(void) {
   // ----------------
   int corner_distance[] = CORNER_DISTANCE_INPUTS;
   for (i = 0; i < N_CORNER_DISTANCE; i++) {
-    int id = N_MUX_INPUTS*CORNER_DISTANCE_MUX + corner_distance[i];
+    int id = N_MUX_INPUTS * CORNER_DISTANCE_MUX + corner_distance[i];
     pod->sensors[id] = &(pod->corner_distance[i]);
-    pod->corner_distance[i] = (sensor_t){
-      .sensor_id = id,
-      .name = {0},
-      .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = 0,
-      .cal_b = 1,
-      .cal_c = 0,
-      .alpha = 1.0,
-      .offset = 0.0,
-      .mux = DISTANCE_MUX,
-      .input = corner_distance[i]
-    };
+    pod->corner_distance[i] = (sensor_t){.sensor_id = id,
+                                         .name = {0},
+                                         .value = POD_VALUE_INITIALIZER_FL,
+                                         .cal_a = 0,
+                                         .cal_b = 1,
+                                         .cal_c = 0,
+                                         .alpha = 1.0,
+                                         .offset = 0.0,
+                                         .mux = DISTANCE_MUX,
+                                         .input = corner_distance[i]};
     snprintf(pod->sensors[id]->name, MAX_NAME, "vert_dist_%d", i);
   }
 
   int lateral_distance[] = LATERAL_DISTANCE_INPUTS;
   for (i = 0; i < N_LATERAL_DISTANCE; i++) {
-    int id = N_MUX_INPUTS*LATERAL_DISTANCE_MUX + lateral_distance[i];
+    int id = N_MUX_INPUTS * LATERAL_DISTANCE_MUX + lateral_distance[i];
     pod->sensors[id] = &(pod->lateral_distance[i]);
-    pod->lateral_distance[i] = (sensor_t){
-      .sensor_id = id,
-      .name = {0},
-      .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = 0,
-      .cal_b = 1,
-      .cal_c = 0,
-      .alpha = 1.0,
-      .offset = 0.0,
-      .mux = DISTANCE_MUX,
-      .input = lateral_distance[i]
-    };
+    pod->lateral_distance[i] = (sensor_t){.sensor_id = id,
+                                          .name = {0},
+                                          .value = POD_VALUE_INITIALIZER_FL,
+                                          .cal_a = 0,
+                                          .cal_b = 1,
+                                          .cal_c = 0,
+                                          .alpha = 1.0,
+                                          .offset = 0.0,
+                                          .mux = DISTANCE_MUX,
+                                          .input = lateral_distance[i]};
     snprintf(pod->sensors[id]->name, MAX_NAME, "lat_dist_%d", i);
   }
 
   int wheel_distance[] = WHEEL_DISTANCE_INPUTS;
   for (i = 0; i < N_WHEEL_DISTANCE; i++) {
-    int id = N_MUX_INPUTS*WHEEL_DISTANCE_MUX + wheel_distance[i];
+    int id = N_MUX_INPUTS * WHEEL_DISTANCE_MUX + wheel_distance[i];
     pod->sensors[id] = &(pod->wheel_distance[i]);
-    pod->wheel_distance[i] = (sensor_t){
-      .sensor_id = id,
-      .name = {0},
-      .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = 0,
-      .cal_b = 1,
-      .cal_c = 0,
-      .alpha = 1.0,
-      .offset = 0.0,
-      .mux = DISTANCE_MUX,
-      .input = wheel_distance[i]
-    };
+    pod->wheel_distance[i] = (sensor_t){.sensor_id = id,
+                                        .name = {0},
+                                        .value = POD_VALUE_INITIALIZER_FL,
+                                        .cal_a = 0,
+                                        .cal_b = 1,
+                                        .cal_c = 0,
+                                        .alpha = 1.0,
+                                        .offset = 0.0,
+                                        .mux = DISTANCE_MUX,
+                                        .input = wheel_distance[i]};
     snprintf(pod->sensors[id]->name, MAX_NAME, "wheel_dist_%d", i);
   }
 
@@ -229,76 +224,68 @@ int init_pod(void) {
   // --------------------
 
   int hp_pressure = HP_PRESSURE_INPUT;
-  int id = N_MUX_INPUTS*PRESSURE_MUX + hp_pressure;
+  int id = N_MUX_INPUTS * PRESSURE_MUX + hp_pressure;
   pod->sensors[id] = &(pod->hp_pressure);
-  pod->hp_pressure = (sensor_t){
-    .sensor_id = id,
-    .name = {0},
-    .value = POD_VALUE_INITIALIZER_FL,
-    .cal_a = 0,
-    .cal_b = 1,
-    .cal_c = 0,
-    .alpha = 1.0,
-    .offset = 0.0,
-    .mux = PRESSURE_MUX,
-    .input = HP_PRESSURE_INPUT
-  };
+  pod->hp_pressure = (sensor_t){.sensor_id = id,
+                                .name = {0},
+                                .value = POD_VALUE_INITIALIZER_FL,
+                                .cal_a = 0,
+                                .cal_b = 1,
+                                .cal_c = 0,
+                                .alpha = 1.0,
+                                .offset = 0.0,
+                                .mux = PRESSURE_MUX,
+                                .input = HP_PRESSURE_INPUT};
   snprintf(pod->sensors[id]->name, MAX_NAME, "hp_psi");
 
   int reg_pressures[] = REG_PRESSURE_INPUTS;
   for (i = 0; i < N_REG_PRESSURE; i++) {
-    int id = N_MUX_INPUTS*REG_PRESSURE_MUX + reg_pressures[i];
+    int id = N_MUX_INPUTS * REG_PRESSURE_MUX + reg_pressures[i];
     pod->sensors[id] = &(pod->reg_pressure[i]);
-    pod->reg_pressure[i] = (sensor_t){
-      .sensor_id = id,
-      .name = {0},
-      .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = LP_TRANSDUCER_CALIBRATION_A,
-      .cal_b = LP_TRANSDUCER_CALIBRATION_B,
-      .cal_c = LP_TRANSDUCER_CALIBRATION_C,
-      .alpha = 1.0,
-      .offset = 0.0,
-      .mux = PRESSURE_MUX,
-      .input = reg_pressures[i]
-    };
+    pod->reg_pressure[i] = (sensor_t){.sensor_id = id,
+                                      .name = {0},
+                                      .value = POD_VALUE_INITIALIZER_FL,
+                                      .cal_a = LP_TRANSDUCER_CALIBRATION_A,
+                                      .cal_b = LP_TRANSDUCER_CALIBRATION_B,
+                                      .cal_c = LP_TRANSDUCER_CALIBRATION_C,
+                                      .alpha = 1.0,
+                                      .offset = 0.0,
+                                      .mux = PRESSURE_MUX,
+                                      .input = reg_pressures[i]};
     snprintf(pod->sensors[id]->name, MAX_NAME, "reg_psi_%c", i + 'a');
   }
 
   int clamp_pressure[] = CLAMP_PRESSURE_INPUTS;
   for (i = 0; i < N_CLAMP_PRESSURE; i++) {
-    int id = N_MUX_INPUTS*CLAMP_PRESSURE_MUX + clamp_pressure[i];
+    int id = N_MUX_INPUTS * CLAMP_PRESSURE_MUX + clamp_pressure[i];
     pod->sensors[id] = &(pod->clamp_pressure[i]);
-    pod->clamp_pressure[i] = (sensor_t){
-      .sensor_id = id,
-      .name = {0},
-      .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = LP_TRANSDUCER_CALIBRATION_A,
-      .cal_b = LP_TRANSDUCER_CALIBRATION_B,
-      .cal_c = LP_TRANSDUCER_CALIBRATION_C,
-      .alpha = 1.0,
-      .offset = 0.0,
-      .mux = PRESSURE_MUX,
-      .input = clamp_pressure[i]
-    };
+    pod->clamp_pressure[i] = (sensor_t){.sensor_id = id,
+                                        .name = {0},
+                                        .value = POD_VALUE_INITIALIZER_FL,
+                                        .cal_a = LP_TRANSDUCER_CALIBRATION_A,
+                                        .cal_b = LP_TRANSDUCER_CALIBRATION_B,
+                                        .cal_c = LP_TRANSDUCER_CALIBRATION_C,
+                                        .alpha = 1.0,
+                                        .offset = 0.0,
+                                        .mux = PRESSURE_MUX,
+                                        .input = clamp_pressure[i]};
     snprintf(pod->sensors[id]->name, MAX_NAME, "clmp_psi_%d", i);
   }
 
   int lateral_pressure[] = LAT_FILL_PRESSURE_INPUTS;
   for (i = 0; i < N_LAT_FILL_PRESSURE; i++) {
-    int id = N_MUX_INPUTS*LAT_FILL_PRESSURE_MUX + lateral_pressure[i];
+    int id = N_MUX_INPUTS * LAT_FILL_PRESSURE_MUX + lateral_pressure[i];
     pod->sensors[id] = &(pod->lateral_pressure[i]);
-    pod->lateral_pressure[i] = (sensor_t){
-      .sensor_id = id,
-      .name = {0},
-      .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = LP_TRANSDUCER_CALIBRATION_A,
-      .cal_b = LP_TRANSDUCER_CALIBRATION_B,
-      .cal_c = LP_TRANSDUCER_CALIBRATION_C,
-      .alpha = 1.0,
-      .offset = 0.0,
-      .mux = PRESSURE_MUX,
-      .input = lateral_pressure[i]
-    };
+    pod->lateral_pressure[i] = (sensor_t){.sensor_id = id,
+                                          .name = {0},
+                                          .value = POD_VALUE_INITIALIZER_FL,
+                                          .cal_a = LP_TRANSDUCER_CALIBRATION_A,
+                                          .cal_b = LP_TRANSDUCER_CALIBRATION_B,
+                                          .cal_c = LP_TRANSDUCER_CALIBRATION_C,
+                                          .alpha = 1.0,
+                                          .offset = 0.0,
+                                          .mux = PRESSURE_MUX,
+                                          .input = lateral_pressure[i]};
 
     snprintf(pod->sensors[id]->name, MAX_NAME, "lat_psi_%d", i);
   }
@@ -308,99 +295,88 @@ int init_pod(void) {
   // -------------
   int reg_thermo[] = REG_THERMO_INPUTS;
   for (i = 0; i < N_REG_THERMO; i++) {
-    int id = N_MUX_INPUTS*REG_THERMO_MUX + reg_thermo[i];
+    int id = N_MUX_INPUTS * REG_THERMO_MUX + reg_thermo[i];
     pod->sensors[id] = &(pod->reg_thermo[i]);
-    pod->reg_thermo[i] = (sensor_t){
-      .sensor_id = id,
-      .name = {0},
-      .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = FLOW_THERMO_CALIBRATION_A,
-      .cal_b = FLOW_THERMO_CALIBRATION_B,
-      .cal_c = FLOW_THERMO_CALIBRATION_C,
-      .alpha = 0.01,
-      .offset = 0.0,
-      .mux = REG_THERMO_MUX,
-      .input = reg_thermo[i]
-    };
+    pod->reg_thermo[i] = (sensor_t){.sensor_id = id,
+                                    .name = {0},
+                                    .value = POD_VALUE_INITIALIZER_FL,
+                                    .cal_a = FLOW_THERMO_CALIBRATION_A,
+                                    .cal_b = FLOW_THERMO_CALIBRATION_B,
+                                    .cal_c = FLOW_THERMO_CALIBRATION_C,
+                                    .alpha = 0.01,
+                                    .offset = 0.0,
+                                    .mux = REG_THERMO_MUX,
+                                    .input = reg_thermo[i]};
 
     snprintf(pod->sensors[id]->name, MAX_NAME, "reg_thermo_%d", i);
   }
 
   int reg_surf_thermo[] = REG_SURF_THERMO_INPUTS;
   for (i = 0; i < N_REG_SURF_THERMO; i++) {
-    int id = N_MUX_INPUTS*REG_SURF_THERMO_MUX + reg_surf_thermo[i];
+    int id = N_MUX_INPUTS * REG_SURF_THERMO_MUX + reg_surf_thermo[i];
     pod->sensors[id] = &(pod->reg_surf_thermo[i]);
-    pod->reg_surf_thermo[i] = (sensor_t){
-      .sensor_id = id,
-      .name = {0},
-      .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = WHITE_THERMO_CALIBRATION_A,
-      .cal_b = WHITE_THERMO_CALIBRATION_B,
-      .cal_c = WHITE_THERMO_CALIBRATION_C,
-      .alpha = 0.01,
-      .offset = 0.0,
-      .mux = REG_SURF_THERMO_MUX,
-      .input = reg_surf_thermo[i]
-    };
+    pod->reg_surf_thermo[i] = (sensor_t){.sensor_id = id,
+                                         .name = {0},
+                                         .value = POD_VALUE_INITIALIZER_FL,
+                                         .cal_a = WHITE_THERMO_CALIBRATION_A,
+                                         .cal_b = WHITE_THERMO_CALIBRATION_B,
+                                         .cal_c = WHITE_THERMO_CALIBRATION_C,
+                                         .alpha = 0.01,
+                                         .offset = 0.0,
+                                         .mux = REG_SURF_THERMO_MUX,
+                                         .input = reg_surf_thermo[i]};
 
     snprintf(pod->sensors[id]->name, MAX_NAME, "reg_surf_thermo_%d", i);
   }
 
   int power_thermo[] = POWER_THERMO_INPUTS;
   for (i = 0; i < N_POWER_THERMO; i++) {
-    int id = N_MUX_INPUTS*POWER_THERMO_MUX + power_thermo[i];
+    int id = N_MUX_INPUTS * POWER_THERMO_MUX + power_thermo[i];
     pod->sensors[id] = &(pod->power_thermo[i]);
-    pod->power_thermo[i] = (sensor_t){
-      .sensor_id = id,
-      .name = {0},
-      .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = WHITE_THERMO_CALIBRATION_A,
-      .cal_b = WHITE_THERMO_CALIBRATION_B,
-      .cal_c = WHITE_THERMO_CALIBRATION_C,
-      .alpha = 0.01,
-      .offset = 0.0,
-      .mux = POWER_THERMO_MUX,
-      .input = power_thermo[i]
-    };
+    pod->power_thermo[i] = (sensor_t){.sensor_id = id,
+                                      .name = {0},
+                                      .value = POD_VALUE_INITIALIZER_FL,
+                                      .cal_a = WHITE_THERMO_CALIBRATION_A,
+                                      .cal_b = WHITE_THERMO_CALIBRATION_B,
+                                      .cal_c = WHITE_THERMO_CALIBRATION_C,
+                                      .alpha = 0.01,
+                                      .offset = 0.0,
+                                      .mux = POWER_THERMO_MUX,
+                                      .input = power_thermo[i]};
 
     snprintf(pod->sensors[id]->name, MAX_NAME, "power_thermo_%d", i);
   }
 
   int clamp_pad_thermo[] = CLAMP_PAD_THERMO_INPUTS;
   for (i = 0; i < N_CLAMP_PAD_THERMO; i++) {
-    int id = N_MUX_INPUTS*CLAMP_PAD_THERMO_MUX + clamp_pad_thermo[i];
+    int id = N_MUX_INPUTS * CLAMP_PAD_THERMO_MUX + clamp_pad_thermo[i];
     pod->sensors[id] = &(pod->clamp_thermo[i]);
-    pod->clamp_thermo[i] = (sensor_t){
-      .sensor_id = id,
-      .name = {0},
-      .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = WHITE_THERMO_CALIBRATION_A,
-      .cal_b = WHITE_THERMO_CALIBRATION_B,
-      .cal_c = WHITE_THERMO_CALIBRATION_C,
-      .alpha = 0.01,
-      .offset = 0.0,
-      .mux = CLAMP_PAD_THERMO_MUX,
-      .input = clamp_pad_thermo[i]
-    };
+    pod->clamp_thermo[i] = (sensor_t){.sensor_id = id,
+                                      .name = {0},
+                                      .value = POD_VALUE_INITIALIZER_FL,
+                                      .cal_a = WHITE_THERMO_CALIBRATION_A,
+                                      .cal_b = WHITE_THERMO_CALIBRATION_B,
+                                      .cal_c = WHITE_THERMO_CALIBRATION_C,
+                                      .alpha = 0.01,
+                                      .offset = 0.0,
+                                      .mux = CLAMP_PAD_THERMO_MUX,
+                                      .input = clamp_pad_thermo[i]};
 
     snprintf(pod->sensors[id]->name, MAX_NAME, "clamp_pad_%d", i);
   }
 
-
-  id = N_MUX_INPUTS*HP_THERMO_MUX + HP_THERMO_INPUT;
+  id = N_MUX_INPUTS * HP_THERMO_MUX + HP_THERMO_INPUT;
   pod->sensors[id] = &(pod->hp_thermo);
-  pod->hp_thermo = (sensor_t){
-    .sensor_id = id,
-    .name = {0},
-    .value = POD_VALUE_INITIALIZER_FL,
-    .cal_a = FLOW_THERMO_CALIBRATION_A,
-    .cal_b = FLOW_THERMO_CALIBRATION_B,
-    .cal_c = FLOW_THERMO_CALIBRATION_C,
-    .alpha = 1.0,
-    .offset = 0.0,
-    .mux = HP_THERMO_MUX,
-    .input = HP_THERMO_INPUT
-  };
+  pod->hp_thermo = (sensor_t){.sensor_id = id,
+                              .name = {0},
+                              .value = POD_VALUE_INITIALIZER_FL,
+                              .cal_a = FLOW_THERMO_CALIBRATION_A,
+                              .cal_b = FLOW_THERMO_CALIBRATION_B,
+                              .cal_c = FLOW_THERMO_CALIBRATION_C,
+                              .alpha = 1.0,
+                              .offset = 0.0,
+                              .mux = HP_THERMO_MUX,
+                              .input = HP_THERMO_INPUT};
   snprintf(pod->sensors[id]->name, MAX_NAME, "hp_thermo");
 
   pthread_rwlock_init(&(pod->mode_mutex), NULL);
@@ -506,10 +482,10 @@ void set_sensor(sensor_t *sensor, float value) {
 
 float update_sensor(sensor_t *sensor, int32_t new_value) {
   float x = (float)new_value;
-  float calibrated =
-      ((float)sensor->cal_a * x * x) + ((float)sensor->cal_b * x) + (float)sensor->cal_c;
-  float filtered =
-      (1.0f - (float)sensor->alpha) * get_sensor(sensor) + ((float)sensor->alpha) * calibrated;
+  float calibrated = ((float)sensor->cal_a * x * x) +
+                     ((float)sensor->cal_b * x) + (float)sensor->cal_c;
+  float filtered = (1.0f - (float)sensor->alpha) * get_sensor(sensor) +
+                   ((float)sensor->alpha) * calibrated;
   set_sensor(sensor, filtered);
   return filtered;
 }

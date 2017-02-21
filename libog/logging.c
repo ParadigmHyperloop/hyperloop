@@ -104,7 +104,6 @@ int log_send(log_t *l) {
 
   /* send the message line to the server */
   ssize_t n = write(pod->logging_socket, buf, len);
-  info("LOG LENGTH: %d", len);
   if (n <= 0) {
     fprintf(stderr, "ERROR writing to socket: %s\n", strerror(errno));
     return -1;

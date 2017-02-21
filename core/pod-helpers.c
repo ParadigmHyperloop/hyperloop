@@ -87,10 +87,10 @@ bool is_lp_vented(pod_t *pod) {
   return true;
 }
 
-sensor_t * get_sensor_by_name(pod_t *pod, char *name) {
+sensor_t *get_sensor_by_name(pod_t *pod, char *name) {
   size_t i;
   sensor_t *s = NULL;
-  for (i=0;i<sizeof(pod->sensors)/sizeof(pod->sensors[0]);i++) {
+  for (i = 0; i < sizeof(pod->sensors) / sizeof(pod->sensors[0]); i++) {
     if ((s = pod->sensors[i]) != NULL) {
       if (strcmp(s->name, name) == 0) {
         return s;
@@ -100,10 +100,10 @@ sensor_t * get_sensor_by_name(pod_t *pod, char *name) {
   return NULL;
 }
 
-sensor_t * get_sensor_by_address(pod_t *pod, int mux, int input) {
+sensor_t *get_sensor_by_address(pod_t *pod, int mux, int input) {
   size_t i;
   sensor_t *s = NULL;
-  for (i=0;i<sizeof(pod->sensors)/sizeof(pod->sensors[0]);i++) {
+  for (i = 0; i < sizeof(pod->sensors) / sizeof(pod->sensors[0]); i++) {
     if ((s = pod->sensors[i]) != NULL) {
       if (s->mux == mux && s->input == input) {
         return s;
@@ -112,6 +112,3 @@ sensor_t * get_sensor_by_address(pod_t *pod, int mux, int input) {
   }
   return NULL;
 }
-
-
-

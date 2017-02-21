@@ -7,7 +7,8 @@
  * information. Reproduction or distribution, in whole or in part, is forbidden
  * except by express written permission of OpenLoop.
  *
- * Source that is published publicly is for demonstration purposes only and shall
+ * Source that is published publicly is for demonstration purposes only and
+ * shall
  * not be utilized to any extent without express written permission of OpenLoop.
  */
 
@@ -54,7 +55,7 @@ typedef struct imu_datagram {
  *
  * @return file descriptor on success, -1 on failure
  */
-int imu_connect(const char * device);
+int imu_connect(const char *device);
 
 /**
  * Disconnect the IMU
@@ -65,7 +66,6 @@ int imu_connect(const char * device);
  */
 int imu_disconnect(const int fd);
 
-
 /**
  * Connect to the IMU on the given device path
  *
@@ -74,8 +74,7 @@ int imu_disconnect(const int fd);
  *
  * @return 0 on success, -1 on failure
  */
-ssize_t imu_read(int fd, imu_datagram_t * data);
-
+ssize_t imu_read(int fd, imu_datagram_t *data);
 
 /**
  * Determines whether the given imu_datagram_t has a valid CRC and status
@@ -84,7 +83,7 @@ ssize_t imu_read(int fd, imu_datagram_t * data);
  *
  * @return 1 if valid, 0 if invalid
  */
-int imu_valid(imu_datagram_t * data);
+int imu_valid(imu_datagram_t *data);
 
 /**
  * Determines if the IMU is in an OK state based on the given imu_datagram_t
@@ -93,6 +92,6 @@ int imu_valid(imu_datagram_t * data);
  *
  * @return 1 if IMU is OK, 0 if it is not OK
  */
-int imu_ok(imu_datagram_t * data);
+int imu_ok(imu_datagram_t *data);
 
 #endif

@@ -28,7 +28,8 @@ typedef struct {
 
 typedef uint16_t relay_mask_t;
 
-//#pragma pack(
+// TODO: Circle Back to this, not sure why this struct isn't aligning correctly
+#pragma pack(1)
 typedef struct telemetry_packet {
   uint8_t version;
   uint16_t size;

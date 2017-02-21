@@ -14,7 +14,14 @@
  * Please see http://www.opnlp.co for contact information
  ****************************************************************************/
 
+#ifndef OPENLOOP_COMMANDS_H
+#define OPENLOOP_COMMANDS_H
+
+#include <stdint.h>
+
 typedef struct {
   char *name;
   int (*func)(size_t argc, char *argv[], size_t outbufc, char outbuf[]);
 } command_t;
+
+#endif

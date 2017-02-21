@@ -1,13 +1,11 @@
-#include <assert.h>
-#include <sys/time.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <termios.h>
 #include "imu.h"
-
+#include <assert.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+#include <termios.h>
 
 #ifdef __linux__
 static const char *PORT_NAME = "/dev/ttyUSB0";
@@ -28,26 +26,25 @@ uint64_t getTime() {
   return (currentTime.tv_sec * 1000000ULL) + currentTime.tv_usec;
 }
 
-ssize_t read_with_timeout(int fd, void * buf, int len, int t) {
+ssize_t read_with_timeout(int fd, void *buf, int len, int t) {
   fd_set set;
   struct timeval timeout;
   int rv;
 
-
-  FD_ZERO(&set); /* clear the set */
+  FD_ZERO(&set);    /* clear the set */
   FD_SET(fd, &set); /* add our file descriptor to the set */
 
   timeout.tv_sec = t / 1000;
   timeout.tv_usec = t % 1000;
 
   rv = select(fd + 1, &set, NULL, NULL, &timeout);
-  if(rv == -1) {
+  if (rv == -1) {
     perror("select: "); /* an error accured */
     printf("\n");
-  } else if(rv == 0) {
+  } else if (rv == 0) {
     fprintf(stderr, "read-timeout\n"); /* a timeout occured */
   } else {
-    return read( fd, buf, len ); /* there was data to read */
+    return read(fd, buf, len); /* there was data to read */
   }
   return -1;
 }
@@ -69,7 +66,7 @@ int main() {
   while (1) {
     char cmd[64] = CONFIG_CMD;
     size_t i = 0;
-    for (i=0; i < strlen(cmd); i++) {
+    for (i = 0; i < strlen(cmd); i++) {
       write(fd, &cmd[i], 1);
       write(STDOUT_FILENO, &cmd[i], 1);
       usleep(10000);
@@ -124,7 +121,7 @@ int main() {
       printf("Sending Command: %s", cmd);
 
       size_t i = 0;
-      for (i=0; i < strlen(cmd); i++) {
+      for (i = 0; i < strlen(cmd); i++) {
         write(fd, &cmd[i], 1);
         write(STDOUT_FILENO, &cmd[i], 1);
         usleep(10000);

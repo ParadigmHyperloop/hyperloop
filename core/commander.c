@@ -34,8 +34,8 @@
  *   ping  <<< You type this line as "ping" plus enter
  *   PONG  >>> OPC Command Server replies with "PONG\n"
  */
-#include "pod.h"
 #include "commands.h"
+#include "pod.h"
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
@@ -180,7 +180,8 @@ int cmd_process_client(int serverfd) {
 }
 
 /**
- * Given a server file descriptor, accept the new client cmd_respond with an error
+ * Given a server file descriptor, accept the new client cmd_respond with an
+ * error
  * message, and then close them down
  */
 int cmd_reject_client(int serverfd) {
@@ -232,13 +233,14 @@ int cmd_accept_client(int serverfd) {
 }
 
 /**
- * Read in a command, process it with cmd_do_command(), and write out the respnse
+ * Read in a command, process it with cmd_do_command(), and write out the
+ * respnse
  */
 int cmd_process_request(int infd, int outfd) {
   char inbuf[MAX_PACKET_SIZE];
 
   ssize_t nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE - 1);
-  
+
   if (nbytes <= 0) {
     warn("read error on fd %d: %s", infd, strerror(errno));
     return -1;
@@ -246,7 +248,7 @@ int cmd_process_request(int infd, int outfd) {
 
   int base = 0;
   inbuf[nbytes] = '\0';
-  
+
   debug("Recv new command '%s' from existing client (fd %d)", inbuf, infd);
 
   int i = 0;
@@ -254,11 +256,12 @@ int cmd_process_request(int infd, int outfd) {
   while (i < nbytes) {
     if (inbuf[i] == ';') {
       inbuf[i] = '\0';
-      
+
       // Process the command
-      nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
+      nbytesout =
+          cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
       write(outfd, cmdbuffer, nbytesout);
-      base = i+1;
+      base = i + 1;
     }
     i++;
   }
@@ -267,7 +270,6 @@ int cmd_process_request(int infd, int outfd) {
   write(outfd, cmdbuffer, nbytesout);
   write(outfd, "\n> ", 3);
   return 0;
-
 }
 
 /**

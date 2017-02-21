@@ -120,19 +120,19 @@ void pod_exit(int code) {
  */
 void signal_handler(int sig) {
   if (sig == SIGTERM) {
-    // Power button pulled low, power will be cut in < 1023ms
-    // TODO: Sync the filesystem and unmount root to prevent corruption
-      
+// Power button pulled low, power will be cut in < 1023ms
+// TODO: Sync the filesystem and unmount root to prevent corruption
+
 #ifdef __linux__
-      FILE *fp = fopen("/proc/sys/kernel/sysrq", "w");
-      fwrite("1", sizeof(char), 1, fp);
-      fclose(fp);
-      
-      umount2("/", MNT_FORCE);
-      setPinValue(KILL_PIN, KILL_PIN_KILL_VALUE);
-      FILE *fp = fopen("/proc/sysrq-trigger", "w");
-      fwrite("o", sizeof(char), 1, fp);
-      fclose(fp);
+    FILE *fp = fopen("/proc/sys/kernel/sysrq", "w");
+    fwrite("1", sizeof(char), 1, fp);
+    fclose(fp);
+
+    umount2("/", MNT_FORCE);
+    setPinValue(KILL_PIN, KILL_PIN_KILL_VALUE);
+    FILE *fp = fopen("/proc/sysrq-trigger", "w");
+    fwrite("o", sizeof(char), 1, fp);
+    fclose(fp);
 #endif
   }
   exit(EXIT_FAILURE);
@@ -156,13 +156,13 @@ void exit_signal_handler(int sig) {
 void sigpipe_handler(__unused int sig) { error("SIGPIPE Recieved"); }
 
 int main(int argc, char *argv[]) {
-  printf("<<< Paradigm HyperLoop Pod Controller >>>\n\nCopyright " POD_COPY_YEAR " "
-         POD_COPY_OWNER "\n\nCredits:\n" POD_CREDITS "\n");
+  printf("<<< Paradigm HyperLoop Pod Controller >>>\n\nCopyright " POD_COPY_YEAR
+         " " POD_COPY_OWNER "\n\nCredits:\n" POD_CREDITS "\n");
 
   int boot_sem_ret = 0;
 
   parse_args(argc, argv);
-  
+
   info("POD Booting...");
   info("Initializing Pod");
 
@@ -261,7 +261,7 @@ int main(int argc, char *argv[]) {
   set_pthread_priority(pod->core_thread, 70);
   set_pthread_priority(pod->logging_thread, 10);
   set_pthread_priority(pod->cmd_thread, 20);
-  
+
   pthread_join(pod->core_thread, NULL);
 
   if (pod->imu > -1) {

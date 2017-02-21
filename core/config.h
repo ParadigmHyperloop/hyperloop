@@ -14,8 +14,8 @@
  * Please see http://www.opnlp.co for contact information
  ****************************************************************************/
 
-#include "config/scores.h"
 #include "config/inventory.h"
+#include "config/scores.h"
 
 #ifndef _OPENLOOP_POD_CONFIG_
 #define _OPENLOOP_POD_CONFIG_
@@ -25,8 +25,9 @@
 // --------------------------
 #define POD_COPY_OWNER "Paradigm - Controls Team"
 #define POD_COPY_YEAR "2016"
-#define POD_CREDITS "Eddie Hurtig - Software Engineering Lead\n" \
-                    "Upen Naidoo - Embedded Systems Engineer\n"
+#define POD_CREDITS                                                            \
+  "Eddie Hurtig - Software Engineering Lead\n"                                 \
+  "Upen Naidoo - Embedded Systems Engineer\n"
 
 // Error Thresholds
 #define A_ERR_X 0.02
@@ -81,13 +82,12 @@
 #define output(prefix_, fmt_, ...)                                             \
   pod_log((prefix_ "[%s] {" FLINE "} " fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
 #else
-#define output(prefix_, fmt_, ...)                                             \
-  pod_log((prefix_ fmt_ "\n"), ##__VA_ARGS__)
+#define output(prefix_, fmt_, ...) pod_log((prefix_ fmt_ "\n"), ##__VA_ARGS__)
 #endif
 
 #ifdef POD_DEBUG
 #define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
-#else 
+#else
 #define debug(fmt_, ...)
 #endif
 
@@ -103,7 +103,7 @@
 
 // Helper that wraps set_pod_mode but adds file and line number
 // REVIEW: Probably should remove
-#define DECLARE_EMERGENCY(message, ...)                                             \
+#define DECLARE_EMERGENCY(message, ...)                                        \
   set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message, ##__VA_ARGS__)
 
 // ------------------

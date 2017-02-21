@@ -22,27 +22,27 @@
 #ifndef _OPENLOOP_POD_CDEFS_
 #define _OPENLOOP_POD_CDEFS_
 
-#include <stdbool.h>
+#include <arpa/inet.h>
 #include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <semaphore.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdarg.h>
-#include <errno.h>
-#include <arpa/inet.h>
-#include <limits.h>
-#include <stdint.h>
-#include <signal.h>
-#include <semaphore.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 
 #define WITHIN(__low, __val, __high) ((__low <= __val) && (__val <= __high))
 #define OUTSIDE(__low, __val, __high) (!(WITHIN((__low), (__val), (__high))))

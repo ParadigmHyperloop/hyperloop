@@ -80,7 +80,7 @@ int pru_shutdown() {
 /**
  * Read a complete set of sensors from the PRU
  */
-int pru_read(pod_t * pod) {
+int pru_read(pod_t *pod) {
   int input;
   /* Read ADC */
   // TODO: Remove Print
@@ -102,10 +102,11 @@ int pru_read(pod_t * pod) {
 
     int mux;
     // Get the 7 internal AIN readings
-    for (mux=0;mux<7;mux++) {
+    for (mux = 0; mux < 7; mux++) {
       sensor_t *s = get_sensor_by_address(pod, mux, input);
       if (s != NULL) {
-        uint32_t val = pru_get_int(pru_shared_mem_int[OFFSET_SHAREDRAM + 3 + mux]);
+        uint32_t val =
+            pru_get_int(pru_shared_mem_int[OFFSET_SHAREDRAM + 3 + mux]);
 
         printf(" %4d", val);
 
