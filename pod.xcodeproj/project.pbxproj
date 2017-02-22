@@ -58,13 +58,13 @@
 		77F29D461E585AAC00EC907D /* int.h in Headers */ = {isa = PBXBuildFile; fileRef = 7744EE291E5856C0004EC3F9 /* int.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		77F29D531E585BBC00EC907D /* libbbb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77F29D4C1E585B9A00EC907D /* libbbb.a */; };
 		77F29D561E585BDE00EC907D /* bbb.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D541E585BDE00EC907D /* bbb.c */; };
-		77F29D571E585BDE00EC907D /* bbb.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D551E585BDE00EC907D /* bbb.h */; };
+		77F29D571E585BDE00EC907D /* bbb.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D551E585BDE00EC907D /* bbb.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		77F29D591E585C1700EC907D /* gpio.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D581E585C1700EC907D /* gpio.c */; };
 		77F29D611E5A83F600EC907D /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D5B1E5A83F600EC907D /* config.c */; };
 		77F29D621E5A83F600EC907D /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D5C1E5A83F600EC907D /* crc.c */; };
 		77F29D631E5A83F600EC907D /* crc.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D5D1E5A83F600EC907D /* crc.h */; };
 		77F29D641E5A83F600EC907D /* imu.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D5E1E5A83F600EC907D /* imu.c */; };
-		77F29D651E5A83F600EC907D /* imu.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D5F1E5A83F600EC907D /* imu.h */; };
+		77F29D651E5A83F600EC907D /* imu.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D5F1E5A83F600EC907D /* imu.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		77F29D661E5A83F600EC907D /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D601E5A83F600EC907D /* test.c */; };
 /* End PBXBuildFile section */
 

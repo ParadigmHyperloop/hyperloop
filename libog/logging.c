@@ -106,12 +106,12 @@ int log_send(log_t *l) {
   }
 
   char buf[MAX_PACKET_SIZE];
-  int len = 0;
+  size_t len = 0;
   switch (l->type) {
   case Packet:
-    assert(sizeof(l->v.packet) < MAX_PACKET_SIZE);
-    memcpy(&buf[0], &(l->v.packet), sizeof(l->v.packet));
-    len = sizeof(l->v.packet);
+    assert(sizeof(l->data) <= MAX_PACKET_SIZE);
+    len = l->sz;
+    memcpy(&buf[0], &(l->data), len);
     break;
   default:
     fprintf(stderr, "Unknown Log Type: %d", l->type);
