@@ -59,12 +59,10 @@
 		77F29D561E585BDE00EC907D /* bbb.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D541E585BDE00EC907D /* bbb.c */; };
 		77F29D571E585BDE00EC907D /* bbb.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D551E585BDE00EC907D /* bbb.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		77F29D591E585C1700EC907D /* gpio.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D581E585C1700EC907D /* gpio.c */; };
-		77F29D611E5A83F600EC907D /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D5B1E5A83F600EC907D /* config.c */; };
 		77F29D621E5A83F600EC907D /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D5C1E5A83F600EC907D /* crc.c */; };
 		77F29D631E5A83F600EC907D /* crc.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D5D1E5A83F600EC907D /* crc.h */; };
 		77F29D641E5A83F600EC907D /* imu.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D5E1E5A83F600EC907D /* imu.c */; };
 		77F29D651E5A83F600EC907D /* imu.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D5F1E5A83F600EC907D /* imu.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		77F29D661E5A83F600EC907D /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D601E5A83F600EC907D /* test.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -174,12 +172,10 @@
 		77F29D541E585BDE00EC907D /* bbb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bbb.c; path = libbbb/bbb.c; sourceTree = "<group>"; };
 		77F29D551E585BDE00EC907D /* bbb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bbb.h; path = libbbb/bbb.h; sourceTree = "<group>"; };
 		77F29D581E585C1700EC907D /* gpio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gpio.c; path = libbbb/gpio.c; sourceTree = "<group>"; };
-		77F29D5B1E5A83F600EC907D /* config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = config.c; path = libimu/config.c; sourceTree = "<group>"; };
 		77F29D5C1E5A83F600EC907D /* crc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = crc.c; path = libimu/crc.c; sourceTree = "<group>"; };
 		77F29D5D1E5A83F600EC907D /* crc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crc.h; path = libimu/crc.h; sourceTree = "<group>"; };
 		77F29D5E1E5A83F600EC907D /* imu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = imu.c; path = libimu/imu.c; sourceTree = "<group>"; };
 		77F29D5F1E5A83F600EC907D /* imu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imu.h; path = libimu/imu.h; sourceTree = "<group>"; };
-		77F29D601E5A83F600EC907D /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test.c; path = libimu/test.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -299,12 +295,10 @@
 		77B145CB1E58212800988FE3 /* libimu */ = {
 			isa = PBXGroup;
 			children = (
-				77F29D5B1E5A83F600EC907D /* config.c */,
 				77F29D5C1E5A83F600EC907D /* crc.c */,
 				77F29D5D1E5A83F600EC907D /* crc.h */,
 				77F29D5E1E5A83F600EC907D /* imu.c */,
 				77F29D5F1E5A83F600EC907D /* imu.h */,
-				77F29D601E5A83F600EC907D /* test.c */,
 			);
 			name = libimu;
 			sourceTree = "<group>";
@@ -589,8 +583,6 @@
 			files = (
 				77F29D641E5A83F600EC907D /* imu.c in Sources */,
 				77F29D621E5A83F600EC907D /* crc.c in Sources */,
-				77F29D611E5A83F600EC907D /* config.c in Sources */,
-				77F29D661E5A83F600EC907D /* test.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
