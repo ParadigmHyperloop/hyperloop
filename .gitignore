@@ -2,3 +2,5 @@
 /pod.xcodeproj/xcuserdata/
 /DerivedData/
 /build/
+*.o
+*.a
