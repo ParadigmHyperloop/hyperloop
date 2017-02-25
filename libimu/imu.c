@@ -62,6 +62,8 @@ union bytes_to_float {
   float f;
 } b2f;
 
+ssize_t serial_read(int fd, unsigned char *buf, int n);
+
 // example datagram, MSB is always printed first
 // uint8_t example[32] = {
 //   0xFE, 0x81, 0xFF, 0x55, // Message Header, exactly these bytes
@@ -78,6 +80,7 @@ union bytes_to_float {
 
 unsigned char imubuf[IMU_MESSAGE_SIZE] = {0};
 int imubufc = 0;
+
 /**
  * fills the buffer pointed to (should be imubuf) until it contains n elements
  */

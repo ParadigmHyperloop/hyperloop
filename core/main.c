@@ -51,9 +51,13 @@ extern int serverfd;
 extern int clients[MAX_CMD_CLIENTS];
 extern int nclients;
 
-void *core_main(void *arg);
-void *logging_main(void *arg);
-void *command_main(void *arg);
+void usage(void);
+void parse_args(int argc, char *argv[]);
+void set_pthread_priority(pthread_t task, int priority);
+void signal_handler(int sig);
+void exit_signal_handler(int sig);
+void sigpipe_handler(__unused int sig);
+
 
 void usage() {
   fprintf(stderr, "Usage: core [-r] [-t]");

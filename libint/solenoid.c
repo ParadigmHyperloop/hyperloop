@@ -68,7 +68,7 @@ void set_solenoid(solenoid_t *s, solenoid_state_t val) {
   }
 }
 
-solenoid_state_t read_solenoid_state(solenoid_t *solenoid) {
+solenoid_state_t read_solenoid_state(const solenoid_t *solenoid) {
   relay_state_t r = read_relay_state(solenoid->gpio);
   switch (r) {
     case kRelayOn:

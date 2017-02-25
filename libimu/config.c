@@ -50,6 +50,10 @@ static const char *PORT_NAME = "/dev/cu.usbserial-A600DTJI";
 
 #define SPINUP_ITER 10000
 
+uint64_t getTime(void);
+ssize_t read_with_timeout(int fd, void *buf, int len, int t);
+
+
 uint64_t getTime() {
   struct timeval currentTime;
 
@@ -128,7 +132,7 @@ int main() {
     if (strncmp(cmd, "drain", 5) == 0) {
       printf("Draining the serial pipe...");
       fflush(stdout);
-      int k = 0;
+      k = 0;
       while (1) {
         k++;
         if (k > 1000) {

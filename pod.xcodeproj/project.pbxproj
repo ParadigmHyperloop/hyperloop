@@ -42,7 +42,6 @@
 		77B146121E58226B00988FE3 /* pod-helpers.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B145F51E58226B00988FE3 /* pod-helpers.c */; };
 		77B146131E58226B00988FE3 /* pod.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B145F71E58226B00988FE3 /* pod.c */; };
 		77B146151E58226B00988FE3 /* pru.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B145FC1E58226B00988FE3 /* pru.c */; };
-		77B146181E58226B00988FE3 /* sensor_fusion.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B146011E58226B00988FE3 /* sensor_fusion.c */; };
 		77B1461A1E58226B00988FE3 /* tests.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B146041E58226B00988FE3 /* tests.c */; };
 		77B18BCF1E5845E300DDD8B5 /* liblog.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77B18BCB1E5845DD00DDD8B5 /* liblog.a */; };
 		77C21F731E5824760081C524 /* libimu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77B145C71E58210F00988FE3 /* libimu.a */; };
@@ -127,6 +126,7 @@
 		7744EE251E5854CB004EC3F9 /* pins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pins.c; path = libint/pins.c; sourceTree = "<group>"; };
 		7744EE261E5854CB004EC3F9 /* pins.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pins.h; path = libint/pins.h; sourceTree = "<group>"; };
 		7744EE291E5856C0004EC3F9 /* int.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = int.h; path = libint/int.h; sourceTree = "<group>"; };
+		7745529D1E622BDC00FE544A /* commander.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = commander.h; sourceTree = "<group>"; };
 		77AF89251E5C4569000E5D11 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tools; sourceTree = "<group>"; };
 		77B145891E5820D700988FE3 /* core */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = core; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B145C71E58210F00988FE3 /* libimu.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libimu.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -274,6 +274,7 @@
 			children = (
 				77B145D91E58226B00988FE3 /* cdefs.h */,
 				77B145DA1E58226B00988FE3 /* commander.c */,
+				7745529D1E622BDC00FE544A /* commander.h */,
 				77B145DB1E58226B00988FE3 /* commands.c */,
 				77B145DC1E58226B00988FE3 /* commands.h */,
 				77B145DD1E58226B00988FE3 /* config */,
@@ -567,7 +568,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				77B146181E58226B00988FE3 /* sensor_fusion.c in Sources */,
 				77B1461A1E58226B00988FE3 /* tests.c in Sources */,
 				77B146091E58226B00988FE3 /* imu_data.c in Sources */,
 				77B146131E58226B00988FE3 /* pod.c in Sources */,
@@ -754,13 +754,20 @@
 		77B145831E58208800988FE3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
 				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
@@ -772,13 +779,20 @@
 		77B145841E58208800988FE3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
 				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;

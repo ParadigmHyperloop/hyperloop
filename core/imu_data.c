@@ -34,6 +34,9 @@
 #include <imu.h>
 
 int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
+              double dt);
+
+int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
               double dt) {
   float acceleration = get_value_f(a);
   float velocity = get_value_f(v);

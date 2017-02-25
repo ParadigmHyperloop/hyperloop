@@ -30,12 +30,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
+// Much of this code is based on this CMU TCP client example
+// http://www.cs.cmu.edu/afs/cs/academic/class/15213-f99/www/class26/tcpclient.c
+
 #include "pod.h"
 
 extern ring_buf_t logbuf;
 
-// Much of this code is based on this CMU TCP client example
-// http://www.cs.cmu.edu/afs/cs/academic/class/15213-f99/www/class26/tcpclient.c
+int log_connect(void);
+int log_send(log_t *l);
 
 int log_connect() {
   info("Connecting to logging server: " LOG_SVR_NAME);

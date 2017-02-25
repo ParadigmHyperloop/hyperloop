@@ -50,8 +50,8 @@
  *   ping  <<< You type this line as "ping" plus enter
  *   PONG  >>> OPC Command Server replies with "PONG\n"
  */
-#include "commands.h"
-#include "pod.h"
+#include "commander.h"
+
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
@@ -168,13 +168,13 @@ int cmd_do_command(size_t inputc, char *input, size_t outputc, char output[]) {
 /**
  * Accept the connection from the waiting client and set the socket params
  */
-int cmd_process_client(int serverfd) {
+int cmd_process_client(int fd) {
   int clientfd;
   struct sockaddr_in client_addr;
   unsigned int addrlen = sizeof(client_addr);
 
   // Accept the connection
-  clientfd = accept(serverfd, (struct sockaddr *)&client_addr, &addrlen);
+  clientfd = accept(fd, (struct sockaddr *)&client_addr, &addrlen);
   info("Client %s:%d connected as fd %d", inet_ntoa(client_addr.sin_addr),
        ntohs(client_addr.sin_port), clientfd);
 
@@ -200,8 +200,8 @@ int cmd_process_client(int serverfd) {
  * error
  * message, and then close them down
  */
-int cmd_reject_client(int serverfd) {
-  int clientfd = cmd_process_client(serverfd);
+int cmd_reject_client(int fd) {
+  int clientfd = cmd_process_client(fd);
 
   if (clientfd < 0) {
     return -1;
@@ -238,8 +238,8 @@ ssize_t cmd_respond(int fd, char *buf, int n) {
  * Given a server file descriptor, accept the new client and return the
  * client's filedescriptor
  */
-int cmd_accept_client(int serverfd) {
-  int clientfd = cmd_process_client(serverfd);
+int cmd_accept_client(int fd) {
+  int clientfd = cmd_process_client(fd);
 
   if (clientfd < 0) {
     return -1;
@@ -307,7 +307,7 @@ int cmd_server() {
   fd_set active_fd_set, read_fd_set;
 
   int cmdbufferc = 0;
-  note("=== Waiting for first commander connection ===", CMD_SVR_PORT);
+  note("=== Waiting for first commander connection (%d) ===", CMD_SVR_PORT);
 
   while (get_pod_mode() != Shutdown) {
     // Setup All File Descriptors we are going to read from

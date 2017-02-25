@@ -32,6 +32,8 @@
 
 #include "../pod.h"
 
+bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
+
 /**
  * Determines if the new mode is a valid mode
  *

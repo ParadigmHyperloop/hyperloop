@@ -36,10 +36,6 @@
 #include "pru.h"
 #endif
 
-int lateralRead(pod_t *pod);
-int skateRead(pod_t *pod);
-int brakingRead(pod_t *pod);
-
 void common_checks(pod_t *pod) {
 
   // Watchdog Timer
@@ -120,7 +116,7 @@ bool start_lp_fill() {
  */
 bool start_hp_fill() {
   if (pod_hp_safe_checklist(get_pod())) {
-    return set_pod_mode(HPFill, "Control Point Initiated LP Fill");
+    return set_pod_mode(HPFill, "Control Point Initiated HP Fill");
   }
   return false;
 }
@@ -459,8 +455,8 @@ void adjust_hp_fill(pod_t *pod) {
  */
 void *core_main(__unused void *arg) {
 
-  static double iteration_time = 0;
-  static uint64_t last = 0;
+  double iteration_time = 0;
+  uint64_t usec_last = 0;
 
   info("Core Control Thread Started");
   pod_t *pod = get_pod();
@@ -625,18 +621,18 @@ void *core_main(__unused void *arg) {
     // -------------------------------------------------------
     // Compute how long it is taking for the main loop to run
     // -------------------------------------------------------
-    uint64_t now = get_time_usec();
+    uint64_t usec_now = get_time_usec();
 
-    if (last == 0) {
-      last = now;
+    if (usec_last == 0) {
+      usec_last = usec_now;
     } else {
       if (iteration_time == 0) {
-        iteration_time = (double)((now - last));
+        iteration_time = (double)((usec_now - usec_last));
       } else {
         iteration_time = (1.0 - ITERATION_TIME_ALPHA) * iteration_time +
-                         ITERATION_TIME_ALPHA * (double)((now - last));
+                         ITERATION_TIME_ALPHA * (double)((usec_now - usec_last));
       }
-      last = now;
+      usec_last = usec_now;
       set_value_f(&(pod->core_speed),
                   1.0f / ((float)iteration_time / (float)USEC_PER_SEC));
     }

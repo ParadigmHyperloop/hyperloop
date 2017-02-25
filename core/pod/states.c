@@ -272,7 +272,7 @@ int init_pod(void) {
 
   int reg_pressures[] = REG_PRESSURE_INPUTS;
   for (i = 0; i < N_REG_PRESSURE; i++) {
-    int id = N_MUX_INPUTS * REG_PRESSURE_MUX + reg_pressures[i];
+    id = N_MUX_INPUTS * REG_PRESSURE_MUX + reg_pressures[i];
     pod->sensors[id] = &(pod->reg_pressure[i]);
     pod->reg_pressure[i] = (sensor_t){.sensor_id = id,
                                       .name = {0},
@@ -289,7 +289,7 @@ int init_pod(void) {
 
   int clamp_pressure[] = CLAMP_PRESSURE_INPUTS;
   for (i = 0; i < N_CLAMP_PRESSURE; i++) {
-    int id = N_MUX_INPUTS * CLAMP_PRESSURE_MUX + clamp_pressure[i];
+    id = N_MUX_INPUTS * CLAMP_PRESSURE_MUX + clamp_pressure[i];
     pod->sensors[id] = &(pod->clamp_pressure[i]);
     pod->clamp_pressure[i] = (sensor_t){.sensor_id = id,
                                         .name = {0},
@@ -306,7 +306,7 @@ int init_pod(void) {
 
   int lateral_pressure[] = LAT_FILL_PRESSURE_INPUTS;
   for (i = 0; i < N_LAT_FILL_PRESSURE; i++) {
-    int id = N_MUX_INPUTS * LAT_FILL_PRESSURE_MUX + lateral_pressure[i];
+    id = N_MUX_INPUTS * LAT_FILL_PRESSURE_MUX + lateral_pressure[i];
     pod->sensors[id] = &(pod->lateral_pressure[i]);
     pod->lateral_pressure[i] = (sensor_t){.sensor_id = id,
                                           .name = {0},
@@ -327,7 +327,7 @@ int init_pod(void) {
   // -------------
   int reg_thermo[] = REG_THERMO_INPUTS;
   for (i = 0; i < N_REG_THERMO; i++) {
-    int id = N_MUX_INPUTS * REG_THERMO_MUX + reg_thermo[i];
+    id = N_MUX_INPUTS * REG_THERMO_MUX + reg_thermo[i];
     pod->sensors[id] = &(pod->reg_thermo[i]);
     pod->reg_thermo[i] = (sensor_t){.sensor_id = id,
                                     .name = {0},
@@ -345,7 +345,7 @@ int init_pod(void) {
 
   int reg_surf_thermo[] = REG_SURF_THERMO_INPUTS;
   for (i = 0; i < N_REG_SURF_THERMO; i++) {
-    int id = N_MUX_INPUTS * REG_SURF_THERMO_MUX + reg_surf_thermo[i];
+    id = N_MUX_INPUTS * REG_SURF_THERMO_MUX + reg_surf_thermo[i];
     pod->sensors[id] = &(pod->reg_surf_thermo[i]);
     pod->reg_surf_thermo[i] = (sensor_t){.sensor_id = id,
                                          .name = {0},
@@ -363,7 +363,7 @@ int init_pod(void) {
 
   int power_thermo[] = POWER_THERMO_INPUTS;
   for (i = 0; i < N_POWER_THERMO; i++) {
-    int id = N_MUX_INPUTS * POWER_THERMO_MUX + power_thermo[i];
+    id = N_MUX_INPUTS * POWER_THERMO_MUX + power_thermo[i];
     pod->sensors[id] = &(pod->power_thermo[i]);
     pod->power_thermo[i] = (sensor_t){.sensor_id = id,
                                       .name = {0},
@@ -381,7 +381,7 @@ int init_pod(void) {
 
   int clamp_pad_thermo[] = CLAMP_PAD_THERMO_INPUTS;
   for (i = 0; i < N_CLAMP_PAD_THERMO; i++) {
-    int id = N_MUX_INPUTS * CLAMP_PAD_THERMO_MUX + clamp_pad_thermo[i];
+    id = N_MUX_INPUTS * CLAMP_PAD_THERMO_MUX + clamp_pad_thermo[i];
     pod->sensors[id] = &(pod->clamp_thermo[i]);
     pod->clamp_thermo[i] = (sensor_t){.sensor_id = id,
                                       .name = {0},

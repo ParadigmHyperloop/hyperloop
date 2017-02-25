@@ -128,14 +128,14 @@ int readByteSPI(int device, unsigned char *data);
 int readBufferSPI(int device, int numbytes, unsigned char *buf);
 
 // LCD 4-bit Prototypes
-int initLCD();
+int initLCD(void);
 int writeChar(unsigned char data);
 int writeCMD(unsigned char cmd);
 int writeString(char *str, int len);
-int LCD_ClearScreen();
-int LCD_Home();
-int LCD_CR();
-int LCD_Backspace();
+int LCD_ClearScreen(void);
+int LCD_Home(void);
+int LCD_CR(void);
+int LCD_Backspace(void);
 int LCD_Move(int location);
 
 // ADC Prototypes

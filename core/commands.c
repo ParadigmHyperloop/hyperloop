@@ -38,6 +38,7 @@ extern char *pod_mode_names[];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wmissing-prototypes"
 int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   int count =
       snprintf(&outbuf[0], outbufc, "%s",

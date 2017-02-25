@@ -70,7 +70,7 @@ bool is_lp_vented(pod_t *pod);
  * (uses 1 clamp brake decelleration defined as CLAMP_BRAKING_ACCEL)
  */
 float get_stopping_distance(pod_t *pod);
-
+float get_remaining_distance(pod_t *pod);
 float get_stopping_deccel(pod_t *pod);
 
 sensor_t *get_sensor_by_name(pod_t *pod, char *name);

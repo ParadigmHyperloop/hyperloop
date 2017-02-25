@@ -47,6 +47,7 @@
 // proprietary libimu header
 
 #include "core.h"
+#include "commander.h"
 #include "pod/emergency.h"
 #include "ring_buffer.h"
 /**
@@ -84,8 +85,7 @@ int set_skate_target(int no, solenoid_state_t val, bool override);
 int ensure_caliper_brakes(int no, solenoid_state_t val, bool override);
 int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override);
 
-int setBrakes(int no, int val, bool override);
-int setEBrakes(int no, int val, bool override);
+relay_mask_t get_relay_mask(pod_t *pod);
 
 int self_tests(pod_t *pod);
 
@@ -165,5 +165,10 @@ void log_dump(pod_t *pod);
  * @return The length of the report in bytes, or -1 on failure
  */
 int status_dump(pod_t *pod, char *buf, size_t len);
+
+/**
+ * Build a telemetry_packet_t using the given pod_t
+ */
+telemetry_packet_t make_telemetry(pod_t *pod);
 
 #endif

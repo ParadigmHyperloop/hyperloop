@@ -34,8 +34,37 @@
 #define OPENLOOP_CORE_H
 #include "pod.h"
 
+
+void common_checks(pod_t *pod);
+void boot_state_checks(__unused pod_t *pod);
+bool core_pod_checklist(pod_t *pod);
+bool pod_safe_checklist(pod_t *pod);
+bool pod_hp_safe_checklist(pod_t *pod);
+
 bool start_lp_fill(void);
 bool start_hp_fill(void);
-bool core_pod_checklist(pod_t *pod);
+
+void post_state_checks(pod_t *pod);
+void lp_fill_state_checks(pod_t *pod);
+void hp_fill_state_checks(pod_t *pod);
+void load_state_checks(pod_t *pod);
+void standby_state_checks(pod_t *pod);
+void armed_state_checks(pod_t *pod);
+
+void emergency_state_checks(pod_t *pod);
+void pushing_state_checks(pod_t *pod);
+void coasting_state_checks(pod_t *pod);
+void braking_state_checks(pod_t *pod);
+void vent_state_checks(pod_t *pod);
+void retrieval_state_checks(__unused pod_t *pod);
+void skate_sensor_checks(pod_t *pod);
+void lp_package_checks(pod_t *pod);
+void lateral_sensor_checks(pod_t *pod);
+
+void adjust_brakes(__unused pod_t *pod);
+void adjust_skates(__unused pod_t *pod);
+void adjust_hp_fill(pod_t *pod);
+void adjust_vent(pod_t *pod);
+void *core_main(__unused void *arg);
 
 #endif

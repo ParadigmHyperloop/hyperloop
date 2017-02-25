@@ -83,4 +83,15 @@ typedef struct log {
  */
 int log_enqueue(log_t *l);
 
+/**
+ * Log a standard message to stdout and a log file
+ */
+__printflike(1, 2)
+int pod_log(char *fmt, ...);
+
+/**
+ * Main entry point into the logging server. Use with pthread_create
+ */
+void *logging_main(__unused void *arg);
+
 #endif

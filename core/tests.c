@@ -33,6 +33,10 @@
 #include "pod-helpers.h"
 #include "pod.h"
 
+int relay_walk(void);
+int sensor_walker(void);
+int self_tests(__unused pod_t *state);
+
 #define N_WALKS 10
 
 /**

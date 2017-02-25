@@ -54,6 +54,8 @@
 
 typedef int gpio_t;
 
+// TODO: Determine if it's C99 standard to store enums as (un)signed ints...
+// then assign explicit values to each enum case
 typedef enum gpio_value {
   kGpioValError,
   kGpioHigh,
@@ -66,10 +68,15 @@ typedef enum gpio_dir {
   kGpioIn
 } gpio_dir_t;
 
-
+// SYSFS Helpers
+ssize_t sysfs_write(int pin, char *op, char *data);
+ssize_t sysfs_read(int pin, char *op, char *data, int len);
+  
+  
 // GPIO Prototypes
 ssize_t init_pin(gpio_t pin);
-ssize_t set_pin_dir(gpio_t pin, gpio_dir_t value);
+ssize_t set_pin_direction(gpio_t pin, gpio_dir_t value);
+gpio_dir_t get_pin_direction(gpio_t pin);
 ssize_t set_pin_value(gpio_t pin, gpio_value_t value);
 gpio_value_t get_pin_value(gpio_t pin);
 #endif /* bbb_h */

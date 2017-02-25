@@ -57,6 +57,11 @@ typedef struct {
   int quiet;
 } config_t;
 
+uint64_t getTime(void);
+void usage(void);
+void finish(int code, int fd);
+void parse_args(int argc, char *argv[], config_t *config);
+
 uint64_t getTime() {
   struct timeval currentTime;
 

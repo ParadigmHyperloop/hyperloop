@@ -88,6 +88,14 @@ bool open_solenoid(solenoid_t *s);
 bool close_solenoid(solenoid_t *s);
 
 /**
+ * Reads the current state of the solenoid by reading the state of the GPIO
+ * pin assigned to control the solenoid.
+ *
+ * @note It does not actively set the solenoid_t state for you
+ */
+solenoid_state_t read_solenoid_state(const solenoid_t *solenoid);
+
+/**
  * Inhibits the controller from changing the solenoid state.
  *
  * @note unlock_solenoid, the function to reverse this one, should only be
