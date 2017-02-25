@@ -21,7 +21,7 @@ import argparse
 import sys
 import select
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 
 MAX_MESSAGE_SIZE = 2048
 
@@ -32,10 +32,16 @@ class Pod:
     def __init__(self, addr):
         self.sock = None
         self.addr = addr
+        self.last_ping = datetime.now()
 
-    def ping(self, heart):
-        # self.send("ping")
-        pass
+    def ping(self, _):
+        self.send("ping")
+
+        timed_out = (datetime.now() - self.last_ping > timedelta(seconds=10))
+        if self.sock is not None and timed_out:
+            print("PING TIMEOUT!")
+            self.sock.close()
+            self.sock = None
 
     def handle_data(self, data):
         if "PONG" in data:
@@ -103,7 +109,24 @@ class Heart:
         self.running = False
 
 
-if "__main__" == __name__:
+def loop(pod):
+    print("CLI Connecting to {}:{}".format(pod.addr[0], pod.addr[1]))
+    pod.connect()
+
+    while pod.is_connected():
+        (ready, _, _) = select.select([pod.sock, sys.stdin], [], [], 1)
+
+        if pod.sock in ready:
+            data = pod.recv()
+            if data:
+                pod.handle_data(data)
+
+        if sys.stdin in ready:
+            cmd = sys.stdin.readline()
+            pod.command(cmd)
+
+
+def main():
     parser = argparse.ArgumentParser(description="Openloop Command Client",
                                      add_help=False)
 
@@ -130,17 +153,8 @@ if "__main__" == __name__:
     threading.Thread(target=heart.start).start()
 
     while True:
-        print("CLI Connecting to {}:{}".format(args.host, args.port))
-        pod.connect()
+        loop(pod)
 
-        while pod.is_connected():
-            (ready, _, _) = select.select([pod.sock, sys.stdin], [], [], 1)
 
-            if pod.sock in ready:
-                data = pod.recv()
-                if data:
-                    pod.handle_data(data)
-
-            if sys.stdin in ready:
-                cmd = sys.stdin.readline()
-                pod.command(cmd)
+if "__main__" == __name__:
+    main()
