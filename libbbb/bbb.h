@@ -70,7 +70,7 @@ typedef enum gpio_dir {
 
 // SYSFS Helpers
 ssize_t sysfs_write(int pin, char *op, char *data);
-ssize_t sysfs_read(int pin, char *op, char *data, int len);
+ssize_t sysfs_read(int pin, char *op, char *data, size_t len);
   
   
 // GPIO Prototypes

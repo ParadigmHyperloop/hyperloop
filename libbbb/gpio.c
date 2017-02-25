@@ -74,7 +74,7 @@ ssize_t sysfs_write(int pin, char *op, char *data) {
   return rc;
 }
 
-ssize_t sysfs_read(int pin, char *op, char *data, int len) {
+ssize_t sysfs_read(int pin, char *op, char *data, size_t len) {
   char path[SYSFS_GPIO_MAX_PATH];
   snprintf(path, SYSFS_GPIO_MAX_PATH, SYSFS_GPIO_PIN_FMT, pin, op);
   int fd = open(path, O_RDONLY);
