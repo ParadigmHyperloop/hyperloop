@@ -44,12 +44,12 @@
 		77B146151E58226B00988FE3 /* pru.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B145FC1E58226B00988FE3 /* pru.c */; };
 		77B1461A1E58226B00988FE3 /* tests.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B146041E58226B00988FE3 /* tests.c */; };
 		77B18BCF1E5845E300DDD8B5 /* liblog.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77B18BCB1E5845DD00DDD8B5 /* liblog.a */; };
+		77B6C4341E624CC2009DFE69 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B6C42F1E624CC2009DFE69 /* log.c */; };
+		77B6C4351E624CC2009DFE69 /* log.h in Headers */ = {isa = PBXBuildFile; fileRef = 77B6C4301E624CC2009DFE69 /* log.h */; };
+		77B6C4361E624CC2009DFE69 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B6C4311E624CC2009DFE69 /* logging.c */; };
+		77B6C4371E624CC2009DFE69 /* ring_buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B6C4321E624CC2009DFE69 /* ring_buffer.c */; };
+		77B6C4381E624CC2009DFE69 /* ring_buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 77B6C4331E624CC2009DFE69 /* ring_buffer.h */; };
 		77C21F731E5824760081C524 /* libimu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77B145C71E58210F00988FE3 /* libimu.a */; };
-		77F29D391E58597500EC907D /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D341E58597500EC907D /* log.c */; };
-		77F29D3A1E58597500EC907D /* log.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D351E58597500EC907D /* log.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		77F29D3B1E58597500EC907D /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D361E58597500EC907D /* logging.c */; };
-		77F29D3C1E58597500EC907D /* ring_buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D371E58597500EC907D /* ring_buffer.c */; };
-		77F29D3D1E58597500EC907D /* ring_buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D381E58597500EC907D /* ring_buffer.h */; };
 		77F29D421E58599700EC907D /* libBBB.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D3E1E58599700EC907D /* libBBB.c */; };
 		77F29D431E58599700EC907D /* libBBB.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D3F1E58599700EC907D /* libBBB.h */; };
 		77F29D441E58599700EC907D /* shims.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D401E58599700EC907D /* shims.c */; };
@@ -161,11 +161,11 @@
 		77B146011E58226B00988FE3 /* sensor_fusion.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sensor_fusion.c; sourceTree = "<group>"; };
 		77B146041E58226B00988FE3 /* tests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tests.c; sourceTree = "<group>"; };
 		77B18BCB1E5845DD00DDD8B5 /* liblog.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblog.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		77F29D341E58597500EC907D /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = libog/log.c; sourceTree = "<group>"; };
-		77F29D351E58597500EC907D /* log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = log.h; path = libog/log.h; sourceTree = "<group>"; };
-		77F29D361E58597500EC907D /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = libog/logging.c; sourceTree = "<group>"; };
-		77F29D371E58597500EC907D /* ring_buffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ring_buffer.c; path = libog/ring_buffer.c; sourceTree = "<group>"; };
-		77F29D381E58597500EC907D /* ring_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ring_buffer.h; path = libog/ring_buffer.h; sourceTree = "<group>"; };
+		77B6C42F1E624CC2009DFE69 /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = liblog/log.c; sourceTree = "<group>"; };
+		77B6C4301E624CC2009DFE69 /* log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = log.h; path = liblog/log.h; sourceTree = "<group>"; };
+		77B6C4311E624CC2009DFE69 /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = liblog/logging.c; sourceTree = "<group>"; };
+		77B6C4321E624CC2009DFE69 /* ring_buffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ring_buffer.c; path = liblog/ring_buffer.c; sourceTree = "<group>"; };
+		77B6C4331E624CC2009DFE69 /* ring_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ring_buffer.h; path = liblog/ring_buffer.h; sourceTree = "<group>"; };
 		77F29D3E1E58599700EC907D /* libBBB.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = libBBB.c; path = libint/libBBB.c; sourceTree = "<group>"; };
 		77F29D3F1E58599700EC907D /* libBBB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libBBB.h; path = libint/libBBB.h; sourceTree = "<group>"; };
 		77F29D401E58599700EC907D /* shims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = shims.c; path = libint/shims.c; sourceTree = "<group>"; };
@@ -347,11 +347,11 @@
 		77B18BBE1E58450700DDD8B5 /* liblog */ = {
 			isa = PBXGroup;
 			children = (
-				77F29D341E58597500EC907D /* log.c */,
-				77F29D351E58597500EC907D /* log.h */,
-				77F29D361E58597500EC907D /* logging.c */,
-				77F29D371E58597500EC907D /* ring_buffer.c */,
-				77F29D381E58597500EC907D /* ring_buffer.h */,
+				77B6C42F1E624CC2009DFE69 /* log.c */,
+				77B6C4301E624CC2009DFE69 /* log.h */,
+				77B6C4311E624CC2009DFE69 /* logging.c */,
+				77B6C4321E624CC2009DFE69 /* ring_buffer.c */,
+				77B6C4331E624CC2009DFE69 /* ring_buffer.h */,
 			);
 			name = liblog;
 			sourceTree = "<group>";
@@ -394,8 +394,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				77F29D3A1E58597500EC907D /* log.h in Headers */,
-				77F29D3D1E58597500EC907D /* ring_buffer.h in Headers */,
+				77B6C4381E624CC2009DFE69 /* ring_buffer.h in Headers */,
+				77B6C4351E624CC2009DFE69 /* log.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -598,9 +598,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				77F29D391E58597500EC907D /* log.c in Sources */,
-				77F29D3C1E58597500EC907D /* ring_buffer.c in Sources */,
-				77F29D3B1E58597500EC907D /* logging.c in Sources */,
+				77B6C4341E624CC2009DFE69 /* log.c in Sources */,
+				77B6C4371E624CC2009DFE69 /* ring_buffer.c in Sources */,
+				77B6C4361E624CC2009DFE69 /* logging.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
