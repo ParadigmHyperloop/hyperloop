@@ -145,7 +145,7 @@ def loop(pod):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Openloop Command Client",
+    parser = argparse.ArgumentParser(description="HyperLoop Command Client",
                                      add_help=False)
 
     parser.add_argument("-v", "--verbose", action="store_true")

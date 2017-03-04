@@ -30,43 +30,45 @@ The minimal controls system is comprised of 5 distinct systems that you will nee
 
 You will also need sane C and Python development environments installed.
 
-### Build Environment
+## Build Environment
 
-#### Mac
+### Mac
 
 * You will need [Xcode](https://apple.com/xcode/)
 * You will also need a semi-sane Python environment. Set that up on a mac with:
-  ```
-  sudo easy_install pip
-  sudo pip install virtualenv
-  ```
 
-#### Linux
+```
+sudo easy_install pip
+sudo pip install virtualenv
+```
+
+### Linux
 
 ```
 sudo apt-get install build-esential python-pip
 ```
 
-### Influxdb and Grafana
+## Influxdb and Grafana
 
 Install influxdb and grafana per the instructions on their respective websites
 
-### Core Control Code
+## Core Control Code
 
-1. Clone this repo somewhere safe, then cd into it.
-  ```
-  mkdir ~/dev
-  cd dev
-  git clone git@github.com:ParadigmTransportation/hyperloop-core.git
-  cd hyperloop-core
-  ```
+Clone this repo somewhere safe, then cd into it.
 
-### ODS
+```
+mkdir ~/dev
+cd dev
+git clone git@github.com:ParadigmTransportation/hyperloop-core.git
+cd hyperloop-core
+```
+
+## ODS
 
 Clone and run ODS in a new terminal window following the instructions on the
 [ODS README](https://github.com/ParadigmTransportation/ODS)
 
-### PodCtl
+## PodCTL
 
 Clone and run PodCtl in a new terminal window following the instructions on the
 [PodCtl README](https://github.com/ParadigmTransportation/podctl)
@@ -80,23 +82,24 @@ You should now be running all 4 of the aforementioned services on your dev machi
 - To start the core controller in developer mode `make run`
 
 You should see the core controller start with output like this
+
 ```
-    [INFO]  [main] {main.c:65} POD Booting...
-    [INFO]  [main] {main.c:66} Initializing Pod State
-    [WARN]  [get_pod_state] {pod.c:92} Pod State is not initialized
-    [DEBUG] [init_pod_state] {pod.c:61} initializing State at 0x1057f0240
-    [INFO]  [main] {main.c:73} Loading POD state struct for the first time
-    [INFO]  [main] {main.c:76} Registering POSIX signal handlers
-    [INFO]  [main] {main.c:83} Starting the Logging Client Connection
-    [DEBUG] [logging_main] {logging.c:230} [logging_main] Thread Start
-    [DEBUG] [log_connect] {logging.c:95} Connecting to logging server: pod-server.openloopalliance.com
-    [NOTE]  [log_connect] {logging.c:130} Connected to pod-server.openloopalliance.com:7778 on fd 5
-    [INFO]  [logging_main] {logging.c:244} punching boot_sem to proceed
-    [INFO]  [main] {main.c:101} Booting Command and Control Server
-    [DEBUG] [cmd_server] {commander.c:224} Starting TCP Network Command Server
-    [NOTE]  [cmd_server] {commander.c:231} TCP Network Command Server Started on port: 7779
-    [NOTE]  [cmd_server] {commander.c:239} === Waiting for first commander connection ===
-    ```
+[INFO]  [main] {main.c:65} POD Booting...
+[INFO]  [main] {main.c:66} Initializing Pod State
+[WARN]  [get_pod_state] {pod.c:92} Pod State is not initialized
+[DEBUG] [init_pod_state] {pod.c:61} initializing State at 0x1057f0240
+[INFO]  [main] {main.c:73} Loading POD state struct for the first time
+[INFO]  [main] {main.c:76} Registering POSIX signal handlers
+[INFO]  [main] {main.c:83} Starting the Logging Client Connection
+[DEBUG] [logging_main] {logging.c:230} [logging_main] Thread Start
+[DEBUG] [log_connect] {logging.c:95} Connecting to logging server: pod-server.openloopalliance.com
+[NOTE]  [log_connect] {logging.c:130} Connected to pod-server.openloopalliance.com:7778 on fd 5
+[INFO]  [logging_main] {logging.c:244} punching boot_sem to proceed
+[INFO]  [main] {main.c:101} Booting Command and Control Server
+[DEBUG] [cmd_server] {commander.c:224} Starting TCP Network Command Server
+[NOTE]  [cmd_server] {commander.c:231} TCP Network Command Server Started on port: 7779
+[NOTE]  [cmd_server] {commander.c:239} === Waiting for first commander connection ===
+```
 
 The podctl terminal window should connect and show you a prompt like this
 
