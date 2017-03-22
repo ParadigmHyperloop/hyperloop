@@ -116,12 +116,12 @@
 #define panic(subsystem, notes, ...)                                           \
   pod_panic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 
-#pragma clang diagnostic pop
-
 // Helper that wraps set_pod_mode but adds file and line number
 // REVIEW: Probably should remove
 #define DECLARE_EMERGENCY(message, ...)                                        \
   set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message, ##__VA_ARGS__)
+
+#pragma clang diagnostic pop
 
 // ------------------
 // Primary Braking Thresholds

@@ -7,29 +7,29 @@ export FMTROOT = $(BLDROOT)/fmt
 
 # Delegate Build to Sub-Makefiles
 all: install_headers
-	@$(MAKE) -C libbbb
-	@$(MAKE) -C libimu
-	@$(MAKE) -C libhw
-	@$(MAKE) -C liblog
-	@$(MAKE) -C core
+	@$(MAKE) -j -C libbbb
+	@$(MAKE) -j -C libimu
+	@$(MAKE) -j -C libhw
+	@$(MAKE) -j -C liblog
+	@$(MAKE) -j -C core
 
 install:
-	@$(MAKE) -C libbbb install
-	@$(MAKE) -C libimu install
-	@$(MAKE) -C libhw install
-	@$(MAKE) -C liblog install
-	@$(MAKE) -C core install
+	@$(MAKE) -j -C libbbb install
+	@$(MAKE) -j -C libimu install
+	@$(MAKE) -j -C libhw install
+	@$(MAKE) -j -C liblog install
+	@$(MAKE) -j -C core install
 
 install_headers:
-	@$(MAKE) -C libbbb install_headers
-	@$(MAKE) -C libimu install_headers
-	@$(MAKE) -C libhw install_headers
-	@$(MAKE) -C liblog install_headers
-	@$(MAKE) -C core install_headers
+	@$(MAKE) -j -C libbbb install_headers
+	@$(MAKE) -j -C libimu install_headers
+	@$(MAKE) -j -C libhw install_headers
+	@$(MAKE) -j -C liblog install_headers
+	@$(MAKE) -j -C core install_headers
 
 clean:
-	@$(MAKE) -C libbbb clean
-	@$(MAKE) -C libimu clean
-	@$(MAKE) -C libhw clean
-	@$(MAKE) -C liblog clean
-	@$(MAKE) -C core clean
+	@$(MAKE) -j -C libbbb clean
+	@$(MAKE) -j -C libimu clean
+	@$(MAKE) -j -C libhw clean
+	@$(MAKE) -j -C liblog clean
+	@$(MAKE) -j -C core clean
