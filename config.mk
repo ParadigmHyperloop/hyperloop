@@ -16,6 +16,8 @@ HDR_INSTALL := /usr/local/include
 # Compiler and Linker Flags
 CFLAGS += -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL)
 
+CFLAGS += -Wall -Werror
+
 # Default Files, Sources, Objects, and Headers
 FILES := $(wildcard ${CURDIR}/**/*.c ${CURDIR}/**/*.h ${CURDIR}/*.c ${CURDIR}/*.h)
 SOURCES := $(wildcard ${CURDIR}/*.c ${CURDIR}/**/*.c)

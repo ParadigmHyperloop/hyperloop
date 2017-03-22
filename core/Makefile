@@ -18,7 +18,6 @@ all: install_headers $(EXECUTABLE)
 install:
 	mkdir -p $(DSTROOT)/usr/local/bin
 	install -m 755 $(EXECUTABLE) $(DSTROOT)/usr/local/bin
-	zip -r $(DSTROOT).zip $(DSTROOT)
 
 run: clean all
 	$(EXECUTABLE) $(RUN_ARGS)
