@@ -64,7 +64,7 @@ endif
 CFLAGS += -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL)
 
 # Main Warning Flag Set: DO NOT CHANGE THESE!
-CFLAGS += -Wall -Werror -pedantic
+CFLAGS += -Wall -Werror -Wno-unknown-pragmas
 
 # Helpers
 MAKE_LIB = $(AR) rcs

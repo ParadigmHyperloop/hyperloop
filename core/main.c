@@ -32,6 +32,7 @@
 
 #include "pod.h"
 #include "pru.h"
+#include <sys/mount.h>
 
 struct arguments {
   bool tests;
@@ -144,13 +145,14 @@ void signal_handler(int sig) {
 // TODO: Sync the filesystem and unmount root to prevent corruption
 
 #ifdef __linux__
-    FILE *fp = fopen("/proc/sys/kernel/sysrq", "w");
+    FILE *fp;
+    fp = fopen("/proc/sys/kernel/sysrq", "w");
     fwrite("1", sizeof(char), 1, fp);
     fclose(fp);
 
     umount2("/", MNT_FORCE);
     setPinValue(KILL_PIN, KILL_PIN_KILL_VALUE);
-    FILE *fp = fopen("/proc/sysrq-trigger", "w");
+    fp = fopen("/proc/sysrq-trigger", "w");
     fwrite("o", sizeof(char), 1, fp);
     fclose(fp);
 #endif

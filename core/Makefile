@@ -6,7 +6,7 @@ RUN_ARGS := -i -
 LDFLAGS += -L$(OBJROOT) -limu -llog -lhw -lbbb
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
+	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)
 
 $(OBJROOT)/%.o : $(SRCROOT)/%.c
 	mkdir -p $(dir $@)

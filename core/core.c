@@ -465,7 +465,7 @@ void *core_main(__unused void *arg) {
   pod_mode_t mode;
   imu_datagram_t imu_data;
 
-  struct timespec next, now, scratch;
+  struct timespec next, now;
   get_timespec(&next);
 
   while ((mode = get_pod_mode()) != Shutdown) {

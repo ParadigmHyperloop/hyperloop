@@ -33,6 +33,10 @@
 #ifndef bbb_h
 #define bbb_h
 
+#ifndef __unused
+#define __unused  __attribute__((unused))
+#endif
+
 #include <stdio.h>
 
 #define SYSFS_GPIO_MAX_PATH 64
@@ -71,8 +75,8 @@ typedef enum gpio_dir {
 // SYSFS Helpers
 ssize_t sysfs_write(int pin, char *op, char *data);
 ssize_t sysfs_read(int pin, char *op, char *data, size_t len);
-  
-  
+
+
 // GPIO Prototypes
 ssize_t init_pin(gpio_t pin);
 ssize_t set_pin_direction(gpio_t pin, gpio_dir_t value);

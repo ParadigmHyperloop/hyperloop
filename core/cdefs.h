@@ -67,6 +67,10 @@
 #define __STR__(s) #s
 #define __XSTR__(s) __STR__(s)
 
+#ifndef __unused
+#define __unused  __attribute__((unused))
+#endif
+
 #define USEC_PER_SEC 1000000ull
 #define NSEC_PER_SEC 1000000000ull
 #define NSEC_PER_USEC 1000ull

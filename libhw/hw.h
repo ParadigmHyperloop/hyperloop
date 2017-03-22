@@ -38,4 +38,8 @@
 #include "shims.h"
 #include "pins.h"
 
+#ifndef __unused
+#define __unused  __attribute__((unused))
+#endif
+
 #endif /* libint_h */

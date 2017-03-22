@@ -40,6 +40,8 @@ bool is_solenoid_open(solenoid_t *solenoid) {
     case kSolenoidNormallyClosed:
       return solenoid->value == 1;
       break;
+    default:
+      abort();
   }
 }
 
@@ -51,6 +53,8 @@ bool is_solenoid_closed(solenoid_t *solenoid) {
     case kSolenoidNormallyClosed:
       return solenoid->value != 1;
       break;
+    default:
+      abort();
   }
 }
 
@@ -65,6 +69,8 @@ void set_solenoid(solenoid_t *s, solenoid_state_t val) {
     case kSolenoidError:
       // TOOD: Handle
       break;
+    default:
+      abort();
   }
 }
 

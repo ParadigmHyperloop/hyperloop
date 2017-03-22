@@ -38,6 +38,13 @@
 #include <unistd.h>
 #include <stdarg.h>
 
+#ifndef __unused
+#define __unused  __attribute__((unused))
+#endif
+#ifndef __printflike
+#define __printflike(a, b) __attribute__((format(printf, (a), (b))))
+#endif
+
 #include "ring_buffer.h"
 
 #ifndef PACKET_INTERVAL
