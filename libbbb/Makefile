@@ -3,7 +3,7 @@ include ../config.mk
 RUN_ARGS := -i -
 
 $(EXECUTABLE): $(OBJECTS)
-		ar rcs $@ $^
+		$(MAKE_LIB) $@ $^
 
 $(OBJROOT)/%.o : $(SRCROOT)/%.c
 	mkdir -p $(dir $@)

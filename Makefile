@@ -1,3 +1,5 @@
+include config.mk
+
 # Configure one common build root
 export BLDROOT = ${CURDIR}/BUILD
 export OBJROOT = $(BLDROOT)/obj
@@ -21,6 +23,7 @@ install:
 	@$(MAKE) -j -C core install
 
 install_headers:
+	$(BANNER)
 	@$(MAKE) -j -C libbbb install_headers
 	@$(MAKE) -j -C libimu install_headers
 	@$(MAKE) -j -C libhw install_headers
