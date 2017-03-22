@@ -30,7 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "../pod.h"
+#include "pod.h"
 
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
 

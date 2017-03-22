@@ -33,10 +33,10 @@
 #ifndef _OPENLOOP_POD_CONFIG_INVENTORY_
 #define _OPENLOOP_POD_CONFIG_INVENTORY_
 
-#include "airsupply.h"
-#include "overrides.h"
-#include "photo.h"
-#include "power.h"
+#include "config_airsupply.h"
+#include "config_overrides.h"
+#include "config_photo.h"
+#include "config_power.h"
 
 /// MISC Sensors and other constants.
 #define TUBE_LENGTH 1600

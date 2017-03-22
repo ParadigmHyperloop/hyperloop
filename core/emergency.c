@@ -30,36 +30,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_EMERGENCY_H
-#define OPENLOOP_POD_EMERGENCY_H
-#include "../pod.h"
-#include "states.h"
+#include "pod.h"
 
-/**
- * WARNING! TAKE EXTREME CARE IN WHERE YOU USE THIS! THIS WILL KILL THE PROG!
- *
- * Recommend instead:
- *
- *  set_pod_mode(Emergency, "Explain what happened");
- *
- * or the wrapper macro for set_pod_mode(Emergency) which adds file/line info
- *
- *  DECLARE_EMERGENCY("Explain what happened");
- *
- * Declare an immediate panic and exit. This will kill the controller, Logging
- * server, command server, and the entire process.
- *
- * The panic flow is as follows
- *   - Print the given panic notes to stderr ONLY
- *   - Issue a POD_SIGPANIC to own pid or just exit(POD_EX_PANIC)
- *   - The safety wrapper script should immediately attempt to set the CTRL_OK
- *     GPIO to LOW using the linux /sys/class/gpio tree signalling the
- *     Emergency Board that the controller crashed
- *   - The safety wrapper script will attempt to deenergize the Ebrake
- *     solenoids if possible but the Emergency Board should also open the
- *     Emergency brake solenoids as well when CTRL_OK drops LOW
- */
-void pod_panic(int subsystem, char *file, int line, char *notes, ...);
+void pod_panic(__unused int subsystem, char *file, int line, char *notes, ...) {
 
+  static char msg[MAX_LOG_LINE];
+  va_list arg;
+  va_start(arg, notes);
+  vsnprintf(&msg[0], MAX_LOG_LINE, notes, arg);
+  va_end(arg);
 
-#endif
+  fprintf(stderr, "[PANIC] %s:%d -> %s\n", file, line, msg);
+  fflush(stderr);
+
+  kill(getpid(), POD_SIGPANIC);
+  // Alternate
+  // exit(POD_EX_PANIC);
+}

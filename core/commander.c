@@ -129,8 +129,11 @@ int cmd_do_command(size_t inputc, char *input, size_t outputc, char output[]) {
   int i = 0;
   int count = 0;
   while (commands[i].name != NULL) {
-    if (strncmp(commands[i].name, input,
-                MIN(inputc, strlen(commands[i].name))) == 0) {
+    size_t len = strlen(commands[i].name);
+    if (inputc < len) {
+      len = inputc;
+    }
+    if (strncmp(commands[i].name, input, len) == 0) {
       break;
     }
     i++;

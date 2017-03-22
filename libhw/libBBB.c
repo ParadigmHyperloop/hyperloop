@@ -295,7 +295,6 @@ int getPinValue(int pinnum) {
   return value;
 }
 
-#pragma diagnostic ignored -Wunused-parameter
 //*************************************************
 //*                PWM FUNCTIONS                  *
 //*************************************************

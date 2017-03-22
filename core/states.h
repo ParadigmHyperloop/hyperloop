@@ -32,7 +32,7 @@
 
 #ifndef OPENLOOP_POD_STATES_H
 #define OPENLOOP_POD_STATES_H
-#include "../pod.h"
+#include "pod.h"
 
 #define N_POD_STATES 15
 

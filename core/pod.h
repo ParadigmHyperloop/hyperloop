@@ -35,20 +35,20 @@
 
 #include "cdefs.h"
 #include "config.h"
-#include "libBBB.h"
+#include <libBBB.h>
 #include <pthread.h>
 #include <sys/queue.h>
 
-#include <int.h>
+#include <hw.h>
 #include <imu.h>
 #include <log.h>
 
-#include "pod/states.h"
+#include "states.h"
 // proprietary libimu header
 
 #include "core.h"
 #include "commander.h"
-#include "pod/emergency.h"
+#include "emergency.h"
 #include "ring_buffer.h"
 /**
  * Get the current time of the pod in microseconds
@@ -107,27 +107,27 @@ typedef struct telemetry_packet {
   float position_x;
   float position_y;
   float position_z;
-  
+
   float velocity_x;
   float velocity_y;
   float velocity_z;
-  
+
   float acceleration_x;
   float acceleration_y;
   float acceleration_z;
-  
+
   // Distance sensors
   float corners[N_CORNER_DISTANCE];                // 4
   float wheels[N_WHEEL_DISTANCE];                  // 3
   float lateral[N_LATERAL_DISTANCE];               // 3
-  
+
   // Pressures
   float hp_pressure;                               // 1
   float reg_pressure[N_REG_PRESSURE];              // 4
   float clamp_pressure[N_CLAMP_PRESSURE];          // 2
   float skate_pressure[N_SKATE_PRESSURE];          // 2
   float lateral_pressure[N_LAT_FILL_PRESSURE];     // 2
-  
+
   // Thermocouples
   float hp_thermo;                                 // 1
   float reg_thermo[N_REG_THERMO];                  // 4
@@ -135,11 +135,11 @@ typedef struct telemetry_packet {
   float power_thermo[N_POWER_THERMO];              // 4
   float clamp_thermo[N_CLAMP_PAD_THERMO];          // 2
   float frame_thermo;                              // 1
-  
+
   // Batteries
   float voltages[N_BATTERIES];                     // 3
   float currents[N_BATTERIES];                     // 3
-  
+
   // Photo
   float rpms[N_WHEEL_PHOTO];                       // 3
   uint32_t stripe_count;

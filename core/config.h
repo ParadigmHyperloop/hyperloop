@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "config/inventory.h"
-#include "config/scores.h"
+#include "config_inventory.h"
+#include "config_scores.h"
 
 #ifndef _OPENLOOP_POD_CONFIG_
 #define _OPENLOOP_POD_CONFIG_
@@ -91,6 +91,7 @@
 // --------------
 // Debug Printing
 // --------------
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 
 #ifdef POD_DEBUG
