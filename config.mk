@@ -33,15 +33,6 @@ SRCROOT ?= ${CURDIR}
 
 HDR_INSTALL := /usr/local/include
 
-# Compiler and Linker Flags
-CFLAGS += -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL)
-
-# Main Warning Flag Set: DO NOT CHANGE THESE!
-CFLAGS += -Wall -Werror -pedantic
-
-# Special Warnings
-CFLAGS += -Wnon-modular-include-in-framework-module -Werror=non-modular-include-in-framework-module -Wno-trigraphs -fpascal-strings -O0 -fno-common -Werror -Werror=incompatible-pointer-types -Werror-implicit-function-declaration -Wno-missing-field-initializers -Wmissing-prototypes -Werror=return-type -Wdocumentation -Wunreachable-code -Werror=deprecated-objc-isa-usage -Werror=objc-root-class -Wmissing-braces -Wparentheses -Wswitch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wshadow -Wfour-char-constants -Wconversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wassign-enum -Wsign-compare -Wshorten-64-to-32 -Wpointer-sign -Wnewline-eof -Wno-sign-conversion -Wno-gnu-zero-variadic-macro-arguments
-
 # Default Files, Sources, Objects, and Headers
 FILES := $(wildcard ${CURDIR}/**/*.c ${CURDIR}/**/*.h ${CURDIR}/*.c ${CURDIR}/*.h)
 SOURCES := $(wildcard ${CURDIR}/*.c ${CURDIR}/**/*.c)
@@ -62,11 +53,18 @@ UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S),Darwin)
 	CFLAGS += -g
+	CFLAGS += -Wnon-modular-include-in-framework-module -Werror=non-modular-include-in-framework-module -Wno-trigraphs -fpascal-strings -O0 -fno-common -Werror -Werror=incompatible-pointer-types -Werror-implicit-function-declaration -Wno-missing-field-initializers -Wmissing-prototypes -Werror=return-type -Wdocumentation -Wunreachable-code -Werror=deprecated-objc-isa-usage -Werror=objc-root-class -Wmissing-braces -Wparentheses -Wswitch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wshadow -Wfour-char-constants -Wconversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wassign-enum -Wsign-compare -Wshorten-64-to-32 -Wpointer-sign -Wnewline-eof -Wno-sign-conversion -Wno-gnu-zero-variadic-macro-arguments
 endif
 
 ifeq ($(UNAME_S),Linux)
 	 LDFLAGS += -pthread
 endif
+
+# Compiler and Linker Flags
+CFLAGS += -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL)
+
+# Main Warning Flag Set: DO NOT CHANGE THESE!
+CFLAGS += -Wall -Werror -pedantic
 
 # Helpers
 MAKE_LIB = $(AR) rcs
