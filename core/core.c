@@ -603,7 +603,7 @@ void *core_main(__unused void *arg) {
 // --------------------------------------------
 // Yield to other threads
 // --------------------------------------------
-#ifdef __linux__
+#if _POSIX_C_SOURCE >= 200112L
     clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &next, NULL);
 #else
     int64_t next_ns = timespec_to_nsec(&next);
@@ -616,7 +616,6 @@ void *core_main(__unused void *arg) {
       usleep((uint32_t)((float)(next_ns - scratch_ns) * 0.9f /
                         (float)NSEC_PER_USEC));
     }
-
 #endif
     // -------------------------------------------------------
     // Compute how long it is taking for the main loop to run

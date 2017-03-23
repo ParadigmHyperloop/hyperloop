@@ -42,7 +42,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
-
+#ifdef BBB
 // Local functions not used by outside world
 int checkOverlay(char *file);
 void initCMD(unsigned char cmd);
@@ -762,4 +762,6 @@ int pauseNanoSec(long nano) {
   }
   return 0;
 }
+
+#endif
 #pragma clang diagnostic pop

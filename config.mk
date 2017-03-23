@@ -60,6 +60,10 @@ ifeq ($(UNAME_S),Linux)
 	 LDFLAGS += -pthread
 endif
 
+ifneq (,$(findstring bone,$(UNAME_R)))
+	CFLAGS += -DHAS_PRU -DBBB
+endif
+
 # Compiler and Linker Flags
 CFLAGS += -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL)
 
