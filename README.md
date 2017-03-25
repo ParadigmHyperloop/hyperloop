@@ -138,6 +138,19 @@ well
 * **ODS**: OpenLoop Data Shuttle: the server that the pod sends telemetry data
   and logs to.
 
+# Jenkins
+
+A Jenkins server builds and tests all changes made to this repository
+automatically.  Whenever you open a pull request, a build will be triggered and
+a link to the results will be attached to the PR.
+
+Before you checkin code, run the following to catch any errors before the
+Jenkins server catches them
+
+```
+make clean all install test
+```
+
 # License
 
 See the [LICENSE](LICENSE) for full licensing details.
