@@ -56,5 +56,5 @@ deb:
 	dpkg-deb --build $(DEBROOT) $(DEBFILE)
 
 publish:
-	curl -T $(DEBFILE) -u$(BINTRAY_USER):$(BINTRAY_TOKEN) https://api.bintray.com/content/paradigmtransportation/hyperloop-core/dev/$(VERSION)/$(PROJECT).deb\;deb_distribution=jessie\;deb_component=main\;deb_architecture=i386,amd64,arm64,armv7
+	curl -T $(DEBFILE) -u$(BINTRAY_USER):$(BINTRAY_TOKEN) https://api.bintray.com/content/paradigmtransportation/hyperloop-core/dev/$(VERSION)/$(PROJECT)-$(VERSION).deb\;deb_distribution=jessie\;deb_component=main\;deb_architecture=i386,amd64,arm64,armv7
 	curl -X POST -u$(BINTRAY_USER):$(BINTRAY_TOKEN) https://api.bintray.com/content/paradigmtransportation/hyperloop-core/dev/$(VERSION)/publish
