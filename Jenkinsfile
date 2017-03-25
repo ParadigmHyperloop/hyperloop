@@ -7,6 +7,9 @@ pipeline {
                 sh 'make'
                 sh 'make install'
             }
+            steps {
+                sh 'make style'
+            }
         }
         stage('Test') {
             steps {
@@ -15,7 +18,8 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying....'
+                sh 'make deb'
+                sh 'make publish'
             }
         }
     }

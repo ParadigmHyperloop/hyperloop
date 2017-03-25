@@ -45,6 +45,9 @@ clean:
 	@$(MAKE) -j -C liblog clean
 	@$(MAKE) -j -C core clean
 
+style:
+	@echo "Not Implemented"
+
 test:
 	$(DSTROOT)$(TEST_CMD)
 
