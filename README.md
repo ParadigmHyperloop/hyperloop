@@ -1,4 +1,4 @@
-# hyperloop-core [![Build Status](https://travis-ci.org/ParadigmTransportation/hyperloop-core.svg?branch=master)](https://travis-ci.org/openloopalliance/hyperloop-core)
+# hyperloop-core [![Build Status](https://ci.paradigmhyperloop.com/buildStatus/icon?job=ParadigmHyperloop/hyperloop-core/master)
 
 The code for the Hyperloop Pod Control systems
 
