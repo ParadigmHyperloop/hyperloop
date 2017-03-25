@@ -3,19 +3,19 @@ pipeline {
 
     stages {
         stage('Build') {
-            parallel {
-                "build" : {
+            parallel (
+                build: {
                     steps {
                         sh 'make'
                         sh 'make install'
                     }
-                }
-                "style" : {
+                },
+                style: {
                     steps {
                         sh 'make style'
                     }
                 }
-            }
+            )
         }
         stage('Test') {
             steps {
