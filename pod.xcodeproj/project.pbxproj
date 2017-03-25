@@ -48,7 +48,6 @@
 		778A5FC31E82581E0099A66D /* pod-helpers.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FB21E82581E0099A66D /* pod-helpers.c */; };
 		778A5FC41E82581E0099A66D /* pod.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FB41E82581E0099A66D /* pod.c */; };
 		778A5FC51E82581E0099A66D /* pru.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FB61E82581E0099A66D /* pru.c */; };
-		778A5FC71E82581E0099A66D /* states-internal.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FB91E82581E0099A66D /* states-internal.c */; };
 		778A5FC81E82581E0099A66D /* states.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FBA1E82581E0099A66D /* states.c */; };
 		778A5FC91E82581E0099A66D /* tests.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FBC1E82581E0099A66D /* tests.c */; };
 		77B18BCF1E5845E300DDD8B5 /* liblog.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77B18BCB1E5845DD00DDD8B5 /* liblog.a */; };
@@ -157,7 +156,6 @@
 		778A5FB51E82581E0099A66D /* pod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pod.h; sourceTree = "<group>"; };
 		778A5FB61E82581E0099A66D /* pru.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pru.c; sourceTree = "<group>"; };
 		778A5FB71E82581E0099A66D /* pru.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pru.h; sourceTree = "<group>"; };
-		778A5FB91E82581E0099A66D /* states-internal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "states-internal.c"; sourceTree = "<group>"; };
 		778A5FBA1E82581E0099A66D /* states.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = states.c; sourceTree = "<group>"; };
 		778A5FBB1E82581E0099A66D /* states.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = states.h; sourceTree = "<group>"; };
 		778A5FBC1E82581E0099A66D /* tests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tests.c; sourceTree = "<group>"; };
@@ -298,7 +296,6 @@
 				778A5FB51E82581E0099A66D /* pod.h */,
 				778A5FB61E82581E0099A66D /* pru.c */,
 				778A5FB71E82581E0099A66D /* pru.h */,
-				778A5FB91E82581E0099A66D /* states-internal.c */,
 				778A5FBA1E82581E0099A66D /* states.c */,
 				778A5FBB1E82581E0099A66D /* states.h */,
 				778A5FBC1E82581E0099A66D /* tests.c */,
@@ -554,7 +551,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				778A5FC71E82581E0099A66D /* states-internal.c in Sources */,
 				778A5FC51E82581E0099A66D /* pru.c in Sources */,
 				778A5FC11E82581E0099A66D /* imu_data.c in Sources */,
 				778A5FC41E82581E0099A66D /* pod.c in Sources */,
