@@ -1,21 +1,37 @@
 /*****************************************************************************
- * Copyright (c) OpenLoop, 2016
+ * Copyright (c) Paradigm Hyperloop, 2017
  *
- * This material is proprietary of The OpenLoop Alliance and its members.
+ * This material is proprietary intellectual property of Paradigm Hyperloop.
  * All rights reserved.
+ *
  * The methods and techniques described herein are considered proprietary
  * information. Reproduction or distribution, in whole or in part, is
- * forbidden except by express written permission of OpenLoop.
+ * forbidden without the express written permission of Paradigm Hyperloop.
+ *
+ * Please send requests and inquiries to:
+ *
+ *  Software Engineering Lead - Eddie Hurtig <hurtige@ccs.neu.edu>
  *
  * Source that is published publicly is for demonstration purposes only and
  * shall not be utilized to any extent without express written permission of
- * OpenLoop.
+ * Paradigm Hyperloop.
  *
- * Please see http://www.opnlp.co for contact information
+ * Please see http://www.paradigm.team for additional information.
+ *
+ * THIS SOFTWARE IS PROVIDED BY PARADIGM HYPERLOOP ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL PARADIGM HYPERLOOP BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "config/scores.h"
-#include "config/inventory.h"
+#include "config_inventory.h"
+#include "config_scores.h"
 
 #ifndef _OPENLOOP_POD_CONFIG_
 #define _OPENLOOP_POD_CONFIG_
@@ -23,18 +39,11 @@
 // --------------------------
 // Branding
 // --------------------------
-#define POD_COPY_OWNER "OpenLoop - Controls Team"
+#define POD_COPY_OWNER "Paradigm - Controls Team"
 #define POD_COPY_YEAR "2016"
-
-// Taken from interface.c
-#define COND 2
-#define COUNT 4
-#define PUSH_ACC 16
-#define TRACK_LENGTH 100 // Meters
-#define ACC_LENGTH 250
-#define POD_MASS 800 // Kg
-#define SIM_TIME 65
-#define LOOP_DURATION 1000;
+#define POD_CREDITS                                                            \
+  "Eddie Hurtig - Software Engineering Lead\n"                                 \
+  "Upen Naidoo - Embedded Systems Engineer\n"
 
 // Error Thresholds
 #define A_ERR_X 0.02
@@ -56,7 +65,7 @@
 // filter for the IMU input.
 // The formula used is:
 //   (new_accel = (1.0-IMU_EMA_ALPHA)*old_accel + IMU_EMA_ALPHA*accel_reading)
-#define IMU_EMA_ALPHA 0.01
+#define IMU_EMA_ALPHA 0.01f
 
 // -------------------------
 // Subsystem Identifiers
@@ -76,23 +85,31 @@
 // Each thread is a loop, how long should the thread sleep for each iteration
 // --------------------------------------------------------------------------
 #define CORE_THREAD_SLEEP 0
+#define CORE_PERIOD_USEC (USEC_PER_SEC / 1000)
 #define LOGGING_THREAD_SLEEP 5000
 
 // --------------
 // Debug Printing
 // --------------
-#ifdef DEBUG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+
+#ifdef POD_DEBUG
 #define FLINE __FILE__ ":" __XSTR__(__LINE__)
 #define output(prefix_, fmt_, ...)                                             \
-  podLog((prefix_ "[%s] {" FLINE "} " fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
-
+  pod_log((prefix_ "[%s] {" FLINE "} " fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
 #else
-#define output(prefix_, fmt_, ...)                                             \
-  podLog((prefix_ fmt_), __FUNCTION__, ##__VA_ARGS__)
+#define output(prefix_, fmt_, ...) pod_log((prefix_ fmt_ "\n"), ##__VA_ARGS__)
 #endif
+
+#ifdef POD_DEBUG
 #define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
+#else
+#define debug(fmt_, ...)
+#endif
+
 #define warn(fmt_, ...) output("[WARN]  ", fmt_, ##__VA_ARGS__)
-#define error(fmt_, ...) output("[ERROR] ", fmt_, ##__VA_ARGS__)
+#define error(fmt_, ...) output("[ERROR]  ", fmt_, ##__VA_ARGS__)
 #define info(fmt_, ...) output("[INFO]  ", fmt_, ##__VA_ARGS__)
 #define note(fmt_, ...) output("[NOTE]  ", fmt_, ##__VA_ARGS__)
 #define fatal(fmt_, ...) output("[FATAL] ", fmt_, ##__VA_ARGS__)
@@ -101,8 +118,10 @@
 
 // Helper that wraps set_pod_mode but adds file and line number
 // REVIEW: Probably should remove
-#define DECLARE_EMERGENCY(message)                                             \
-  set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message)
+#define DECLARE_EMERGENCY(message, ...)                                        \
+  set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message, ##__VA_ARGS__)
+
+#pragma clang diagnostic pop
 
 // ------------------
 // Primary Braking Thresholds

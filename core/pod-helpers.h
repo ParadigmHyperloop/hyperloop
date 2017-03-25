@@ -1,17 +1,33 @@
 /*****************************************************************************
- * Copyright (c) OpenLoop, 2016
+ * Copyright (c) Paradigm Hyperloop, 2017
  *
- * This material is proprietary of The OpenLoop Alliance and its members.
+ * This material is proprietary intellectual property of Paradigm Hyperloop.
  * All rights reserved.
+ *
  * The methods and techniques described herein are considered proprietary
  * information. Reproduction or distribution, in whole or in part, is
- * forbidden except by express written permission of OpenLoop.
+ * forbidden without the express written permission of Paradigm Hyperloop.
+ *
+ * Please send requests and inquiries to:
+ *
+ *  Software Engineering Lead - Eddie Hurtig <hurtige@ccs.neu.edu>
  *
  * Source that is published publicly is for demonstration purposes only and
  * shall not be utilized to any extent without express written permission of
- * OpenLoop.
+ * Paradigm Hyperloop.
  *
- * Please see http://www.opnlp.co for contact information
+ * Please see http://www.paradigm.team for additional information.
+ *
+ * THIS SOFTWARE IS PROVIDED BY PARADIGM HYPERLOOP ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL PARADIGM HYPERLOOP BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
 /**
@@ -54,68 +70,8 @@ bool is_lp_vented(pod_t *pod);
  * (uses 1 clamp brake decelleration defined as CLAMP_BRAKING_ACCEL)
  */
 float get_stopping_distance(pod_t *pod);
-
+float get_remaining_distance(pod_t *pod);
 float get_stopping_deccel(pod_t *pod);
-/**
- * Sets the desired solenoid state
- *
- * @note Handles the complexities of Normally open and Normally closed
- * solenoids for you
- */
-void set_solenoid(solenoid_t *s, solenoid_state_t val);
-/**
- * Opens the solenoid if it is not already set to be open
- *
- * @note Handles the complexities of Normally open and Normally closed
- * solenoids for you
- */
-void open_solenoid(solenoid_t *s);
 
-/**
- * Closes the given solenoid if it is not already set to closed
- *
- * @note Handles the complexities of Normally open and Normally closed
- * solenoids for you
- */
-void close_solenoid(solenoid_t *s);
-
-/**
- * Inhibits the controller from changing the solenoid state.
- *
- * @note unlock_solenoid, the function to reverse this one, should only be
- * called by a human initiated action (such as a control point command)
- */
-void lock_solenoid(solenoid_t *s);
-
-/**
- * Removes an inhibit in place to prevent the given solenoid from changing
- * state
- *
- * @note should only be called by a human initiated action (such as a control
- * point command)
- */
-void unlock_solenoid(solenoid_t *s);
-
-/**
- * Determines if a solenoid is in it's open state
- */
-bool is_solenoid_open(solenoid_t *s);
-
-/**
- * Determines if a solenoid is in it's closed state
- */
-bool is_solenoid_closed(solenoid_t *s);
-
-/**
- * Determines if a solenoid is in a locked out state
- */
-bool is_solenoid_locked(solenoid_t *s);
-
-
-sensor_t * get_sensor_by_name(pod_t *pod, char *name);
-sensor_t * get_sensor_by_address(pod_t *pod, int mux, int input);
-
-/**
- * Setup the given pin as a standard output pin
- */
-bool setup_pin(int no);
+sensor_t *get_sensor_by_name(pod_t *pod, char *name);
+sensor_t *get_sensor_by_address(pod_t *pod, int mux, int input);

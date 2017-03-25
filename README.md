@@ -2,135 +2,109 @@
 
 The code for the Hyperloop Pod Control systems
 
-* **Core**: the core C controller.
-* **ODS**: receive logs from the pod over TCP
-* **Client**: client (telnet) for interacting with the pod remotely
-
-# Glossary
-
-* **BBB**: Beagle Bone Black, an ARM micro-controller
-* **IMU**: Inertial Measurement Unit, a really sick accelerometer
-* **ODS**: OpenLoop Data Shuttle: the server that the pod sends telemetry data
-  and logs to.
-
 # Documentation
 
-There is more documentation in this repository and on the OpenLoop Google Drive
+There is more documentation in this repository and on the internal Paradigm Google Drive.
 
 * [Core Control Program Documentation](core/README.md)
 
 # Getting Started
 
-The following is a high level getting started geared for Openloop developers
+- If you are new to Paradigm be sure to check and say hi to the Paradigm
+software team at one of our weekly meetings!
+- If you are interested in contributing to any of Paradigm's software initiatives, please feel get in touch with us via http://paradigm.team or at
+one of our meetings.  You can also jump right in and open a pull request if
+you already see something you like!
 
-## Usage
+The following is a high level getting started geared for new developers
 
-To fire it up locally on your mac you need 3 terminal windows and some `clang`
+## Overview
 
-* You will need `Xcode` if you are developing on a Mac in order to get clang
-* You will need a standard build environment if you are developing on Linux.
-  * You may use a `clang/llvm` stack or a `gcc` stack, we support both
+The minimal controls system is comprised of 5 distinct systems that you will need to install.
 
-* You will also need a semi-sane Python environment, set that up on a mac with:
-  ```
-  sudo easy_install pip
-  sudo pip install virtualenv
-  ```
+1. [The Core Controller](https://github.com/ParadigmTransportation/hyperloop-core) (this repo)
+2. [The OpenLoop Data Shuttle](https://github.com/ParadigmTransportation/ODS)
+3. [The PodCtl Tool](https://github.com/ParadigmTransportation/podctl)
+4. [Influxdb](https://www.influxdata.com)
+5. [Grafana](https://grafana.net)
 
-### Clone required sources
+You will also need sane C and Python development environments installed.
 
-1. Clone this repo somewhere safe, then cd into it.
-  ```
-  mkdir ~/dev
-  cd dev
-  git clone git@github.com:openloopalliance/hyperloop-core.git
-  cd hyperloop-core
-  ```
-2. Clone the appropriate support repo in `~/dev/hyperloop-core` for the IMU
-  * Real Version
-    ```
-    git clone git@github.com:EdHurtig/libimu-private.git libimu
-    ```
-    _Note that it must be cloned as "libimu" not "libimu-private"_
-  * Public Stub Version
-    ```
-    git clone https://github.com/openloopalliance/libimu.git
-    ```
-3. Build the `libimu` project so that the `hyperloop-core` project has an IMU
-   implementation it can use
-   ```
-   cd libimu
-   make && make install
-   cd ..
-   ```
-3. In a *NEW* terminal window, Clone the ODS repo somewhere, this one can be
-   cloned in `~/dev` or within your `~/dev/hyperloop-core` folder. We will call
-   this window the *ODS Terminal Window*
-   ```
-   git clone git@github.com:openloopalliance/ODS.git
-   cd ODS
-   ```
+## Build Environment
 
-### Startup The Environment
+### Mac
 
-#### Control Point ODS server
+* You will need [Xcode](https://apple.com/xcode/)
+* You will also need a semi-sane Python environment. Set that up on a mac with:
 
-1. In the ODS terminal window, fire up the ODS server: type `make run-ods`
-    ```
-→ make run
-rm -f server.out server.err test-data.txt *.csv
-pip install -r requirements.txt
-Requirement already satisfied (use --upgrade to upgrade): influxdb==3.0.0 in /Users/ehurtig/dev/hyperloop-core/.env/lib/python2.7/site-packages (from -r requirements.txt (line 1))
-Requirement already satisfied (use --upgrade to upgrade): python-dateutil==2.5.3 in /Users/ehurtig/dev/hyperloop-core/.env/lib/python2.7/site-packages (from -r requirements.txt (line 2))
-Requirement already satisfied (use --upgrade to upgrade): pytz==2016.7 in /Users/ehurtig/dev/hyperloop-core/.env/lib/python2.7/site-packages (from -r requirements.txt (line 3))
-Requirement already satisfied (use --upgrade to upgrade): requests==2.11.1 in /Users/ehurtig/dev/hyperloop-core/.env/lib/python2.7/site-packages (from -r requirements.txt (line 4))
-Requirement already satisfied (use --upgrade to upgrade): six==1.10.0 in /Users/ehurtig/dev/hyperloop-core/.env/lib/python2.7/site-packages (from -r requirements.txt (line 5))
-./server.py
-Starting TCP Server on 0.0.0.0:7778
+```
+sudo easy_install pip
+sudo pip install virtualenv
 ```
 
-#### Pod controller
+### Linux
 
-1. In the first terminal window (in `hyperloop-core`), fire up the core
-   controller. type `make run` again
-    ```
-    → make run
-    cd core && /Applications/Xcode.app/Contents/Developer/usr/bin/make run
-    /Users/ehurtig/dev/hyperloop-core/core
-    rm -f *.o *~ core
-    gcc -Wall -std=gnu99  -pthread  core.c main.c imu.c braking.c lateral.c logging.c height.c pod.c pod-helpers.c commands.c commander.c   -o core
-    ./core
-    [INFO]  [main] {main.c:65} POD Booting...
-    [INFO]  [main] {main.c:66} Initializing Pod State
-    [WARN]  [get_pod_state] {pod.c:92} Pod State is not initialized
-    [DEBUG] [init_pod_state] {pod.c:61} initializing State at 0x1057f0240
-    [INFO]  [main] {main.c:73} Loading POD state struct for the first time
-    [INFO]  [main] {main.c:76} Registering POSIX signal handlers
-    [INFO]  [main] {main.c:83} Starting the Logging Client Connection
-    [DEBUG] [logging_main] {logging.c:230} [logging_main] Thread Start
-    [DEBUG] [log_connect] {logging.c:95} Connecting to logging server: pod-server.openloopalliance.com
-    [NOTE]  [log_connect] {logging.c:130} Connected to pod-server.openloopalliance.com:7778 on fd 5
-    [INFO]  [logging_main] {logging.c:244} punching boot_sem to proceed
-    [INFO]  [main] {main.c:101} Booting Command and Control Server
-    [DEBUG] [cmd_server] {commander.c:224} Starting TCP Network Command Server
-    [NOTE]  [cmd_server] {commander.c:231} TCP Network Command Server Started on port: 7779
-    [NOTE]  [cmd_server] {commander.c:239} === Waiting for first commander connection ===
-    ```
+```
+sudo apt-get install build-esential python-pip
+```
 
-2. The controller is is waiting for an operator to connect to it. This is the
-   first of many safety features that ensure that the pod does not "run away".
-   To connect to the controller, *switch to a third terminal window* and type:
+## Influxdb and Grafana
+
+Install influxdb and grafana per the instructions on their respective websites
+
+## Core Control Code
+
+Clone this repo somewhere safe, then cd into it.
+
+```
+mkdir ~/dev
+cd dev
+git clone git@github.com:ParadigmTransportation/hyperloop-core.git
+cd hyperloop-core
+```
+
+## ODS
+
+Clone and run ODS in a new terminal window following the instructions on the
+[ODS README](https://github.com/ParadigmTransportation/ODS)
+
+## PodCTL
+
+Clone and run PodCtl in a new terminal window following the instructions on the
+[PodCtl README](https://github.com/ParadigmTransportation/podctl)
+
+## Core Startup
+
+You should now be running all 4 of the aforementioned services on your dev machine.  Now it is time to start up core
+
+- Clone this repo and then cd into it.
+- Run `make`
+- To start the core controller in developer mode `make run`
+
+You should see the core controller start with output like this
+
+```
+[INFO]  [main] {main.c:65} POD Booting...
+[INFO]  [main] {main.c:66} Initializing Pod State
+[WARN]  [get_pod_state] {pod.c:92} Pod State is not initialized
+[DEBUG] [init_pod_state] {pod.c:61} initializing State at 0x1057f0240
+[INFO]  [main] {main.c:73} Loading POD state struct for the first time
+[INFO]  [main] {main.c:76} Registering POSIX signal handlers
+[INFO]  [main] {main.c:83} Starting the Logging Client Connection
+[DEBUG] [logging_main] {logging.c:230} [logging_main] Thread Start
+[DEBUG] [log_connect] {logging.c:95} Connecting to logging server: pod-server.openloopalliance.com
+[NOTE]  [log_connect] {logging.c:130} Connected to pod-server.openloopalliance.com:7778 on fd 5
+[INFO]  [logging_main] {logging.c:244} punching boot_sem to proceed
+[INFO]  [main] {main.c:101} Booting Command and Control Server
+[DEBUG] [cmd_server] {commander.c:224} Starting TCP Network Command Server
+[NOTE]  [cmd_server] {commander.c:231} TCP Network Command Server Started on port: 7779
+[NOTE]  [cmd_server] {commander.c:239} === Waiting for first commander connection ===
+```
+
+The podctl terminal window should connect and show you a prompt like this
 
    ```
-   telnet localhost 7779
-   ```
-
-   You should be prompted with the controller CLI.  This is a basic command
-   line for interacting with the pod.  Should you disconnect prematurely, the
-   pod will enter emergency mode as a safety measure.
-
-   ```
-   → telnet localhost 7779
+   → ./podctl.py
     Trying 127.0.0.1...
     Connected to localhost.
     Escape character is '^]'.
@@ -152,57 +126,30 @@ Starting TCP Server on 0.0.0.0:7778
 
     >
     ```
-3. The pod will then start the core controller loop. This loop reads data,
-   Makes a decision on it, and then adjusts any control surfaces. However,
-   In order to tell the pod to turn on the skates, you need to transition it
-   to the `Ready` state.  This allows for pre-flight inspection of the pod
-   before the controller takes over completely. To inform the controller that
-   the pod is ready to go, issue the `ready` command on the Controller CLI
-   that you just connected in step 4.
 
-4. The controller will start the skates and monitor the IMU for motion in the
-   `+X` direction.  As soon as it records this, it will change it's state to
-   `Pushing`.  As soon as the acceleration drops to `-X`, the pod will set
-   it's state to `Coasting`. Finally as soon as the X position is determined
-   to be approaching the end of the track, the controller will engage the
-   primary brakes and set the mode to `Braking`. If the controller detects
-   an error in the sensor readings at any point it will declare an
-   `Emergency`
+The ODS window will start printing telemetry data to it's terminal window.
+The telemetry data will be accessible in Grafana at http://localhost:3000 as
+well
 
+# Glossary
 
-## Makefiles
+* **BBB**: Beagle Bone Black, an ARM micro-controller
+* **IMU**: Inertial Measurement Unit, a really sick accelerometer
+* **ODS**: OpenLoop Data Shuttle: the server that the pod sends telemetry data
+  and logs to.
 
-Most of the tasks you will need to do are handled by Makefiles. There is a top
-level Makefile in this repository that provides a few helpful targets.
+# Jenkins
 
-* Just typing "make" will compile all the projects
-* `run`: Will start up the core controller (the thing that runs on the BBB)
-* `run-ods`: Will start up the OpenLoop Data Shuttle server.
+A Jenkins server builds and tests all changes made to this repository
+automatically.  Whenever you open a pull request, a build will be triggered and
+a link to the results will be attached to the PR.
 
-## Coding Practices
+Before you checkin code, run the following to catch any errors before the
+Jenkins server catches them
 
-### Languages
-
-The code running on the BBB is mostly written in a single C application with
-a few different threads for critically different tasks. This minimizes the
-complexity of the application and dependency tree, however it does have a few
-down sides. For one, operations on the core control loop absolutely must not
-block, and care must be taken to ensure that any I/O that occures in the core
-control loop will not lock up the controller. `O_NONBLOCK` is the best way to
-prevent blocking on a file descriptor. `select` and `poll` will not always
-indicate actual data available and may still allow a blocking read to occur.
-
-Anything running at the control point is fair game though. The control point
-is not limited in resources like the BBB so the only rule we really impose is
-that it works, it's tested, and it is reliable. We will have a full Dell R7**
-server running in the control area to receive and process data from the pod.
-The server will be virtualized with a VMware vSphere hypervisor that can host
-dozens of virtual machines at once. We hope to keep the control point simple
-for the time being though, so this is mostly over-preparing
-
-## Code Style
-
-Pep8 for Python, clang/llvm for C (`clang-format -i -style=llvm <file>`)
+```
+make clean all install test
+```
 
 # License
 

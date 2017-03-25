@@ -1,17 +1,33 @@
 /*****************************************************************************
- * Copyright (c) OpenLoop, 2016
+ * Copyright (c) Paradigm Hyperloop, 2017
  *
- * This material is proprietary of The OpenLoop Alliance and its members.
+ * This material is proprietary intellectual property of Paradigm Hyperloop.
  * All rights reserved.
+ *
  * The methods and techniques described herein are considered proprietary
  * information. Reproduction or distribution, in whole or in part, is
- * forbidden except by express written permission of OpenLoop.
+ * forbidden without the express written permission of Paradigm Hyperloop.
+ *
+ * Please send requests and inquiries to:
+ *
+ *  Software Engineering Lead - Eddie Hurtig <hurtige@ccs.neu.edu>
  *
  * Source that is published publicly is for demonstration purposes only and
  * shall not be utilized to any extent without express written permission of
- * OpenLoop.
+ * Paradigm Hyperloop.
  *
- * Please see http://www.opnlp.co for contact information
+ * Please see http://www.paradigm.team for additional information.
+ *
+ * THIS SOFTWARE IS PROVIDED BY PARADIGM HYPERLOOP ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL PARADIGM HYPERLOOP BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
 /**
@@ -34,8 +50,8 @@
  *   ping  <<< You type this line as "ping" plus enter
  *   PONG  >>> OPC Command Server replies with "PONG\n"
  */
-#include "pod.h"
-#include "commands.h"
+#include "commander.h"
+
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
@@ -109,12 +125,15 @@ int cmd_start_tcp_server(int portno) {
 /**
  * Process A single command
  */
-int cmd_do_command(int inputc, char *input, int outputc, char output[]) {
+int cmd_do_command(size_t inputc, char *input, size_t outputc, char output[]) {
   int i = 0;
   int count = 0;
   while (commands[i].name != NULL) {
-    if (strncmp(commands[i].name, input,
-                MIN(inputc, strlen(commands[i].name))) == 0) {
+    size_t len = strlen(commands[i].name);
+    if (inputc < len) {
+      len = inputc;
+    }
+    if (strncmp(commands[i].name, input, len) == 0) {
       break;
     }
     i++;
@@ -127,7 +146,7 @@ int cmd_do_command(int inputc, char *input, int outputc, char output[]) {
 
   char *argv[CMD_MAX_ARGS];
   argv[0] = input;
-  int ci, argc = 1;
+  size_t ci, argc = 1;
 
   for (ci = 0; ci < (inputc - 1) && argc < CMD_MAX_ARGS; ci++) {
     if (input[ci] == ' ') {
@@ -152,14 +171,14 @@ int cmd_do_command(int inputc, char *input, int outputc, char output[]) {
 /**
  * Accept the connection from the waiting client and set the socket params
  */
-int cmd_process_client(int serverfd) {
+int cmd_process_client(int fd) {
   int clientfd;
   struct sockaddr_in client_addr;
   unsigned int addrlen = sizeof(client_addr);
 
   // Accept the connection
-  clientfd = accept(serverfd, (struct sockaddr *)&client_addr, &addrlen);
-  info("%s:%d connected as %d\n", inet_ntoa(client_addr.sin_addr),
+  clientfd = accept(fd, (struct sockaddr *)&client_addr, &addrlen);
+  info("Client %s:%d connected as fd %d", inet_ntoa(client_addr.sin_addr),
        ntohs(client_addr.sin_port), clientfd);
 
   if (clientfd < 0) {
@@ -180,11 +199,12 @@ int cmd_process_client(int serverfd) {
 }
 
 /**
- * Given a server file descriptor, accept the new client cmd_respond with an error
+ * Given a server file descriptor, accept the new client cmd_respond with an
+ * error
  * message, and then close them down
  */
-int cmd_reject_client(int serverfd) {
-  int clientfd = cmd_process_client(serverfd);
+int cmd_reject_client(int fd) {
+  int clientfd = cmd_process_client(fd);
 
   if (clientfd < 0) {
     return -1;
@@ -199,17 +219,17 @@ int cmd_reject_client(int serverfd) {
 /**
  * Sends whatever is in buf and then sends a new prompt line
  */
-int cmd_respond(int fd, char *buf, int n) {
+ssize_t cmd_respond(int fd, char *buf, int n) {
   if (n <= 0) {
     error("Asked to cmd_respond with a null or corrupt buffer");
     return -1;
   }
-  int a = write(fd, buf, n);
+  ssize_t a = write(fd, buf, n);
   if (a < 0) {
     return -1;
   }
 
-  int b = write(fd, "\n> ", 3);
+  ssize_t b = write(fd, "\n> ", 3);
   if (b < 0) {
     return -1;
   }
@@ -221,8 +241,8 @@ int cmd_respond(int fd, char *buf, int n) {
  * Given a server file descriptor, accept the new client and return the
  * client's filedescriptor
  */
-int cmd_accept_client(int serverfd) {
-  int clientfd = cmd_process_client(serverfd);
+int cmd_accept_client(int fd) {
+  int clientfd = cmd_process_client(fd);
 
   if (clientfd < 0) {
     return -1;
@@ -232,36 +252,43 @@ int cmd_accept_client(int serverfd) {
 }
 
 /**
- * Read in a command, process it with cmd_do_command(), and write out the respnse
+ * Read in a command, process it with cmd_do_command(), and write out the
+ * respnse
  */
 int cmd_process_request(int infd, int outfd) {
   char inbuf[MAX_PACKET_SIZE];
 
-  int nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE);
-  int base = 0;
-  if (nbytes <= 0) {
-    warn("read error on fd %d", infd);
-    return -1;
-  } else {
-    int i = 0;
-    int nbytesout = 0;
-    while (i < nbytes) {
-      if (inbuf[i] == ';') {
-        inbuf[i] = '\0';
-        // Process the command
-        nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
-        write(outfd, cmdbuffer, nbytesout);
-        base = i+1;
-      }
-      i++;
-    }
+  ssize_t nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE - 1);
 
-    nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
-    write(outfd, cmdbuffer, nbytesout);
-    write(outfd, "\n> ", 3);
-    base = i+1;
-    return 0;
+  if (nbytes <= 0) {
+    warn("read error on fd %d: %s", infd, strerror(errno));
+    return -1;
   }
+
+  int base = 0;
+  inbuf[nbytes] = '\0';
+
+  debug("Recv new command '%s' from existing client (fd %d)", inbuf, infd);
+
+  int i = 0;
+  int nbytesout = 0;
+  while (i < nbytes) {
+    if (inbuf[i] == ';') {
+      inbuf[i] = '\0';
+
+      // Process the command
+      nbytesout =
+          cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
+      write(outfd, cmdbuffer, nbytesout);
+      base = i + 1;
+    }
+    i++;
+  }
+
+  nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
+  write(outfd, cmdbuffer, nbytesout);
+  write(outfd, "\n> ", 3);
+  return 0;
 }
 
 /**
@@ -283,9 +310,9 @@ int cmd_server() {
   fd_set active_fd_set, read_fd_set;
 
   int cmdbufferc = 0;
-  note("=== Waiting for first commander connection ===", CMD_SVR_PORT);
+  note("=== Waiting for first commander connection (%d) ===", CMD_SVR_PORT);
 
-  while (1) {
+  while (get_pod_mode() != Shutdown) {
     // Setup All File Descriptors we are going to read from
     FD_ZERO(&active_fd_set);
     FD_SET(serverfd, &active_fd_set);
@@ -338,7 +365,6 @@ int cmd_server() {
     // Existing Clients
     for (i = 0; i < nclients; i++) {
       if (FD_ISSET(clients[i], &read_fd_set)) {
-        debug("Recv new command from existing client (fd %d)", clients[i]);
         if (cmd_process_request(clients[i], clients[i]) < 0) {
           // remove the client
           set_pod_mode(Emergency, "Operator Client %d (fd %d) disconnected", i,
@@ -367,7 +393,7 @@ int cmd_server() {
  * command server that will recieve commands from both stdin and over the TCP
  * command server
  */
-void *command_main(void *arg) {
+void *command_main(__unused void *arg) {
   int retval = cmd_server();
 
   if (retval < 0) {

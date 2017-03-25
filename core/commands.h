@@ -1,20 +1,44 @@
 /*****************************************************************************
- * Copyright (c) OpenLoop, 2016
+ * Copyright (c) Paradigm Hyperloop, 2017
  *
- * This material is proprietary of The OpenLoop Alliance and its members.
+ * This material is proprietary intellectual property of Paradigm Hyperloop.
  * All rights reserved.
+ *
  * The methods and techniques described herein are considered proprietary
  * information. Reproduction or distribution, in whole or in part, is
- * forbidden except by express written permission of OpenLoop.
+ * forbidden without the express written permission of Paradigm Hyperloop.
+ *
+ * Please send requests and inquiries to:
+ *
+ *  Software Engineering Lead - Eddie Hurtig <hurtige@ccs.neu.edu>
  *
  * Source that is published publicly is for demonstration purposes only and
  * shall not be utilized to any extent without express written permission of
- * OpenLoop.
+ * Paradigm Hyperloop.
  *
- * Please see http://www.opnlp.co for contact information
+ * Please see http://www.paradigm.team for additional information.
+ *
+ * THIS SOFTWARE IS PROVIDED BY PARADIGM HYPERLOOP ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL PARADIGM HYPERLOOP BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
+
+#ifndef OPENLOOP_COMMANDS_H
+#define OPENLOOP_COMMANDS_H
+
+#include <stddef.h>
+#include <stdint.h>
 
 typedef struct {
   char *name;
-  int (*func)(int argc, char *argv[], int outbufc, char outbuf[]);
+  int (*func)(size_t argc, char *argv[], size_t outbufc, char outbuf[]);
 } command_t;
+
+#endif

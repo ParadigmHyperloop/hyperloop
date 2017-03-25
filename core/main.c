@@ -1,21 +1,38 @@
 /*****************************************************************************
- * Copyright (c) OpenLoop, 2016
+ * Copyright (c) Paradigm Hyperloop, 2017
  *
- * This material is proprietary of The OpenLoop Alliance and its members.
+ * This material is proprietary intellectual property of Paradigm Hyperloop.
  * All rights reserved.
+ *
  * The methods and techniques described herein are considered proprietary
  * information. Reproduction or distribution, in whole or in part, is
- * forbidden except by express written permission of OpenLoop.
+ * forbidden without the express written permission of Paradigm Hyperloop.
+ *
+ * Please send requests and inquiries to:
+ *
+ *  Software Engineering Lead - Eddie Hurtig <hurtige@ccs.neu.edu>
  *
  * Source that is published publicly is for demonstration purposes only and
  * shall not be utilized to any extent without express written permission of
- * OpenLoop.
+ * Paradigm Hyperloop.
  *
- * Please see http://www.opnlp.co for contact information
+ * Please see http://www.paradigm.team for additional information.
+ *
+ * THIS SOFTWARE IS PROVIDED BY PARADIGM HYPERLOOP ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL PARADIGM HYPERLOOP BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
 #include "pod.h"
 #include "pru.h"
+#include <sys/mount.h>
 
 struct arguments {
   bool tests;
@@ -35,9 +52,13 @@ extern int serverfd;
 extern int clients[MAX_CMD_CLIENTS];
 extern int nclients;
 
-void *core_main(void *arg);
-void *logging_main(void *arg);
-void *command_main(void *arg);
+void usage(void);
+void parse_args(int argc, char *argv[]);
+void set_pthread_priority(pthread_t task, int priority);
+void signal_handler(int sig);
+void exit_signal_handler(int sig);
+void sigpipe_handler(__unused int sig);
+
 
 void usage() {
   fprintf(stderr, "Usage: core [-r] [-t]");
@@ -120,14 +141,27 @@ void pod_exit(int code) {
  */
 void signal_handler(int sig) {
   if (sig == SIGTERM) {
-    // Power button pulled low, power will be cut in < 1023ms
-    // TODO: Sync the filesystem and unmount root to prevent corruption
+// Power button pulled low, power will be cut in < 1023ms
+// TODO: Sync the filesystem and unmount root to prevent corruption
+
+#ifdef __linux__
+    FILE *fp;
+    fp = fopen("/proc/sys/kernel/sysrq", "w");
+    fwrite("1", sizeof(char), 1, fp);
+    fclose(fp);
+
+    umount2("/", MNT_FORCE);
+    setPinValue(KILL_PIN, KILL_PIN_KILL_VALUE);
+    fp = fopen("/proc/sysrq-trigger", "w");
+    fwrite("o", sizeof(char), 1, fp);
+    fclose(fp);
+#endif
   }
   exit(EXIT_FAILURE);
 }
 
 void exit_signal_handler(int sig) {
-#ifdef DEBUG
+#ifdef POD_DEBUG
   pod_exit(2);
 #else
   switch (_pod.mode) {
@@ -141,9 +175,12 @@ void exit_signal_handler(int sig) {
 #endif
 }
 
-void sigpipe_handler(int sig) { error("SIGPIPE Recieved"); }
+void sigpipe_handler(__unused int sig) { error("SIGPIPE Recieved"); }
 
 int main(int argc, char *argv[]) {
+  printf("<<< Paradigm HyperLoop Pod Controller >>>\n\nCopyright " POD_COPY_YEAR
+         " " POD_COPY_OWNER "\n\nCredits:\n" POD_CREDITS "\n");
+
   int boot_sem_ret = 0;
 
   parse_args(argc, argv);
@@ -160,7 +197,7 @@ int main(int argc, char *argv[]) {
   pod_t *pod = get_pod();
 
   if (args.tests) {
-    self_tests(pod);
+    pod_exit(self_tests(pod));
   }
 
   info("Registering POSIX signal handlers");
@@ -188,6 +225,8 @@ int main(int argc, char *argv[]) {
         break;
       }
     }
+  } else {
+    pod->imu = -1;
   }
 
 #ifdef HAS_PRU
@@ -235,6 +274,7 @@ int main(int argc, char *argv[]) {
   }
 
   info("Booting Core Controller Logic Thread");
+
   pthread_create(&(pod->core_thread), NULL, core_main, NULL);
 
   // we're using the built-in linux Round Roboin scheduling

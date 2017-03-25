@@ -1,9 +1,6 @@
-core/core
-/pod
+/pod.xcodeproj/project.xcworkspace/xcuserdata/
+/pod.xcodeproj/xcuserdata/
+/DerivedData/
+/build/
 *.o
-*.dSYM
-*.log
-libimu-private
-libimu
-core/BUILD
-BUILD
+*.a
