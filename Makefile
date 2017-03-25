@@ -1,5 +1,7 @@
 include config.mk
 
+TEST_CMD := /usr/local/bin/core -t -i -
+
 # Configure one common build root
 export BLDROOT = ${CURDIR}/BUILD
 export OBJROOT = $(BLDROOT)/obj
@@ -36,3 +38,6 @@ clean:
 	@$(MAKE) -j -C libhw clean
 	@$(MAKE) -j -C liblog clean
 	@$(MAKE) -j -C core clean
+
+test:
+	$(DSTROOT)$(TEST_CMD)

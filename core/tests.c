@@ -57,10 +57,10 @@ int relay_walk() {
     info(" > name: %s", s->name);
     if (is_solenoid_open(s)) {
       close_solenoid(s);
-      usleep(500000);
+      usleep(50000);
     } else {
       open_solenoid(s);
-      usleep(500000);
+      usleep(50000);
     }
 
     info("Closing Solenoid on relay %d", i);
@@ -88,13 +88,13 @@ int self_tests(__unused pod_t *state) {
   for (i = 0; i < N_WALKS; i++) {
     if (relay_walk() < 0) {
       error("Relay Walk Test Failed");
-      exit(1);
+      return 1;
     }
   }
 
   if (sensor_walker() < 0) {
     error("Relay Walk Test Failed");
-    exit(1);
+    return 1;
   }
   return 0;
 }

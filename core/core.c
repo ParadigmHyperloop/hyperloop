@@ -606,6 +606,7 @@ void *core_main(__unused void *arg) {
 #if _POSIX_C_SOURCE >= 200112L
     clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &next, NULL);
 #else
+    struct timespec scratch;
     int64_t next_ns = timespec_to_nsec(&next);
     get_timespec(&scratch);
     int64_t scratch_ns = timespec_to_nsec(&scratch);
