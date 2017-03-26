@@ -57,11 +57,12 @@ ifeq ($(UNAME_S),Darwin)
 endif
 
 ifeq ($(UNAME_S),Linux)
-	 LDFLAGS += -pthread
+	 LDFLAGS += -pthread -lrt
 endif
 
 ifneq (,$(findstring bone,$(UNAME_R)))
 	CFLAGS += -DHAS_PRU -DBBB
+	LDFLAGS += -lprussdrv
 endif
 
 # Compiler and Linker Flags

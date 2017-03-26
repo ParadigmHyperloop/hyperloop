@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
   pod_t *pod = get_pod();
 
   if (args.tests) {
-    pod_exit(self_tests(pod));
+    exit(self_tests(pod));
   }
 
   info("Registering POSIX signal handlers");
