@@ -58,7 +58,7 @@ void set_pthread_priority(pthread_t task, int priority);
 void signal_handler(int sig);
 void exit_signal_handler(int sig);
 void sigpipe_handler(__unused int sig);
-
+void pod_cleanup(pod_t * pod);
 
 void usage() {
   fprintf(stderr, "Usage: core [-r] [-t]");
@@ -98,6 +98,28 @@ void set_pthread_priority(pthread_t task, int priority) {
   }
 }
 
+void pod_cleanup(pod_t * pod) {
+  if (pod->imu > -1) {
+    fprintf(stderr, "Closing IMU (fd %d)\n", pod->imu);
+    imu_disconnect(pod->imu);
+  }
+  
+  while (nclients > 0) {
+    if (clients[nclients] != 0) {
+      fprintf(stderr, "Closing client %d (fd %d)\n", nclients, clients[nclients]);
+      close(clients[nclients]);
+    }
+    nclients--;
+  }
+  
+#ifdef HAS_PRU
+  fprintf(stderr, "Shutting down PRU\n");
+  pru_shutdown();
+#endif
+  
+  fprintf(stderr, "Closing command server (fd %d)\n", serverfd);
+  close(serverfd);
+}
 /**
  * Wrapper for exit() function. Allows us to exit cleanly
  * Note: atexit handlers don't always work (expecially if exiting in a signal
@@ -107,24 +129,7 @@ void pod_exit(int code) {
   pod_t *pod = get_pod();
   fprintf(stderr, "=== POD IS SHUTTING DOWN NOW! ===\n");
 
-  if (pod->imu > -1) {
-    fprintf(stderr, "Closing IMU (fd %d)\n", pod->imu);
-    imu_disconnect(pod->imu);
-  }
-
-  while (nclients > 0) {
-    fprintf(stderr, "Closing client %d (fd %d)\n", nclients, clients[nclients]);
-    close(clients[nclients]);
-    nclients--;
-  }
-
-#ifdef HAS_PRU
-  fprintf(stderr, "Shutting down PRU\n");
-  pru_shutdown();
-#endif
-
-  fprintf(stderr, "Closing command server (fd %d)\n", serverfd);
-  close(serverfd);
+  pod_cleanup(pod);
   exit(code);
 }
 
@@ -160,7 +165,7 @@ void signal_handler(int sig) {
   exit(EXIT_FAILURE);
 }
 
-void exit_signal_handler(int sig) {
+void exit_signal_handler(__unused int sig) {
 #ifdef POD_DEBUG
   pod_exit(2);
 #else
@@ -177,9 +182,59 @@ void exit_signal_handler(int sig) {
 
 void sigpipe_handler(__unused int sig) { error("SIGPIPE Recieved"); }
 
+
+int pod_shutdown(pod_t * pod) {
+  return sem_post(pod->boot_sem);
+}
+
+int _pod_shutdown_main(pod_t *pod);
+
+int _pod_shutdown_main(pod_t *pod) {
+  info("Halting Core");
+  if (pthread_cancel(pod->core_thread) != 0) {
+    perror("Failed to halt core:");
+  }
+  info("Halting Logger");
+  assert(pthread_cancel(pod->logging_thread) == 0);
+  info("Halting Commander");
+  assert(pthread_cancel(pod->cmd_thread) == 0);
+
+  switch (pod->shutdown) {
+  case Halt:
+    pod_exit(0);
+    break;
+  case WarmReboot:
+      pod_cleanup(pod);
+      init_pod();
+      return 0;
+    break;
+  case ColdReboot:
+    pod_exit(EX_REBOOT);
+    break;
+  }
+  return -1;
+}
+
 int main(int argc, char *argv[]) {
-  printf("<<< Paradigm HyperLoop Pod Controller >>>\n\nCopyright " POD_COPY_YEAR
-         " " POD_COPY_OWNER "\n\nCredits:\n" POD_CREDITS "\n");
+  // Pod Panic Signal
+  signal(POD_SIGPANIC, signal_handler);
+  
+  // TCP Server can generate SIGPIPE signals on disconnect
+  // TODO: Evaluate if this should trigger an emergency
+  signal(SIGPIPE, sigpipe_handler);
+  
+  // Signals that should trigger soft shutdown
+  signal(SIGINT, exit_signal_handler);
+  signal(SIGTERM, exit_signal_handler);
+  signal(SIGHUP, exit_signal_handler);
+
+  
+  while (true) {
+    
+  printf("<<< Paradigm HyperLoop Pod Controller >>>\n\n");
+  
+  printf("Copyright " POD_COPY_YEAR " " POD_COPY_OWNER " " POD_VERSION_STR "\n");
+  printf("\nCredits:\n" POD_CREDITS "\n");
 
   int boot_sem_ret = 0;
 
@@ -200,18 +255,6 @@ int main(int argc, char *argv[]) {
     pod_exit(self_tests(pod));
   }
 
-  info("Registering POSIX signal handlers");
-  // Pod Panic Signal
-  signal(POD_SIGPANIC, signal_handler);
-
-  // TCP Server can generate SIGPIPE signals on disconnect
-  // TODO: Evaluate if this should trigger an emergency
-  signal(SIGPIPE, sigpipe_handler);
-
-  // Signals that should trigger soft shutdown
-  signal(SIGINT, exit_signal_handler);
-  signal(SIGTERM, exit_signal_handler);
-  signal(SIGHUP, exit_signal_handler);
 
   // Disable IMU by starting with core -i -
   if (args.imu_device[0] != '-') {
@@ -284,15 +327,17 @@ int main(int argc, char *argv[]) {
   set_pthread_priority(pod->logging_thread, 10);
   set_pthread_priority(pod->cmd_thread, 20);
 
-  pthread_join(pod->core_thread, NULL);
-
-  if (pod->imu > -1) {
-    imu_disconnect(pod->imu);
+  // Wait on boot_sem, the next post will indicate a shutdown action
+  boot_sem_ret = sem_wait(pod->boot_sem);
+  if (boot_sem_ret != 0) {
+    perror("sem_wait wait failed: ");
+    pod_exit(1);
   }
-  pru_shutdown();
+    info("Pod shutdown sem posted");
+    sleep(1);
+    
+  
+  _pod_shutdown_main(pod);
+}
 
-  // If the core thread joins, then there is a serious issue.  Fail immediately
-  error("Core thread joined");
-  exit(1);
-  return 1;
 }

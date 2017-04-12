@@ -137,11 +137,18 @@ typedef enum pod_warning {
   PodWarningAll = 0xFF,
 } pod_warning_t;
 
+typedef enum pod_shutdown {
+  Halt = 0,
+  WarmReboot = 1,
+  ColdReboot = 2,
+} pod_shutdown_t;
+
 /**
  * Defines the master state of the pod
  */
 typedef struct pod {
   int version;
+  char *name;
   pod_value_t accel_x;
   pod_value_t accel_y;
   pod_value_t accel_z;
@@ -167,37 +174,36 @@ typedef struct pod {
   pod_value_t imu_calibration_y;
   pod_value_t imu_calibration_z;
 
-  // Lateral Sensors
-  sensor_t lateral_distance[N_LATERAL_DISTANCE];
-
-  // Distance From Tube Bottom
-  sensor_t corner_distance[N_CORNER_DISTANCE];
-  sensor_t wheel_distance[N_WHEEL_DISTANCE];
-
-  // Skate Sensors and Solonoids
+  
+  // Solenoids
   solenoid_t skate_solonoids[N_SKATE_SOLONOIDS];
-  sensor_t skate_pressure[N_SKATE_PRESSURE];
-
-  // LP Packages
-  sensor_t reg_thermo[N_REG_THERMO];
-  sensor_t reg_surf_thermo[N_REG_THERMO];
-  sensor_t reg_pressure[N_REG_PRESSURE];
-
-  // Frame Temperature
-  sensor_t frame_thermo;
-
-  // Clamping Brakes
   solenoid_t clamp_engage_solonoids[N_CLAMP_ENGAGE_SOLONOIDS];
   solenoid_t clamp_release_solonoids[N_CLAMP_RELEASE_SOLONOIDS];
-
-  // Clamp Tank Pressure
-  sensor_t clamp_pressure[N_CLAMP_PRESSURE];
-
-  // Clamp pad thermocouples
-  sensor_t clamp_thermo[N_CLAMP_PAD_THERMO];
-
-  // Wheel Brake Sensors and Solonoids
   solenoid_t wheel_solonoids[N_WHEEL_SOLONOIDS];
+  solenoid_t vent_solenoid;
+  solenoid_t hp_fill_valve;
+  solenoid_t lp_fill_valve[N_LP_FILL_SOLENOIDS];
+  solenoid_t lateral_fill_solenoids[N_LAT_FILL_SOLENOIDS];
+  
+  // Pressure Transducers
+  sensor_t hp_pressure;
+  sensor_t lateral_pressure[N_LAT_FILL_PRESSURE];
+  sensor_t skate_pressure[N_SKATE_PRESSURE];
+  sensor_t reg_pressure[N_REG_PRESSURE];
+
+  // Thermocouples
+  sensor_t hp_thermo;
+  sensor_t power_thermo[N_POWER_THERMO];
+  sensor_t clamp_pressure[N_CLAMP_PRESSURE];
+  sensor_t reg_thermo[N_REG_THERMO];
+  sensor_t reg_surf_thermo[N_REG_THERMO];
+  sensor_t frame_thermo;
+  sensor_t clamp_thermo[N_CLAMP_PAD_THERMO];
+  
+  // Distance Sensors
+  sensor_t lateral_distance[N_LATERAL_DISTANCE];
+  sensor_t corner_distance[N_CORNER_DISTANCE];
+  sensor_t wheel_distance[N_WHEEL_DISTANCE];
 
   // RPM State
   pod_value_t rpms[N_WHEEL_PHOTO];
@@ -220,11 +226,11 @@ typedef struct pod {
   uint64_t last_pusher_plate_low;
   bool pusher_plate_override;
 
-  uint64_t begin_time;
+  uint64_t launch_time;
 
   // Batteries
   pod_battery_t battery[N_BATTERIES];
-  sensor_t power_thermo[N_POWER_THERMO];
+  
 
   // Thread Tracking
   pthread_t core_thread;
@@ -237,24 +243,7 @@ typedef struct pod {
 
   // Holds the pod in a boot state until set to 1 by an operator
   pod_value_t ready;
-
-  // Relief
-  solenoid_t vent_solenoid;
-
-  // HP Fill
-  solenoid_t hp_fill_valve;
-
-  // HP Transducer
-  sensor_t hp_pressure;
-  sensor_t hp_thermo;
-
-  // LP Fill
-  solenoid_t lp_fill_valve[N_LP_FILL_SOLENOIDS];
-
-  // Lateral Fill
-  solenoid_t lateral_fill_solenoids[N_LAT_FILL_SOLENOIDS];
-  sensor_t lateral_pressure[N_LAT_FILL_PRESSURE];
-
+ 
   // Pointers to all the solenoids that are connected to the relays
   // (Don't think too much about this one, it is really just a convienience)
   solenoid_t *relays[N_RELAY_CHANNELS];
@@ -275,7 +264,9 @@ typedef struct pod {
   uint64_t start;
   uint64_t overrides;
   pthread_rwlock_t overrides_mutex;
-
+  
+  pod_shutdown_t shutdown;
+  
   bool initialized;
 } pod_t;
 

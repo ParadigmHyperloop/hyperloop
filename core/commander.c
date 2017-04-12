@@ -85,6 +85,8 @@ int cmd_start_tcp_server(int portno) {
 #ifdef SO_REUSEPORT
   setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &option, sizeof(option));
 #endif
+  
+  setsockopt(fd, SOL_SOCKET, SO_LINGER, &option, sizeof(option));
 
   struct timeval t;
   t.tv_sec = 1;
@@ -216,26 +218,6 @@ int cmd_reject_client(int fd) {
   return 0;
 }
 
-/**
- * Sends whatever is in buf and then sends a new prompt line
- */
-ssize_t cmd_respond(int fd, char *buf, int n) {
-  if (n <= 0) {
-    error("Asked to cmd_respond with a null or corrupt buffer");
-    return -1;
-  }
-  ssize_t a = write(fd, buf, n);
-  if (a < 0) {
-    return -1;
-  }
-
-  ssize_t b = write(fd, "\n> ", 3);
-  if (b < 0) {
-    return -1;
-  }
-
-  return a + b;
-}
 
 /**
  * Given a server file descriptor, accept the new client and return the
@@ -257,7 +239,7 @@ int cmd_accept_client(int fd) {
  */
 int cmd_process_request(int infd, int outfd) {
   char inbuf[MAX_PACKET_SIZE];
-
+  
   ssize_t nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE - 1);
 
   if (nbytes <= 0) {
@@ -277,17 +259,17 @@ int cmd_process_request(int infd, int outfd) {
       inbuf[i] = '\0';
 
       // Process the command
-      nbytesout =
-          cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
+      nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
       write(outfd, cmdbuffer, nbytesout);
       base = i + 1;
     }
     i++;
   }
-
+  
   nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
+  cmdbuffer[nbytesout] = '\n';
+  nbytesout++;
   write(outfd, cmdbuffer, nbytesout);
-  write(outfd, "\n> ", 3);
   return 0;
 }
 
@@ -309,7 +291,6 @@ int cmd_server() {
 
   fd_set active_fd_set, read_fd_set;
 
-  int cmdbufferc = 0;
   note("=== Waiting for first commander connection (%d) ===", CMD_SVR_PORT);
 
   while (get_pod_mode() != Shutdown) {
@@ -344,10 +325,6 @@ int cmd_server() {
         clients[nclients] = clientfd;
         nclients++;
 
-        // Fake a command to print a welcome message
-        cmdbufferc = cmd_do_command(5, "help\n", CMD_OUT_BUF, cmdbuffer);
-        cmd_respond(clientfd, cmdbuffer, cmdbufferc);
-
         // We wait for a client to connect before the pod progresses with it's
         // boot phase (i.e. it starts up it's core)
         if (first_client) {
@@ -359,7 +336,9 @@ int cmd_server() {
 
     // STDIN
     if (FD_ISSET(STDIN_FILENO, &read_fd_set)) {
-      cmd_process_request(STDIN_FILENO, STDOUT_FILENO);
+      if (cmd_process_request(STDIN_FILENO, STDOUT_FILENO) < 0) {
+        panic(POD_LOGGING_SUBSYSTEM, "STDIN unprocessable for commands");
+      }
     }
 
     // Existing Clients
@@ -382,6 +361,8 @@ int cmd_server() {
         }
       }
     }
+    // pthread cancellation point
+    usleep(0);
   }
 
   // Should not get here

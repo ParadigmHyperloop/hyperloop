@@ -36,6 +36,8 @@
 
 extern char *pod_mode_names[];
 
+command_t commands[];
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
@@ -46,27 +48,20 @@ int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
                " " POD_COPY_OWNER "\n" POD_CREDITS
                "This tool allows you to control various aspects of the pod\n"
                " - TCP:" __XSTR__(CMD_SVR_PORT) "\n - STDIN\n\n"
-                                                "Available Commands:\n"
-                                                " - help\n"
-                                                " - ping\n"
-                                                " - ready\n"
-                                                " - brake\n"
-                                                " - fill\n"
-                                                " - skate\n"
-                                                " - status\n"
-                                                " - offset\n"
-                                                " - calibrate\n"
-                                                " - reset\n"
-                                                " - emergency (alias: e)\n"
-                                                " - exit\n"
-                                                " - kill\n");
+                                                "Available Commands:\n");
+  command_t *command = &commands[0];
+  while (command->name) {
+    count += snprintf(&outbuf[count], outbufc, " - %s\n", command->name);
+    command++;
+  }
+  
   return count;
 }
 
 int pingCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   pod->last_ping = get_time_usec();
-  return snprintf(&outbuf[0], outbufc, "PONG");
+  return snprintf(&outbuf[0], outbufc, "PONG:%d", get_pod_mode());
 }
 
 int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
@@ -81,7 +76,7 @@ int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 
 int resetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_reset();
-  return snprintf(&outbuf[0], outbufc, "OK");
+  return snprintf(&outbuf[0], outbufc, "Reseting Pod %s", get_pod()->name);
 }
 
 int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {

@@ -91,16 +91,9 @@ void pod_calibrate() {
 
 void pod_reset() {
   pod_t *pod = get_pod();
-
-  set_value_f(&(pod->accel_x), 0.0);
-  set_value_f(&(pod->accel_y), 0.0);
-  set_value_f(&(pod->accel_z), 0.0);
-  set_value_f(&(pod->velocity_x), 0.0);
-  set_value_f(&(pod->velocity_z), 0.0);
-  set_value_f(&(pod->velocity_y), 0.0);
-  set_value_f(&(pod->position_x), 0.0);
-  set_value_f(&(pod->position_y), 0.0);
-  set_value_f(&(pod->position_z), 0.0);
+  pod->shutdown = WarmReboot;
+  
+  pod_shutdown(pod);
 }
 
 

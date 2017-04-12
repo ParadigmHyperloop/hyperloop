@@ -167,6 +167,16 @@ void log_dump(pod_t *pod);
 int status_dump(pod_t *pod, char *buf, size_t len);
 
 /**
+ * Initiates a halt of all threads
+ */
+int pod_shutdown(pod_t * pod);
+
+/**
+ * Starts all threads for the pod
+ */
+int pod_start(pod_t * pod);
+
+/**
  * Build a telemetry_packet_t using the given pod_t
  */
 telemetry_packet_t make_telemetry(pod_t *pod);

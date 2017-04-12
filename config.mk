@@ -73,6 +73,11 @@ CFLAGS += -Wall -Werror -Wno-unknown-pragmas
 # Helpers
 MAKE_LIB = $(AR) rcs
 
+GIT_SHA1 = $(shell git rev-parse --verify HEAD)
+GIT_SHA1_SHORT = $(shell git rev-parse --verify --short HEAD)
+GIT_BRANCH = $(shell git rev-parse --verify --abbrev-ref HEAD)
+CFLAGS += -DPD_GIT_SHA1="$(GIT_SHA1)" -DPD_GIT_SHA1_SHORT="$(GIT_SHA1_SHORT)" -DPD_GIT_BRANCH="$(GIT_BRANCH)"
+
 # style:
 # 	mkdir -p $(FMTROOT)
 # 	for f in $(wildcard **/*.c **/*.h *.c *.h); do \

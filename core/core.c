@@ -39,9 +39,9 @@
 void common_checks(pod_t *pod) {
 
   // Watchdog Timer
-  if (pod->begin_time > 0) {
+  if (pod->launch_time > 0) {
     uint64_t now = get_time_usec();
-    if (now - pod->begin_time >= WATCHDOG_TIMER) {
+    if (now - pod->launch_time >= WATCHDOG_TIMER) {
       if (!is_pod_stopped(pod)) {
         if (!(get_pod_mode() == Braking || get_pod_mode() == Vent ||
               get_pod_mode() == Retrieval)) {
@@ -202,8 +202,8 @@ void pushing_state_checks(pod_t *pod) {
     set_pod_mode(Braking, "Pod has entered braking range of travel");
   }
 
-  if (pod->begin_time == 0) {
-    pod->begin_time = get_time_usec();
+  if (pod->launch_time == 0) {
+    pod->launch_time = get_time_usec();
   }
 }
 
@@ -479,7 +479,6 @@ void *core_main(__unused void *arg) {
       fprintf(stderr, "Deadline miss for core thread\n");
       fprintf(stderr, "now: %ld sec %ld nsec next: %ld sec %ldnsec \n",
               now.tv_sec, now.tv_nsec, next.tv_sec, next.tv_nsec);
-      exit(-1);
     }
 
     // --------------------------------------------

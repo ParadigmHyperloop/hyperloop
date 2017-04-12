@@ -35,6 +35,20 @@
 
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
 
+char *pod_mode_names[N_POD_STATES] = {
+  "POST",    "Boot",      "LPFill",    "HPFill",   "Load",
+  "Standby", "Armed",     "Pushing",   "Coasting", "Braking",
+  "Vent",    "Retrieval", "Emergency", "Shutdown"};
+
+/**
+ * Global Pod Structure.  This stores the entire state of the pod
+ *
+ * Use init_pod() and get_pod() instead of interacting with this global
+ *
+ * @todo Make this global static to prevent external access
+ */
+pod_t _pod;
+
 /**
  * Determines if the new mode is a valid mode
  *
@@ -42,29 +56,29 @@ bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
  */
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
-    {POST, Boot, Emergency, NonState},
-    {Boot, LPFill, Emergency, NonState},
-    {LPFill, HPFill, Emergency, NonState},
-    {HPFill, Load, Emergency, NonState},
-    {Load, Standby, Emergency, NonState},
-    {Standby, Load, Armed, Emergency, NonState},
-    {Armed, Standby, Pushing, Emergency, NonState},
-    {Pushing, Coasting, Braking, Emergency, NonState},
-    {Coasting, Braking, Pushing, Emergency, NonState},
-    {Braking, Pushing, Vent, Emergency, NonState},
-    {Vent, Retrieval, Emergency, NonState},
-    {Retrieval, Shutdown, NonState},
-    {Emergency, Vent, NonState},
-    {Shutdown, NonState},
+      {POST, Boot, Emergency, NonState},
+      {Boot, LPFill, Emergency, NonState},
+      {LPFill, HPFill, Emergency, NonState},
+      {HPFill, Load, Emergency, NonState},
+      {Load, Standby, Emergency, NonState},
+      {Standby, Load, Armed, Emergency, NonState},
+      {Armed, Standby, Pushing, Emergency, NonState},
+      {Pushing, Coasting, Braking, Emergency, NonState},
+      {Coasting, Braking, Pushing, Emergency, NonState},
+      {Braking, Pushing, Vent, Emergency, NonState},
+      {Vent, Retrieval, Emergency, NonState},
+      {Retrieval, Shutdown, NonState},
+      {Emergency, Vent, NonState},
+      {Shutdown, NonState},
   };
-  
+
   // Ensure that the pod's current state can always transition to itself
   assert(transitions[current_mode][0] == current_mode);
-  
+
   pod_mode_t i_state;
   // Do not include Current Mode => Same Current Mode
   int i = 1;
-  
+
   while ((i_state = transitions[current_mode][i]) != NonState) {
     // debug("Checking %s == %s", pod_mode_names[i_state],
     // pod_mode_names[new_mode]);
@@ -73,52 +87,9 @@ bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
     }
     i++;
   }
-  
+
   return false;
 }
-
-char *pod_mode_names[N_POD_STATES] = {
-    "POST",    "Boot",      "LPFill",    "HPFill",   "Load",
-    "Standby", "Armed",     "Pushing",   "Coasting", "Braking",
-    "Vent",    "Retrieval", "Emergency", "Shutdown"};
-
-pod_t _pod = {
-    .mode = Boot,
-    .initialized = false,
-    .start = 0ULL,
-    .accel_x = POD_VALUE_INITIALIZER_FL,
-    .accel_y = POD_VALUE_INITIALIZER_FL,
-    .accel_z = POD_VALUE_INITIALIZER_FL,
-    .velocity_x = POD_VALUE_INITIALIZER_FL,
-    .velocity_z = POD_VALUE_INITIALIZER_FL,
-    .velocity_y = POD_VALUE_INITIALIZER_FL,
-    .position_x = POD_VALUE_INITIALIZER_FL,
-    .position_y = POD_VALUE_INITIALIZER_FL,
-    .position_z = POD_VALUE_INITIALIZER_FL,
-    .rotvel_x = POD_VALUE_INITIALIZER_FL,
-    .rotvel_z = POD_VALUE_INITIALIZER_FL,
-    .rotvel_y = POD_VALUE_INITIALIZER_FL,
-    .quaternion_real = POD_VALUE_INITIALIZER_FL,
-    .quaternion_i = POD_VALUE_INITIALIZER_FL,
-    .quaternion_j = POD_VALUE_INITIALIZER_FL,
-    .quaternion_k = POD_VALUE_INITIALIZER_FL,
-    .overrides = 0ULL,
-    .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
-    .imu = -1,
-    .logging_socket = -1,
-    .last_ping = 0,
-    .relays = {&(_pod.skate_solonoids[0]), &(_pod.skate_solonoids[1]),
-               &(_pod.skate_solonoids[2]), &(_pod.clamp_engage_solonoids[0]),
-               &(_pod.clamp_release_solonoids[0]),
-               &(_pod.clamp_engage_solonoids[1]),
-               &(_pod.clamp_release_solonoids[1]), &(_pod.wheel_solonoids[0]),
-               &(_pod.wheel_solonoids[1]), &(_pod.wheel_solonoids[2]),
-               &(_pod.hp_fill_valve), &(_pod.vent_solenoid),
-               &(_pod.lp_fill_valve[0]), &(_pod.lp_fill_valve[1]),
-               &(_pod.lateral_fill_solenoids[0]),
-               &(_pod.lateral_fill_solenoids[1])},
-    .sensors = {0},
-    .pusher_plate = POD_VALUE_INITIALIZER_INT32};
 
 uint64_t time_in_state(void) {
   return (get_time_usec() - get_pod()->last_transition);
@@ -152,9 +123,53 @@ bool is_surface_overriden(uint64_t surface) {
   return manual;
 }
 
+
 int init_pod(void) {
-  pod_t *pod = &_pod;
-  debug("Pod struct located at %p", pod);
+  static pod_t _init_pod = {
+    .mode = Boot,
+    .name = POD_NAME,
+    .initialized = false,
+    .start = 0ULL,
+    .accel_x = POD_VALUE_INITIALIZER_FL,
+    .accel_y = POD_VALUE_INITIALIZER_FL,
+    .accel_z = POD_VALUE_INITIALIZER_FL,
+    .velocity_x = POD_VALUE_INITIALIZER_FL,
+    .velocity_z = POD_VALUE_INITIALIZER_FL,
+    .velocity_y = POD_VALUE_INITIALIZER_FL,
+    .position_x = POD_VALUE_INITIALIZER_FL,
+    .position_y = POD_VALUE_INITIALIZER_FL,
+    .position_z = POD_VALUE_INITIALIZER_FL,
+    .rotvel_x = POD_VALUE_INITIALIZER_FL,
+    .rotvel_z = POD_VALUE_INITIALIZER_FL,
+    .rotvel_y = POD_VALUE_INITIALIZER_FL,
+    .quaternion_real = POD_VALUE_INITIALIZER_FL,
+    .quaternion_i = POD_VALUE_INITIALIZER_FL,
+    .quaternion_j = POD_VALUE_INITIALIZER_FL,
+    .quaternion_k = POD_VALUE_INITIALIZER_FL,
+    .overrides = 0ULL,
+    .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
+    .imu = -1,
+    .logging_socket = -1,
+    .last_ping = 0,
+    .relays = {&(_pod.skate_solonoids[0]), &(_pod.skate_solonoids[1]),
+      &(_pod.skate_solonoids[2]), &(_pod.clamp_engage_solonoids[0]),
+      &(_pod.clamp_release_solonoids[0]),
+      &(_pod.clamp_engage_solonoids[1]),
+      &(_pod.clamp_release_solonoids[1]), &(_pod.wheel_solonoids[0]),
+      &(_pod.wheel_solonoids[1]), &(_pod.wheel_solonoids[2]),
+      &(_pod.hp_fill_valve), &(_pod.vent_solenoid),
+      &(_pod.lp_fill_valve[0]), &(_pod.lp_fill_valve[1]),
+      &(_pod.lateral_fill_solenoids[0]),
+      &(_pod.lateral_fill_solenoids[1])},
+    .sensors = {0},
+    .launch_time = 0,
+    .pusher_plate = POD_VALUE_INITIALIZER_INT32,
+    .shutdown = Halt};
+  pod_t local_pod;
+  
+  memcpy(&local_pod, &_init_pod, sizeof(local_pod));
+  
+  pod_t *pod = &local_pod;
 
   // --------------------
   // INITIALIZE SOLENOIDS
@@ -464,6 +479,10 @@ int init_pod(void) {
   }
 
   pod->initialized = get_time_usec();
+
+  // We are done, so overwrite the global _pod struct
+  debug("Global Pod struct is located at %p", (void *)&_pod);
+  memcpy(&_pod, &local_pod, sizeof(local_pod));
   return 0;
 }
 

@@ -36,14 +36,25 @@
 #ifndef _OPENLOOP_POD_CONFIG_
 #define _OPENLOOP_POD_CONFIG_
 
+#ifdef DEBUG
+#ifndef POD_DEBUG
+#define POD_DEBUG
+#endif
+#endif
+
 // --------------------------
 // Branding
 // --------------------------
 #define POD_COPY_OWNER "Paradigm - Controls Team"
 #define POD_COPY_YEAR "2016"
+#define POD_VERSION_STR "v1.0.0-" __XSTR__(PD_GIT_SHA1_SHORT)
 #define POD_CREDITS                                                            \
   "Eddie Hurtig - Software Engineering Lead\n"                                 \
   "Upen Naidoo - Embedded Systems Engineer\n"
+
+#ifndef POD_NAME
+#define POD_NAME "POD-" __XSTR__(PD_GIT_SHA1_SHORT)
+#endif
 
 // Error Thresholds
 #define A_ERR_X 0.02
@@ -53,7 +64,7 @@
 #define V_ERR_Y 0.1
 #define V_ERR_Z 0.1
 
-#define HEARTBEAT_TIMEOUT 1000 // (ms)
+#define HEARTBEAT_TIMEOUT 1 // (sec)
 // Signals
 #define POD_SIGPANIC SIGUSR1
 
@@ -66,6 +77,8 @@
 // The formula used is:
 //   (new_accel = (1.0-IMU_EMA_ALPHA)*old_accel + IMU_EMA_ALPHA*accel_reading)
 #define IMU_EMA_ALPHA 0.01f
+
+#define EX_REBOOT 50
 
 // -------------------------
 // Subsystem Identifiers
@@ -94,12 +107,16 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 
+#ifndef TAG
+#define TAG ""
+#endif
+
 #ifdef POD_DEBUG
 #define FLINE __FILE__ ":" __XSTR__(__LINE__)
 #define output(prefix_, fmt_, ...)                                             \
-  pod_log((prefix_ "[%s] {" FLINE "} " fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
+  pod_log((prefix_ TAG "[%s] {" FLINE "} " fmt_ "\n"), __FUNCTION__, ##__VA_ARGS__)
 #else
-#define output(prefix_, fmt_, ...) pod_log((prefix_ fmt_ "\n"), ##__VA_ARGS__)
+#define output(prefix_, fmt_, ...) pod_log((prefix_ TAG fmt_ "\n"), ##__VA_ARGS__)
 #endif
 
 #ifdef POD_DEBUG
@@ -190,7 +207,7 @@
 // ---------------
 // Command Control
 // ---------------
-#define POD_CLI_VERSION "0.0.1-alpha"
+#define POD_CLI_VERSION POD_VERSION_STR
 #define CMD_SVR_PORT 7779
 #define CMD_MAX_ARGS 32
 #define POD_ETOOMANYCLIENTS_TXT "Too Many Clients are connected"
