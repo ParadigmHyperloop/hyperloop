@@ -34,53 +34,6 @@
 
 extern char *pod_mode_names[N_POD_STATES];
 
-// Returns the current RealTime Clock value in microseconds
-uint64_t get_time_usec() {
-  struct timespec tc;
-  clock_gettime(CLOCK_REALTIME, &tc);
-
-  return (tc.tv_sec * USEC_PER_SEC) + (tc.tv_nsec / NSEC_PER_USEC);
-}
-void get_timespec(struct timespec *t) {
-  int rc = clock_gettime(CLOCK_REALTIME, t);
-  if (rc < 0) {
-    DECLARE_EMERGENCY("Clock Failure: %d", rc);
-  }
-}
-
-void timespec_add_us(struct timespec *t, long us) {
-  t->tv_nsec += us * 1000;
-  if (t->tv_nsec > 1000000000) {
-    t->tv_nsec = t->tv_nsec - 1000000000; // + ms*1000000;
-    t->tv_sec += 1;
-  }
-}
-
-int timespec_cmp(struct timespec *a, struct timespec *b) {
-  if (a->tv_sec > b->tv_sec)
-    return 1;
-  else if (a->tv_sec < b->tv_sec)
-    return -1;
-  else if (a->tv_sec == b->tv_sec) {
-    if (a->tv_nsec > b->tv_nsec)
-      return 1;
-    else if (a->tv_nsec == b->tv_nsec)
-      return 0;
-    else
-      return -1;
-  }
-
-  return -1;
-}
-
-int64_t timespec_to_nsec(struct timespec *t) {
-  if (t->tv_sec >= (INT64_MAX - 1) / (long)NSEC_PER_SEC) {
-    return -1;
-  }
-
-  return (t->tv_sec * NSEC_PER_SEC) + t->tv_nsec;
-}
-
 void pod_calibrate() {
   pod_t *pod = get_pod();
 

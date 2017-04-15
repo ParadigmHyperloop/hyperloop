@@ -30,80 +30,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_H
-#define OPENLOOP_POD_H
 
-#include "cdefs.h"
-#include "config.h"
-#include <libBBB.h>
-#include <pthread.h>
-#include <sys/queue.h>
+#ifndef PARADIGM_REALTIME_H
+#define PARADIGM_REALTIME_H
 
-#include <hw.h>
-#include <imu.h>
-#include <log.h>
-
-#include "realtime.h"
-#include "states.h"
-#include "telemetry.h"
-#include "commander.h"
-#include "core.h"
-#include "panic.h"
-#include "ring_buffer.h"
+#include "pod.h"
 
 /**
- * Calibrate sensors based on currently read values (zero out)
- */
-void pod_calibrate(void);
-
-/**
- * Reset positional and sensor data to blank slate
- */
-void pod_reset(void);
-
-void pod_exit(int code);
-
-int set_skate_target(int no, solenoid_state_t val, bool override);
-int ensure_caliper_brakes(int no, solenoid_state_t val, bool override);
-int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override);
-
-relay_mask_t get_relay_mask(pod_t *pod);
-
-int self_tests(pod_t *pod);
-
-void add_imu_data(imu_datagram_t *data, pod_t *s);
-void setup_pins(pod_t *state);
-
-/**
- * Sends the given message to all logging destinations
- */
-int pod_log(char *fmt, ...);
-
-/**
- * Dump entire pod_t to the network logging buffer
- */
-void log_dump(pod_t *pod);
-
-/**
- * Create a human understandable text description of the current pod status
+ * Get the current time of the pod in microseconds
  *
- * @param pod A pod with data that you want a report of
- * @param buf The buffer to put the report in
- * @param len The length of buf
+ * TODO: Make this function return nanosecond precision
  *
- * @return The length of the report in bytes, or -1 on failure
+ * @return The current timestamp in microseconds
  */
-int status_dump(pod_t *pod, char *buf, size_t len);
+uint64_t get_time_usec(void);
 
 /**
- * Initiates a halt of all threads
+ * @brief Loads the current RealTime timespec into the given address t.
+ *
+ * @note In the event of a failure to retrieve the current Realtime timespec,
+ * an emergency condition is declared and the pod will safe itself.  A cached
+ * timespec from the last successful realtime timespec will be copied into t
  */
-int pod_shutdown(pod_t *pod);
+void get_timespec(struct timespec *t);
 
 /**
- * Starts all threads for the pod
+ * @brief Adds the given number of microseconds to the timespec pointed to by t
  */
-int pod_start(pod_t *pod);
+void timespec_add_us(struct timespec *t, long us);
 
+/**
+ * Compares two timespecs.
+ *
+ * @see strcmp
+ */
+int timespec_cmp(struct timespec *a, struct timespec *b);
 
-#endif
+/**
+ * Returns the total number of nanoseconds in the timespec
+ */
+int64_t timespec_to_nsec(struct timespec *t);
+
+#endif /* PARADIGM_REALTIME_H */

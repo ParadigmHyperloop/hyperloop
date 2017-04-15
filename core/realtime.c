@@ -30,80 +30,67 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_H
-#define OPENLOOP_POD_H
-
-#include "cdefs.h"
-#include "config.h"
-#include <libBBB.h>
-#include <pthread.h>
-#include <sys/queue.h>
-
-#include <hw.h>
-#include <imu.h>
-#include <log.h>
-
 #include "realtime.h"
-#include "states.h"
-#include "telemetry.h"
-#include "commander.h"
-#include "core.h"
-#include "panic.h"
-#include "ring_buffer.h"
 
-/**
- * Calibrate sensors based on currently read values (zero out)
- */
-void pod_calibrate(void);
+uint64_t get_time_usec() {
+  struct timespec tc;
+  clock_gettime(CLOCK_REALTIME, &tc);
+  
+  return (tc.tv_sec * USEC_PER_SEC) + (tc.tv_nsec / NSEC_PER_USEC);
+}
 
-/**
- * Reset positional and sensor data to blank slate
- */
-void pod_reset(void);
+void get_timespec(struct timespec *t) {
+  static struct timespec cached;
+  int rc = clock_gettime(CLOCK_REALTIME, t);
+  if (rc < 0) {
+    DECLARE_EMERGENCY("clock_gettime failure: rc:%d errno:%d", rc, errno);
+    memcpy(t, &cached, sizeof(struct timespec));
+  }
+}
 
-void pod_exit(int code);
+static void timespec_add(struct timespec *t1, struct timespec *t2) {
+  long sec = t2->tv_sec + t1->tv_sec;
+  long nsec = t2->tv_nsec + t1->tv_nsec;
 
-int set_skate_target(int no, solenoid_state_t val, bool override);
-int ensure_caliper_brakes(int no, solenoid_state_t val, bool override);
-int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override);
+  if (nsec >= 1000000000) {
+    nsec -= 1000000000;
+    sec++;
+  }
 
-relay_mask_t get_relay_mask(pod_t *pod);
+  t1->tv_sec = sec;
+  t1->tv_nsec = nsec;
+}
 
-int self_tests(pod_t *pod);
+static void timespec_add_ns(struct timespec *t, long ns) {
+  struct timespec t2 = {.tv_sec = ns / 1000000000, .tv_nsec = ns % 1000000000};
+  timespec_add(t, &t2);
+}
 
-void add_imu_data(imu_datagram_t *data, pod_t *s);
-void setup_pins(pod_t *state);
+void timespec_add_us(struct timespec *t, long us) {
+  timespec_add_ns(t, us * 1000);
+}
 
-/**
- * Sends the given message to all logging destinations
- */
-int pod_log(char *fmt, ...);
+int timespec_cmp(struct timespec *a, struct timespec *b) {
+  if (a->tv_sec > b->tv_sec)
+  return 1;
+  else if (a->tv_sec < b->tv_sec)
+  return -1;
+  else if (a->tv_sec == b->tv_sec) {
+    if (a->tv_nsec > b->tv_nsec)
+    return 1;
+    else if (a->tv_nsec == b->tv_nsec)
+    return 0;
+    else
+    return -1;
+  }
+  
+  return -1;
+}
 
-/**
- * Dump entire pod_t to the network logging buffer
- */
-void log_dump(pod_t *pod);
-
-/**
- * Create a human understandable text description of the current pod status
- *
- * @param pod A pod with data that you want a report of
- * @param buf The buffer to put the report in
- * @param len The length of buf
- *
- * @return The length of the report in bytes, or -1 on failure
- */
-int status_dump(pod_t *pod, char *buf, size_t len);
-
-/**
- * Initiates a halt of all threads
- */
-int pod_shutdown(pod_t *pod);
-
-/**
- * Starts all threads for the pod
- */
-int pod_start(pod_t *pod);
-
-
-#endif
+int64_t timespec_to_nsec(struct timespec *t) {
+  if (t->tv_sec >= (INT64_MAX - 1) / (long)NSEC_PER_SEC) {
+    return -1;
+  }
+  
+  return (t->tv_sec * NSEC_PER_SEC) + t->tv_nsec;
+}
