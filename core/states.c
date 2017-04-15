@@ -36,9 +36,9 @@
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
 
 char *pod_mode_names[N_POD_STATES] = {
-  "POST",    "Boot",      "LPFill",    "HPFill",   "Load",
-  "Standby", "Armed",     "Pushing",   "Coasting", "Braking",
-  "Vent",    "Retrieval", "Emergency", "Shutdown"};
+    "POST",    "Boot",      "LPFill",    "HPFill",   "Load",
+    "Standby", "Armed",     "Pushing",   "Coasting", "Braking",
+    "Vent",    "Retrieval", "Emergency", "Shutdown"};
 
 /**
  * Global Pod Structure.  This stores the entire state of the pod
@@ -123,52 +123,51 @@ bool is_surface_overriden(uint64_t surface) {
   return manual;
 }
 
-
 int init_pod(void) {
   static pod_t _init_pod = {
-    .mode = Boot,
-    .name = POD_NAME,
-    .initialized = false,
-    .start = 0ULL,
-    .accel_x = POD_VALUE_INITIALIZER_FL,
-    .accel_y = POD_VALUE_INITIALIZER_FL,
-    .accel_z = POD_VALUE_INITIALIZER_FL,
-    .velocity_x = POD_VALUE_INITIALIZER_FL,
-    .velocity_z = POD_VALUE_INITIALIZER_FL,
-    .velocity_y = POD_VALUE_INITIALIZER_FL,
-    .position_x = POD_VALUE_INITIALIZER_FL,
-    .position_y = POD_VALUE_INITIALIZER_FL,
-    .position_z = POD_VALUE_INITIALIZER_FL,
-    .rotvel_x = POD_VALUE_INITIALIZER_FL,
-    .rotvel_z = POD_VALUE_INITIALIZER_FL,
-    .rotvel_y = POD_VALUE_INITIALIZER_FL,
-    .quaternion_real = POD_VALUE_INITIALIZER_FL,
-    .quaternion_i = POD_VALUE_INITIALIZER_FL,
-    .quaternion_j = POD_VALUE_INITIALIZER_FL,
-    .quaternion_k = POD_VALUE_INITIALIZER_FL,
-    .overrides = 0ULL,
-    .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
-    .imu = -1,
-    .logging_socket = -1,
-    .last_ping = 0,
-    .relays = {&(_pod.skate_solonoids[0]), &(_pod.skate_solonoids[1]),
-      &(_pod.skate_solonoids[2]), &(_pod.clamp_engage_solonoids[0]),
-      &(_pod.clamp_release_solonoids[0]),
-      &(_pod.clamp_engage_solonoids[1]),
-      &(_pod.clamp_release_solonoids[1]), &(_pod.wheel_solonoids[0]),
-      &(_pod.wheel_solonoids[1]), &(_pod.wheel_solonoids[2]),
-      &(_pod.hp_fill_valve), &(_pod.vent_solenoid),
-      &(_pod.lp_fill_valve[0]), &(_pod.lp_fill_valve[1]),
-      &(_pod.lateral_fill_solenoids[0]),
-      &(_pod.lateral_fill_solenoids[1])},
-    .sensors = {0},
-    .launch_time = 0,
-    .pusher_plate = POD_VALUE_INITIALIZER_INT32,
-    .shutdown = Halt};
+      .mode = Boot,
+      .name = POD_NAME,
+      .initialized = false,
+      .start = 0ULL,
+      .accel_x = POD_VALUE_INITIALIZER_FL,
+      .accel_y = POD_VALUE_INITIALIZER_FL,
+      .accel_z = POD_VALUE_INITIALIZER_FL,
+      .velocity_x = POD_VALUE_INITIALIZER_FL,
+      .velocity_z = POD_VALUE_INITIALIZER_FL,
+      .velocity_y = POD_VALUE_INITIALIZER_FL,
+      .position_x = POD_VALUE_INITIALIZER_FL,
+      .position_y = POD_VALUE_INITIALIZER_FL,
+      .position_z = POD_VALUE_INITIALIZER_FL,
+      .rotvel_x = POD_VALUE_INITIALIZER_FL,
+      .rotvel_z = POD_VALUE_INITIALIZER_FL,
+      .rotvel_y = POD_VALUE_INITIALIZER_FL,
+      .quaternion_real = POD_VALUE_INITIALIZER_FL,
+      .quaternion_i = POD_VALUE_INITIALIZER_FL,
+      .quaternion_j = POD_VALUE_INITIALIZER_FL,
+      .quaternion_k = POD_VALUE_INITIALIZER_FL,
+      .overrides = 0ULL,
+      .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
+      .imu = -1,
+      .logging_socket = -1,
+      .last_ping = 0,
+      .relays = {&(_pod.skate_solonoids[0]), &(_pod.skate_solonoids[1]),
+                 &(_pod.skate_solonoids[2]), &(_pod.clamp_engage_solonoids[0]),
+                 &(_pod.clamp_release_solonoids[0]),
+                 &(_pod.clamp_engage_solonoids[1]),
+                 &(_pod.clamp_release_solonoids[1]), &(_pod.wheel_solonoids[0]),
+                 &(_pod.wheel_solonoids[1]), &(_pod.wheel_solonoids[2]),
+                 &(_pod.hp_fill_valve), &(_pod.vent_solenoid),
+                 &(_pod.lp_fill_valve[0]), &(_pod.lp_fill_valve[1]),
+                 &(_pod.lateral_fill_solenoids[0]),
+                 &(_pod.lateral_fill_solenoids[1])},
+      .sensors = {0},
+      .launch_time = 0,
+      .pusher_plate = POD_VALUE_INITIALIZER_INT32,
+      .shutdown = Halt};
   pod_t local_pod;
-  
+
   memcpy(&local_pod, &_init_pod, sizeof(local_pod));
-  
+
   pod_t *pod = &local_pod;
 
   // --------------------

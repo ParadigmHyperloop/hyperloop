@@ -38,8 +38,8 @@
 #ifndef BBB
 int initPin(int pinnum) { return 0; }
 int setPinDirection(int pinnum, char *dir) { return 0; }
-int setPinValue(int pinnum, int value) { return 0; }
-int getPinValue(int pinnum) { return 0; }
+int set_pin_value(int pinnum, int value) { return 0; }
+int get_pin_value(int pinnum) { return 0; }
 
 // PWM Prototypes
 int initPWM(int mgrnum, char *pin) { return 0; }

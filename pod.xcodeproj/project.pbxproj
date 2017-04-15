@@ -42,8 +42,8 @@
 		778A5FBD1E82581E0099A66D /* commander.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FA11E82581E0099A66D /* commander.c */; };
 		778A5FBE1E82581E0099A66D /* commands.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FA31E82581E0099A66D /* commands.c */; };
 		778A5FBF1E82581E0099A66D /* core.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FAC1E82581E0099A66D /* core.c */; };
-		778A5FC01E82581E0099A66D /* emergency.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FAE1E82581E0099A66D /* emergency.c */; };
-		778A5FC11E82581E0099A66D /* imu_data.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FB01E82581E0099A66D /* imu_data.c */; };
+		778A5FC01E82581E0099A66D /* panic.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FAE1E82581E0099A66D /* panic.c */; };
+		778A5FC11E82581E0099A66D /* accel.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FB01E82581E0099A66D /* accel.c */; };
 		778A5FC21E82581E0099A66D /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FB11E82581E0099A66D /* main.c */; };
 		778A5FC31E82581E0099A66D /* pod-helpers.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FB21E82581E0099A66D /* pod-helpers.c */; };
 		778A5FC41E82581E0099A66D /* pod.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FB41E82581E0099A66D /* pod.c */; };
@@ -57,6 +57,7 @@
 		77B6C4371E624CC2009DFE69 /* ring_buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B6C4321E624CC2009DFE69 /* ring_buffer.c */; };
 		77B6C4381E624CC2009DFE69 /* ring_buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 77B6C4331E624CC2009DFE69 /* ring_buffer.h */; };
 		77C21F731E5824760081C524 /* libimu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77B145C71E58210F00988FE3 /* libimu.a */; };
+		77E19E971E9F415700C6766A /* telemetry.c in Sources */ = {isa = PBXBuildFile; fileRef = 77E19E951E9F415700C6766A /* telemetry.c */; };
 		77F29D531E585BBC00EC907D /* libbbb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77F29D4C1E585B9A00EC907D /* libbbb.a */; };
 		77F29D561E585BDE00EC907D /* bbb.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D541E585BDE00EC907D /* bbb.c */; };
 		77F29D571E585BDE00EC907D /* bbb.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D551E585BDE00EC907D /* bbb.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -146,9 +147,9 @@
 		778A5FAB1E82581E0099A66D /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		778A5FAC1E82581E0099A66D /* core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = core.c; sourceTree = "<group>"; };
 		778A5FAD1E82581E0099A66D /* core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = core.h; sourceTree = "<group>"; };
-		778A5FAE1E82581E0099A66D /* emergency.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = emergency.c; sourceTree = "<group>"; };
-		778A5FAF1E82581E0099A66D /* emergency.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emergency.h; sourceTree = "<group>"; };
-		778A5FB01E82581E0099A66D /* imu_data.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = imu_data.c; sourceTree = "<group>"; };
+		778A5FAE1E82581E0099A66D /* panic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = panic.c; sourceTree = "<group>"; };
+		778A5FAF1E82581E0099A66D /* panic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = panic.h; sourceTree = "<group>"; };
+		778A5FB01E82581E0099A66D /* accel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = accel.c; sourceTree = "<group>"; };
 		778A5FB11E82581E0099A66D /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		778A5FB21E82581E0099A66D /* pod-helpers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "pod-helpers.c"; sourceTree = "<group>"; };
 		778A5FB31E82581E0099A66D /* pod-helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "pod-helpers.h"; sourceTree = "<group>"; };
@@ -170,6 +171,8 @@
 		77B6C4311E624CC2009DFE69 /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = liblog/logging.c; sourceTree = "<group>"; };
 		77B6C4321E624CC2009DFE69 /* ring_buffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ring_buffer.c; path = liblog/ring_buffer.c; sourceTree = "<group>"; };
 		77B6C4331E624CC2009DFE69 /* ring_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ring_buffer.h; path = liblog/ring_buffer.h; sourceTree = "<group>"; };
+		77E19E951E9F415700C6766A /* telemetry.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = telemetry.c; sourceTree = "<group>"; };
+		77E19E961E9F415700C6766A /* telemetry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = telemetry.h; sourceTree = "<group>"; };
 		77F29D4C1E585B9A00EC907D /* libbbb.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libbbb.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		77F29D541E585BDE00EC907D /* bbb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bbb.c; path = libbbb/bbb.c; sourceTree = "<group>"; };
 		77F29D551E585BDE00EC907D /* bbb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bbb.h; path = libbbb/bbb.h; sourceTree = "<group>"; };
@@ -272,12 +275,12 @@
 		77B1458B1E5820D700988FE3 /* core */ = {
 			isa = PBXGroup;
 			children = (
+				778A5FB01E82581E0099A66D /* accel.c */,
 				778A5FA01E82581E0099A66D /* cdefs.h */,
 				778A5FA11E82581E0099A66D /* commander.c */,
 				778A5FA21E82581E0099A66D /* commander.h */,
 				778A5FA31E82581E0099A66D /* commands.c */,
 				778A5FA41E82581E0099A66D /* commands.h */,
-				778A5FB41E82581E0099A66D /* pod.c */,
 				778A5FA51E82581E0099A66D /* config_airsupply.h */,
 				778A5FA61E82581E0099A66D /* config_inventory.h */,
 				778A5FA71E82581E0099A66D /* config_overrides.h */,
@@ -287,13 +290,15 @@
 				778A5FAB1E82581E0099A66D /* config.h */,
 				778A5FAC1E82581E0099A66D /* core.c */,
 				778A5FAD1E82581E0099A66D /* core.h */,
-				778A5FAE1E82581E0099A66D /* emergency.c */,
-				778A5FAF1E82581E0099A66D /* emergency.h */,
-				778A5FB01E82581E0099A66D /* imu_data.c */,
+				778A5FAE1E82581E0099A66D /* panic.c */,
+				778A5FAF1E82581E0099A66D /* panic.h */,
 				778A5FB11E82581E0099A66D /* main.c */,
 				778A5FB21E82581E0099A66D /* pod-helpers.c */,
 				778A5FB31E82581E0099A66D /* pod-helpers.h */,
+				778A5FB41E82581E0099A66D /* pod.c */,
 				778A5FB51E82581E0099A66D /* pod.h */,
+				77E19E951E9F415700C6766A /* telemetry.c */,
+				77E19E961E9F415700C6766A /* telemetry.h */,
 				778A5FB61E82581E0099A66D /* pru.c */,
 				778A5FB71E82581E0099A66D /* pru.h */,
 				778A5FBA1E82581E0099A66D /* states.c */,
@@ -552,7 +557,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				778A5FC51E82581E0099A66D /* pru.c in Sources */,
-				778A5FC11E82581E0099A66D /* imu_data.c in Sources */,
+				778A5FC11E82581E0099A66D /* accel.c in Sources */,
 				778A5FC41E82581E0099A66D /* pod.c in Sources */,
 				778A5FBD1E82581E0099A66D /* commander.c in Sources */,
 				778A5FC21E82581E0099A66D /* main.c in Sources */,
@@ -560,8 +565,9 @@
 				778A5FBE1E82581E0099A66D /* commands.c in Sources */,
 				778A5FBF1E82581E0099A66D /* core.c in Sources */,
 				778A5FC81E82581E0099A66D /* states.c in Sources */,
-				778A5FC01E82581E0099A66D /* emergency.c in Sources */,
+				778A5FC01E82581E0099A66D /* panic.c in Sources */,
 				778A5FC31E82581E0099A66D /* pod-helpers.c in Sources */,
+				77E19E971E9F415700C6766A /* telemetry.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

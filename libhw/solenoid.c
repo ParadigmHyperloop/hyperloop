@@ -96,7 +96,7 @@ bool open_solenoid(solenoid_t *s) {
 
   if (!is_solenoid_open(s)) {
     // TODO: Prove
-    setRelay(s->gpio, (s->value ? kRelayOff : kRelayOn));
+    set_relay(s->gpio, (s->value ? kRelayOff : kRelayOn));
     s->value = (s->value == 0 ? 1 : 0);
   }
   return true;
@@ -109,7 +109,7 @@ bool close_solenoid(solenoid_t *s) {
 
   if (is_solenoid_open(s)) {
     // TODO: Prove
-    setRelay(s->gpio, (s->value ? kRelayOff : kRelayOn));
+    set_relay(s->gpio, (s->value ? kRelayOff : kRelayOn));
     s->value = (s->value == 0 ? 1 : 0);
   }
   return true;

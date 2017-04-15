@@ -76,10 +76,8 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
  * of the pod
  */
 void add_imu_data(imu_datagram_t *data, pod_t *s) {
-
-  static uint64_t last_imu_reading = 0;
-  if (last_imu_reading == 0) {
-    last_imu_reading = get_time_usec();
+  if (s->last_imu_reading == 0) {
+    s->last_imu_reading = get_time_usec();
     return;
   }
 
@@ -91,17 +89,23 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
 
   uint64_t new_imu_reading = get_time_usec();
 
-  uint64_t dt = new_imu_reading - last_imu_reading;
+  uint64_t dt = new_imu_reading - s->last_imu_reading;
 
   if (dt == 0) {
     return;
+  } else if (dt > IMU_MAX_TIME_DIFF_USEC) {
+    panic(POD_CORE_SUBSYSTEM, "IMU Reading dt in excess of " __XSTR__(IMU_MAX_TIME_DIFF_USEC) "us");
   }
 
-  last_imu_reading = new_imu_reading;
-
+  s->last_imu_reading = new_imu_reading;
+  
   float x = data->x + get_value_f(&(s->imu_calibration_x));
   float y = data->y + get_value_f(&(s->imu_calibration_y));
   float z = data->z + get_value_f(&(s->imu_calibration_z));
+
+  set_value_f(&(s->variance_x), get_value_f(&(s->variance_x)) + x);
+  set_value_f(&(s->variance_y), get_value_f(&(s->variance_y)) + y);
+  set_value_f(&(s->variance_z), get_value_f(&(s->variance_z)) + z);
 
   calcState(&(s->accel_x), &(s->velocity_x), &(s->position_x), x, dt);
   calcState(&(s->accel_y), &(s->velocity_y), &(s->position_y), y, dt);

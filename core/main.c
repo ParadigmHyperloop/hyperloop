@@ -58,7 +58,7 @@ void set_pthread_priority(pthread_t task, int priority);
 void signal_handler(int sig);
 void exit_signal_handler(int sig);
 void sigpipe_handler(__unused int sig);
-void pod_cleanup(pod_t * pod);
+void pod_cleanup(pod_t *pod);
 
 void usage() {
   fprintf(stderr, "Usage: core [-r] [-t]");
@@ -98,25 +98,26 @@ void set_pthread_priority(pthread_t task, int priority) {
   }
 }
 
-void pod_cleanup(pod_t * pod) {
+void pod_cleanup(pod_t *pod) {
   if (pod->imu > -1) {
     fprintf(stderr, "Closing IMU (fd %d)\n", pod->imu);
     imu_disconnect(pod->imu);
   }
-  
+
   while (nclients > 0) {
     if (clients[nclients] != 0) {
-      fprintf(stderr, "Closing client %d (fd %d)\n", nclients, clients[nclients]);
+      fprintf(stderr, "Closing client %d (fd %d)\n", nclients,
+              clients[nclients]);
       close(clients[nclients]);
     }
     nclients--;
   }
-  
+
 #ifdef HAS_PRU
   fprintf(stderr, "Shutting down PRU\n");
   pru_shutdown();
 #endif
-  
+
   fprintf(stderr, "Closing command server (fd %d)\n", serverfd);
   close(serverfd);
 }
@@ -156,7 +157,7 @@ void signal_handler(int sig) {
     fclose(fp);
 
     umount2("/", MNT_FORCE);
-    setPinValue(KILL_PIN, KILL_PIN_KILL_VALUE);
+    set_pin_value(KILL_PIN, KILL_PIN_KILL_VALUE);
     fp = fopen("/proc/sysrq-trigger", "w");
     fwrite("o", sizeof(char), 1, fp);
     fclose(fp);
@@ -182,10 +183,7 @@ void exit_signal_handler(__unused int sig) {
 
 void sigpipe_handler(__unused int sig) { error("SIGPIPE Recieved"); }
 
-
-int pod_shutdown(pod_t * pod) {
-  return sem_post(pod->boot_sem);
-}
+int pod_shutdown(pod_t *pod) { return sem_post(pod->boot_sem); }
 
 int _pod_shutdown_main(pod_t *pod);
 
@@ -204,9 +202,9 @@ int _pod_shutdown_main(pod_t *pod) {
     pod_exit(0);
     break;
   case WarmReboot:
-      pod_cleanup(pod);
-      init_pod();
-      return 0;
+    pod_cleanup(pod);
+    init_pod();
+    return 0;
     break;
   case ColdReboot:
     pod_exit(EX_REBOOT);
@@ -218,126 +216,124 @@ int _pod_shutdown_main(pod_t *pod) {
 int main(int argc, char *argv[]) {
   // Pod Panic Signal
   signal(POD_SIGPANIC, signal_handler);
-  
+
   // TCP Server can generate SIGPIPE signals on disconnect
   // TODO: Evaluate if this should trigger an emergency
   signal(SIGPIPE, sigpipe_handler);
-  
+
   // Signals that should trigger soft shutdown
   signal(SIGINT, exit_signal_handler);
   signal(SIGTERM, exit_signal_handler);
   signal(SIGHUP, exit_signal_handler);
 
-  
   while (true) {
-    
-  printf("<<< Paradigm HyperLoop Pod Controller >>>\n\n");
-  
-  printf("Copyright " POD_COPY_YEAR " " POD_COPY_OWNER " " POD_VERSION_STR "\n");
-  printf("\nCredits:\n" POD_CREDITS "\n");
 
-  int boot_sem_ret = 0;
+    printf("<<< Paradigm HyperLoop Pod Controller >>>\n\n");
 
-  parse_args(argc, argv);
+    printf("Copyright " POD_COPY_YEAR " " POD_COPY_OWNER " " POD_VERSION_STR
+           "\n");
+    printf("\nCredits:\n" POD_CREDITS "\n");
 
-  info("POD Booting...");
-  info("Initializing Pod");
+    int boot_sem_ret = 0;
 
-  if (init_pod() < 0) {
-    fprintf(stderr, "Failed to Initialize Pod");
-    pod_exit(1);
-  }
+    parse_args(argc, argv);
 
-  info("Loading Pod struct for the first time");
-  pod_t *pod = get_pod();
+    info("POD Booting...");
+    info("Initializing Pod");
 
-  if (args.tests) {
-    pod_exit(self_tests(pod));
-  }
-
-
-  // Disable IMU by starting with core -i -
-  if (args.imu_device[0] != '-') {
-    while (true) {
-      info("Connecting to IMU at: %s", args.imu_device);
-      pod->imu = imu_connect(args.imu_device);
-      if (pod->imu < 0) {
-        info("IMU connection failed: %s", args.imu_device);
-        sleep(1);
-      } else {
-        break;
-      }
+    if (init_pod() < 0) {
+      fprintf(stderr, "Failed to Initialize Pod");
+      pod_exit(1);
     }
-  } else {
-    pod->imu = -1;
-  }
+
+    info("Loading Pod struct for the first time");
+    pod_t *pod = get_pod();
+
+    if (args.tests) {
+      pod_exit(self_tests(pod));
+    }
+
+    // Disable IMU by starting with core -i -
+    if (args.imu_device[0] != '-') {
+      while (true) {
+        info("Connecting to IMU at: %s", args.imu_device);
+        pod->imu = imu_connect(args.imu_device);
+        if (pod->imu < 0) {
+          info("IMU connection failed: %s", args.imu_device);
+          sleep(1);
+        } else {
+          break;
+        }
+      }
+    } else {
+      pod->imu = -1;
+    }
 
 #ifdef HAS_PRU
-  pru_init();
+    pru_init();
 #endif
-  // -----------------------------------------
-  // Logging - Remote Logging System
-  // -----------------------------------------
-  info("Starting the Logging Client Connection");
-  pthread_create(&(pod->logging_thread), NULL, logging_main, NULL);
+    // -----------------------------------------
+    // Logging - Remote Logging System
+    // -----------------------------------------
+    info("Starting the Logging Client Connection");
+    pthread_create(&(pod->logging_thread), NULL, logging_main, NULL);
 
-  // Wait for logging thread to connect to the logging server
-  if (!args.ready) {
+    // Wait for logging thread to connect to the logging server
+    if (!args.ready) {
+      boot_sem_ret = sem_wait(pod->boot_sem);
+      if (boot_sem_ret != 0) {
+        perror("sem_wait wait failed: ");
+        pod_exit(1);
+      }
+    }
+
+    if (get_pod_mode() != Boot) {
+      error(
+          "Remote Logging thread has requested shutdown, See log for details");
+      pod_exit(1);
+    }
+
+    // -----------------------------------------
+    // Commander - Remote Command Communication
+    // -----------------------------------------
+    info("Booting Command and Control Server");
+    pthread_create(&(pod->cmd_thread), NULL, command_main, NULL);
+
+    // Wait for command thread to start it's server
+    if (!args.ready) {
+      boot_sem_ret = sem_wait(pod->boot_sem);
+      if (boot_sem_ret != 0) {
+        perror("sem_wait wait failed: ");
+        pod_exit(1);
+      }
+    }
+
+    // Assert pod is still boot
+    if (get_pod_mode() != Boot) {
+      error("Command thread has requested shutdown, See log for details");
+      pod_exit(1);
+    }
+
+    info("Booting Core Controller Logic Thread");
+
+    pthread_create(&(pod->core_thread), NULL, core_main, NULL);
+
+    // we're using the built-in linux Round Roboin scheduling
+    // priorities are 1-99, higher is more important
+    // important note: this is not hard real-time
+    set_pthread_priority(pod->core_thread, 70);
+    set_pthread_priority(pod->logging_thread, 10);
+    set_pthread_priority(pod->cmd_thread, 20);
+
+    // Wait on boot_sem, the next post will indicate a shutdown action
     boot_sem_ret = sem_wait(pod->boot_sem);
     if (boot_sem_ret != 0) {
       perror("sem_wait wait failed: ");
       pod_exit(1);
     }
-  }
-
-  if (get_pod_mode() != Boot) {
-    error("Remote Logging thread has requested shutdown, See log for details");
-    pod_exit(1);
-  }
-
-  // -----------------------------------------
-  // Commander - Remote Command Communication
-  // -----------------------------------------
-  info("Booting Command and Control Server");
-  pthread_create(&(pod->cmd_thread), NULL, command_main, NULL);
-
-  // Wait for command thread to start it's server
-  if (!args.ready) {
-    boot_sem_ret = sem_wait(pod->boot_sem);
-    if (boot_sem_ret != 0) {
-      perror("sem_wait wait failed: ");
-      pod_exit(1);
-    }
-  }
-
-  // Assert pod is still boot
-  if (get_pod_mode() != Boot) {
-    error("Command thread has requested shutdown, See log for details");
-    pod_exit(1);
-  }
-
-  info("Booting Core Controller Logic Thread");
-
-  pthread_create(&(pod->core_thread), NULL, core_main, NULL);
-
-  // we're using the built-in linux Round Roboin scheduling
-  // priorities are 1-99, higher is more important
-  // important note: this is not hard real-time
-  set_pthread_priority(pod->core_thread, 70);
-  set_pthread_priority(pod->logging_thread, 10);
-  set_pthread_priority(pod->cmd_thread, 20);
-
-  // Wait on boot_sem, the next post will indicate a shutdown action
-  boot_sem_ret = sem_wait(pod->boot_sem);
-  if (boot_sem_ret != 0) {
-    perror("sem_wait wait failed: ");
-    pod_exit(1);
-  }
     info("Pod shutdown sem posted");
     sleep(1);
-    
-  
-  _pod_shutdown_main(pod);
-}
 
+    _pod_shutdown_main(pod);
+  }
 }

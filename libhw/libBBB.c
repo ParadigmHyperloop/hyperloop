@@ -251,7 +251,7 @@ int setPinDirection(int pinnum, char *dir) {
   return 0;
 }
 
-int setPinValue(int pinnum, int value) {
+int set_pin_value(int pinnum, int value) {
   FILE *val;
   char buf[5];
   char buf2[50] = "/sys/class/gpio/gpio";
@@ -273,7 +273,7 @@ int setPinValue(int pinnum, int value) {
   return 0;
 }
 
-int getPinValue(int pinnum) {
+int get_pin_value(int pinnum) {
   FILE *val;
   int value;
   char buf[5];
@@ -598,7 +598,7 @@ int initLCD() {
   setPinDirection(D6, OUT);
   setPinDirection(D7, OUT);
 
-  setPinValue(E, OFF);
+  set_pin_value(E, OFF);
 
   // initialize the screen
   pauseNanoSec(1500000);
@@ -627,44 +627,44 @@ int initLCD() {
 
 void initCMD(unsigned char cmd) {
   // bring rs low for command
-  setPinValue(RS, OFF);
+  set_pin_value(RS, OFF);
   pauseNanoSec(500000);
 
   // send the highest nibble only
-  setPinValue(E, ON);
-  setPinValue(D7, ((cmd >> 7) & 1));
-  setPinValue(D6, ((cmd >> 6) & 1));
-  setPinValue(D5, ((cmd >> 5) & 1));
-  setPinValue(D4, ((cmd >> 4) & 1));
+  set_pin_value(E, ON);
+  set_pin_value(D7, ((cmd >> 7) & 1));
+  set_pin_value(D6, ((cmd >> 6) & 1));
+  set_pin_value(D5, ((cmd >> 5) & 1));
+  set_pin_value(D4, ((cmd >> 4) & 1));
   pauseNanoSec(500000);
-  setPinValue(E, OFF);
+  set_pin_value(E, OFF);
   pauseNanoSec(500000);
 }
 
 int writeChar(unsigned char data) {
   // bring rs high for character
   pauseNanoSec(500000);
-  setPinValue(RS, ON);
+  set_pin_value(RS, ON);
   pauseNanoSec(500000);
 
   // send highest nibble first
-  setPinValue(E, ON);
-  setPinValue(D7, ((data >> 7) & 1));
-  setPinValue(D6, ((data >> 6) & 1));
-  setPinValue(D5, ((data >> 5) & 1));
-  setPinValue(D4, ((data >> 4) & 1));
+  set_pin_value(E, ON);
+  set_pin_value(D7, ((data >> 7) & 1));
+  set_pin_value(D6, ((data >> 6) & 1));
+  set_pin_value(D5, ((data >> 5) & 1));
+  set_pin_value(D4, ((data >> 4) & 1));
   pauseNanoSec(500000);
-  setPinValue(E, OFF);
+  set_pin_value(E, OFF);
   pauseNanoSec(500000);
 
   // send the low nibble
-  setPinValue(E, ON);
-  setPinValue(D7, ((data >> 3) & 1));
-  setPinValue(D6, ((data >> 2) & 1));
-  setPinValue(D5, ((data >> 1) & 1));
-  setPinValue(D4, (data & 1));
+  set_pin_value(E, ON);
+  set_pin_value(D7, ((data >> 3) & 1));
+  set_pin_value(D6, ((data >> 2) & 1));
+  set_pin_value(D5, ((data >> 1) & 1));
+  set_pin_value(D4, (data & 1));
   pauseNanoSec(500000);
-  setPinValue(E, OFF);
+  set_pin_value(E, OFF);
   pauseNanoSec(500000);
 
   return 0;
@@ -672,27 +672,27 @@ int writeChar(unsigned char data) {
 
 int writeCMD(unsigned char cmd) {
   // bring rs low for command
-  setPinValue(RS, OFF);
+  set_pin_value(RS, OFF);
   pauseNanoSec(500000);
 
   // send highest nibble first
-  setPinValue(E, ON);
-  setPinValue(D7, ((cmd >> 7) & 1));
-  setPinValue(D6, ((cmd >> 6) & 1));
-  setPinValue(D5, ((cmd >> 5) & 1));
-  setPinValue(D4, ((cmd >> 4) & 1));
+  set_pin_value(E, ON);
+  set_pin_value(D7, ((cmd >> 7) & 1));
+  set_pin_value(D6, ((cmd >> 6) & 1));
+  set_pin_value(D5, ((cmd >> 5) & 1));
+  set_pin_value(D4, ((cmd >> 4) & 1));
   pauseNanoSec(500000);
-  setPinValue(E, OFF);
+  set_pin_value(E, OFF);
   pauseNanoSec(500000);
 
   // send the low nibble
-  setPinValue(E, ON);
-  setPinValue(D7, ((cmd >> 3) & 1));
-  setPinValue(D6, ((cmd >> 2) & 1));
-  setPinValue(D5, ((cmd >> 1) & 1));
-  setPinValue(D4, (cmd & 1));
+  set_pin_value(E, ON);
+  set_pin_value(D7, ((cmd >> 3) & 1));
+  set_pin_value(D6, ((cmd >> 2) & 1));
+  set_pin_value(D5, ((cmd >> 1) & 1));
+  set_pin_value(D4, (cmd & 1));
   pauseNanoSec(500000);
-  setPinValue(E, OFF);
+  set_pin_value(E, OFF);
   pauseNanoSec(500000);
 
   return 0;

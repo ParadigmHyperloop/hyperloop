@@ -165,6 +165,10 @@ typedef struct pod {
   pod_value_t rotvel_y;
   pod_value_t rotvel_z;
 
+  pod_value_t variance_x;
+  pod_value_t variance_y;
+  pod_value_t variance_z;
+  
   pod_value_t quaternion_real;
   pod_value_t quaternion_i;
   pod_value_t quaternion_j;
@@ -174,7 +178,6 @@ typedef struct pod {
   pod_value_t imu_calibration_y;
   pod_value_t imu_calibration_z;
 
-  
   // Solenoids
   solenoid_t skate_solonoids[N_SKATE_SOLONOIDS];
   solenoid_t clamp_engage_solonoids[N_CLAMP_ENGAGE_SOLONOIDS];
@@ -184,7 +187,7 @@ typedef struct pod {
   solenoid_t hp_fill_valve;
   solenoid_t lp_fill_valve[N_LP_FILL_SOLENOIDS];
   solenoid_t lateral_fill_solenoids[N_LAT_FILL_SOLENOIDS];
-  
+
   // Pressure Transducers
   sensor_t hp_pressure;
   sensor_t lateral_pressure[N_LAT_FILL_PRESSURE];
@@ -199,7 +202,7 @@ typedef struct pod {
   sensor_t reg_surf_thermo[N_REG_THERMO];
   sensor_t frame_thermo;
   sensor_t clamp_thermo[N_CLAMP_PAD_THERMO];
-  
+
   // Distance Sensors
   sensor_t lateral_distance[N_LATERAL_DISTANCE];
   sensor_t corner_distance[N_CORNER_DISTANCE];
@@ -230,7 +233,6 @@ typedef struct pod {
 
   // Batteries
   pod_battery_t battery[N_BATTERIES];
-  
 
   // Thread Tracking
   pthread_t core_thread;
@@ -243,7 +245,7 @@ typedef struct pod {
 
   // Holds the pod in a boot state until set to 1 by an operator
   pod_value_t ready;
- 
+
   // Pointers to all the solenoids that are connected to the relays
   // (Don't think too much about this one, it is really just a convienience)
   solenoid_t *relays[N_RELAY_CHANNELS];
@@ -260,13 +262,13 @@ typedef struct pod {
   bool calibrated;
 
   sem_t *boot_sem;
-
+  uint64_t last_imu_reading;
   uint64_t start;
   uint64_t overrides;
   pthread_rwlock_t overrides_mutex;
-  
+
   pod_shutdown_t shutdown;
-  
+
   bool initialized;
 } pod_t;
 

@@ -39,7 +39,7 @@ typedef enum relay_state {
   kRelayOn   // Relay is actuated
 } relay_state_t;
 
-void setRelay(int pin, relay_state_t state);
+void set_relay(int pin, relay_state_t state);
 
 relay_state_t read_relay_state(int pin);
 

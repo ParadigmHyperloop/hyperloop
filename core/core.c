@@ -628,8 +628,9 @@ void *core_main(__unused void *arg) {
       if (iteration_time == 0) {
         iteration_time = (double)((usec_now - usec_last));
       } else {
-        iteration_time = (1.0 - ITERATION_TIME_ALPHA) * iteration_time +
-                         ITERATION_TIME_ALPHA * (double)((usec_now - usec_last));
+        iteration_time =
+            (1.0 - ITERATION_TIME_ALPHA) * iteration_time +
+            ITERATION_TIME_ALPHA * (double)((usec_now - usec_last));
       }
       usec_last = usec_now;
       set_value_f(&(pod->core_speed),

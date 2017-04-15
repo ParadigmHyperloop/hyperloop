@@ -99,6 +99,7 @@
 // --------------------------------------------------------------------------
 #define CORE_THREAD_SLEEP 0
 #define CORE_PERIOD_USEC (USEC_PER_SEC / 1000)
+#define IMU_MAX_TIME_DIFF_USEC 1 * USEC_PER_SEC
 #define LOGGING_THREAD_SLEEP 5000
 
 // --------------

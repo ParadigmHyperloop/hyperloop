@@ -94,8 +94,8 @@ int setUsrLedValue(char *led, int value);
 // GPIO Prototypes
 int initPin(int pinnum);
 int setPinDirection(int pinnum, char *dir);
-int setPinValue(int pinnum, int value);
-int getPinValue(int pinnum);
+int set_pin_value(int pinnum, int value);
+int get_pin_value(int pinnum);
 
 // PWM Prototypes
 int initPWM(int mgrnum, char *pin);
