@@ -282,15 +282,21 @@ void lateral_sensor_checks(pod_t *pod) {
   }
 }
 
-int set_skate_target(int no, solenoid_state_t val, bool override) {
-  // TODO: Implement Me
+int set_skate_target(int no, mpye_value_t val, bool override) {
   pod_t *pod = get_pod();
   if (is_surface_overriden(SKATE_OVERRIDE_ALL) && !override) {
     warn("Skates are in override mode!");
     return -1;
   }
 
-  set_solenoid(&(pod->skate_solonoids[no]), val);
+  if (val > 0) {
+    set_solenoid(&(pod->skate_solonoids[no]), kSolenoidOpen);
+  } else {
+    set_solenoid(&(pod->skate_solonoids[no]), kSolenoidClosed);
+  }
+
+  set_mpye(&(pod->mpye[no]), val);
+
   return 0;
 }
 
@@ -338,7 +344,6 @@ int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override) {
 }
 
 void adjust_brakes(__unused pod_t *pod) {
-  int i;
   switch (get_pod_mode()) {
   case POST:
   case Boot:
@@ -349,17 +354,24 @@ void adjust_brakes(__unused pod_t *pod) {
   case Armed:
   case Vent:
   case Retrieval:
-  case Emergency:
-    for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, kSolenoidClosed, false);
-    }
-    break;
   case Pushing:
   case Coasting:
-  case Braking:
   case Shutdown:
-    for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, kSolenoidOpen, false);
+    for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+      ensure_clamp_brakes(i, kClampBrakeReleased, true);
+    }
+    break;
+  case Braking:
+    for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+      if (get_stopping_deccel(pod) > get_value_f(&(pod->accel_x))) {
+        ensure_clamp_brakes(i, kClampBrakeClosed, false);
+      } else {
+        ensure_clamp_brakes(i, kClampBrakeEngaged, false);
+      }
+    }
+  case Emergency:
+    for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+      ensure_clamp_brakes(i, kClampBrakeEngaged, false);
     }
     break;
   default:
@@ -383,7 +395,7 @@ void adjust_skates(__unused pod_t *pod) {
   case Retrieval:
   case Emergency:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, kSolenoidClosed, false);
+      set_skate_target(i, 0, false);
     }
     break;
   case Pushing:
@@ -391,7 +403,8 @@ void adjust_skates(__unused pod_t *pod) {
   case Braking:
   case Shutdown:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, kSolenoidOpen, false);
+      // TODO Implement PID for Skates
+      set_skate_target(i, 100, false);
     }
     break;
   default:

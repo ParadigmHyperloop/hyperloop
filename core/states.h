@@ -187,6 +187,9 @@ typedef struct pod {
   solenoid_t hp_fill_valve;
   solenoid_t lp_fill_valve[N_LP_FILL_SOLENOIDS];
   solenoid_t lateral_fill_solenoids[N_LAT_FILL_SOLENOIDS];
+  
+  // MPYEs
+  mpye_t mpye[N_MPYES];
 
   // Pressure Transducers
   sensor_t hp_pressure;
@@ -253,6 +256,8 @@ typedef struct pod {
 
   int imu;
   int logging_socket;
+  int logging_fd;
+  char logging_filename[PATH_MAX];
   uint64_t last_ping;
   uint64_t last_transition;
   pod_value_t core_speed;

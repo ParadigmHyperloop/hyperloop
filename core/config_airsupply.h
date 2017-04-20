@@ -125,12 +125,12 @@
 // --------------------------
 // Clamp Brakes
 // --------------------------
-
-#define N_CLAMP_ENGAGE_SOLONOIDS 2
+#define N_CLAMP_SOLONOIDS 2
+#define N_CLAMP_ENGAGE_SOLONOIDS N_CLAMP_SOLONOIDS
 #define CLAMP_ENGAGE_SOLONOIDS                                                 \
   { 78, 74 }
 
-#define N_CLAMP_RELEASE_SOLONOIDS 2
+#define N_CLAMP_RELEASE_SOLONOIDS N_CLAMP_SOLONOIDS
 #define CLAMP_RELEASE_SOLONOIDS                                                \
   { 76, 72 }
 

@@ -37,9 +37,12 @@
 
 extern ring_buf_t logbuf;
 
-int log_connect(void);
-int log_send(log_t *l);
+static
+int log_open(char *filename) {
+  return open(filename, O_CREAT | O_EXCL | O_WRONLY | O_APPEND, S_IRWXU | S_IRWXG | S_IROTH);
+}
 
+static
 int log_connect() {
   info("Connecting to logging server: " LOG_SVR_NAME);
 
@@ -97,8 +100,10 @@ int log_connect() {
   return fd;
 }
 
+
 // Use of any output macro in this function could lead to stack overflow...
 // Do not use output macros in this function
+static
 int log_send(log_t *l) {
   pod_t *pod = get_pod();
 
@@ -127,6 +132,14 @@ int log_send(log_t *l) {
     fprintf(stderr, "ERROR writing to socket: %s\n", strerror(errno));
     return -1;
   }
+  
+  if (pod->logging_fd > -1) {
+    n = write(pod->logging_fd, buf, len);
+    if (n <= 0) {
+      fprintf(stderr, "ERROR writing to binary log file: %s\n", strerror(errno));
+      return -1;
+    }
+  }
   /* print the server's reply */
   bzero(buf, MAX_PACKET_SIZE);
 
@@ -142,6 +155,16 @@ void *logging_main(__unused void *arg) {
     pod->logging_socket = log_connect();
     if (pod->logging_socket < 0) {
       error("Logging Socket failed to connect: %s", strerror(errno));
+      sleep(1);
+    } else {
+      break;
+    }
+  }
+  
+  while (pod->logging_fd < 0) {
+    pod->logging_fd = log_open(pod->logging_filename);
+    if (pod->logging_fd < 0) {
+      error("Logging File failed to open: %s", strerror(errno));
       sleep(1);
     } else {
       break;

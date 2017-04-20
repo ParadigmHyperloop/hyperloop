@@ -198,6 +198,7 @@
 // Logging Configuration
 // ---------------------
 #define LOG_FILE_PATH "./hyperloop-core.log"
+#define TELEMETRY_LOG_BIN "./hyperloop-telemetry.log.bin"
 #define LOG_FILE_MODE S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
 #define MAX_PACKET_SIZE 1024
 #define LOG_SVR_NAME "pod-server.openloopalliance.com"

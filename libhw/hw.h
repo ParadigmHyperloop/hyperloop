@@ -33,6 +33,7 @@
 #ifndef libint_h
 #define libint_h
 
+#include "mpye.h"
 #include "solenoid.h"
 #include "relay.h"
 #include "shims.h"

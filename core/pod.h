@@ -42,7 +42,7 @@
 #include <hw.h>
 #include <imu.h>
 #include <log.h>
-
+#include <stdatomic.h>
 #include "realtime.h"
 #include "states.h"
 #include "telemetry.h"
@@ -63,7 +63,7 @@ void pod_reset(void);
 
 void pod_exit(int code);
 
-int set_skate_target(int no, solenoid_state_t val, bool override);
+int set_skate_target(int no, mpye_value_t val, bool override);
 int ensure_caliper_brakes(int no, solenoid_state_t val, bool override);
 int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override);
 

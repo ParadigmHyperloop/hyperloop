@@ -124,7 +124,7 @@ bool is_surface_overriden(uint64_t surface) {
 }
 
 int init_pod(void) {
-  static pod_t _init_pod = {
+  static pod_t _init_pod = (pod_t){
       .mode = Boot,
       .name = POD_NAME,
       .initialized = false,
@@ -149,6 +149,8 @@ int init_pod(void) {
       .overrides_mutex = PTHREAD_RWLOCK_INITIALIZER,
       .imu = -1,
       .logging_socket = -1,
+      .logging_fd = -1,
+      .logging_filename = TELEMETRY_LOG_BIN,
       .last_ping = 0,
       .relays = {&(_pod.skate_solonoids[0]), &(_pod.skate_solonoids[1]),
                  &(_pod.skate_solonoids[2]), &(_pod.clamp_engage_solonoids[0]),
@@ -170,10 +172,21 @@ int init_pod(void) {
 
   pod_t *pod = &local_pod;
 
+  // ----------------
+  // INITIALIZE MPYES
+  // ----------------
+  int i;
+  for (i = 0; i < N_MPYES; i++) {
+    pod->mpye[i] = (mpye_t) {.pin = 0,
+                             .locked = false,
+                             .queued = false,
+                             .value = 0};
+  }
+
   // --------------------
   // INITIALIZE SOLENOIDS
   // --------------------
-  int i;
+  
   int skate_pins[] = SKATE_SOLENOIDS;
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
     pod->skate_solonoids[i] = (solenoid_t){.gpio = skate_pins[i],
