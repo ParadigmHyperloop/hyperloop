@@ -57,12 +57,12 @@
 
 extern command_t commands[];
 
-static char cmdbuffer[CMD_OUT_BUF];
 
-bool first_client = true;
-int serverfd;
-int clients[MAX_CMD_CLIENTS];
-int nclients = 0;
+static
+void commander_init(commander_t *commander) {
+  memset(commander, 0, sizeof(commander_t));
+  commander->first_client = true;
+}
 
 // Much of this code is based on this UTAH tcpserver example, thanks!
 // https://www.cs.utah.edu/~swalton/listings/sockets/programs/part2/chap6/simple-server.c
@@ -237,7 +237,7 @@ int cmd_accept_client(int fd) {
  * Read in a command, process it with cmd_do_command(), and write out the
  * respnse
  */
-int cmd_process_request(int infd, int outfd) {
+int cmd_process_request(int infd, int outfd, commander_t *commander) {
   char inbuf[MAX_PACKET_SIZE];
   
   ssize_t nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE - 1);
@@ -259,17 +259,17 @@ int cmd_process_request(int infd, int outfd) {
       inbuf[i] = '\0';
 
       // Process the command
-      nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
-      write(outfd, cmdbuffer, nbytesout);
+      nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, commander->cmdbuffer);
+      write(outfd, commander->cmdbuffer, nbytesout);
       base = i + 1;
     }
     i++;
   }
   
-  nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, cmdbuffer);
-  cmdbuffer[nbytesout] = '\n';
+  nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, commander->cmdbuffer);
+  commander->cmdbuffer[nbytesout] = '\n';
   nbytesout++;
-  write(outfd, cmdbuffer, nbytesout);
+  write(outfd, commander->cmdbuffer, nbytesout);
   return 0;
 }
 
@@ -279,11 +279,13 @@ int cmd_process_request(int infd, int outfd) {
 int cmd_server() {
   // TODO: There is a minor bug where one of the input/output buffers is not
   // being cleared or capped with a null terminator
+  commander_t commander;
+  commander_init(&commander);
 
   debug("Starting TCP Network Command Server");
-  serverfd = cmd_start_tcp_server(CMD_SVR_PORT);
+  commander.serverfd = cmd_start_tcp_server(CMD_SVR_PORT);
 
-  if (serverfd < 0) {
+  if (commander.serverfd < 0) {
     return -1;
   }
 
@@ -296,12 +298,12 @@ int cmd_server() {
   while (get_pod_mode() != Shutdown) {
     // Setup All File Descriptors we are going to read from
     FD_ZERO(&active_fd_set);
-    FD_SET(serverfd, &active_fd_set);
+    FD_SET(commander.serverfd, &active_fd_set);
     FD_SET(STDIN_FILENO, &active_fd_set);
     int i;
-    for (i = 0; i < nclients; i++) {
-      if (clients[i] >= 0) {
-        FD_SET(clients[i], &active_fd_set);
+    for (i = 0; i < commander.nclients; i++) {
+      if (commander.clients[i] >= 0) {
+        FD_SET(commander.clients[i], &active_fd_set);
       }
     }
 
@@ -315,20 +317,20 @@ int cmd_server() {
     }
 
     // New Clients (serverfd)
-    if (FD_ISSET(serverfd, &read_fd_set)) {
-      if (nclients >= MAX_CMD_CLIENTS - 1) {
+    if (FD_ISSET(commander.serverfd, &read_fd_set)) {
+      if (commander.nclients >= MAX_CMD_CLIENTS - 1) {
         // Send an error response and close them down
-        cmd_reject_client(serverfd);
+        cmd_reject_client(commander.serverfd);
       } else {
         // Accept the client
-        int clientfd = cmd_accept_client(serverfd);
-        clients[nclients] = clientfd;
-        nclients++;
+        int clientfd = cmd_accept_client(commander.serverfd);
+        commander.clients[commander.nclients] = clientfd;
+        commander.nclients++;
 
         // We wait for a client to connect before the pod progresses with it's
         // boot phase (i.e. it starts up it's core)
-        if (first_client) {
-          first_client = false;
+        if (commander.first_client) {
+          commander.first_client = false;
           sem_post(get_pod()->boot_sem);
         }
       }
@@ -336,28 +338,28 @@ int cmd_server() {
 
     // STDIN
     if (FD_ISSET(STDIN_FILENO, &read_fd_set)) {
-      if (cmd_process_request(STDIN_FILENO, STDOUT_FILENO) < 0) {
+      if (cmd_process_request(STDIN_FILENO, STDOUT_FILENO, &commander) < 0) {
         panic(POD_LOGGING_SUBSYSTEM, "STDIN unprocessable for commands");
       }
     }
 
     // Existing Clients
-    for (i = 0; i < nclients; i++) {
-      if (FD_ISSET(clients[i], &read_fd_set)) {
-        if (cmd_process_request(clients[i], clients[i]) < 0) {
+    for (i = 0; i < commander.nclients; i++) {
+      if (FD_ISSET(commander.clients[i], &read_fd_set)) {
+        if (cmd_process_request(commander.clients[i], commander.clients[i], &commander) < 0) {
           // remove the client
           set_pod_mode(Emergency, "Operator Client %d (fd %d) disconnected", i,
-                       clients[i]);
-          close(clients[i]);
+                       commander.clients[i]);
+          close(commander.clients[i]);
           int j;
-          for (j = i + 1; j < nclients; j++) {
-            clients[j - 1] = clients[j];
+          for (j = i + 1; j < commander.nclients; j++) {
+            commander.clients[j - 1] = commander.clients[j];
           }
           warn("Removed Client %d", i);
           // Backup i once to repeat this index number
           i--;
           // Back down nclients
-          nclients--;
+          commander.nclients--;
         }
       }
     }
@@ -366,7 +368,7 @@ int cmd_server() {
   }
 
   // Should not get here
-  close(serverfd);
+  close(commander.serverfd);
   return 0;
 }
 /**
@@ -384,9 +386,6 @@ void *command_main(__unused void *arg) {
       break;
     default:
       set_pod_mode(Emergency, "Command Server Failed");
-    }
-    if (first_client) {
-      sem_post(get_pod()->boot_sem);
     }
   }
 
