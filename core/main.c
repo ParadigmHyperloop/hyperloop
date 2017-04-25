@@ -48,16 +48,10 @@ struct arguments args = {
  * get a pointer to the pod.
  */
 extern pod_t _pod;
-extern int serverfd;
-extern int clients[MAX_CMD_CLIENTS];
-extern int nclients;
 
 void usage(void);
 void parse_args(int argc, char *argv[]);
 void set_pthread_priority(pthread_t task, int priority);
-void signal_handler(int sig);
-void exit_signal_handler(int sig);
-void sigpipe_handler(__unused int sig);
 void pod_cleanup(pod_t *pod);
 
 void usage() {
@@ -104,22 +98,10 @@ void pod_cleanup(pod_t *pod) {
     imu_disconnect(pod->imu);
   }
 
-  while (nclients > 0) {
-    if (clients[nclients] != 0) {
-      fprintf(stderr, "Closing client %d (fd %d)\n", nclients,
-              clients[nclients]);
-      close(clients[nclients]);
-    }
-    nclients--;
-  }
-
 #ifdef HAS_PRU
   fprintf(stderr, "Shutting down PRU\n");
   pru_shutdown();
 #endif
-
-  fprintf(stderr, "Closing command server (fd %d)\n", serverfd);
-  close(serverfd);
 }
 /**
  * Wrapper for exit() function. Allows us to exit cleanly
@@ -145,7 +127,8 @@ void pod_exit(int code) {
  * This is a pretty low level function because it is attempting to cut out the
  * entire controller logic and just make the pod safe
  */
-void signal_handler(int sig) {
+static
+void panic_handler(int sig) {
   if (sig == SIGTERM) {
 // Power button pulled low, power will be cut in < 1023ms
 // TODO: Sync the filesystem and unmount root to prevent corruption
@@ -166,10 +149,8 @@ void signal_handler(int sig) {
   exit(EXIT_FAILURE);
 }
 
+static
 void exit_signal_handler(__unused int sig) {
-#ifdef POD_DEBUG
-  pod_exit(2);
-#else
   switch (_pod.mode) {
   case Boot:
   case Shutdown:
@@ -178,9 +159,9 @@ void exit_signal_handler(__unused int sig) {
   default:
     set_pod_mode(Emergency, "Recieved Signal %d", sig);
   }
-#endif
 }
 
+static
 void sigpipe_handler(__unused int sig) { error("SIGPIPE Recieved"); }
 
 int pod_shutdown(pod_t *pod) { return sem_post(pod->boot_sem); }
@@ -215,7 +196,7 @@ int _pod_shutdown_main(pod_t *pod) {
 
 int main(int argc, char *argv[]) {
   // Pod Panic Signal
-  signal(POD_SIGPANIC, signal_handler);
+  signal(POD_SIGPANIC, panic_handler);
 
   // TCP Server can generate SIGPIPE signals on disconnect
   // TODO: Evaluate if this should trigger an emergency
