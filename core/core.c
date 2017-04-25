@@ -547,7 +547,7 @@ void *core_main(__unused void *arg) {
     // --------------------------------------------
     // Heartbeat handling
     // --------------------------------------------
-    if (get_time_usec() - pod->last_ping > HEARTBEAT_TIMEOUT * USEC_PER_SEC &&
+    if (get_time_usec() - pod->last_ping > HEARTBEAT_TIMEOUT_USEC &&
         pod->last_ping > 0) {
       set_pod_mode(Emergency, "Heartbeat timeout");
     }

@@ -44,17 +44,18 @@ command_t commands[];
 int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   int count =
       snprintf(&outbuf[0], outbufc, "%s",
-               "Pod CLI " POD_CLI_VERSION ". Copyright " POD_COPY_YEAR
+               "Pod CLI " POD_CLI_VERSION_STR ". Copyright " POD_COPY_YEAR
                " " POD_COPY_OWNER "\n" POD_CREDITS
                "This tool allows you to control various aspects of the pod\n"
                " - TCP:" __XSTR__(CMD_SVR_PORT) "\n - STDIN\n\n"
                                                 "Available Commands:\n");
+  
   command_t *command = &commands[0];
   while (command->name) {
     count += snprintf(&outbuf[count], outbufc, " - %s\n", command->name);
     command++;
   }
-  
+
   return count;
 }
 
