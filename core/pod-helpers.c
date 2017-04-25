@@ -32,19 +32,37 @@
 
 #include "pod-helpers.h"
 
-/**
- * Determine if emergency brakes are engaged
- */
-bool any_clamp_brakes(__unused pod_t *pod) {
-  // TODO: no transducers on clamp lines
+bool start_lp_fill() {
+  debug("start_lp_fill has been called, performing pre-transition checks");
+  if (pod_safe_checklist(get_pod())) {
+    return set_pod_mode(LPFill, "Control Point Initiated LP Fill");
+  }
   return false;
 }
 
-/**
- * Determine if emergency brakes are engaged
- */
+bool start_hp_fill() {
+  debug("start_hp_fill has been called, performing pre-transition checks");
+  if (pod_hp_safe_checklist(get_pod())) {
+    return set_pod_mode(HPFill, "Control Point Initiated HP Fill");
+  }
+  return false;
+}
+
+bool any_clamp_brakes(__unused pod_t *pod) {
+  for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+    if (is_solenoid_open(&pod->clamp_engage_solonoids[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool any_calipers(__unused pod_t *pod) {
-  // TODO: no transducers on caliper lines
+  for (int i = 0; i < N_WHEEL_SOLONOIDS; i++) {
+    if (is_solenoid_open(&pod->wheel_solonoids[i])) {
+      return true;
+    }
+  }
   return false;
 }
 
@@ -64,10 +82,6 @@ float get_stopping_deccel(pod_t *pod) {
   return -(v * v) / (2.0f * remaining_distance);
 }
 
-/**
- * Determines if the pod is currently stationary accounting for error in
- * readings
- */
 bool is_pod_stopped(pod_t *pod) {
   return WITHIN(-A_ERR_X, get_value_f(&(pod->accel_x)), A_ERR_X) &&
          WITHIN(-A_ERR_Y, get_value_f(&(pod->accel_y)), A_ERR_Y) &&
