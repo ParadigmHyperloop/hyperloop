@@ -58,69 +58,6 @@ void boot_state_checks(__unused pod_t *pod) {
   // Waiting for lp fill command to transition to LP Fill State
 }
 
-bool core_pod_checklist(pod_t *pod) {
-  // TODO: is_battery_power_ok()  // Voltage > 28, current > 0.2 A @james
-  // TODO: is_rpm_ok()            // less than 6000 @akeating
-  // TODO: is_imu_ok()            // temp (-40°C to +75°C) VERIFIED
-  // TODO: is_velocity_too_fast() // 95 m/s (roughly 215 mph) @akeating
-
-  // TODO: is_reg_temp_ok()       // 0 -> 50 @akeating
-  // TODO: is_clamp_temp_ok()    // 0 -> 100something @akeating
-  // TODO: is_battery_temp_ok()   // 0 -> 60something @james
-  // TODO: is_caliper_temp_ok()   // 0 -> 100something @akeating
-  // TODO: is_frame_temp_ok()     // 0 -> 40 C @edhurtig
-
-  // TODO: is_frame_pressure_ok() // 0 -> 20 PSIA VERIFIED
-  // TODO: is_hp_pressure_ok()    // 0 -> 1770 PSI... @akeating
-  // TODO: is_lp_pressure_ok()    // 0 -> 150 PSI... @akeating
-  int i;
-  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    if (is_solenoid_open(&(pod->lp_fill_valve[i]))) {
-      return false;
-    }
-  }
-
-  if (is_solenoid_open(&(pod->hp_fill_valve))) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Is the pod safe. Used to inhibit transitions to various different states
- */
-bool pod_safe_checklist(pod_t *pod) {
-  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_pod_vented(pod);
-}
-
-/**
- * Is the pod safe to proceed to an HP Fill
- */
-bool pod_hp_safe_checklist(pod_t *pod) {
-  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_hp_vented(pod);
-}
-
-/**
- * Attempt to transition the the LP Fill state
- */
-bool start_lp_fill() {
-  if (pod_safe_checklist(get_pod())) {
-    return set_pod_mode(LPFill, "Control Point Initiated LP Fill");
-  }
-  return false;
-}
-
-/**
- * Attempt to transition to the HP FIll State
- */
-bool start_hp_fill() {
-  if (pod_hp_safe_checklist(get_pod())) {
-    return set_pod_mode(HPFill, "Control Point Initiated HP Fill");
-  }
-  return false;
-}
-
 void post_state_checks(pod_t *pod) {
   if (pod_safe_checklist(pod) && pod->last_ping > 0) {
     set_pod_mode(Boot, "System POST checklist passed");
