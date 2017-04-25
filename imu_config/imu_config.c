@@ -30,7 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "imu.h"
+#include <imu.h>
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -50,18 +50,35 @@ static const char *PORT_NAME = "/dev/cu.usbserial-A600DTJI";
 
 #define SPINUP_ITER 10000
 
-uint64_t getTime(void);
-ssize_t read_with_timeout(int fd, void *buf, int len, int t);
+typedef struct config {
+  const char * device;
+} config_t;
 
-
-uint64_t getTime() {
-  struct timeval currentTime;
-
-  assert(gettimeofday(&currentTime, NULL) == 0);
-
-  return (currentTime.tv_sec * 1000000ULL) + currentTime.tv_usec;
+static
+void usage() {
+  printf("Usage: %s [-d DEVICE]\n", getprogname());
+  printf("  -d    Path to the device (/dev/ttyUSB0)\n");
+  exit(1);
 }
 
+
+static
+void parse_args(int argc, char *argv[], config_t *config) {
+  int ch;
+
+  while ((ch = getopt(argc, argv, "d:h")) != -1) {
+    switch (ch) {
+      case 'd':
+        config->device = optarg;
+        break;
+      case 'h':
+      default:
+        usage();
+    }
+  }
+}
+
+static
 ssize_t read_with_timeout(int fd, void *buf, int len, int t) {
   fd_set set;
   struct timeval timeout;
@@ -85,9 +102,15 @@ ssize_t read_with_timeout(int fd, void *buf, int len, int t) {
   return -1;
 }
 
-int main() {
-  printf("Connecting to IMU: %s\n", PORT_NAME);
-  int fd = imu_connect(PORT_NAME);
+int main(int argc, char *argv[]) {
+  config_t config = {
+    .device = PORT_NAME
+  };
+
+  parse_args(argc, argv, &config);
+
+  printf("Connecting to IMU: %s\n", config.device);
+  int fd = imu_connect(config.device);
 
   if (fd < 0) {
     exit(1);

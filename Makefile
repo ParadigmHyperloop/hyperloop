@@ -22,6 +22,8 @@ all: install_headers
 	@$(MAKE) -j -C libhw
 	@$(MAKE) -j -C liblog
 	@$(MAKE) -j -C core
+	@$(MAKE) -j -C imu_test
+	@$(MAKE) -j -C imu_config
 
 install:
 	@$(MAKE) -j -C libbbb install
@@ -29,6 +31,8 @@ install:
 	@$(MAKE) -j -C libhw install
 	@$(MAKE) -j -C liblog install
 	@$(MAKE) -j -C core install
+	@$(MAKE) -j -C imu_test install
+	@$(MAKE) -j -C imu_config install
 
 install_headers:
 	$(BANNER)
@@ -37,6 +41,8 @@ install_headers:
 	@$(MAKE) -j -C libhw install_headers
 	@$(MAKE) -j -C liblog install_headers
 	@$(MAKE) -j -C core install_headers
+	@$(MAKE) -j -C imu_test install_headers
+	@$(MAKE) -j -C imu_config install_headers
 
 clean:
 	@$(MAKE) -j -C libbbb clean
@@ -44,6 +50,8 @@ clean:
 	@$(MAKE) -j -C libhw clean
 	@$(MAKE) -j -C liblog clean
 	@$(MAKE) -j -C core clean
+	@$(MAKE) -j -C imu_test clean
+	@$(MAKE) -j -C imu_config clean
 
 style:
 	@echo "Not Implemented"
