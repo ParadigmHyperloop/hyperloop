@@ -38,7 +38,6 @@
 #include <libBBB.h>
 #include <pthread.h>
 #include <sys/queue.h>
-
 #include <hw.h>
 #include <imu.h>
 #include <log.h>
@@ -49,30 +48,39 @@
 #include "commander.h"
 #include "core.h"
 #include "panic.h"
+#include "pod-helpers.h"
 #include "ring_buffer.h"
 
 /**
- * Calibrate sensors based on currently read values (zero out)
+ * Sets the target flow through the skates on a scale of 0% to 100%
  */
-void pod_calibrate(void);
+int set_skate_target(int no, mpye_value_t val, bool override);
 
 /**
- * Reset positional and sensor data to blank slate
+ * Sets the caliper brake state
  */
-void pod_reset(void);
-
-void pod_exit(int code);
-
-int set_skate_target(int no, mpye_value_t val, bool override);
 int ensure_caliper_brakes(int no, solenoid_state_t val, bool override);
+
+/**
+ * Sets the clamp brake state
+ */
 int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override);
 
+/**
+ * Gets a bitmask representing the state of all the relays on the SSR board(s)
+ */
 relay_mask_t get_relay_mask(pod_t *pod);
 
+/**
+ * Performs a software self test on the pod's systems
+ */
 int self_tests(pod_t *pod);
 
+/**
+ * Computes the pod's new position, velocity, and acceleration vectors given
+ * the IMU datagram
+ */
 void add_imu_data(imu_datagram_t *data, pod_t *s);
-void setup_pins(pod_t *state);
 
 /**
  * Sends the given message to all logging destinations
@@ -105,5 +113,24 @@ int pod_shutdown(pod_t *pod);
  */
 int pod_start(pod_t *pod);
 
+/**
+ * Initializes the GPIO pins on the BBB for use with the pod
+ */
+void setup_pins(pod_t *state);
+
+/**
+ * Calibrate sensors based on currently read values (zero out)
+ */
+void pod_calibrate(void);
+
+/**
+ * Reset positional and sensor data to blank slate
+ */
+void pod_reset(void);
+
+/**
+ * Shuts down the pod safely and performs any required cleanup actions
+ */
+void pod_exit(int code);
 
 #endif
