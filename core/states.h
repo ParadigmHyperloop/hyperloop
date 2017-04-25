@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_STATES_H
-#define OPENLOOP_POD_STATES_H
+#ifndef PARADIGM_STATES_H
+#define PARADIGM_STATES_H
 #include "pod.h"
 
 #define N_POD_STATES 15

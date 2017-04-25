@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef _OPENLOOP_POD_CONFIG_SCORES_
-#define _OPENLOOP_POD_CONFIG_SCORES_
+#ifndef PARADIGM_CONFIG_SCORES_H
+#define PARADIGM_CONFIG_SCORES_H
 
 // Must have at least 50 read failures, each good read brings back down 1.
 // A 10% fail rate is marked acceptable and will not be caught
@@ -49,4 +49,4 @@
 
 #define ITERATION_TIME_ALPHA 0.01
 
-#endif
+#endif /* PARADIGM_CONFIG_SCORES_H */

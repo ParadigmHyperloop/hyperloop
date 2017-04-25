@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_H
-#define OPENLOOP_POD_H
+#ifndef PARADIGM_POD_H
+#define PARADIGM_POD_H
 
 #include "cdefs.h"
 #include "config.h"
@@ -50,6 +50,7 @@
 #include "panic.h"
 #include "pod-helpers.h"
 #include "ring_buffer.h"
+#include "accel.h"
 
 /**
  * Sets the target flow through the skates on a scale of 0% to 100%
@@ -75,12 +76,6 @@ relay_mask_t get_relay_mask(pod_t *pod);
  * Performs a software self test on the pod's systems
  */
 int self_tests(pod_t *pod);
-
-/**
- * Computes the pod's new position, velocity, and acceleration vectors given
- * the IMU datagram
- */
-void add_imu_data(imu_datagram_t *data, pod_t *s);
 
 /**
  * Sends the given message to all logging destinations
@@ -133,4 +128,4 @@ void pod_reset(void);
  */
 void pod_exit(int code);
 
-#endif
+#endif /* PARADIGM_POD_H */

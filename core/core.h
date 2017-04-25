@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_CORE_H
-#define OPENLOOP_CORE_H
+#ifndef PARADIGM_CORE_H
+#define PARADIGM_CORE_H
 #include "pod.h"
 #include "core_checklists.h"
 
@@ -191,4 +191,4 @@ void adjust_vent(pod_t *pod);
  */
 void *core_main(__unused void *arg);
 
-#endif
+#endif /* PARADIGM_CORE_H */

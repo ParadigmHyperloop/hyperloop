@@ -30,9 +30,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_EMERGENCY_H
-#define OPENLOOP_POD_EMERGENCY_H
-#include "states.h"
+#ifndef PARADIGM_PANIC_H
+#define PARADIGM_PANIC_H
+#include "pod.h"
 
 /**
  * WARNING! TAKE EXTREME CARE IN WHERE YOU USE THIS! THIS WILL KILL THE PROG!
@@ -61,4 +61,4 @@
 void pod_panic(int subsystem, char *file, int line, char *notes, ...);
 
 
-#endif
+#endif /* PARADIGM_CORE_H */
