@@ -102,6 +102,14 @@
 #define IMU_MAX_TIME_DIFF_USEC 1 * USEC_PER_SEC
 #define LOGGING_THREAD_SLEEP 5000
 
+#define CORE_THREAD_PRIORITY 70
+#define LOGGING_THREAD_PRIORITY 10
+#define CMD_THREAD_PRIORITY 20
+
+#if ((CORE_THREAD_PRIORITY) + (LOGGING_THREAD_PRIORITY) + (CMD_THREAD_PRIORITY)) != 100
+#error "Thread priorities do not sum to 100"
+#endif
+
 // --------------
 // Debug Printing
 // --------------

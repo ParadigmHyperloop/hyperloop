@@ -302,9 +302,9 @@ int main(int argc, char *argv[]) {
     // we're using the built-in linux Round Roboin scheduling
     // priorities are 1-99, higher is more important
     // important note: this is not hard real-time
-    set_pthread_priority(pod->core_thread, 70);
-    set_pthread_priority(pod->logging_thread, 10);
-    set_pthread_priority(pod->cmd_thread, 20);
+    set_pthread_priority(pod->core_thread, CORE_THREAD_PRIORITY);
+    set_pthread_priority(pod->logging_thread, LOGGING_THREAD_PRIORITY);
+    set_pthread_priority(pod->cmd_thread, CMD_THREAD_PRIORITY);
 
     // Wait on boot_sem, the next post will indicate a shutdown action
     boot_sem_ret = sem_wait(pod->boot_sem);
