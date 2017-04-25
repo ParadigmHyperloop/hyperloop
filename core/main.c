@@ -133,7 +133,7 @@ void panic_handler(int sig) {
 // Power button pulled low, power will be cut in < 1023ms
 // TODO: Sync the filesystem and unmount root to prevent corruption
 
-#ifdef __linux__
+#ifdef HAS_KILL_SWITCH
     FILE *fp;
     fp = fopen("/proc/sys/kernel/sysrq", "w");
     fwrite("1", sizeof(char), 1, fp);
