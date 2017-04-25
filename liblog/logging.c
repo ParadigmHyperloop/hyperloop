@@ -208,6 +208,5 @@ void *logging_main(__unused void *arg) {
   }
 
   error("=== Logging system is going down ===");
-  exit(1);
   return NULL;
 }

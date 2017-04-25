@@ -25,6 +25,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		771BC7751EAC53C90027E537 /* core_checklists.c in Sources */ = {isa = PBXBuildFile; fileRef = 771BC7741EAC53C90027E537 /* core_checklists.c */; };
 		7744EE2C1E58573D004EC3F9 /* libhw.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7744EE141E5853C1004EC3F9 /* libhw.a */; };
 		7747BF301E82435C0067B683 /* hw.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF231E82435C0067B683 /* hw.h */; };
 		7747BF311E82435C0067B683 /* interface.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF241E82435C0067B683 /* interface.c */; };
@@ -132,6 +133,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		771BC7731EAC53330027E537 /* core_checklists.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = core_checklists.h; sourceTree = "<group>"; };
+		771BC7741EAC53C90027E537 /* core_checklists.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = core_checklists.c; sourceTree = "<group>"; };
 		7744EE141E5853C1004EC3F9 /* libhw.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhw.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7747BF231E82435C0067B683 /* hw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hw.h; path = libhw/hw.h; sourceTree = "<group>"; };
 		7747BF241E82435C0067B683 /* interface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = interface.c; path = libhw/interface.c; sourceTree = "<group>"; };
@@ -323,6 +326,8 @@
 				778A5FAB1E82581E0099A66D /* config.h */,
 				778A5FAC1E82581E0099A66D /* core.c */,
 				778A5FAD1E82581E0099A66D /* core.h */,
+				771BC7731EAC53330027E537 /* core_checklists.h */,
+				771BC7741EAC53C90027E537 /* core_checklists.c */,
 				778A5FAE1E82581E0099A66D /* panic.c */,
 				778A5FAF1E82581E0099A66D /* panic.h */,
 				778A5FB11E82581E0099A66D /* main.c */,
@@ -645,6 +650,7 @@
 				778A5FC01E82581E0099A66D /* panic.c in Sources */,
 				778A5FC31E82581E0099A66D /* pod-helpers.c in Sources */,
 				77E19E971E9F415700C6766A /* telemetry.c in Sources */,
+				771BC7751EAC53C90027E537 /* core_checklists.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1403,6 +1409,7 @@
 				77E19EAC1EA2DA1900C6766A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		77F29D4D1E585B9A00EC907D /* Build configuration list for PBXNativeTarget "bbb" */ = {
 			isa = XCConfigurationList;

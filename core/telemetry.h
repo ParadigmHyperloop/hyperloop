@@ -91,6 +91,9 @@ typedef struct telemetry_packet {
 
 /**
  * Build a telemetry_packet_t using the given pod_t
+ *
+ * @param pod A pointer to the pod structure to build the telemetry packet from
+ * @returns A telemetry_packet_t which can be directly dumpped into a UDP body
  */
 telemetry_packet_t make_telemetry(pod_t *pod);
 

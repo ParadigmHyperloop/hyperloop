@@ -536,11 +536,14 @@ void *core_main(__unused void *arg) {
     // Set hp fill
     adjust_hp_fill(pod);
 
+    #pragma mark core-telemetry
+
     // -------------------------------------------
-    // SECTION: Telemetry collection
+    // SECTION: Telemetry dump
     // -------------------------------------------
     log_dump(pod);
 
+    #pragma mark core-heartbeat-check
     // --------------------------------------------
     // Heartbeat handling
     // --------------------------------------------
