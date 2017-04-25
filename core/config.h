@@ -33,8 +33,8 @@
 #include "config_inventory.h"
 #include "config_scores.h"
 
-#ifndef _OPENLOOP_POD_CONFIG_
-#define _OPENLOOP_POD_CONFIG_
+#ifndef PARADIGM_CONFIG_H
+#define PARADIGM_CONFIG_H
 
 #ifdef DEBUG
 #ifndef POD_DEBUG
@@ -47,7 +47,13 @@
 // --------------------------
 #define POD_COPY_OWNER "Paradigm - Controls Team"
 #define POD_COPY_YEAR "2016"
-#define POD_VERSION_STR "v1.0.0-" __XSTR__(PD_GIT_SHA1_SHORT)
+#define POD_VERSION_MAJOR 1
+#define POD_VERSION_MIN 0
+#define POD_VERSION_PATCH 0
+#define POD_VERSION_STR "v" __XSTR__(POD_VERSION_MAJOR) "." \
+  __XSTR__(POD_VERSION_MIN) "." __XSTR__(POD_VERSION_PATCH) "-" \
+  __XSTR__(PD_GIT_SHA1_SHORT)
+
 #define POD_CREDITS                                                            \
   "Eddie Hurtig - Software Engineering Lead\n"                                 \
   "Upen Naidoo - Embedded Systems Engineer\n"
@@ -64,7 +70,8 @@
 #define V_ERR_Y 0.1
 #define V_ERR_Z 0.1
 
-#define HEARTBEAT_TIMEOUT 1 // (sec)
+#define HEARTBEAT_TIMEOUT_USEC 1 * USEC_PER_SEC
+
 // Signals
 #define POD_SIGPANIC SIGUSR1
 
@@ -158,26 +165,6 @@
 #define PRIMARY_BRAKING_ACCEL_X_NOM -7.84 // -0.8 G => mm/s/s
 #define PRIMARY_BRAKING_ACCEL_X_MAX -24.5 // -2.5 G => mm/s/s
 
-/// TODO: Need Real Values
-/// NOMINAL: 100N /// REVIEW: Guess
-#define PRIMARY_BRAKING_ENGAGED_MIN_F 80
-#define PRIMARY_BRAKING_ENGAGED_NOM_F 100
-#define PRIMARY_BRAKING_ENGAGED_MAX_F 150
-
-// ------------------
-// Emergency Braking Thresholds
-// ------------------
-/// NOMINAL: 1.2 G = 1.2 * 9.8 m/s/s * 1000 mm / m
-#define CLAMP_BRAKING_ACCEL_X_MIN -7.84  // -0.8 G => mm/s/s
-#define CLAMP_BRAKING_ACCEL_X_NOM -11.76 // -1.2 G => mm/s/s
-#define CLAMP_BRAKING_ACCEL_X_MAX -49.00 // -5.0 G => mm/s/s
-
-/// TODO: Need Real Values
-/// NOMINAL: 1000N /// REVIEW: Guess
-#define CLAMP_ENGAGED_MIN_F 800
-#define CLAMP_ENGAGED_NOM_F 1000
-#define CLAMP_ENGAGED_MAX_F 1500
-
 //----------------------
 // Pushing Thresholds
 //----------------------
@@ -185,6 +172,7 @@
 // If the accell drops to below this value, the pod will change to Coasting
 // This value should indicate when the pusher has fully detached
 #define PUSHING_MIN_ACCEL 0.2
+
 // If the accell drops to below this value, the pod will change to Coasting
 // This value should indicate when the pusher has fully detached
 #define COASTING_MIN_ACCEL_TRIGGER -0.1
@@ -217,7 +205,7 @@
 // ---------------
 // Command Control
 // ---------------
-#define POD_CLI_VERSION POD_VERSION_STR
+#define POD_CLI_VERSION_STR POD_VERSION_STR
 #define CMD_SVR_PORT 7779
 #define CMD_MAX_ARGS 32
 #define POD_ETOOMANYCLIENTS_TXT "Too Many Clients are connected"
@@ -230,4 +218,4 @@
 // Misc
 #define POD_BOOT_SEM "/openloop.pod.boot"
 #define MAX_NAME 63
-#endif
+#endif /* PARADIGM_CONFIG_H */
