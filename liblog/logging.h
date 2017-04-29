@@ -30,22 +30,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef PARADIGM_HW_H
-#define PARADIGM_HW_H
 
-#include <config.h>
-#include <stdbool.h>
-#include <pthread.h>
-#include <stdlib.h>
+#ifndef PARADIGM_LOGGING_H
+#define PARADIGM_LOGGING_H
 
-#include "mpye.h"
-#include "solenoid.h"
-#include "relay.h"
-#include "shims.h"
-#include "pins.h"
+#include <pod.h>
 
-#ifndef __unused
-#define __unused  __attribute__((unused))
-#endif
-
-#endif /* PARADIGM_HW_H */
+#endif /* PARADIGM_LOGGING_H */

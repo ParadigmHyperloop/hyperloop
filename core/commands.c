@@ -31,7 +31,6 @@
  ****************************************************************************/
 
 #include "commands.h"
-#include "pod-helpers.h"
 #include "pod.h"
 
 extern char *pod_mode_names[];

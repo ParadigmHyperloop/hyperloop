@@ -80,6 +80,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		7730C0C51EB54B6900881CF2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 77B1457F1E58208800988FE3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 77B145C61E58210F00988FE3;
+			remoteInfo = imu;
+		};
+		7730C0C71EB54B6E00881CF2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 77B1457F1E58208800988FE3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 77B145C61E58210F00988FE3;
+			remoteInfo = imu;
+		};
 		7744EE2A1E585733004EC3F9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 77B1457F1E58208800988FE3 /* Project object */;
@@ -173,6 +187,8 @@
 /* Begin PBXFileReference section */
 		771BC7731EAC53330027E537 /* core_checklists.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = core_checklists.h; sourceTree = "<group>"; };
 		771BC7741EAC53C90027E537 /* core_checklists.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = core_checklists.c; sourceTree = "<group>"; };
+		7730C0C31EB5439B00881CF2 /* logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = logging.h; path = liblog/logging.h; sourceTree = "<group>"; };
+		7730C0C41EB5441000881CF2 /* pod-defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "pod-defs.h"; sourceTree = "<group>"; };
 		7744EE141E5853C1004EC3F9 /* libhw.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhw.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7747BF231E82435C0067B683 /* hw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hw.h; path = libhw/hw.h; sourceTree = "<group>"; };
 		7747BF241E82435C0067B683 /* interface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = interface.c; path = libhw/interface.c; sourceTree = "<group>"; };
@@ -399,6 +415,7 @@
 				778A5FB31E82581E0099A66D /* pod-helpers.h */,
 				778A5FB41E82581E0099A66D /* pod.c */,
 				778A5FB51E82581E0099A66D /* pod.h */,
+				7730C0C41EB5441000881CF2 /* pod-defs.h */,
 				77E19E981EA2C3EE00C6766A /* realtime.c */,
 				77E19E991EA2C3EE00C6766A /* realtime.h */,
 				77E19E951E9F415700C6766A /* telemetry.c */,
@@ -439,6 +456,7 @@
 				77B6C42F1E624CC2009DFE69 /* log.c */,
 				77B6C4301E624CC2009DFE69 /* log.h */,
 				77B6C4311E624CC2009DFE69 /* logging.c */,
+				7730C0C31EB5439B00881CF2 /* logging.h */,
 				77B6C4321E624CC2009DFE69 /* ring_buffer.c */,
 				77B6C4331E624CC2009DFE69 /* ring_buffer.h */,
 			);
@@ -614,6 +632,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				7730C0C61EB54B6900881CF2 /* PBXTargetDependency */,
 			);
 			name = imu_config;
 			productName = imu_config;
@@ -631,6 +650,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				7730C0C81EB54B6E00881CF2 /* PBXTargetDependency */,
 			);
 			name = imu_test;
 			productName = imu_test;
@@ -833,6 +853,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		7730C0C61EB54B6900881CF2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 77B145C61E58210F00988FE3 /* imu */;
+			targetProxy = 7730C0C51EB54B6900881CF2 /* PBXContainerItemProxy */;
+		};
+		7730C0C81EB54B6E00881CF2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 77B145C61E58210F00988FE3 /* imu */;
+			targetProxy = 7730C0C71EB54B6E00881CF2 /* PBXContainerItemProxy */;
+		};
 		7744EE2B1E585733004EC3F9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7744EE131E5853C1004EC3F9 /* hw */;
@@ -1717,6 +1747,7 @@
 				77DA26261EAEF5F200509AE4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		77DA262F1EAEF5FC00509AE4 /* Build configuration list for PBXNativeTarget "imu_test" */ = {
 			isa = XCConfigurationList;
@@ -1725,6 +1756,7 @@
 				77DA26311EAEF5FC00509AE4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		77E19EAA1EA2DA1900C6766A /* Build configuration list for PBXNativeTarget "tparse" */ = {
 			isa = XCConfigurationList;

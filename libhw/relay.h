@@ -33,6 +33,8 @@
 #ifndef relay_h
 #define relay_h
 
+#include "hw.h"
+
 typedef enum relay_state {
   kRelayError,
   kRelayOff, // Relay is not actuated

@@ -30,7 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "pod-helpers.h"
 #include "pod.h"
 
 int relay_walk(void);
@@ -48,31 +47,36 @@ int self_tests(__unused pod_t *state);
 int relay_walk() {
   pod_t *pod = get_pod();
   solenoid_t *s;
-  int i;
+  int i, prev = 0;
   for (i = 0; i < N_RELAY_CHANNELS; i++) {
+    prev = (int)(((unsigned short)(i - 1)) % N_RELAY_CHANNELS);
+    
     s = pod->relays[i];
-    info("Opening Solenoid on relay %d", i);
+    info("[OPEN ] Solenoid on Relay %02.d", i);
     info(" > gpio: %d", s->gpio);
     info(" > value: %d", s->value);
     info(" > name: %s", s->name);
-    if (is_solenoid_open(s)) {
-      close_solenoid(s);
-      usleep(50000);
-    } else {
-      open_solenoid(s);
-      usleep(50000);
-    }
+    
+    open_solenoid(s);
+    usleep(50000);
+  
+    s = pod->relays[prev];
+    info("[CLOSE] Solenoid on Relay %02.d", prev);
+    info(" > gpio: %d", s->gpio);
+    info(" > value: %d", s->value);
+    info(" > name: %s", s->name);
+    close_solenoid(s);
+    usleep(50000);
 
-    info("Closing Solenoid on relay %d", i);
-
-    if (is_solenoid_closed(s)) {
-      open_solenoid(s);
-      usleep(100000);
-    } else {
-      close_solenoid(s);
-      usleep(100000);
-    }
   }
+  
+  s = pod->relays[prev + 1];
+  info("[CLOSE] Solenoid on Relay %02.d", prev + 1);
+  info(" > gpio: %d", s->gpio);
+  info(" > value: %d", s->value);
+  info(" > name: %s", s->name);
+  close_solenoid(s);
+  usleep(50000);
 
   return 0;
 }

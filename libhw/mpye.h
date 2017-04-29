@@ -9,15 +9,7 @@
 #ifndef PARADIGM_MPYE_H
 #define PARADIGM_MPYE_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include "relay.h"
-
-#ifndef MAX_NAME
-// TODO: Pull from config.h somehow
-#define MAX_NAME 64
-#endif
+#include "hw.h"
 
 typedef int mpye_value_t;
 

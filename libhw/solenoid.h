@@ -30,16 +30,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef solenoid_h
-#define solenoid_h
+#ifndef PARADIGM_SOLENOID_H
+#define PARADIGM_SOLENOID_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include "relay.h"
-
-#ifndef MAX_NAME
-#define MAX_NAME 64
-#endif
+#include "hw.h"
 
 typedef enum solenoid_state {
   kSolenoidError,
@@ -128,4 +122,4 @@ bool is_solenoid_closed(solenoid_t *s);
  */
 bool is_solenoid_locked(solenoid_t *s);
 
-#endif /* solenoid_h */
+#endif /* PARADIGM_SOLENOID_H */

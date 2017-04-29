@@ -36,6 +36,8 @@
 #ifndef PARADIGM_CONFIG_H
 #define PARADIGM_CONFIG_H
 
+#define MAX_NAME 63
+
 #ifdef DEBUG
 #ifndef POD_DEBUG
 #define POD_DEBUG
@@ -217,5 +219,5 @@
 
 // Misc
 #define POD_BOOT_SEM "/openloop.pod.boot"
-#define MAX_NAME 63
+
 #endif /* PARADIGM_CONFIG_H */

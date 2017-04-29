@@ -30,7 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "pod-helpers.h"
 #include "pod.h"
 
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
@@ -545,37 +544,6 @@ bool set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   }
 }
 
-int32_t get_value(pod_value_t *pod_field) {
-  pthread_rwlock_rdlock(&(pod_field->lock));
-  int32_t value = pod_field->value.int32;
-  pthread_rwlock_unlock(&(pod_field->lock));
-  return value;
-}
-
-float get_value_f(pod_value_t *pod_field) {
-  pthread_rwlock_rdlock(&(pod_field->lock));
-  float value = pod_field->value.fl;
-  pthread_rwlock_unlock(&(pod_field->lock));
-  return value;
-}
-
-void set_value(pod_value_t *pod_field, int32_t newValue) {
-  pthread_rwlock_wrlock(&(pod_field->lock));
-  pod_field->value.int32 = newValue;
-  pthread_rwlock_unlock(&(pod_field->lock));
-}
-
-void set_value_f(pod_value_t *pod_field, float newValue) {
-  if (newValue != newValue) {
-    warn("Attempted to set NaN");
-    return;
-  }
-
-  pthread_rwlock_wrlock(&(pod_field->lock));
-  pod_field->value.fl = newValue;
-  pthread_rwlock_unlock(&(pod_field->lock));
-}
-
 float get_sensor(sensor_t *sensor) {
   float value = get_value_f(&(sensor->value)) + (float)sensor->offset;
   return value;
@@ -585,8 +553,21 @@ void set_sensor(sensor_t *sensor, float value) {
   set_value_f(&(sensor->value), value);
 }
 
-float update_sensor(sensor_t *sensor, int32_t new_value) {
-  float x = (float)new_value;
+void queue_sensor(sensor_t *sensor, int32_t new_value) {
+  set_value(&(sensor->raw), new_value);
+}
+
+float update_sensor(sensor_t *sensor) {
+  // Grab the raw value out of the sensor
+  float x = (float)get_value(&(sensor->raw));;
+
+  if (x == -1.0f) {
+    return x;
+  }
+
+  // Dequeue the raw sensor reading
+  set_value(&(sensor->raw), -1);;
+
   float calibrated = ((float)sensor->cal_a * x * x) +
                      ((float)sensor->cal_b * x) + (float)sensor->cal_c;
   float filtered = (1.0f - (float)sensor->alpha) * get_sensor(sensor) +

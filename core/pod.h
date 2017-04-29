@@ -30,20 +30,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
+
 #ifndef PARADIGM_POD_H
 #define PARADIGM_POD_H
 
-#include "cdefs.h"
-#include "config.h"
-#include <libBBB.h>
 #include <pthread.h>
 #include <sys/queue.h>
+
+#include "cdefs.h"
+#include "config.h"
+
+#include <libBBB.h>
 #include <hw.h>
 #include <imu.h>
 #include <log.h>
 #include <stdatomic.h>
-#include "realtime.h"
+
 #include "states.h"
+#include "pod-defs.h"
+#include "realtime.h"
 #include "telemetry.h"
 #include "commander.h"
 #include "core.h"
@@ -51,81 +56,5 @@
 #include "pod-helpers.h"
 #include "ring_buffer.h"
 #include "accel.h"
-
-/**
- * Sets the target flow through the skates on a scale of 0% to 100%
- */
-int set_skate_target(int no, mpye_value_t val, bool override);
-
-/**
- * Sets the caliper brake state
- */
-int ensure_caliper_brakes(int no, solenoid_state_t val, bool override);
-
-/**
- * Sets the clamp brake state
- */
-int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override);
-
-/**
- * Gets a bitmask representing the state of all the relays on the SSR board(s)
- */
-relay_mask_t get_relay_mask(pod_t *pod);
-
-/**
- * Performs a software self test on the pod's systems
- */
-int self_tests(pod_t *pod);
-
-/**
- * Sends the given message to all logging destinations
- */
-int pod_log(char *fmt, ...);
-
-/**
- * Dump entire pod_t to the network logging buffer
- */
-void log_dump(pod_t *pod);
-
-/**
- * Create a human understandable text description of the current pod status
- *
- * @param pod A pod with data that you want a report of
- * @param buf The buffer to put the report in
- * @param len The length of buf
- *
- * @return The length of the report in bytes, or -1 on failure
- */
-int status_dump(pod_t *pod, char *buf, size_t len);
-
-/**
- * Initiates a halt of all threads
- */
-int pod_shutdown(pod_t *pod);
-
-/**
- * Starts all threads for the pod
- */
-int pod_start(pod_t *pod);
-
-/**
- * Initializes the GPIO pins on the BBB for use with the pod
- */
-void setup_pins(pod_t *state);
-
-/**
- * Calibrate sensors based on currently read values (zero out)
- */
-void pod_calibrate(void);
-
-/**
- * Reset positional and sensor data to blank slate
- */
-void pod_reset(void);
-
-/**
- * Shuts down the pod safely and performs any required cleanup actions
- */
-void pod_exit(int code);
 
 #endif /* PARADIGM_POD_H */

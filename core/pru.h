@@ -33,7 +33,6 @@
 #ifndef PARADIGM_PRU_H
 #define PARADIGM_PRU_H
 
-#include "pod-helpers.h"
 #include "pod.h"
 
 #include <errno.h>
