@@ -38,10 +38,11 @@ struct arguments {
   bool tests;
   bool ready;
   char *imu_device;
+  char *telemetry_dump;
 };
 
 struct arguments args = {
-    .tests = false, .ready = false, .imu_device = IMU_DEVICE};
+    .tests = false, .ready = false, .imu_device = IMU_DEVICE, .telemetry_dump = NULL};
 
 /**
  * WARNING: Do Not Directly Access this struct, use get_pod() instead to
@@ -62,7 +63,7 @@ void usage() {
 void parse_args(int argc, char *argv[]) {
   int ch;
 
-  while ((ch = getopt(argc, argv, "rti:")) != -1) {
+  while ((ch = getopt(argc, argv, "rti:T:")) != -1) {
     switch (ch) {
     case 'r':
       args.ready = true;
@@ -72,6 +73,9 @@ void parse_args(int argc, char *argv[]) {
       break;
     case 'i':
       args.imu_device = optarg;
+      break;
+    case 'T':
+      args.telemetry_dump = optarg;
       break;
     default:
       usage();
@@ -208,17 +212,20 @@ int main(int argc, char *argv[]) {
   signal(SIGHUP, exit_signal_handler);
 
   while (true) {
+    parse_args(argc, argv);
 
+    if (args.telemetry_dump) {
+      dump_telemetry_file(args.telemetry_dump);
+      exit(0);
+    }
+    
     printf("<<< Paradigm HyperLoop Pod Controller >>>\n\n");
-
+    
     printf("Copyright " POD_COPY_YEAR " " POD_COPY_OWNER " " POD_VERSION_STR
            "\n");
     printf("\nCredits:\n" POD_CREDITS "\n");
-
+    
     int boot_sem_ret = 0;
-
-    parse_args(argc, argv);
-
     info("POD Booting...");
     info("Initializing Pod");
 

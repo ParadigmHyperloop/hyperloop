@@ -230,7 +230,6 @@
 		778A5FBA1E82581E0099A66D /* states.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = states.c; sourceTree = "<group>"; };
 		778A5FBB1E82581E0099A66D /* states.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = states.h; sourceTree = "<group>"; };
 		778A5FBC1E82581E0099A66D /* tests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tests.c; sourceTree = "<group>"; };
-		77AF89251E5C4569000E5D11 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tools; sourceTree = "<group>"; };
 		77B145891E5820D700988FE3 /* core */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = core; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B145C71E58210F00988FE3 /* libimu.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libimu.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B145FA1E58226B00988FE3 /* ADCCollector.hp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ADCCollector.hp; sourceTree = "<group>"; };
@@ -252,8 +251,6 @@
 		77E19E991EA2C3EE00C6766A /* realtime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = realtime.h; sourceTree = "<group>"; };
 		77E19E9B1EA2CB5500C6766A /* mpye.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mpye.c; path = libhw/mpye.c; sourceTree = "<group>"; };
 		77E19E9C1EA2CB5500C6766A /* mpye.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mpye.h; path = libhw/mpye.h; sourceTree = "<group>"; };
-		77E19EA01EA2D98C00C6766A /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = main.c; path = tparse/main.c; sourceTree = "<group>"; };
-		77E19EA11EA2D98C00C6766A /* main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = main.h; path = tparse/main.h; sourceTree = "<group>"; };
 		77E19EA61EA2DA1900C6766A /* tparse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tparse; sourceTree = BUILT_PRODUCTS_DIR; };
 		77E19EA81EA2DA1900C6766A /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		77F29D4C1E585B9A00EC907D /* libbbb.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libbbb.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -357,14 +354,12 @@
 		77B1457E1E58208800988FE3 = {
 			isa = PBXGroup;
 			children = (
-				77E19E9F1EA2D96C00C6766A /* tparse */,
 				77B1458B1E5820D700988FE3 /* core */,
 				77F29D471E585B8200EC907D /* libbbb */,
 				7744EDFB1E585330004EC3F9 /* libhw */,
 				77B18BBE1E58450700DDD8B5 /* liblog */,
 				77B145CB1E58212800988FE3 /* libimu */,
 				77B145F91E58226B00988FE3 /* pru */,
-				77AF89251E5C4569000E5D11 /* tools */,
 				77E19EA71EA2DA1900C6766A /* tparse */,
 				77DA26211EAEF5F200509AE4 /* imu_config */,
 				77DA262C1EAEF5FC00509AE4 /* imu_test */,
@@ -477,15 +472,6 @@
 				77DA262D1EAEF5FC00509AE4 /* imu_test.c */,
 			);
 			path = imu_test;
-			sourceTree = "<group>";
-		};
-		77E19E9F1EA2D96C00C6766A /* tparse */ = {
-			isa = PBXGroup;
-			children = (
-				77E19EA01EA2D98C00C6766A /* main.c */,
-				77E19EA11EA2D98C00C6766A /* main.h */,
-			);
-			name = tparse;
 			sourceTree = "<group>";
 		};
 		77E19EA71EA2DA1900C6766A /* tparse */ = {

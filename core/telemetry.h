@@ -50,27 +50,27 @@ typedef struct telemetry_packet {
   float position_x;
   float position_y;
   float position_z;
-  
+
   float velocity_x;
   float velocity_y;
   float velocity_z;
-  
+
   float acceleration_x;
   float acceleration_y;
   float acceleration_z;
-  
+
   // Distance sensors
   float corners[N_CORNER_DISTANCE];  // 4
   float wheels[N_WHEEL_DISTANCE];    // 3
   float lateral[N_LATERAL_DISTANCE]; // 3
-  
+
   // Pressures
   float hp_pressure;                           // 1
   float reg_pressure[N_REG_PRESSURE];          // 4
   float clamp_pressure[N_CLAMP_PRESSURE];      // 2
   float skate_pressure[N_SKATE_PRESSURE];      // 2
   float lateral_pressure[N_LAT_FILL_PRESSURE]; // 2
-  
+
   // Thermocouples
   float hp_thermo;                          // 1
   float reg_thermo[N_REG_THERMO];           // 4
@@ -78,11 +78,11 @@ typedef struct telemetry_packet {
   float power_thermo[N_POWER_THERMO];       // 4
   float clamp_thermo[N_CLAMP_PAD_THERMO];   // 2
   float frame_thermo;                       // 1
-  
+
   // Batteries
   float voltages[N_BATTERIES]; // 3
   float currents[N_BATTERIES]; // 3
-  
+
   // Photo
   float rpms[N_WHEEL_PHOTO]; // 3
   uint32_t stripe_count;
@@ -96,5 +96,18 @@ typedef struct telemetry_packet {
  * @returns A telemetry_packet_t which can be directly dumpped into a UDP body
  */
 telemetry_packet_t make_telemetry(pod_t *pod);
+
+/**
+ * Walk through all the fields in the given telemetry_packet_t and call the 
+ * given callback function with information about the field name, and it's 
+ * value.
+ *
+ * @param t A pointer to the telemetry packet to emit
+ * @param outf A pointer to a function that will emit a telemetry value
+ */
+void emit_telemetry(telemetry_packet_t *t, void (*outf)(char *key, size_t index, size_t total, float value));
+
+
+void dump_telemetry_file(const char *filename);
 
 #endif

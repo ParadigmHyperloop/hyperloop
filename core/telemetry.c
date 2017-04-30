@@ -57,19 +57,19 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
     .clamp_pressure = {0},
     .skate_pressure = {0},
     .lateral_pressure = {0},
-    
+
     // Distance sensors
     .corners = {0},
     .wheels = {0},
     .lateral = {0},
-    
+
     // Thermo
     .hp_thermo = 0.0,
     .reg_thermo = {0},
     .reg_surf_thermo = {0},
     .power_thermo = {0},
     .frame_thermo = 0.0,
-    
+
     // batteries
     .voltages = {0},
     .currents = {0},
@@ -77,72 +77,177 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
     .rpms = {0},
     .stripe_count =
     (uint16_t)get_value_f(&(pod->stripe_count))};
-  
+
   // Distance sensors
   for (i = 0; i < N_CORNER_DISTANCE; i++) {
     packet.corners[i] = get_sensor(&(pod->corner_distance[i]));
   }
-  
+
   for (i = 0; i < N_WHEEL_DISTANCE; i++) {
     packet.wheels[i] = get_sensor(&(pod->wheel_distance[i]));
   }
-  
+
   for (i = 0; i < N_LATERAL_DISTANCE; i++) {
     packet.lateral[i] = get_sensor(&(pod->lateral_distance[i]));
   }
-  
+
   // Photo
   for (i = 0; i < N_WHEEL_PHOTO; i++) {
     packet.rpms[i] = get_value_f(&(pod->rpms[i]));
   }
-  
+
   // Pressures
   packet.hp_pressure = get_sensor(&(pod->hp_pressure));
-  
+
   for (i = 0; i < N_REG_PRESSURE; i++) {
     packet.reg_pressure[i] = get_sensor(&(pod->reg_pressure[i]));
   }
-  
+
   for (i = 0; i < N_CLAMP_PRESSURE; i++) {
     packet.clamp_pressure[i] = get_sensor(&(pod->clamp_pressure[i]));
   }
-  
+
   for (i = 0; i < N_SKATE_PRESSURE; i++) {
     packet.skate_pressure[i] = get_sensor(&(pod->skate_pressure[i]));
   }
-  
+
   for (i = 0; i < N_LAT_FILL_PRESSURE; i++) {
     packet.lateral_pressure[i] = get_sensor(&(pod->lateral_pressure[i]));
   }
-  
+
   // Temperatures
   packet.hp_thermo = get_sensor(&(pod->hp_thermo));
   packet.frame_thermo = get_sensor(&(pod->frame_thermo));
-  
+
   for (i = 0; i < N_REG_THERMO; i++) {
     packet.reg_thermo[i] = get_sensor(&(pod->reg_thermo[i]));
   }
-  
+
   for (i = 0; i < N_REG_SURF_THERMO; i++) {
     packet.reg_surf_thermo[i] = get_sensor(&(pod->reg_surf_thermo[i]));
   }
-  
+
   for (i = 0; i < N_POWER_THERMO; i++) {
     packet.power_thermo[i] = get_sensor(&(pod->power_thermo[i]));
   }
-  
+
   for (i = 0; i < N_CLAMP_PAD_THERMO; i++) {
     packet.clamp_thermo[i] = get_sensor(&(pod->clamp_thermo[i]));
   }
-  
+
   // Batteries
   for (i = 0; i < N_BATTERIES; i++) {
     packet.voltages[i] = get_sensor(&(pod->battery[i].voltage));
   }
-  
+
   for (i = 0; i < N_BATTERIES; i++) {
     packet.currents[i] = get_sensor(&(pod->battery[i].current));
   }
-  
+
   return packet;
+}
+
+#define emit_one(_key, _packet, _out) do { \
+  _out(__XSTR__(_key), 0, 1, t->_key); \
+} while (0)
+
+#define emit_all(_key, _packet, _out) do { \
+  for (size_t i = 0; i < sizeof(t->_key)/sizeof(*t->_key); i++) { \
+    _out(__XSTR__(_key), i, sizeof(t->_key)/sizeof(*t->_key), t->_key[i]); \
+  } \
+} while (0)
+
+void emit_telemetry(telemetry_packet_t *t, void (*outf)(char *key, size_t index, size_t total, float value)) {
+  emit_one(version, t, outf);
+  emit_one(size, t, outf);
+  emit_one(state, t, outf);
+  emit_one(solenoids, t, outf);
+  emit_one(timestamp, t, outf);
+  emit_one(position_x, t, outf);
+  emit_one(position_y, t, outf);
+  emit_one(position_z, t, outf);
+  emit_one(velocity_x, t, outf);
+  emit_one(velocity_y, t, outf);
+  emit_one(velocity_z, t, outf);
+  emit_one(acceleration_x, t, outf);
+  emit_one(acceleration_y, t, outf);
+  emit_one(acceleration_z, t, outf);
+  emit_one(hp_pressure, t, outf);
+
+  emit_all(reg_pressure, t, outf);
+  emit_all(clamp_pressure, t, outf);
+  emit_all(skate_pressure, t, outf);
+  emit_all(lateral_pressure, t, outf);
+
+  emit_all(corners, t, outf);
+  emit_all(wheels, t, outf);
+  emit_all(lateral, t, outf);
+
+  emit_one(hp_thermo, t, outf);
+  emit_all(reg_thermo, t, outf);
+  emit_all(reg_surf_thermo, t, outf);
+  emit_all(power_thermo, t, outf);
+  emit_one(frame_thermo, t, outf);
+
+  emit_all(voltages, t, outf);
+  emit_all(currents, t, outf);
+
+  emit_all(rpms, t, outf);
+  emit_one(stripe_count, t, outf);
+}
+
+static bool emit_comma(bool open) {
+  if (open) {
+    printf(",");
+  }
+  return false;
+}
+
+static bool first = true;
+
+static void emit_json(char *key, size_t index, size_t total, float value) {
+
+  if (index == 0 && total == 1) {
+    first = emit_comma(!first);
+    printf("\"%s\":%f", key, value);
+  } else if (total != 1) {
+    first = emit_comma(!first);
+    if (index == 0) {
+      printf("\"%s\":[", key);
+    }
+    printf("%f", value);
+    if (index == total - 1) {
+      printf("]");
+    }
+  }
+}
+
+void dump_telemetry_file(const char *filename) {
+  int fd = open(filename, O_RDONLY);
+
+  if (fd < 0) {
+    perror("Failed to open path: ");
+    exit(1);
+  }
+
+  telemetry_packet_t *buf = malloc(sizeof(telemetry_packet_t));
+
+  size_t count = 0;
+  ssize_t rd;
+  
+  printf("[");
+  while ((rd = read(fd, buf, sizeof(telemetry_packet_t))) == sizeof(telemetry_packet_t)) {
+    if (count > 0) {
+      printf(",");
+    }
+    printf("{");
+    
+    first = true;
+    emit_telemetry(buf, emit_json);
+    
+    printf("}");
+    count ++;
+  }
+  printf("]");
+  
 }
