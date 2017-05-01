@@ -30,16 +30,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-// Much of this code is based on this CMU TCP client example
-// http://www.cs.cmu.edu/afs/cs/academic/class/15213-f99/www/class26/tcpclient.c
-
 #include "logging.h"
 
 extern ring_buf_t logbuf;
 
 static
 int log_open(char *filename) {
-  return open(filename, O_CREAT | O_EXCL | O_WRONLY | O_APPEND, S_IRWXU | S_IRWXG | S_IROTH);
+  return open(filename, O_CREAT | O_EXLOCK | O_WRONLY | O_APPEND, S_IRWXU | S_IRWXG | S_IROTH);
 }
 
 static
@@ -52,7 +49,7 @@ int log_connect() {
   char *hostname = LOG_SVR_NAME;
 
   // Create the socket
-  fd = socket(AF_INET, SOCK_STREAM, 0);
+  fd = socket(AF_INET, SOCK_DGRAM, 0);
   if (fd < 0) {
     error("ERROR opening socket\n");
     return -1;
@@ -61,17 +58,6 @@ int log_connect() {
   struct timeval t;
   t.tv_sec = 1;
   t.tv_usec = 0;
-
-  // Set send and recieve timeouts to reasonable numbers
-  if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&t, sizeof(t)) < 0) {
-    error("setsockopt failed\n");
-    return -1;
-  }
-
-  if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&t, sizeof(t)) < 0) {
-    error("setsockopt failed\n");
-    return -1;
-  }
 
   // Get the server's IP Address from DNS
   server = gethostbyname(hostname);
@@ -89,9 +75,9 @@ int log_connect() {
   info("Resolved %s => %s", hostname, inet_ntoa(serveraddr.sin_addr));
   serveraddr.sin_port = htons(portno);
 
-  // Start TCP connection
+  // "connect" to the UDP server (Really just sets the default sendto address)
   if (connect(fd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) {
-    error("Connection Refused\n");
+    error("UDP Connection Error\n");
     return -1;
   }
 
