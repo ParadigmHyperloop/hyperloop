@@ -155,7 +155,7 @@
 
 #define N_WHEEL_SOLONOIDS 3
 #define WHEEL_SOLONOIDS                                                        \
-  { 11, 70, 72 }
+  { 70, 71, 73 }
 
 // --------------------------
 // HP Fill

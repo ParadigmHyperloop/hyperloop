@@ -44,7 +44,6 @@
 #include <hw.h>
 #include <imu.h>
 #include <log.h>
-#include <stdatomic.h>
 
 #include "states.h"
 #include "pod-defs.h"

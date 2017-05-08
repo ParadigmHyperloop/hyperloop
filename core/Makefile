@@ -3,7 +3,7 @@ EXECUTABLE=$(OBJROOT)/core
 include ../config.mk
 
 RUN_ARGS := -i -
-LDFLAGS += -L$(OBJROOT) -limu -llog -lhw -lbbb
+LDFLAGS += -L$(OBJROOT) -lrt -limu -llog -lhw -lbbb
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)

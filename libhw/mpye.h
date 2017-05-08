@@ -19,9 +19,9 @@ typedef struct mpye {
   // The Human Readable name of the solenoid
   char name[MAX_NAME];
   // The current value of this mpye (0 for closed, +100 full A, -100 full B)
-  _Atomic int value;
+  int value;
   // The current value of this mpye (0 for closed, +100 full A, -100 full B)
-  _Atomic bool queued;
+  bool queued;
   // Prevent this mpye from changing state without an explicit unlock
   bool locked;
   // A mutex for multithreaded access to this struct

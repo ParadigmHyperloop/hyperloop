@@ -18,7 +18,7 @@ define BANNER
 endef
 
 # Common Utilities
-CC := $(shell which gcc)
+CC := $(shell which clang)
 PASM := $(shell command -v pasm 2> /dev/null)
 WARNING_BANNER := "WARNING WARNING WARNING"
 AR := $(shell which ar)

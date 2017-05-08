@@ -188,6 +188,7 @@ int init_pod(void) {
   
   int skate_pins[] = SKATE_SOLENOIDS;
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
+    info("Setting Up Skate Solenoid %d of %d on pin %d", i, N_SKATE_SOLONOIDS, skate_pins[i]);
     pod->skate_solonoids[i] = (solenoid_t){.gpio = skate_pins[i],
                                            .value = 0,
                                            .type = kSolenoidNormallyClosed,
@@ -489,7 +490,7 @@ int init_pod(void) {
     return -1;
   }
 
-  pod->initialized = get_time_usec();
+  pod->initialized = true; // get_time_usec();
 
   // We are done, so overwrite the global _pod struct
   debug("Global Pod struct is located at %p", (void *)&_pod);

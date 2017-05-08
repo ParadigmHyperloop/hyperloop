@@ -253,14 +253,13 @@ int setPinDirection(int pinnum, char *dir) {
 
 int set_pin_value(int pinnum, int value) {
   FILE *val;
-  char buf[5];
-  char buf2[50] = "/sys/class/gpio/gpio";
+  char buf[50];
+
+  snprintf(buf, 50, "/sys/class/gpio/gpio%d/value", pinnum);
 
   // build path to value file
-  sprintf(buf, "%i", pinnum);
-  strcat(buf2, strcat(buf, "/value"));
-  printf("Set: %d > %s\n", value, buf2);
-  val = fopen(buf2, "w");
+  printf("Set: %d > %s\n", value, buf);
+  val = fopen(buf, "w");
   if (val == NULL) {
     printf("Value failed to open\n");
     return -1;

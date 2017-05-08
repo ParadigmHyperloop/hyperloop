@@ -38,7 +38,7 @@ int self_tests(__unused pod_t *state);
 
 #define N_WALKS 3
 #define WAIT_USEC 50000
-
+q
 
 #define CONFIRM(cond) do { \
   if ((cond)) { \
@@ -88,7 +88,7 @@ int relay_walk() {
   }
 
   s = pod->relays[prev + 1];
-  info("[CLOS] Solenoid on Relay %2.d", prev + 1);
+  info("Close Solenoid on Relay %2.d", prev + 1);
   close_solenoid(s);
 
   CONFIRM(is_solenoid_closed(s));
