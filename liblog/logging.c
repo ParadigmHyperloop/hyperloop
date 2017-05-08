@@ -36,7 +36,7 @@ extern ring_buf_t logbuf;
 
 static
 int log_open(char *filename) {
-  return open(filename, O_CREAT | O_EXLOCK | O_WRONLY | O_APPEND, S_IRWXU | S_IRWXG | S_IROTH);
+  return open(filename, O_CREAT | O_WRONLY | O_APPEND, S_IRWXU | S_IRWXG | S_IROTH);
 }
 
 static
