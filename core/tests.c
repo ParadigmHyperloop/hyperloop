@@ -60,7 +60,7 @@ int relay_walk() {
     prev = (int)(((unsigned short)(i - 1)) % N_RELAY_CHANNELS);
 
     s = pod->relays[i];
-    info("Open Solenoid on Relay %02.d", i);
+    info("Open Solenoid on Relay %2.d", i);
     open_solenoid(s);
 
     // Ensure that the solenoid returns the proper states
@@ -72,7 +72,7 @@ int relay_walk() {
 
     s = pod->relays[prev];
 
-    info("Close Solenoid on Relay %02.d", prev);
+    info("Close Solenoid on Relay %2.d", prev);
 
 
     close_solenoid(s);
@@ -86,7 +86,7 @@ int relay_walk() {
   }
 
   s = pod->relays[prev + 1];
-  info("[CLOS] Solenoid on Relay %02.d", prev + 1);
+  info("[CLOS] Solenoid on Relay %2.d", prev + 1);
   close_solenoid(s);
   usleep(50000);
 
