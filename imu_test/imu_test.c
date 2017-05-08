@@ -66,7 +66,7 @@ uint64_t getTime() {
 
 static
 void usage() {
-  printf("Usage: %s [-i ITERATIONS] [-s SPINUP] [-d DEVICE] [-q] [-f]\n", getprogname());
+  printf("Usage: imu_test [-i ITERATIONS] [-s SPINUP] [-d DEVICE] [-q] [-f]\n");
   printf("  -i    The maximium number of iterations to read\n");
   printf("  -d    Path to the device (/dev/ttyUSB0)\n");
   printf("  -q    Disable printing of each datagram\n");

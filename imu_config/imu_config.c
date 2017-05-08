@@ -56,7 +56,7 @@ typedef struct config {
 
 static
 void usage() {
-  printf("Usage: %s [-d DEVICE]\n", getprogname());
+  printf("Usage: imu_config [-d DEVICE]\n");
   printf("  -d    Path to the device (/dev/ttyUSB0)\n");
   exit(1);
 }
