@@ -55,10 +55,6 @@ int log_connect() {
     return -1;
   }
 
-  struct timeval t;
-  t.tv_sec = 1;
-  t.tv_usec = 0;
-
   // Get the server's IP Address from DNS
   server = gethostbyname(hostname);
 
