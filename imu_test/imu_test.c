@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
   imu_datagram_t average;
   uint64_t start = getTime();
   while (i < config.iterations || config.iterations == 0) {
-    imu_datagram_t data;;
+    imu_datagram_t data = {0};
 
     ssize_t success = 0;
     while (success == 0) {
