@@ -36,10 +36,10 @@
 void set_relay(int pin, relay_state_t state) {
   switch (state) {
     case kRelayOn:
-      set_pin_value(pin, 1);
+      set_pin_value(pin, kGpioHigh);
       break;
     case kRelayOff:
-      set_pin_value(pin, 0);
+      set_pin_value(pin, kGpioLow);
       break;
     case kRelayError:
       // TOOD: Handle
@@ -50,10 +50,10 @@ void set_relay(int pin, relay_state_t state) {
 
 relay_state_t read_relay_state(int pin) {
   switch (get_pin_value(pin)) {
-    case 0:
+    case kGpioLow:
       return kRelayOff;
       break;
-    case 1:
+    case kGpioHigh:
       return kRelayOn;
       break;
     default:

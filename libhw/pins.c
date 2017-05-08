@@ -35,7 +35,7 @@
 bool setup_pin(int no) {
   // I am being incredibly verbose in my order of operations... can just be
   // a single if with some &&
-  printf(" [SETUP] Pin %d\n", no);
+  printf("[SETUP] Pin %d\n", no);
   if (initPin(no) == 0) {
     if (setPinDirection(no, "out") == 0) {
       if (set_pin_value(no, 0) == 0) {

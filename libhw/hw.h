@@ -38,6 +38,9 @@
 #include <pthread.h>
 #include <stdlib.h>
 
+#include "bbb.h"
+
+#include "libBBB.h"
 #include "mpye.h"
 #include "solenoid.h"
 #include "relay.h"

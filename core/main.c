@@ -144,7 +144,7 @@ void panic_handler(int sig) {
     fclose(fp);
 
     umount2("/", MNT_FORCE);
-    set_pin_value(KILL_PIN, KILL_PIN_KILL_VALUE);
+    set_pin_value(KILL_PIN, kGpioLow); // TODO: Create power_on() and power_off
     fp = fopen("/proc/sysrq-trigger", "w");
     fwrite("o", sizeof(char), 1, fp);
     fclose(fp);
@@ -218,13 +218,13 @@ int main(int argc, char *argv[]) {
       dump_telemetry_file(args.telemetry_dump);
       exit(0);
     }
-    
+
     printf("<<< Paradigm HyperLoop Pod Controller >>>\n\n");
-    
+
     printf("Copyright " POD_COPY_YEAR " " POD_COPY_OWNER " " POD_VERSION_STR
            "\n");
     printf("\nCredits:\n" POD_CREDITS "\n");
-    
+
     int boot_sem_ret = 0;
     info("POD Booting...");
     info("Initializing Pod");

@@ -30,13 +30,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-
 #include "bbb.h"
 
+#ifdef BBB
 /*
   Memory Mapped Getting Started
  #define GPIO1_START_ADDR 0x4804C000
@@ -142,6 +138,7 @@ ssize_t set_pin_value(gpio_t pin, gpio_value_t value) {
   }
 
   return sysfs_write(pin, SYSFS_GPIO_VAL_FILE, data);
+
 }
 
 gpio_value_t get_pin_value(gpio_t pin) {
@@ -161,3 +158,4 @@ gpio_value_t get_pin_value(gpio_t pin) {
       return kGpioValError;
   }
 }
+#endif
