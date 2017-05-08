@@ -18,7 +18,7 @@ define BANNER
 endef
 
 # Common Utilities
-CC := $(shell which clang)
+CC := $(shell which gcc)
 PASM := $(shell command -v pasm 2> /dev/null)
 WARNING_BANNER := "WARNING WARNING WARNING"
 AR := $(shell which ar)
@@ -51,13 +51,13 @@ endif
 UNAME_R := $(shell uname -r)
 UNAME_S := $(shell uname -s)
 
-ifeq ($(UNAME_S),Darwin)
-	CFLAGS += -g
-	CFLAGS += -Wnon-modular-include-in-framework-module -Werror=non-modular-include-in-framework-module -Wno-trigraphs -fpascal-strings -fno-common -Werror -Werror=incompatible-pointer-types -Werror-implicit-function-declaration -Wno-missing-field-initializers -Wmissing-prototypes -Werror=return-type -Wdocumentation -Wunreachable-code -Werror=deprecated-objc-isa-usage -Werror=objc-root-class -Wmissing-braces -Wparentheses -Wswitch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wshadow -Wfour-char-constants -Wconversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wassign-enum -Wsign-compare -Wshorten-64-to-32 -Wpointer-sign -Wnewline-eof -Wno-sign-conversion -Wno-gnu-zero-variadic-macro-arguments
-endif
+#ifeq ($(UNAME_S),Darwin)
+#	CFLAGS += -g
+#	CFLAGS += -Wnon-modular-include-in-framework-module -Werror=non-modular-include-in-framework-module -Wno-trigraphs -fpascal-strings -fno-common -Werror -Werror=incompatible-pointer-types -Werror-implicit-function-declaration -Wno-missing-field-initializers -Wmissing-prototypes -Werror=return-type -Wdocumentation -Wunreachable-code -Werror=deprecated-objc-isa-usage -Werror=objc-root-class -Wmissing-braces -Wparentheses -Wswitch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wshadow -Wfour-char-constants -Wconversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wassign-enum -Wsign-compare -Wshorten-64-to-32 -Wpointer-sign -Wnewline-eof -Wno-sign-conversion -Wno-gnu-zero-variadic-macro-arguments
+#endif
 
 ifeq ($(UNAME_S),Linux)
-	 LDFLAGS += -pthread
+	 LDFLAGS += -pthread -lrt
 endif
 
 ifneq (,$(findstring bone,$(UNAME_R)))
