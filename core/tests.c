@@ -38,7 +38,6 @@ int self_tests(__unused pod_t *state);
 
 #define N_WALKS 3
 #define WAIT_USEC 50000
-q
 
 #define CONFIRM(cond) do { \
   if ((cond)) { \
