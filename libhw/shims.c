@@ -89,7 +89,9 @@ int readADC(int helpnum, char *ach) { return 0; }
 // Time Prototypes
 void pauseSec(int sec) { return; }
 int pauseNanoSec(long nano) { return 0; }
+#endif /* BBB */
 
+#ifndef HAS_PRU
 int prussdrv_init(void) { return 0; }
 int prussdrv_open(unsigned int host_interrupt) { return 0; }
 int prussdrv_pruintc_init(const tpruss_intc_initdata *prussintc_init_data) {
@@ -108,5 +110,5 @@ int prussdrv_pru_clear_event(unsigned int host_interrupt,
                              unsigned int sysevent) {
   return 0;
 }
-#endif
+#endif /* HAS_PRU */
 #pragma clang diagnostic pop

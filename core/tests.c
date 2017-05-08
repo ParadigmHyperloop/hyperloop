@@ -36,8 +36,16 @@ int relay_walk(void);
 int sensor_walker(void);
 int self_tests(__unused pod_t *state);
 
-#define N_WALKS 10
+#define N_WALKS 3
 
+#define CONFIRM(cond) do { \
+  if ((cond)) { \
+    printf("[TEST] [PASS] " __XSTR__(cond) "\n"); \
+  } else { \
+    printf("[TEST] [FAIL] " __XSTR__(cond) "\n"); \
+    exit(1); \
+  } \
+} while (0);
 /**
  * Test to stress the pod's electrical system by bursting it under full load
  * and trying to generate worst case senario rush currents
@@ -50,31 +58,35 @@ int relay_walk() {
   int i, prev = 0;
   for (i = 0; i < N_RELAY_CHANNELS; i++) {
     prev = (int)(((unsigned short)(i - 1)) % N_RELAY_CHANNELS);
-    
-    s = pod->relays[i];
-    info("[OPEN ] Solenoid on Relay %02.d", i);
-    info(" > gpio: %d", s->gpio);
-    info(" > value: %d", s->value);
-    info(" > name: %s", s->name);
-    
-    open_solenoid(s);
-    usleep(50000);
-  
-    s = pod->relays[prev];
-    info("[CLOSE] Solenoid on Relay %02.d", prev);
-    info(" > gpio: %d", s->gpio);
-    info(" > value: %d", s->value);
-    info(" > name: %s", s->name);
-    close_solenoid(s);
-    usleep(50000);
 
+    s = pod->relays[i];
+    info("Open Solenoid on Relay %02.d", i);
+    open_solenoid(s);
+
+    // Ensure that the solenoid returns the proper states
+    CONFIRM(is_solenoid_open(s));
+    CONFIRM(!is_solenoid_closed(s));
+    usleep(50000);
+    CONFIRM(is_solenoid_open(s));
+    CONFIRM(!is_solenoid_closed(s));
+
+    s = pod->relays[prev];
+
+    info("Close Solenoid on Relay %02.d", prev);
+
+
+    close_solenoid(s);
+
+    // Ensure that the solenoid returns the proper states
+    assert(is_solenoid_closed(s));
+    assert(!is_solenoid_open(s));
+    usleep(50000);
+    assert(is_solenoid_closed(s));
+    assert(!is_solenoid_open(s));
   }
-  
+
   s = pod->relays[prev + 1];
-  info("[CLOSE] Solenoid on Relay %02.d", prev + 1);
-  info(" > gpio: %d", s->gpio);
-  info(" > value: %d", s->value);
-  info(" > name: %s", s->name);
+  info("[CLOS] Solenoid on Relay %02.d", prev + 1);
   close_solenoid(s);
   usleep(50000);
 
@@ -82,7 +94,6 @@ int relay_walk() {
 }
 
 int sensor_walker() {
-  // sensor_pack_t sensors = read_pru_dataset();
   return 0;
 }
 
@@ -100,5 +111,6 @@ int self_tests(__unused pod_t *state) {
     error("Relay Walk Test Failed");
     return 1;
   }
+  info("Testing Complete!");
   return 0;
 }

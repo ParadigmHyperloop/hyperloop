@@ -61,7 +61,7 @@ ifeq ($(UNAME_S),Linux)
 endif
 
 ifneq (,$(findstring bone,$(UNAME_R)))
-	CFLAGS += -DHAS_PRU -DBBB -DHAS_KILL_SWITCH
+	CFLAGS += -DBBB -DHAS_KILL_SWITCH
 endif
 
 # Compiler and Linker Flags

@@ -138,16 +138,16 @@
 #endif
 
 #ifdef POD_DEBUG
-#define debug(fmt_, ...) output("[DEBUG] ", fmt_, ##__VA_ARGS__)
+#define debug(fmt_, ...) output("[DEBG] ", fmt_, ##__VA_ARGS__)
 #else
 #define debug(fmt_, ...)
 #endif
 
-#define warn(fmt_, ...) output("[WARN]  ", fmt_, ##__VA_ARGS__)
-#define error(fmt_, ...) output("[ERROR]  ", fmt_, ##__VA_ARGS__)
-#define info(fmt_, ...) output("[INFO]  ", fmt_, ##__VA_ARGS__)
-#define note(fmt_, ...) output("[NOTE]  ", fmt_, ##__VA_ARGS__)
-#define fatal(fmt_, ...) output("[FATAL] ", fmt_, ##__VA_ARGS__)
+#define warn(fmt_, ...) output("[WARN] ", fmt_, ##__VA_ARGS__)
+#define error(fmt_, ...) output("[ERRR] ", fmt_, ##__VA_ARGS__)
+#define info(fmt_, ...) output("[INFO] ", fmt_, ##__VA_ARGS__)
+#define note(fmt_, ...) output("[NOTE] ", fmt_, ##__VA_ARGS__)
+#define fatal(fmt_, ...) output("[FATL] ", fmt_, ##__VA_ARGS__)
 #define panic(subsystem, notes, ...)                                           \
   pod_panic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 

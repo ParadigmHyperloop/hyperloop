@@ -95,7 +95,7 @@ ssize_t init_pin(__unused int pin) {
 }
 
 ssize_t set_pin_direction(gpio_t pin, gpio_dir_t dir) {
-  char *data;
+  char *data = "";
   switch (dir) {
     case kGpioIn:
       data = SYSFS_GPIO_IN;
@@ -111,7 +111,7 @@ ssize_t set_pin_direction(gpio_t pin, gpio_dir_t dir) {
 }
 
 gpio_dir_t get_pin_direction(gpio_t pin) {
-  char data[4];
+  char data[4] = {0};
   ssize_t count = sysfs_read(pin, SYSFS_GPIO_DIR_FILE, data, 4);
 
   if (count < 0) {
@@ -123,13 +123,13 @@ gpio_dir_t get_pin_direction(gpio_t pin) {
   } else if (strncmp(data, SYSFS_GPIO_OUT, strlen(SYSFS_GPIO_OUT))) {
     return kGpioOut;
   }
-  
+
   return kGpioDirError;
 }
 
 
 ssize_t set_pin_value(gpio_t pin, gpio_value_t value) {
-  char *data;
+  char *data = "";
   switch (value) {
     case kGpioLow:
       data = SYSFS_GPIO_LOW;
