@@ -37,6 +37,8 @@ int sensor_walker(void);
 int self_tests(__unused pod_t *state);
 
 #define N_WALKS 3
+#define WAIT_USEC 50000
+
 
 #define CONFIRM(cond) do { \
   if ((cond)) { \
@@ -66,7 +68,7 @@ int relay_walk() {
     // Ensure that the solenoid returns the proper states
     CONFIRM(is_solenoid_open(s));
     CONFIRM(!is_solenoid_closed(s));
-    usleep(50000);
+    usleep(WAIT_USEC);
     CONFIRM(is_solenoid_open(s));
     CONFIRM(!is_solenoid_closed(s));
 
@@ -78,17 +80,22 @@ int relay_walk() {
     close_solenoid(s);
 
     // Ensure that the solenoid returns the proper states
-    assert(is_solenoid_closed(s));
-    assert(!is_solenoid_open(s));
-    usleep(50000);
-    assert(is_solenoid_closed(s));
-    assert(!is_solenoid_open(s));
+    CONFIRM(is_solenoid_closed(s));
+    CONFIRM(!is_solenoid_open(s));
+    usleep(WAIT_USEC);
+    CONFIRM(is_solenoid_closed(s));
+    CONFIRM(!is_solenoid_open(s));
   }
 
   s = pod->relays[prev + 1];
   info("[CLOS] Solenoid on Relay %2.d", prev + 1);
   close_solenoid(s);
-  usleep(50000);
+
+  CONFIRM(is_solenoid_closed(s));
+  CONFIRM(!is_solenoid_open(s));
+  usleep(WAIT_USEC);
+  CONFIRM(is_solenoid_closed(s));
+  CONFIRM(!is_solenoid_open(s));
 
   return 0;
 }
