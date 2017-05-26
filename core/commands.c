@@ -67,7 +67,6 @@ int pingCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   pod_calibrate();
-  pod_reset();
   return snprintf(&outbuf[0], outbufc, "CALIBRATION SET\nX: %f\nY: %f\nZ: %f\n",
                   get_value_f(&(pod->imu_calibration_x)),
                   get_value_f(&(pod->imu_calibration_y)),
@@ -75,8 +74,11 @@ int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 }
 
 int resetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
-  pod_reset();
-  return snprintf(&outbuf[0], outbufc, "Reseting Pod %s", get_pod()->name);
+  if (pod_reset()) {
+    return snprintf(&outbuf[0], outbufc, "Reseting Pod %s", get_pod()->name);
+  } else {
+    return snprintf(&outbuf[0], outbufc, "Reset Request Declined %s", get_pod()->name);
+  }
 }
 
 int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
@@ -98,17 +100,19 @@ int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 
 int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
-  if (get_value(&(pod->pusher_plate)) == 1) {
-    return snprintf(outbuf, outbufc,
-                    "ERROR: PUSHER PLATE DEPRESSED CANNOT ARM");
+  if (get_value(&(pod->pusher_plate)) == 0) {
+    return snprintf(outbuf, outbufc, "Pusher plate is not depressed. Cannot Arm.");
   }
 
   if (!core_pod_checklist(pod)) {
-    return snprintf(outbuf, outbufc, "Pod not ready to arm. core checklist");
+    return snprintf(outbuf, outbufc, "Pod not ready to arm. core checklist failed.");
   }
 
-  set_pod_mode(Armed, "Remote Command Armed Pod");
-  return snprintf(outbuf, outbufc, "Armed");
+  if (set_pod_mode(Armed, "Remote Command Armed Pod")) {
+    return snprintf(outbuf, outbufc, "Armed");
+  } else {
+    return snprintf(outbuf, outbufc, "Controller declined to transition to Armed State. Ensure pod is in Standby.");
+  }
 }
 
 int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {

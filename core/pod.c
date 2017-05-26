@@ -42,11 +42,15 @@ void pod_calibrate() {
   set_value_f(&(pod->imu_calibration_z), get_value_f(&(pod->accel_z)));
 }
 
-void pod_reset() {
+bool pod_reset() {
   pod_t *pod = get_pod();
-  pod->shutdown = WarmReboot;
+  if (set_pod_mode(Shutdown, "Pod Reset Requested")) {
+    pod->shutdown = WarmReboot;
 
-  pod_shutdown(pod);
+    pod_shutdown(pod);
+    return true;
+  }
+  return false;
 }
 
 relay_mask_t get_relay_mask(pod_t *pod) {
@@ -141,7 +145,7 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
   for (j = 0; j < sizeof(pod->sensors) / sizeof(pod->sensors[0]); j++) {
     s = pod->sensors[j];
     if (s != NULL) {
-      c += snprintf(&buf[c], len - c, "%s: \t%f\n", s->name, get_sensor(s));
+      c += snprintf(&buf[c], len - c, "%s: \t%f (%p)\n", s->name, get_sensor(s), (void*)s);
     }
   }
 

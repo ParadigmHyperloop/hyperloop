@@ -133,7 +133,7 @@ void *logging_main(__unused void *arg) {
 
   pod_t *pod = get_pod();
 
-  while (pod->logging_socket < 0) {
+  while (pod->logging_socket < 0 && get_pod_mode() != Shutdown) {
     pod->logging_socket = log_connect();
     if (pod->logging_socket < 0) {
       error("Logging Socket failed to connect: %s", strerror(errno));
@@ -189,6 +189,6 @@ void *logging_main(__unused void *arg) {
     }
   }
 
-  error("=== Logging system is going down ===");
+  warn("=== Logging system is going down ===");
   return NULL;
 }

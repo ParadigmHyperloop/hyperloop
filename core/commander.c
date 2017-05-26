@@ -313,7 +313,8 @@ int cmd_server() {
     struct timeval tv = {10, 0};
 
     if (select(FD_SETSIZE, &read_fd_set, NULL, NULL, &tv) < 0) {
-      return -1;
+      error("select() failed");
+      continue;
     }
 
     // New Clients (serverfd)
@@ -368,6 +369,7 @@ int cmd_server() {
   }
 
   // Should not get here
+  info("Closing command server socket");
   close(commander.serverfd);
   return 0;
 }
@@ -382,7 +384,8 @@ void *command_main(__unused void *arg) {
   if (retval < 0) {
     switch (get_pod_mode()) {
     case Boot:
-      set_pod_mode(Shutdown, "Command Server Failed in Boot Stage");
+    case Shutdown:
+      set_pod_mode(Shutdown, "Command Server Shutdown");
       break;
     default:
       set_pod_mode(Emergency, "Command Server Failed");

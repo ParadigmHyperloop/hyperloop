@@ -48,7 +48,7 @@
 #include "ring_buffer.h"
 
 #ifndef PACKET_INTERVAL
-#define PACKET_INTERVAL (USEC_PER_SEC / 100) // 1000 Packets per second
+#define PACKET_INTERVAL (USEC_PER_SEC / 10) // Delay between sending packets
 #endif
 
 #define MAX_LOGS 32

@@ -332,7 +332,7 @@ void pod_calibrate(void);
 /**
  * Reset positional and sensor data to blank slate
  */
-void pod_reset(void);
+bool pod_reset(void);
 
 /**
  * Shuts down the pod safely and performs any required cleanup actions

@@ -55,8 +55,8 @@ pod_t _pod;
  */
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
-      {POST, Boot, Emergency, NonState},
-      {Boot, LPFill, Emergency, NonState},
+      {POST, Boot, Emergency, Shutdown, NonState},
+      {Boot, LPFill, Emergency, Shutdown, NonState},
       {LPFill, HPFill, Emergency, NonState},
       {HPFill, Load, Emergency, NonState},
       {Load, Standby, Emergency, NonState},
@@ -272,7 +272,7 @@ int init_pod(void) {
   int corner_distance[] = CORNER_DISTANCE_INPUTS;
   for (i = 0; i < N_CORNER_DISTANCE; i++) {
     int id = N_MUX_INPUTS * CORNER_DISTANCE_MUX + corner_distance[i];
-    pod->sensors[id] = &(pod->corner_distance[i]);
+    pod->sensors[id] = &(_pod.corner_distance[i]);
     pod->corner_distance[i] = (sensor_t){.sensor_id = id,
                                          .name = {0},
                                          .value = POD_VALUE_INITIALIZER_FL,
@@ -283,13 +283,13 @@ int init_pod(void) {
                                          .offset = 0.0,
                                          .mux = DISTANCE_MUX,
                                          .input = corner_distance[i]};
-    snprintf(pod->sensors[id]->name, MAX_NAME, "vert_dist_%d", i);
+    snprintf(pod->corner_distance[i].name, MAX_NAME, "corner_%d", i);
   }
 
   int lateral_distance[] = LATERAL_DISTANCE_INPUTS;
   for (i = 0; i < N_LATERAL_DISTANCE; i++) {
     int id = N_MUX_INPUTS * LATERAL_DISTANCE_MUX + lateral_distance[i];
-    pod->sensors[id] = &(pod->lateral_distance[i]);
+    pod->sensors[id] = &(_pod.lateral_distance[i]);
     pod->lateral_distance[i] = (sensor_t){.sensor_id = id,
                                           .name = {0},
                                           .value = POD_VALUE_INITIALIZER_FL,
@@ -300,13 +300,13 @@ int init_pod(void) {
                                           .offset = 0.0,
                                           .mux = DISTANCE_MUX,
                                           .input = lateral_distance[i]};
-    snprintf(pod->sensors[id]->name, MAX_NAME, "lat_dist_%d", i);
+    snprintf(pod->lateral_distance[i].name, MAX_NAME, "lateral_%d", i);
   }
 
   int wheel_distance[] = WHEEL_DISTANCE_INPUTS;
   for (i = 0; i < N_WHEEL_DISTANCE; i++) {
     int id = N_MUX_INPUTS * WHEEL_DISTANCE_MUX + wheel_distance[i];
-    pod->sensors[id] = &(pod->wheel_distance[i]);
+    pod->sensors[id] = &(_pod.wheel_distance[i]);
     pod->wheel_distance[i] = (sensor_t){.sensor_id = id,
                                         .name = {0},
                                         .value = POD_VALUE_INITIALIZER_FL,
@@ -317,7 +317,7 @@ int init_pod(void) {
                                         .offset = 0.0,
                                         .mux = DISTANCE_MUX,
                                         .input = wheel_distance[i]};
-    snprintf(pod->sensors[id]->name, MAX_NAME, "wheel_dist_%d", i);
+    snprintf(pod->wheel_distance[i].name, MAX_NAME, "wheel_%d", i);
   }
 
   // --------------------
@@ -326,7 +326,7 @@ int init_pod(void) {
 
   int hp_pressure = HP_PRESSURE_INPUT;
   int id = N_MUX_INPUTS * PRESSURE_MUX + hp_pressure;
-  pod->sensors[id] = &(pod->hp_pressure);
+  pod->sensors[id] = &(_pod.hp_pressure);
   pod->hp_pressure = (sensor_t){.sensor_id = id,
                                 .name = {0},
                                 .value = POD_VALUE_INITIALIZER_FL,
@@ -337,12 +337,12 @@ int init_pod(void) {
                                 .offset = 0.0,
                                 .mux = PRESSURE_MUX,
                                 .input = HP_PRESSURE_INPUT};
-  snprintf(pod->sensors[id]->name, MAX_NAME, "hp_psi");
+  snprintf(pod->hp_pressure.name, MAX_NAME, "hp_pressure");
 
   int reg_pressures[] = REG_PRESSURE_INPUTS;
   for (i = 0; i < N_REG_PRESSURE; i++) {
     id = N_MUX_INPUTS * REG_PRESSURE_MUX + reg_pressures[i];
-    pod->sensors[id] = &(pod->reg_pressure[i]);
+    pod->sensors[id] = &(_pod.reg_pressure[i]);
     pod->reg_pressure[i] = (sensor_t){.sensor_id = id,
                                       .name = {0},
                                       .value = POD_VALUE_INITIALIZER_FL,
@@ -353,13 +353,13 @@ int init_pod(void) {
                                       .offset = 0.0,
                                       .mux = PRESSURE_MUX,
                                       .input = reg_pressures[i]};
-    snprintf(pod->sensors[id]->name, MAX_NAME, "reg_psi_%c", i + 'a');
+    snprintf(pod->reg_pressure[i].name, MAX_NAME, "reg_pressure_%c", i + 'a');
   }
 
   int clamp_pressure[] = CLAMP_PRESSURE_INPUTS;
   for (i = 0; i < N_CLAMP_PRESSURE; i++) {
     id = N_MUX_INPUTS * CLAMP_PRESSURE_MUX + clamp_pressure[i];
-    pod->sensors[id] = &(pod->clamp_pressure[i]);
+    pod->sensors[id] = &(_pod.clamp_pressure[i]);
     pod->clamp_pressure[i] = (sensor_t){.sensor_id = id,
                                         .name = {0},
                                         .value = POD_VALUE_INITIALIZER_FL,
@@ -370,13 +370,13 @@ int init_pod(void) {
                                         .offset = 0.0,
                                         .mux = PRESSURE_MUX,
                                         .input = clamp_pressure[i]};
-    snprintf(pod->sensors[id]->name, MAX_NAME, "clmp_psi_%d", i);
+    snprintf(pod->clamp_pressure[i].name, MAX_NAME, "clamp_pressure_%d", i);
   }
 
   int lateral_pressure[] = LAT_FILL_PRESSURE_INPUTS;
   for (i = 0; i < N_LAT_FILL_PRESSURE; i++) {
     id = N_MUX_INPUTS * LAT_FILL_PRESSURE_MUX + lateral_pressure[i];
-    pod->sensors[id] = &(pod->lateral_pressure[i]);
+    pod->sensors[id] = &(_pod.lateral_pressure[i]);
     pod->lateral_pressure[i] = (sensor_t){.sensor_id = id,
                                           .name = {0},
                                           .value = POD_VALUE_INITIALIZER_FL,
@@ -388,7 +388,7 @@ int init_pod(void) {
                                           .mux = PRESSURE_MUX,
                                           .input = lateral_pressure[i]};
 
-    snprintf(pod->sensors[id]->name, MAX_NAME, "lat_psi_%d", i);
+    snprintf(pod->lateral_pressure[i].name, MAX_NAME, "lateral_pressure_%d", i);
   }
 
   // -------------
@@ -397,7 +397,7 @@ int init_pod(void) {
   int reg_thermo[] = REG_THERMO_INPUTS;
   for (i = 0; i < N_REG_THERMO; i++) {
     id = N_MUX_INPUTS * REG_THERMO_MUX + reg_thermo[i];
-    pod->sensors[id] = &(pod->reg_thermo[i]);
+    pod->sensors[id] = &(_pod.reg_thermo[i]);
     pod->reg_thermo[i] = (sensor_t){.sensor_id = id,
                                     .name = {0},
                                     .value = POD_VALUE_INITIALIZER_FL,
@@ -409,13 +409,13 @@ int init_pod(void) {
                                     .mux = REG_THERMO_MUX,
                                     .input = reg_thermo[i]};
 
-    snprintf(pod->sensors[id]->name, MAX_NAME, "reg_thermo_%d", i);
+    snprintf(pod->reg_thermo[i].name, MAX_NAME, "reg_thermo_%d", i);
   }
 
   int reg_surf_thermo[] = REG_SURF_THERMO_INPUTS;
   for (i = 0; i < N_REG_SURF_THERMO; i++) {
     id = N_MUX_INPUTS * REG_SURF_THERMO_MUX + reg_surf_thermo[i];
-    pod->sensors[id] = &(pod->reg_surf_thermo[i]);
+    pod->sensors[id] = &(_pod.reg_surf_thermo[i]);
     pod->reg_surf_thermo[i] = (sensor_t){.sensor_id = id,
                                          .name = {0},
                                          .value = POD_VALUE_INITIALIZER_FL,
@@ -427,13 +427,13 @@ int init_pod(void) {
                                          .mux = REG_SURF_THERMO_MUX,
                                          .input = reg_surf_thermo[i]};
 
-    snprintf(pod->sensors[id]->name, MAX_NAME, "reg_surf_thermo_%d", i);
+    snprintf(pod->reg_surf_thermo[i].name, MAX_NAME, "reg_surf_thermo_%d", i);
   }
 
   int power_thermo[] = POWER_THERMO_INPUTS;
   for (i = 0; i < N_POWER_THERMO; i++) {
     id = N_MUX_INPUTS * POWER_THERMO_MUX + power_thermo[i];
-    pod->sensors[id] = &(pod->power_thermo[i]);
+    pod->sensors[id] = &(_pod.power_thermo[i]);
     pod->power_thermo[i] = (sensor_t){.sensor_id = id,
                                       .name = {0},
                                       .value = POD_VALUE_INITIALIZER_FL,
@@ -445,13 +445,13 @@ int init_pod(void) {
                                       .mux = POWER_THERMO_MUX,
                                       .input = power_thermo[i]};
 
-    snprintf(pod->sensors[id]->name, MAX_NAME, "power_thermo_%d", i);
+    snprintf(pod->power_thermo[i].name, MAX_NAME, "power_thermo_%d", i);
   }
 
   int clamp_pad_thermo[] = CLAMP_PAD_THERMO_INPUTS;
   for (i = 0; i < N_CLAMP_PAD_THERMO; i++) {
     id = N_MUX_INPUTS * CLAMP_PAD_THERMO_MUX + clamp_pad_thermo[i];
-    pod->sensors[id] = &(pod->clamp_thermo[i]);
+    pod->sensors[id] = &(_pod.clamp_thermo[i]);
     pod->clamp_thermo[i] = (sensor_t){.sensor_id = id,
                                       .name = {0},
                                       .value = POD_VALUE_INITIALIZER_FL,
@@ -463,11 +463,11 @@ int init_pod(void) {
                                       .mux = CLAMP_PAD_THERMO_MUX,
                                       .input = clamp_pad_thermo[i]};
 
-    snprintf(pod->sensors[id]->name, MAX_NAME, "clamp_pad_%d", i);
+    snprintf(pod->clamp_thermo[i].name, MAX_NAME, "clamp_pad_%d", i);
   }
 
   id = N_MUX_INPUTS * HP_THERMO_MUX + HP_THERMO_INPUT;
-  pod->sensors[id] = &(pod->hp_thermo);
+  pod->sensors[id] = &(_pod.hp_thermo);
   pod->hp_thermo = (sensor_t){.sensor_id = id,
                               .name = {0},
                               .value = POD_VALUE_INITIALIZER_FL,
@@ -478,7 +478,7 @@ int init_pod(void) {
                               .offset = 0.0,
                               .mux = HP_THERMO_MUX,
                               .input = HP_THERMO_INPUT};
-  snprintf(pod->sensors[id]->name, MAX_NAME, "hp_thermo");
+  snprintf(pod->hp_thermo.name, MAX_NAME, "hp_thermo");
 
   pthread_rwlock_init(&(pod->mode_mutex), NULL);
 

@@ -168,19 +168,22 @@ void exit_signal_handler(__unused int sig) {
 static
 void sigpipe_handler(__unused int sig) { error("SIGPIPE Recieved"); }
 
-int pod_shutdown(pod_t *pod) { return sem_post(pod->boot_sem); }
+int pod_shutdown(pod_t *pod) {
+  return sem_post(pod->boot_sem);
+}
 
 int _pod_shutdown_main(pod_t *pod);
 
 int _pod_shutdown_main(pod_t *pod) {
   info("Halting Core");
-  if (pthread_cancel(pod->core_thread) != 0) {
+
+  if (pthread_join(pod->core_thread, NULL) != 0) {
     perror("Failed to halt core:");
   }
   info("Halting Logger");
-  assert(pthread_cancel(pod->logging_thread) == 0);
+  assert(pthread_join(pod->logging_thread, NULL) == 0);
   info("Halting Commander");
-  assert(pthread_cancel(pod->cmd_thread) == 0);
+  assert(pthread_join(pod->cmd_thread, NULL) == 0);
 
   switch (pod->shutdown) {
   case Halt:
