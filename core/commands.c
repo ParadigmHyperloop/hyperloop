@@ -31,10 +31,11 @@
  ****************************************************************************/
 
 #include "commands.h"
-#include "pod-helpers.h"
 #include "pod.h"
 
 extern char *pod_mode_names[];
+
+command_t commands[];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -42,37 +43,30 @@ extern char *pod_mode_names[];
 int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   int count =
       snprintf(&outbuf[0], outbufc, "%s",
-               "Pod CLI " POD_CLI_VERSION ". Copyright " POD_COPY_YEAR
+               "Pod CLI " POD_CLI_VERSION_STR ". Copyright " POD_COPY_YEAR
                " " POD_COPY_OWNER "\n" POD_CREDITS
                "This tool allows you to control various aspects of the pod\n"
                " - TCP:" __XSTR__(CMD_SVR_PORT) "\n - STDIN\n\n"
-                                                "Available Commands:\n"
-                                                " - help\n"
-                                                " - ping\n"
-                                                " - ready\n"
-                                                " - brake\n"
-                                                " - fill\n"
-                                                " - skate\n"
-                                                " - status\n"
-                                                " - offset\n"
-                                                " - calibrate\n"
-                                                " - reset\n"
-                                                " - emergency (alias: e)\n"
-                                                " - exit\n"
-                                                " - kill\n");
+                                                "Available Commands:\n");
+  
+  command_t *command = &commands[0];
+  while (command->name) {
+    count += snprintf(&outbuf[count], outbufc, " - %s\n", command->name);
+    command++;
+  }
+
   return count;
 }
 
 int pingCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   pod->last_ping = get_time_usec();
-  return snprintf(&outbuf[0], outbufc, "PONG");
+  return snprintf(&outbuf[0], outbufc, "PONG:%d", get_pod_mode());
 }
 
 int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   pod_calibrate();
-  pod_reset();
   return snprintf(&outbuf[0], outbufc, "CALIBRATION SET\nX: %f\nY: %f\nZ: %f\n",
                   get_value_f(&(pod->imu_calibration_x)),
                   get_value_f(&(pod->imu_calibration_y)),
@@ -80,8 +74,11 @@ int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 }
 
 int resetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
-  pod_reset();
-  return snprintf(&outbuf[0], outbufc, "OK");
+  if (pod_reset()) {
+    return snprintf(&outbuf[0], outbufc, "Reseting Pod %s", get_pod()->name);
+  } else {
+    return snprintf(&outbuf[0], outbufc, "Reset Request Declined %s", get_pod()->name);
+  }
 }
 
 int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
@@ -103,17 +100,19 @@ int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 
 int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
-  if (get_value(&(pod->pusher_plate)) == 1) {
-    return snprintf(outbuf, outbufc,
-                    "ERROR: PUSHER PLATE DEPRESSED CANNOT ARM");
+  if (get_value(&(pod->pusher_plate)) == 0) {
+    return snprintf(outbuf, outbufc, "Pusher plate is not depressed. Cannot Arm.");
   }
 
   if (!core_pod_checklist(pod)) {
-    return snprintf(outbuf, outbufc, "Pod not ready to arm. core checklist");
+    return snprintf(outbuf, outbufc, "Pod not ready to arm. core checklist failed.");
   }
 
-  set_pod_mode(Armed, "Remote Command Armed Pod");
-  return snprintf(outbuf, outbufc, "Armed");
+  if (set_pod_mode(Armed, "Remote Command Armed Pod")) {
+    return snprintf(outbuf, outbufc, "Armed");
+  } else {
+    return snprintf(outbuf, outbufc, "Controller declined to transition to Armed State. Ensure pod is in Standby.");
+  }
 }
 
 int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {

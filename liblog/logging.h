@@ -30,75 +30,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_LOG_H
-#define OPENLOOP_POD_LOG_H
-#include <stdio.h>
-#include <stdint.h>
-#include <sys/queue.h>
-#include <unistd.h>
-#include <stdarg.h>
 
-#ifndef __unused
-#define __unused  __attribute__((unused))
-#endif
-#ifndef __printflike
-#define __printflike(a, b) __attribute__((format(printf, (a), (b))))
-#endif
+#ifndef PARADIGM_LOGGING_H
+#define PARADIGM_LOGGING_H
 
-#include "ring_buffer.h"
+#include <pod.h>
 
-#ifndef PACKET_INTERVAL
-#define PACKET_INTERVAL (USEC_PER_SEC / 10) // Delay between sending packets
-#endif
-
-#define MAX_LOGS 32
-#define MAX_LOG_SIZE 512
-
-#define LOG_FILE_PATH "./hyperloop-core.log"
-
-#define TELEMETRY_PACKET_VERSION 2
-
-typedef enum {
-  Message = 1,
-  Telemetry_float = 2,
-  Telemetry_int32 = 3,
-  Packet = 4
-} log_type_t;
-
-typedef struct {
-  char name[64];
-  float value;
-} log_float_data_t;
-
-typedef struct {
-  char name[64];
-  int32_t value;
-} log_int32_data_t;
-
-typedef uint16_t relay_mask_t;
-
-typedef struct log {
-  log_type_t type;
-  char data[MAX_LOG_SIZE];
-  size_t sz;
-  STAILQ_ENTRY(log) entries;
-} log_t;
-
-
-/**
- * Enqueue a telemetry packet for network transmission of the current state
- */
-int log_enqueue(log_t *l);
-
-/**
- * Log a standard message to stdout and a log file
- */
-__printflike(1, 2)
-int pod_log(char *fmt, ...);
-
-/**
- * Main entry point into the logging server. Use with pthread_create
- */
-void *logging_main(__unused void *arg);
-
-#endif
+#endif /* PARADIGM_LOGGING_H */

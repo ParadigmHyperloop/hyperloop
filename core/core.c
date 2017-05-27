@@ -30,7 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "pod-helpers.h"
 #include "pod.h"
 #ifdef HAS_PRU
 #include "pru.h"
@@ -39,9 +38,9 @@
 void common_checks(pod_t *pod) {
 
   // Watchdog Timer
-  if (pod->begin_time > 0) {
+  if (pod->launch_time > 0) {
     uint64_t now = get_time_usec();
-    if (now - pod->begin_time >= WATCHDOG_TIMER) {
+    if (now - pod->launch_time >= WATCHDOG_TIMER) {
       if (!is_pod_stopped(pod)) {
         if (!(get_pod_mode() == Braking || get_pod_mode() == Vent ||
               get_pod_mode() == Retrieval)) {
@@ -56,69 +55,6 @@ void common_checks(pod_t *pod) {
  */
 void boot_state_checks(__unused pod_t *pod) {
   // Waiting for lp fill command to transition to LP Fill State
-}
-
-bool core_pod_checklist(pod_t *pod) {
-  // TODO: is_battery_power_ok()  // Voltage > 28, current > 0.2 A @james
-  // TODO: is_rpm_ok()            // less than 6000 @akeating
-  // TODO: is_imu_ok()            // temp (-40°C to +75°C) VERIFIED
-  // TODO: is_velocity_too_fast() // 95 m/s (roughly 215 mph) @akeating
-
-  // TODO: is_reg_temp_ok()       // 0 -> 50 @akeating
-  // TODO: is_clamp_temp_ok()    // 0 -> 100something @akeating
-  // TODO: is_battery_temp_ok()   // 0 -> 60something @james
-  // TODO: is_caliper_temp_ok()   // 0 -> 100something @akeating
-  // TODO: is_frame_temp_ok()     // 0 -> 40 C @edhurtig
-
-  // TODO: is_frame_pressure_ok() // 0 -> 20 PSIA VERIFIED
-  // TODO: is_hp_pressure_ok()    // 0 -> 1770 PSI... @akeating
-  // TODO: is_lp_pressure_ok()    // 0 -> 150 PSI... @akeating
-  int i;
-  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    if (is_solenoid_open(&(pod->lp_fill_valve[i]))) {
-      return false;
-    }
-  }
-
-  if (is_solenoid_open(&(pod->hp_fill_valve))) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Is the pod safe. Used to inhibit transitions to various different states
- */
-bool pod_safe_checklist(pod_t *pod) {
-  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_pod_vented(pod);
-}
-
-/**
- * Is the pod safe to proceed to an HP Fill
- */
-bool pod_hp_safe_checklist(pod_t *pod) {
-  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_hp_vented(pod);
-}
-
-/**
- * Attempt to transition the the LP Fill state
- */
-bool start_lp_fill() {
-  if (pod_safe_checklist(get_pod())) {
-    return set_pod_mode(LPFill, "Control Point Initiated LP Fill");
-  }
-  return false;
-}
-
-/**
- * Attempt to transition to the HP FIll State
- */
-bool start_hp_fill() {
-  if (pod_hp_safe_checklist(get_pod())) {
-    return set_pod_mode(HPFill, "Control Point Initiated HP Fill");
-  }
-  return false;
 }
 
 void post_state_checks(pod_t *pod) {
@@ -202,8 +138,8 @@ void pushing_state_checks(pod_t *pod) {
     set_pod_mode(Braking, "Pod has entered braking range of travel");
   }
 
-  if (pod->begin_time == 0) {
-    pod->begin_time = get_time_usec();
+  if (pod->launch_time == 0) {
+    pod->launch_time = get_time_usec();
   }
 }
 
@@ -282,15 +218,21 @@ void lateral_sensor_checks(pod_t *pod) {
   }
 }
 
-int set_skate_target(int no, solenoid_state_t val, bool override) {
-  // TODO: Implement Me
+int set_skate_target(int no, mpye_value_t val, bool override) {
   pod_t *pod = get_pod();
   if (is_surface_overriden(SKATE_OVERRIDE_ALL) && !override) {
     warn("Skates are in override mode!");
     return -1;
   }
 
-  set_solenoid(&(pod->skate_solonoids[no]), val);
+  if (val > 0) {
+    set_solenoid(&(pod->skate_solonoids[no]), kSolenoidOpen);
+  } else {
+    set_solenoid(&(pod->skate_solonoids[no]), kSolenoidClosed);
+  }
+
+  set_mpye(&(pod->mpye[no]), val);
+
   return 0;
 }
 
@@ -338,7 +280,6 @@ int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override) {
 }
 
 void adjust_brakes(__unused pod_t *pod) {
-  int i;
   switch (get_pod_mode()) {
   case POST:
   case Boot:
@@ -349,17 +290,24 @@ void adjust_brakes(__unused pod_t *pod) {
   case Armed:
   case Vent:
   case Retrieval:
-  case Emergency:
-    for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, kSolenoidClosed, false);
-    }
-    break;
   case Pushing:
   case Coasting:
-  case Braking:
   case Shutdown:
-    for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, kSolenoidOpen, false);
+    for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+      ensure_clamp_brakes(i, kClampBrakeReleased, true);
+    }
+    break;
+  case Braking:
+    for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+      if (get_stopping_deccel(pod) > get_value_f(&(pod->accel_x))) {
+        ensure_clamp_brakes(i, kClampBrakeClosed, false);
+      } else {
+        ensure_clamp_brakes(i, kClampBrakeEngaged, false);
+      }
+    }
+  case Emergency:
+    for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+      ensure_clamp_brakes(i, kClampBrakeEngaged, false);
     }
     break;
   default:
@@ -383,7 +331,7 @@ void adjust_skates(__unused pod_t *pod) {
   case Retrieval:
   case Emergency:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, kSolenoidClosed, false);
+      set_skate_target(i, 0, false);
     }
     break;
   case Pushing:
@@ -391,7 +339,8 @@ void adjust_skates(__unused pod_t *pod) {
   case Braking:
   case Shutdown:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      set_skate_target(i, kSolenoidOpen, false);
+      // TODO Implement PID for Skates
+      set_skate_target(i, 100, false);
     }
     break;
   default:
@@ -479,7 +428,6 @@ void *core_main(__unused void *arg) {
       fprintf(stderr, "Deadline miss for core thread\n");
       fprintf(stderr, "now: %ld sec %ld nsec next: %ld sec %ldnsec \n",
               now.tv_sec, now.tv_nsec, next.tv_sec, next.tv_nsec);
-      exit(-1);
     }
 
     // --------------------------------------------
@@ -587,15 +535,18 @@ void *core_main(__unused void *arg) {
     // Set hp fill
     adjust_hp_fill(pod);
 
+    #pragma mark core-telemetry
+
     // -------------------------------------------
-    // SECTION: Telemetry collection
+    // SECTION: Telemetry dump
     // -------------------------------------------
     log_dump(pod);
 
+    #pragma mark core-heartbeat-check
     // --------------------------------------------
     // Heartbeat handling
     // --------------------------------------------
-    if (get_time_usec() - pod->last_ping > HEARTBEAT_TIMEOUT * USEC_PER_SEC &&
+    if (get_time_usec() - pod->last_ping > HEARTBEAT_TIMEOUT_USEC &&
         pod->last_ping > 0) {
       set_pod_mode(Emergency, "Heartbeat timeout");
     }
@@ -629,8 +580,9 @@ void *core_main(__unused void *arg) {
       if (iteration_time == 0) {
         iteration_time = (double)((usec_now - usec_last));
       } else {
-        iteration_time = (1.0 - ITERATION_TIME_ALPHA) * iteration_time +
-                         ITERATION_TIME_ALPHA * (double)((usec_now - usec_last));
+        iteration_time =
+            (1.0 - ITERATION_TIME_ALPHA) * iteration_time +
+            ITERATION_TIME_ALPHA * (double)((usec_now - usec_last));
       }
       usec_last = usec_now;
       set_value_f(&(pod->core_speed),

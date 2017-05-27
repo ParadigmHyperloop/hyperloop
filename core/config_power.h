@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef _OPENLOOP_POD_CONFIG_POWER_
-#define _OPENLOOP_POD_CONFIG_POWER_
+#ifndef PARADIGM_CONFIG_POWER_H
+#define PARADIGM_CONFIG_POWER_H
 
 // --------------------------
 // Power Board
@@ -67,4 +67,4 @@
 #define FRAME_THERMO_INPUTS                                                    \
   { 10 }
 
-#endif
+#endif /* PARADIGM_CONFIG_POWER_H */

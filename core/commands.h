@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_COMMANDS_H
-#define OPENLOOP_COMMANDS_H
+#ifndef PARADIGM_COMMANDS_H
+#define PARADIGM_COMMANDS_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -41,4 +41,4 @@ typedef struct {
   int (*func)(size_t argc, char *argv[], size_t outbufc, char outbuf[]);
 } command_t;
 
-#endif
+#endif /* PARADIGM_COMMANDS_H */

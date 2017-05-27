@@ -30,15 +30,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "pod-helpers.h"
 #include "pod.h"
 
 int relay_walk(void);
 int sensor_walker(void);
 int self_tests(__unused pod_t *state);
 
-#define N_WALKS 10
+#define N_WALKS 3
+#define WAIT_USEC 50000
 
+#define CONFIRM(cond) do { \
+  if ((cond)) { \
+    printf("[TEST] [PASS] " __XSTR__(cond) "\n"); \
+  } else { \
+    printf("[TEST] [FAIL] " __XSTR__(cond) "\n"); \
+    exit(1); \
+  } \
+} while (0);
 /**
  * Test to stress the pod's electrical system by bursting it under full load
  * and trying to generate worst case senario rush currents
@@ -48,37 +56,50 @@ int self_tests(__unused pod_t *state);
 int relay_walk() {
   pod_t *pod = get_pod();
   solenoid_t *s;
-  int i;
+  int i, prev = 0;
   for (i = 0; i < N_RELAY_CHANNELS; i++) {
+    prev = (int)(((unsigned short)(i - 1)) % N_RELAY_CHANNELS);
+
     s = pod->relays[i];
-    info("Opening Solenoid on relay %d", i);
-    info(" > gpio: %d", s->gpio);
-    info(" > value: %d", s->value);
-    info(" > name: %s", s->name);
-    if (is_solenoid_open(s)) {
-      close_solenoid(s);
-      usleep(50000);
-    } else {
-      open_solenoid(s);
-      usleep(50000);
-    }
+    info("Open Solenoid on Relay %2.d", i);
+    open_solenoid(s);
 
-    info("Closing Solenoid on relay %d", i);
+    // Ensure that the solenoid returns the proper states
+    CONFIRM(is_solenoid_open(s));
+    CONFIRM(!is_solenoid_closed(s));
+    usleep(WAIT_USEC);
+    CONFIRM(is_solenoid_open(s));
+    CONFIRM(!is_solenoid_closed(s));
 
-    if (is_solenoid_closed(s)) {
-      open_solenoid(s);
-      usleep(100000);
-    } else {
-      close_solenoid(s);
-      usleep(100000);
-    }
+    s = pod->relays[prev];
+
+    info("Close Solenoid on Relay %2.d", prev);
+
+
+    close_solenoid(s);
+
+    // Ensure that the solenoid returns the proper states
+    CONFIRM(is_solenoid_closed(s));
+    CONFIRM(!is_solenoid_open(s));
+    usleep(WAIT_USEC);
+    CONFIRM(is_solenoid_closed(s));
+    CONFIRM(!is_solenoid_open(s));
   }
+
+  s = pod->relays[prev + 1];
+  info("Close Solenoid on Relay %2.d", prev + 1);
+  close_solenoid(s);
+
+  CONFIRM(is_solenoid_closed(s));
+  CONFIRM(!is_solenoid_open(s));
+  usleep(WAIT_USEC);
+  CONFIRM(is_solenoid_closed(s));
+  CONFIRM(!is_solenoid_open(s));
 
   return 0;
 }
 
 int sensor_walker() {
-  // sensor_pack_t sensors = read_pru_dataset();
   return 0;
 }
 
@@ -96,5 +117,6 @@ int self_tests(__unused pod_t *state) {
     error("Relay Walk Test Failed");
     return 1;
   }
+  info("Testing Complete!");
   return 0;
 }

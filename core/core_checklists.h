@@ -30,75 +30,38 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_LOG_H
-#define OPENLOOP_POD_LOG_H
-#include <stdio.h>
-#include <stdint.h>
-#include <sys/queue.h>
-#include <unistd.h>
-#include <stdarg.h>
+#ifndef PARADIGM_CHECKLISTS_H
+#define PARADIGM_CHECKLISTS_H
 
-#ifndef __unused
-#define __unused  __attribute__((unused))
-#endif
-#ifndef __printflike
-#define __printflike(a, b) __attribute__((format(printf, (a), (b))))
-#endif
-
-#include "ring_buffer.h"
-
-#ifndef PACKET_INTERVAL
-#define PACKET_INTERVAL (USEC_PER_SEC / 10) // Delay between sending packets
-#endif
-
-#define MAX_LOGS 32
-#define MAX_LOG_SIZE 512
-
-#define LOG_FILE_PATH "./hyperloop-core.log"
-
-#define TELEMETRY_PACKET_VERSION 2
-
-typedef enum {
-  Message = 1,
-  Telemetry_float = 2,
-  Telemetry_int32 = 3,
-  Packet = 4
-} log_type_t;
-
-typedef struct {
-  char name[64];
-  float value;
-} log_float_data_t;
-
-typedef struct {
-  char name[64];
-  int32_t value;
-} log_int32_data_t;
-
-typedef uint16_t relay_mask_t;
-
-typedef struct log {
-  log_type_t type;
-  char data[MAX_LOG_SIZE];
-  size_t sz;
-  STAILQ_ENTRY(log) entries;
-} log_t;
-
+#include "pod.h"
 
 /**
- * Enqueue a telemetry packet for network transmission of the current state
+ * An aggregated checklist that should always be run on every control loop
+ *
+ * @param pod A pointer to the pod structure
+ * @return true if the checklist passes, false if one or more of the checks failed
+ * TODO: A failure of a checklist item should be indicated by a bit flipped to
+ *       1 in a global field (much like errno)
  */
-int log_enqueue(log_t *l);
+bool core_pod_checklist(pod_t *pod);
 
 /**
- * Log a standard message to stdout and a log file
+ * An aggregated checklist that should be run when the pod is expected to be
+ * stopped (but could still be charged)
+ *
+ * @param pod A pointer to the pod structure
+ * @return true if the checklist passes, false if one or more of the checks failed
  */
-__printflike(1, 2)
-int pod_log(char *fmt, ...);
+bool pod_safe_checklist(pod_t *pod);
 
 /**
- * Main entry point into the logging server. Use with pthread_create
+ * An aggregated checklist that should be run when the pod is expected to be
+ * completely deenergized.
+ *
+ * @param pod A pointer to the pod structure
+ * @return true if the checklist passes, false if one or more of the checks failed
  */
-void *logging_main(__unused void *arg);
+bool pod_hp_safe_checklist(pod_t *pod);
 
-#endif
+
+#endif /* PARADIGM_CHECKLISTS_H */

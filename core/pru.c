@@ -141,8 +141,9 @@ int pru_read(pod_t *pod) {
             pru_get_int(pru_shared_mem_int[OFFSET_SHAREDRAM + 3 + mux]);
 
         printf(" %4d", val);
-
-        update_sensor(s, val);
+        
+        queue_sensor(s, val);
+        update_sensor(s);
       } else {
         printf("     ");
       }

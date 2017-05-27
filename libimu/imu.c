@@ -60,7 +60,7 @@
 union bytes_to_float {
   unsigned char b[4];
   float f;
-} b2f;
+};
 
 ssize_t serial_read(int fd, unsigned char *buf, int n);
 

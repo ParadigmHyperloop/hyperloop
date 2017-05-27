@@ -30,4 +30,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "bbb.h"
+
+#ifndef PARADIGM_REALTIME_H
+#define PARADIGM_REALTIME_H
+
+#include "pod.h"
+
+/**
+ * Get the current time of the pod in microseconds
+ *
+ * TODO: Make this function return nanosecond precision
+ *
+ * @return The current timestamp in microseconds
+ */
+uint64_t get_time_usec(void);
+
+/**
+ * @brief Loads the current RealTime timespec into the given address t.
+ *
+ * @note In the event of a failure to retrieve the current Realtime timespec,
+ * an emergency condition is declared and the pod will safe itself.  A cached
+ * timespec from the last successful realtime timespec will be copied into t
+ */
+void get_timespec(struct timespec *t);
+
+/**
+ * @brief Adds the given number of microseconds to the timespec pointed to by t
+ */
+void timespec_add_us(struct timespec *t, long us);
+
+/**
+ * Compares two timespecs.
+ *
+ * @see strcmp
+ */
+int timespec_cmp(struct timespec *a, struct timespec *b);
+
+/**
+ * Returns the total number of nanoseconds in the timespec
+ */
+int64_t timespec_to_nsec(struct timespec *t);
+
+#endif /* PARADIGM_REALTIME_H */

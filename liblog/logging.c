@@ -30,16 +30,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-// Much of this code is based on this CMU TCP client example
-// http://www.cs.cmu.edu/afs/cs/academic/class/15213-f99/www/class26/tcpclient.c
-
-#include <pod.h>
+#include "logging.h"
 
 extern ring_buf_t logbuf;
 
-int log_connect(void);
-int log_send(log_t *l);
+static
+int log_open(char *filename) {
+  return open(filename, O_CREAT | O_WRONLY | O_APPEND, S_IRWXU | S_IRWXG | S_IROTH);
+}
 
+static
 int log_connect() {
   info("Connecting to logging server: " LOG_SVR_NAME);
 
@@ -49,24 +49,9 @@ int log_connect() {
   char *hostname = LOG_SVR_NAME;
 
   // Create the socket
-  fd = socket(AF_INET, SOCK_STREAM, 0);
+  fd = socket(AF_INET, SOCK_DGRAM, 0);
   if (fd < 0) {
     error("ERROR opening socket\n");
-    return -1;
-  }
-
-  struct timeval t;
-  t.tv_sec = 1;
-  t.tv_usec = 0;
-
-  // Set send and recieve timeouts to reasonable numbers
-  if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&t, sizeof(t)) < 0) {
-    error("setsockopt failed\n");
-    return -1;
-  }
-
-  if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&t, sizeof(t)) < 0) {
-    error("setsockopt failed\n");
     return -1;
   }
 
@@ -86,9 +71,9 @@ int log_connect() {
   info("Resolved %s => %s", hostname, inet_ntoa(serveraddr.sin_addr));
   serveraddr.sin_port = htons(portno);
 
-  // Start TCP connection
+  // "connect" to the UDP server (Really just sets the default sendto address)
   if (connect(fd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) {
-    error("Connection Refused\n");
+    error("UDP Connection Error\n");
     return -1;
   }
 
@@ -97,8 +82,10 @@ int log_connect() {
   return fd;
 }
 
+
 // Use of any output macro in this function could lead to stack overflow...
 // Do not use output macros in this function
+static
 int log_send(log_t *l) {
   pod_t *pod = get_pod();
 
@@ -127,6 +114,14 @@ int log_send(log_t *l) {
     fprintf(stderr, "ERROR writing to socket: %s\n", strerror(errno));
     return -1;
   }
+  
+  if (pod->logging_fd > -1) {
+    n = write(pod->logging_fd, buf, len);
+    if (n <= 0) {
+      fprintf(stderr, "ERROR writing to binary log file: %s\n", strerror(errno));
+      return -1;
+    }
+  }
   /* print the server's reply */
   bzero(buf, MAX_PACKET_SIZE);
 
@@ -138,10 +133,20 @@ void *logging_main(__unused void *arg) {
 
   pod_t *pod = get_pod();
 
-  while (pod->logging_socket < 0) {
+  while (pod->logging_socket < 0 && get_pod_mode() != Shutdown) {
     pod->logging_socket = log_connect();
     if (pod->logging_socket < 0) {
       error("Logging Socket failed to connect: %s", strerror(errno));
+      sleep(1);
+    } else {
+      break;
+    }
+  }
+  
+  while (pod->logging_fd < 0) {
+    pod->logging_fd = log_open(pod->logging_filename);
+    if (pod->logging_fd < 0) {
+      error("Logging File failed to open: %s", strerror(errno));
       sleep(1);
     } else {
       break;
@@ -184,7 +189,6 @@ void *logging_main(__unused void *arg) {
     }
   }
 
-  error("=== Logging system is going down ===");
-  exit(1);
+  warn("=== Logging system is going down ===");
   return NULL;
 }

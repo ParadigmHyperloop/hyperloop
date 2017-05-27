@@ -33,9 +33,7 @@
 #ifndef pins_h
 #define pins_h
 
-#include <stdbool.h>
-#include "shims.h"
-#include "libBBB.h"
+#include "hw.h"
 
 /**
  * Setup the given pin as a standard output pin

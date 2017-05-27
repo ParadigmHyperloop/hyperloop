@@ -30,10 +30,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_PRU_H
-#define OPENLOOP_PRU_H
+#ifndef PARADIGM_PRU_H
+#define PARADIGM_PRU_H
 
-#include "pod-helpers.h"
 #include "pod.h"
 
 #include <errno.h>

@@ -30,75 +30,67 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_LOG_H
-#define OPENLOOP_POD_LOG_H
-#include <stdio.h>
-#include <stdint.h>
-#include <sys/queue.h>
-#include <unistd.h>
-#include <stdarg.h>
+#include "realtime.h"
 
-#ifndef __unused
-#define __unused  __attribute__((unused))
-#endif
-#ifndef __printflike
-#define __printflike(a, b) __attribute__((format(printf, (a), (b))))
-#endif
+uint64_t get_time_usec() {
+  struct timespec tc;
+  clock_gettime(CLOCK_REALTIME, &tc);
+  
+  return (tc.tv_sec * USEC_PER_SEC) + (tc.tv_nsec / NSEC_PER_USEC);
+}
 
-#include "ring_buffer.h"
+void get_timespec(struct timespec *t) {
+  static struct timespec cached;
+  int rc = clock_gettime(CLOCK_REALTIME, t);
+  if (rc < 0) {
+    DECLARE_EMERGENCY("clock_gettime failure: rc:%d errno:%d", rc, errno);
+    memcpy(t, &cached, sizeof(struct timespec));
+  }
+}
 
-#ifndef PACKET_INTERVAL
-#define PACKET_INTERVAL (USEC_PER_SEC / 10) // Delay between sending packets
-#endif
+static void timespec_add(struct timespec *t1, struct timespec *t2) {
+  long sec = t2->tv_sec + t1->tv_sec;
+  long nsec = t2->tv_nsec + t1->tv_nsec;
 
-#define MAX_LOGS 32
-#define MAX_LOG_SIZE 512
+  if (nsec >= 1000000000) {
+    nsec -= 1000000000;
+    sec++;
+  }
 
-#define LOG_FILE_PATH "./hyperloop-core.log"
+  t1->tv_sec = sec;
+  t1->tv_nsec = nsec;
+}
 
-#define TELEMETRY_PACKET_VERSION 2
+static void timespec_add_ns(struct timespec *t, long ns) {
+  struct timespec t2 = {.tv_sec = ns / 1000000000, .tv_nsec = ns % 1000000000};
+  timespec_add(t, &t2);
+}
 
-typedef enum {
-  Message = 1,
-  Telemetry_float = 2,
-  Telemetry_int32 = 3,
-  Packet = 4
-} log_type_t;
+void timespec_add_us(struct timespec *t, long us) {
+  timespec_add_ns(t, us * 1000);
+}
 
-typedef struct {
-  char name[64];
-  float value;
-} log_float_data_t;
+int timespec_cmp(struct timespec *a, struct timespec *b) {
+  if (a->tv_sec > b->tv_sec)
+  return 1;
+  else if (a->tv_sec < b->tv_sec)
+  return -1;
+  else if (a->tv_sec == b->tv_sec) {
+    if (a->tv_nsec > b->tv_nsec)
+    return 1;
+    else if (a->tv_nsec == b->tv_nsec)
+    return 0;
+    else
+    return -1;
+  }
+  
+  return -1;
+}
 
-typedef struct {
-  char name[64];
-  int32_t value;
-} log_int32_data_t;
-
-typedef uint16_t relay_mask_t;
-
-typedef struct log {
-  log_type_t type;
-  char data[MAX_LOG_SIZE];
-  size_t sz;
-  STAILQ_ENTRY(log) entries;
-} log_t;
-
-
-/**
- * Enqueue a telemetry packet for network transmission of the current state
- */
-int log_enqueue(log_t *l);
-
-/**
- * Log a standard message to stdout and a log file
- */
-__printflike(1, 2)
-int pod_log(char *fmt, ...);
-
-/**
- * Main entry point into the logging server. Use with pthread_create
- */
-void *logging_main(__unused void *arg);
-
-#endif
+int64_t timespec_to_nsec(struct timespec *t) {
+  if (t->tv_sec >= (INT32_MAX - 1) / (long)NSEC_PER_SEC) {
+    return -1;
+  }
+  
+  return (t->tv_sec * NSEC_PER_SEC) + t->tv_nsec;
+}

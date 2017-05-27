@@ -30,75 +30,56 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_LOG_H
-#define OPENLOOP_POD_LOG_H
+#ifndef PARADIGM_GPIO_H
+#define PARADIGM_GPIO_H
+
 #include <stdio.h>
-#include <stdint.h>
-#include <sys/queue.h>
 #include <unistd.h>
-#include <stdarg.h>
+#include <fcntl.h>
+#include <string.h>
 
-#ifndef __unused
-#define __unused  __attribute__((unused))
-#endif
-#ifndef __printflike
-#define __printflike(a, b) __attribute__((format(printf, (a), (b))))
-#endif
+#define SYSFS_GPIO_MAX_PATH 64
 
-#include "ring_buffer.h"
+#define SYSFS_GPIO_BASE "/sys/class/gpio"
+#define SYSFS_GPIO_PIN_FMT SYSFS_GPIO_BASE "/gpio%d/%s"
 
-#ifndef PACKET_INTERVAL
-#define PACKET_INTERVAL (USEC_PER_SEC / 10) // Delay between sending packets
-#endif
+#define SYSFS_GPIO_EXPORT "export"
+#define SYSFS_GPIO_EXPORT_FULL SYSFS_GPIO_BASE "/" SYSFS_GPIO_BASE
 
-#define MAX_LOGS 32
-#define MAX_LOG_SIZE 512
+#define SYSFS_GPIO_LOW "0"
+#define SYSFS_GPIO_HIGH "1"
 
-#define LOG_FILE_PATH "./hyperloop-core.log"
+#define SYSFS_GPIO_IN "in"
+#define SYSFS_GPIO_OUT "out"
 
-#define TELEMETRY_PACKET_VERSION 2
+#define SYSFS_GPIO_DIR_FILE "direction"
+#define SYSFS_GPIO_VAL_FILE "value"
 
-typedef enum {
-  Message = 1,
-  Telemetry_float = 2,
-  Telemetry_int32 = 3,
-  Packet = 4
-} log_type_t;
+typedef int gpio_t;
 
-typedef struct {
-  char name[64];
-  float value;
-} log_float_data_t;
+// TODO: Determine if it's C99 standard to store enums as (un)signed ints...
+// then assign explicit values to each enum case
+typedef enum gpio_value {
+ kGpioValError,
+ kGpioHigh,
+ kGpioLow
+} gpio_value_t;
 
-typedef struct {
-  char name[64];
-  int32_t value;
-} log_int32_data_t;
+typedef enum gpio_dir {
+ kGpioDirError,
+ kGpioOut,
+ kGpioIn
+} gpio_dir_t;
 
-typedef uint16_t relay_mask_t;
+// SYSFS Helpers
+ssize_t sysfs_write(int pin, char *op, char *data);
+ssize_t sysfs_read(int pin, char *op, char *data, size_t len);
 
-typedef struct log {
-  log_type_t type;
-  char data[MAX_LOG_SIZE];
-  size_t sz;
-  STAILQ_ENTRY(log) entries;
-} log_t;
-
-
-/**
- * Enqueue a telemetry packet for network transmission of the current state
- */
-int log_enqueue(log_t *l);
-
-/**
- * Log a standard message to stdout and a log file
- */
-__printflike(1, 2)
-int pod_log(char *fmt, ...);
-
-/**
- * Main entry point into the logging server. Use with pthread_create
- */
-void *logging_main(__unused void *arg);
+// GPIO Prototypes
+ssize_t init_pin(gpio_t pin);
+ssize_t set_pin_direction(gpio_t pin, gpio_dir_t value);
+gpio_dir_t get_pin_direction(gpio_t pin);
+ssize_t set_pin_value(gpio_t pin, gpio_value_t value);
+gpio_value_t get_pin_value(gpio_t pin);
 
 #endif

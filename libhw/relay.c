@@ -33,13 +33,13 @@
 #include "relay.h"
 #include "pins.h"
 
-void setRelay(int pin, relay_state_t state) {
+void set_relay(int pin, relay_state_t state) {
   switch (state) {
     case kRelayOn:
-      setPinValue(pin, 1);
+      set_pin_value(pin, kGpioHigh);
       break;
     case kRelayOff:
-      setPinValue(pin, 0);
+      set_pin_value(pin, kGpioLow);
       break;
     case kRelayError:
       // TOOD: Handle
@@ -49,11 +49,11 @@ void setRelay(int pin, relay_state_t state) {
 
 
 relay_state_t read_relay_state(int pin) {
-  switch (getPinValue(pin)) {
-    case 0:
+  switch (get_pin_value(pin)) {
+    case kGpioLow:
       return kRelayOff;
       break;
-    case 1:
+    case kGpioHigh:
       return kRelayOn;
       break;
     default:

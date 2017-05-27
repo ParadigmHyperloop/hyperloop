@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef _OPENLOOP_POD_CONFIG_AIRSUPPLY_
-#define _OPENLOOP_POD_CONFIG_AIRSUPPLY_
+#ifndef PARADIGM_CONFIG_AIRSUPPLY_H
+#define PARADIGM_CONFIG_AIRSUPPLY_H
 
 // --------------------------
 // Configuration Constants
@@ -125,12 +125,12 @@
 // --------------------------
 // Clamp Brakes
 // --------------------------
-
-#define N_CLAMP_ENGAGE_SOLONOIDS 2
+#define N_CLAMP_SOLONOIDS 2
+#define N_CLAMP_ENGAGE_SOLONOIDS N_CLAMP_SOLONOIDS
 #define CLAMP_ENGAGE_SOLONOIDS                                                 \
   { 78, 74 }
 
-#define N_CLAMP_RELEASE_SOLONOIDS 2
+#define N_CLAMP_RELEASE_SOLONOIDS N_CLAMP_SOLONOIDS
 #define CLAMP_RELEASE_SOLONOIDS                                                \
   { 76, 72 }
 
@@ -155,7 +155,7 @@
 
 #define N_WHEEL_SOLONOIDS 3
 #define WHEEL_SOLONOIDS                                                        \
-  { 11, 70, 72 }
+  { 70, 71, 73 }
 
 // --------------------------
 // HP Fill
@@ -190,4 +190,4 @@
 
 #define VENT_SOLENOID 77
 
-#endif
+#endif /* PARADIGM_CONFIG_AIRSUPPLY_H */

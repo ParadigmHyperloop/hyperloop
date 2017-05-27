@@ -38,8 +38,6 @@
 #ifndef BBB
 int initPin(int pinnum) { return 0; }
 int setPinDirection(int pinnum, char *dir) { return 0; }
-int setPinValue(int pinnum, int value) { return 0; }
-int getPinValue(int pinnum) { return 0; }
 
 // PWM Prototypes
 int initPWM(int mgrnum, char *pin) { return 0; }
@@ -71,17 +69,6 @@ int writeBufferSPI(int device, unsigned char *buf, int len) { return 0; }
 int readByteSPI(int device, unsigned char *data) { return 0; }
 int readBufferSPI(int device, int numbytes, unsigned char *buf) { return 0; }
 
-// LCD 4-bit Prototypes
-int initLCD() { return 0; }
-int writeChar(unsigned char data) { return 0; }
-int writeCMD(unsigned char cmd) { return 0; }
-int writeString(char *str, int len) { return 0; }
-int LCD_ClearScreen() { return 0; }
-int LCD_Home() { return 0; }
-int LCD_CR() { return 0; }
-int LCD_Backspace() { return 0; }
-int LCD_Move(int location) { return 0; }
-
 // ADC Prototypes
 int initADC(int mgrnum) { return 0; }
 int readADC(int helpnum, char *ach) { return 0; }
@@ -89,7 +76,9 @@ int readADC(int helpnum, char *ach) { return 0; }
 // Time Prototypes
 void pauseSec(int sec) { return; }
 int pauseNanoSec(long nano) { return 0; }
+#endif /* BBB */
 
+#ifndef HAS_PRU
 int prussdrv_init(void) { return 0; }
 int prussdrv_open(unsigned int host_interrupt) { return 0; }
 int prussdrv_pruintc_init(const tpruss_intc_initdata *prussintc_init_data) {
@@ -108,5 +97,5 @@ int prussdrv_pru_clear_event(unsigned int host_interrupt,
                              unsigned int sysevent) {
   return 0;
 }
-#endif
+#endif /* HAS_PRU */
 #pragma clang diagnostic pop

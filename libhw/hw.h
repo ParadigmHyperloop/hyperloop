@@ -30,9 +30,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef libint_h
-#define libint_h
+#ifndef PARADIGM_HW_H
+#define PARADIGM_HW_H
 
+#include <config.h>
+#include <stdbool.h>
+#include <pthread.h>
+#include <stdlib.h>
+
+#include "bbb.h"
+
+#include "libBBB.h"
+#include "mpye.h"
 #include "solenoid.h"
 #include "relay.h"
 #include "shims.h"
@@ -42,4 +51,4 @@
 #define __unused  __attribute__((unused))
 #endif
 
-#endif /* libint_h */
+#endif /* PARADIGM_HW_H */

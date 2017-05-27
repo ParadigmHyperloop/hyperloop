@@ -30,75 +30,46 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_LOG_H
-#define OPENLOOP_POD_LOG_H
-#include <stdio.h>
-#include <stdint.h>
-#include <sys/queue.h>
-#include <unistd.h>
-#include <stdarg.h>
+#include "core_checklists.h"
 
-#ifndef __unused
-#define __unused  __attribute__((unused))
-#endif
-#ifndef __printflike
-#define __printflike(a, b) __attribute__((format(printf, (a), (b))))
-#endif
-
-#include "ring_buffer.h"
-
-#ifndef PACKET_INTERVAL
-#define PACKET_INTERVAL (USEC_PER_SEC / 10) // Delay between sending packets
-#endif
-
-#define MAX_LOGS 32
-#define MAX_LOG_SIZE 512
-
-#define LOG_FILE_PATH "./hyperloop-core.log"
-
-#define TELEMETRY_PACKET_VERSION 2
-
-typedef enum {
-  Message = 1,
-  Telemetry_float = 2,
-  Telemetry_int32 = 3,
-  Packet = 4
-} log_type_t;
-
-typedef struct {
-  char name[64];
-  float value;
-} log_float_data_t;
-
-typedef struct {
-  char name[64];
-  int32_t value;
-} log_int32_data_t;
-
-typedef uint16_t relay_mask_t;
-
-typedef struct log {
-  log_type_t type;
-  char data[MAX_LOG_SIZE];
-  size_t sz;
-  STAILQ_ENTRY(log) entries;
-} log_t;
-
+bool core_pod_checklist(pod_t *pod) {
+  // TODO: is_battery_power_ok()  // Voltage > 28, current > 0.2 A @james
+  // TODO: is_rpm_ok()            // less than 6000 @akeating
+  // TODO: is_imu_ok()            // temp (-40°C to +75°C) VERIFIED
+  // TODO: is_velocity_too_fast() // 95 m/s (roughly 215 mph) @akeating
+  
+  // TODO: is_reg_temp_ok()       // 0 -> 50 @akeating
+  // TODO: is_clamp_temp_ok()     // 0 -> 100something @akeating
+  // TODO: is_battery_temp_ok()   // 0 -> 60something @james
+  // TODO: is_caliper_temp_ok()   // 0 -> 100something @akeating
+  // TODO: is_frame_temp_ok()     // 0 -> 40 C @edhurtig
+  
+  // TODO: is_frame_pressure_ok() // 0 -> 20 PSIA VERIFIED
+  // TODO: is_hp_pressure_ok()    // 0 -> 1770 PSI... @akeating
+  // TODO: is_lp_pressure_ok()    // 0 -> 150 PSI... @akeating
+  for (int i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
+    if (is_solenoid_open(&(pod->lp_fill_valve[i]))) {
+      return false;
+    }
+  }
+  
+  if (is_solenoid_open(&(pod->hp_fill_valve))) {
+    return false;
+  }
+  
+  return true;
+}
 
 /**
- * Enqueue a telemetry packet for network transmission of the current state
+ * Is the pod safe. Used to inhibit transitions to various different states
  */
-int log_enqueue(log_t *l);
+bool pod_safe_checklist(pod_t *pod) {
+  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_pod_vented(pod);
+}
 
 /**
- * Log a standard message to stdout and a log file
+ * Is the pod safe to proceed to an HP Fill
  */
-__printflike(1, 2)
-int pod_log(char *fmt, ...);
-
-/**
- * Main entry point into the logging server. Use with pthread_create
- */
-void *logging_main(__unused void *arg);
-
-#endif
+bool pod_hp_safe_checklist(pod_t *pod) {
+  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_hp_vented(pod);
+}

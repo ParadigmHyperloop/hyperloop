@@ -30,35 +30,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_EMERGENCY_H
-#define OPENLOOP_POD_EMERGENCY_H
-#include "states.h"
+#include "bbb.h"
 
-/**
- * WARNING! TAKE EXTREME CARE IN WHERE YOU USE THIS! THIS WILL KILL THE PROG!
- *
- * Recommend instead:
- *
- *  set_pod_mode(Emergency, "Explain what happened");
- *
- * or the wrapper macro for set_pod_mode(Emergency) which adds file/line info
- *
- *  DECLARE_EMERGENCY("Explain what happened");
- *
- * Declare an immediate panic and exit. This will kill the controller, Logging
- * server, command server, and the entire process.
- *
- * The panic flow is as follows
- *   - Print the given panic notes to stderr ONLY
- *   - Issue a POD_SIGPANIC to own pid or just exit(POD_EX_PANIC)
- *   - The safety wrapper script should immediately attempt to set the CTRL_OK
- *     GPIO to LOW using the linux /sys/class/gpio tree signalling the
- *     Emergency Board that the controller crashed
- *   - The safety wrapper script will attempt to deenergize the Ebrake
- *     solenoids if possible but the Emergency Board should also open the
- *     Emergency brake solenoids as well when CTRL_OK drops LOW
- */
-void pod_panic(int subsystem, char *file, int line, char *notes, ...);
+#ifndef BBB
 
+ssize_t init_pin(__unused gpio_t pin) { return 0; }
+ssize_t set_pin_direction(__unused gpio_t pin, __unused gpio_dir_t value) { return 0; }
+gpio_dir_t get_pin_direction(__unused gpio_t pin)  { return kGpioDirError; }
+ssize_t set_pin_value(__unused gpio_t pin, __unused gpio_value_t value) { return 0; }
+gpio_value_t get_pin_value(__unused gpio_t pin) { return kGpioValError; }
 
 #endif

@@ -30,145 +30,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_H
-#define OPENLOOP_POD_H
 
-#include "cdefs.h"
-#include "config.h"
-#include <libBBB.h>
+#ifndef PARADIGM_POD_H
+#define PARADIGM_POD_H
+
 #include <pthread.h>
 #include <sys/queue.h>
 
+#include "cdefs.h"
+#include "config.h"
+
+#include <libBBB.h>
 #include <hw.h>
 #include <imu.h>
 #include <log.h>
 
 #include "states.h"
-// proprietary libimu header
-
-#include "core.h"
+#include "pod-defs.h"
+#include "realtime.h"
+#include "telemetry.h"
 #include "commander.h"
-#include "emergency.h"
+#include "core.h"
+#include "panic.h"
+#include "pod-helpers.h"
 #include "ring_buffer.h"
-/**
- * Get the current time of the pod in microseconds
- *
- * TODO: Make this function return nanosecond precision
- * TODO: Make this function return a uint64_t
- * TODO: Make this function actually specify the timezone/base of the timestamp
- *
- * @return The current timestamp in microseconds
- */
-uint64_t get_time_usec(void);
+#include "accel.h"
 
-void get_timespec(struct timespec *t);
-
-void timespec_add_us(struct timespec *t, long us);
-
-int timespec_cmp(struct timespec *a, struct timespec *b);
-
-int64_t timespec_to_nsec(struct timespec *t);
-
-/**
- * Calibrate sensors based on currently read values (zero out)
- */
-void pod_calibrate(void);
-
-/**
- * Reset positional and sensor data to blank slate
- */
-void pod_reset(void);
-
-void pod_exit(int code);
-
-int set_skate_target(int no, solenoid_state_t val, bool override);
-int ensure_caliper_brakes(int no, solenoid_state_t val, bool override);
-int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override);
-
-relay_mask_t get_relay_mask(pod_t *pod);
-
-int self_tests(pod_t *pod);
-
-void add_imu_data(imu_datagram_t *data, pod_t *s);
-void setup_pins(pod_t *state);
-
-
-// TODO: Circle Back to this, not sure why this struct isn't aligning correctly
-#pragma pack(1)
-typedef struct telemetry_packet {
-  uint8_t version;
-  uint16_t size;
-  // state
-  uint8_t state;
-  // Solenoids
-  uint32_t solenoids;
-  uint64_t timestamp;
-  // IMU
-  float position_x;
-  float position_y;
-  float position_z;
-
-  float velocity_x;
-  float velocity_y;
-  float velocity_z;
-
-  float acceleration_x;
-  float acceleration_y;
-  float acceleration_z;
-
-  // Distance sensors
-  float corners[N_CORNER_DISTANCE];                // 4
-  float wheels[N_WHEEL_DISTANCE];                  // 3
-  float lateral[N_LATERAL_DISTANCE];               // 3
-
-  // Pressures
-  float hp_pressure;                               // 1
-  float reg_pressure[N_REG_PRESSURE];              // 4
-  float clamp_pressure[N_CLAMP_PRESSURE];          // 2
-  float skate_pressure[N_SKATE_PRESSURE];          // 2
-  float lateral_pressure[N_LAT_FILL_PRESSURE];     // 2
-
-  // Thermocouples
-  float hp_thermo;                                 // 1
-  float reg_thermo[N_REG_THERMO];                  // 4
-  float reg_surf_thermo[N_REG_SURF_THERMO];        // 4
-  float power_thermo[N_POWER_THERMO];              // 4
-  float clamp_thermo[N_CLAMP_PAD_THERMO];          // 2
-  float frame_thermo;                              // 1
-
-  // Batteries
-  float voltages[N_BATTERIES];                     // 3
-  float currents[N_BATTERIES];                     // 3
-
-  // Photo
-  float rpms[N_WHEEL_PHOTO];                       // 3
-  uint32_t stripe_count;
-} telemetry_packet_t;
-
-/**
- * Sends the given message to all logging destinations
- */
-int pod_log(char *fmt, ...);
-
-/**
- * Dump entire pod_t to the network logging buffer
- */
-void log_dump(pod_t *pod);
-
-/**
- * Create a human understandable text description of the current pod status
- *
- * @param pod A pod with data that you want a report of
- * @param buf The buffer to put the report in
- * @param len The length of buf
- *
- * @return The length of the report in bytes, or -1 on failure
- */
-int status_dump(pod_t *pod, char *buf, size_t len);
-
-/**
- * Build a telemetry_packet_t using the given pod_t
- */
-telemetry_packet_t make_telemetry(pod_t *pod);
-
-#endif
+#endif /* PARADIGM_POD_H */

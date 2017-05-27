@@ -24,7 +24,19 @@ pipeline {
     stage('Deploy') {
       steps {
         sh 'make deb'
-        sh 'make publish'
+        sh 'make publish > secure.txt'
+      }
+    }
+    stage('Build-32bit') {
+      steps {
+        sh 'make clean'
+        sh 'make all'
+        sh 'make install'
+      }
+    }
+    stage('Test-32') {
+      steps {
+        sh 'make test'
       }
     }
   }

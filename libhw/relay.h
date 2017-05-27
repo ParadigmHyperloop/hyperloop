@@ -33,13 +33,15 @@
 #ifndef relay_h
 #define relay_h
 
+#include "hw.h"
+
 typedef enum relay_state {
   kRelayError,
   kRelayOff, // Relay is not actuated
   kRelayOn   // Relay is actuated
 } relay_state_t;
 
-void setRelay(int pin, relay_state_t state);
+void set_relay(int pin, relay_state_t state);
 
 relay_state_t read_relay_state(int pin);
 

@@ -30,15 +30,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "crc.h"
-#include "imu.h"
+#include <crc.h>
+#include <imu.h>
 #include <assert.h>
 #include <getopt.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/time.h>
-
-int serial_port;
+#include <inttypes.h>
 
 #ifdef __linux__
 static char *PORT_NAME = "/dev/ttyUSB0";
@@ -57,11 +56,7 @@ typedef struct {
   int quiet;
 } config_t;
 
-uint64_t getTime(void);
-void usage(void);
-void finish(int code, int fd);
-void parse_args(int argc, char *argv[], config_t *config);
-
+static
 uint64_t getTime() {
   struct timeval currentTime;
 
@@ -70,8 +65,9 @@ uint64_t getTime() {
   return (currentTime.tv_sec * 1000000ULL) + currentTime.tv_usec;
 }
 
+static
 void usage() {
-  printf("Usage: test [-i ITERATIONS] [-s SPINUP] [-d DEVICE] [-q] [-f]\n");
+  printf("Usage: imu_test [-i ITERATIONS] [-s SPINUP] [-d DEVICE] [-q] [-f]\n");
   printf("  -i    The maximium number of iterations to read\n");
   printf("  -d    Path to the device (/dev/ttyUSB0)\n");
   printf("  -q    Disable printing of each datagram\n");
@@ -79,32 +75,34 @@ void usage() {
   exit(1);
 }
 
+static
 void parse_args(int argc, char *argv[], config_t *config) {
   int ch;
-
-  while ((ch = getopt(argc, argv, "d:i:s:qf")) != -1) {
+  while ((ch = getopt(argc, argv, "d:i:s:qfh")) != -1) {
     switch (ch) {
-    case 'd':
-      config->device = optarg;
-      break;
-    case 'i':
-      config->iterations = atoi(optarg);
-      break;
-    case 's':
-      config->spinup = atoi(optarg);
-      break;
-    case 'q':
-      config->quiet = 1;
-      break;
-    case 'f':
-      config->stop_on_fail = 1;
-      break;
-    default:
-      usage();
+      case 'd':
+        config->device = optarg;
+        break;
+      case 'i':
+        config->iterations = atoi(optarg);
+        break;
+      case 's':
+        config->spinup = atoi(optarg);
+        break;
+      case 'q':
+        config->quiet = 1;
+        break;
+      case 'f':
+        config->stop_on_fail = 1;
+        break;
+      case 'h':
+      default:
+        usage();
     }
   }
 }
 
+static
 void finish(int code, int fd) {
   imu_disconnect(fd);
   exit(code);
@@ -112,10 +110,10 @@ void finish(int code, int fd) {
 
 int main(int argc, char *argv[]) {
   config_t config = {.iterations = MAX_ITERATIONS,
-                     .spinup = SPINUP_ITER,
-                     .device = PORT_NAME,
-                     .stop_on_fail = 0,
-                     .quiet = 0};
+    .spinup = SPINUP_ITER,
+    .device = PORT_NAME,
+    .stop_on_fail = 0,
+    .quiet = 0};
 
   parse_args(argc, argv, &config);
 
@@ -144,7 +142,7 @@ int main(int argc, char *argv[]) {
 
     if (!config.quiet && success > 0) {
       printf("[TEST] hd: %X\tx: %f\ty: %f\tz: %f\twx: %f\twy: %f\twz: %f\t "
-             "seq: %d\t stat: %X\t tp: %u\t crc: %X \t ckc: %X\t t: %llu\n",
+             "seq: %d\t stat: %X\t tp: %u\t crc: %X \t ckc: %X\t t: %" PRIu64 "\n",
              data.hd, data.x, data.y, data.z, data.wx, data.wy, data.wz,
              data.sequence, data.status, data.temperature, data.crc,
              data.computed_crc, getTime());

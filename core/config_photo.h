@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef _OPENLOOP_POD_CONFIG_PHOTO_
-#define _OPENLOOP_POD_CONFIG_PHOTO_
+#ifndef PARADIGM_CONFIG_PHOTO_H
+#define PARADIGM_CONFIG_PHOTO_H
 
 // --------------------------
 // Vertical
@@ -74,4 +74,4 @@
 #define WHEEL_PHOTO_INPUTS                                                     \
   { 4, 5, 6 }
 
-#endif
+#endif /* PARADIGM_CONFIG_PHOTO_H */

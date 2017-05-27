@@ -1,9 +1,8 @@
-EXECUTABLE=$(OBJROOT)/core
+EXECUTABLE=$(OBJROOT)/imu_config
 
 include ../config.mk
 
-RUN_ARGS := -i -
-override LDFLAGS += -L$(OBJROOT) -limu -llog -lhw -lbbb
+override LDFLAGS += -L$(OBJROOT) -limu
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)
@@ -26,5 +25,3 @@ clean:
 	rm -rf $(BLDROOT)
 
 install_headers:
-	mkdir -p $(HDRROOT)$(HDR_INSTALL)
-	install $(HEADERS) $(HDRROOT)$(HDR_INSTALL)
