@@ -57,18 +57,18 @@ UNAME_S := $(shell uname -s)
 #endif
 
 ifeq ($(UNAME_S),Linux)
-	 LDFLAGS += -pthread -lrt
+	override LDFLAGS += -pthread -lrt
 endif
 
 ifneq (,$(findstring bone,$(UNAME_R)))
-	CFLAGS += -DBBB -DHAS_KILL_SWITCH
+	override CFLAGS += -DBBB -DHAS_KILL_SWITCH
 endif
 
 # Compiler and Linker Flags
-CFLAGS += -Os -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL)
+override CFLAGS += -Os -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL)
 
 # Main Warning Flag Set
-CFLAGS += -Wall -Werror -Wno-unknown-pragmas
+override CFLAGS += -Wall -Werror -Wno-unknown-pragmas
 
 # Helpers
 MAKE_LIB = $(AR) rcs

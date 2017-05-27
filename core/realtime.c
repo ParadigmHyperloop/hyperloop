@@ -88,7 +88,7 @@ int timespec_cmp(struct timespec *a, struct timespec *b) {
 }
 
 int64_t timespec_to_nsec(struct timespec *t) {
-  if (t->tv_sec >= (INT64_MAX - 1) / (long)NSEC_PER_SEC) {
+  if (t->tv_sec >= (INT32_MAX - 1) / (long)NSEC_PER_SEC) {
     return -1;
   }
   

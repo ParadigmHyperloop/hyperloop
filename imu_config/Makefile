@@ -2,7 +2,7 @@ EXECUTABLE=$(OBJROOT)/imu_config
 
 include ../config.mk
 
-LDFLAGS += -L$(OBJROOT) -limu
+override LDFLAGS += -L$(OBJROOT) -limu
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)

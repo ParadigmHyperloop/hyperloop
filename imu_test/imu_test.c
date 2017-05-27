@@ -37,6 +37,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <inttypes.h>
 
 #ifdef __linux__
 static char *PORT_NAME = "/dev/ttyUSB0";
@@ -141,7 +142,7 @@ int main(int argc, char *argv[]) {
 
     if (!config.quiet && success > 0) {
       printf("[TEST] hd: %X\tx: %f\ty: %f\tz: %f\twx: %f\twy: %f\twz: %f\t "
-             "seq: %d\t stat: %X\t tp: %u\t crc: %X \t ckc: %X\t t: %llu\n",
+             "seq: %d\t stat: %X\t tp: %u\t crc: %X \t ckc: %X\t t: %" PRIu64 "\n",
              data.hd, data.x, data.y, data.z, data.wx, data.wy, data.wz,
              data.sequence, data.status, data.temperature, data.crc,
              data.computed_crc, getTime());
