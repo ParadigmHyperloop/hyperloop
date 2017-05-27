@@ -23,8 +23,34 @@ pipeline {
     }
     stage('Deploy') {
       steps {
-        sh 'make deb'
-        sh 'make publish'
+        parallel(
+          "Deploy": {
+            sh 'make deb'
+            sh 'make publish'
+            
+          },
+          "Archive": {
+            archiveArtifacts './BUILD/dst'
+            
+          }
+        )
+      }
+    }
+    stage('Build-32bit') {
+      steps {
+        sh 'make clean'
+        sh 'make all'
+        sh 'make install'
+      }
+    }
+    stage('Test-32') {
+      steps {
+        sh 'make test'
+      }
+    }
+    stage('Archive-32') {
+      steps {
+        archiveArtifacts './BUILD/dst'
       }
     }
   }
