@@ -48,10 +48,5 @@ pipeline {
         sh 'make test'
       }
     }
-    stage('Archive-32') {
-      steps {
-        archiveArtifacts './BUILD/dst'
-      }
-    }
   }
 }
