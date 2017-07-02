@@ -485,6 +485,7 @@ int init_pod(void) {
   // assert(sem_init(&(pod->boot_sem), 0, 0) == 0);
   pod->boot_sem = sem_open(POD_BOOT_SEM, O_CREAT, S_IRUSR | S_IWUSR, 0);
 
+  note("Telemetry Packets are %lu bytes in size", sizeof(telemetry_packet_t));
   if (pod->boot_sem == SEM_FAILED) {
     error("boot_sem failed to open");
     return -1;

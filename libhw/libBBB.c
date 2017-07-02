@@ -421,8 +421,11 @@ int strUART(int uart, char *buf) {
 int initI2C(int modnum, int addr) {
   int device;
 
+  char path[PATH_MAX];
+  snprintf(path, PATH_MAX, "/dev/i2c-%d", modnum);
+
   // open the i2c file
-  device = open("/dev/i2c-1", O_RDWR);
+  device = open(path, O_RDWR);
   if (device < 0) {
     printf("I2C module didn't open\n");
     return -1;

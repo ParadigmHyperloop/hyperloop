@@ -29,12 +29,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
-
+#include "pod.h"
 
 #ifndef PARADIGM_POD_DEFS_H
 #define PARADIGM_POD_DEFS_H
-
-#include "pod.h"
 
 typedef struct pod_value {
   union {
@@ -238,6 +236,8 @@ typedef struct pod {
   solenoid_t *relays[N_RELAY_CHANNELS];
   sensor_t *sensors[N_MUX_INPUTS * N_MUXES];
   
+  bus_t i2c[2];
+
   int imu;
   int logging_socket;
   int logging_fd;

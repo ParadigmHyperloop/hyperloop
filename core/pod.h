@@ -45,6 +45,7 @@
 #include <imu.h>
 #include <log.h>
 
+#include "bus_manager.h"
 #include "states.h"
 #include "pod-defs.h"
 #include "realtime.h"

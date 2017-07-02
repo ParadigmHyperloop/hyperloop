@@ -203,6 +203,7 @@
 #define LOG_SVR_PORT 7778
 #define MAX_LOG_LINE 512
 #define LOG_BUF_SIZE MAX_LOG_LINE * 50
+#define MAX_ATTEMPTS_PER_LOG 5
 
 // ---------------
 // Command Control
@@ -217,6 +218,7 @@
 
 #define MAX_CMD_CLIENTS 16
 
+#define N_I2C_BUSSES 2;
 // Misc
 #define POD_BOOT_SEM "/openloop.pod.boot"
 

@@ -426,7 +426,7 @@ void *core_main(__unused void *arg) {
     timespec_add_us(&next, CORE_PERIOD_USEC);
     if (timespec_cmp(&now, &next) > 0) {
       fprintf(stderr, "Deadline miss for core thread\n");
-      fprintf(stderr, "now: %ld sec %ld nsec next: %ld sec %ldnsec \n",
+      fprintf(stderr, "now: %ld.%ldns next: %ld.%ldns ()\n",
               now.tv_sec, now.tv_nsec, next.tv_sec, next.tv_nsec);
     }
 
@@ -547,7 +547,7 @@ void *core_main(__unused void *arg) {
     // Heartbeat handling
     // --------------------------------------------
     if (get_time_usec() - pod->last_ping > HEARTBEAT_TIMEOUT_USEC &&
-        pod->last_ping > 0) {
+        pod->last_ping > 0 && get_pod_mode() != Emergency) {
       set_pod_mode(Emergency, "Heartbeat timeout");
     }
 
