@@ -28,6 +28,8 @@
 
 /* Begin PBXBuildFile section */
 		771BC7751EAC53C90027E537 /* core_checklists.c in Sources */ = {isa = PBXBuildFile; fileRef = 771BC7741EAC53C90027E537 /* core_checklists.c */; };
+		77365AE61EE11F3A0010583E /* bus_manager.c in Sources */ = {isa = PBXBuildFile; fileRef = 77365AE41EE11F3A0010583E /* bus_manager.c */; };
+		77365AE81EE12E180010583E /* gpio_shim.c in Sources */ = {isa = PBXBuildFile; fileRef = 77365AE71EE12E180010583E /* gpio_shim.c */; };
 		7744EE2C1E58573D004EC3F9 /* libhw.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7744EE141E5853C1004EC3F9 /* libhw.a */; };
 		7747BF301E82435C0067B683 /* hw.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF231E82435C0067B683 /* hw.h */; };
 		7747BF311E82435C0067B683 /* interface.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF241E82435C0067B683 /* interface.c */; };
@@ -42,6 +44,8 @@
 		7747BF3A1E82435C0067B683 /* shims.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF2D1E82435C0067B683 /* shims.h */; };
 		7747BF3B1E82435C0067B683 /* solenoid.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF2E1E82435C0067B683 /* solenoid.c */; };
 		7747BF3C1E82435C0067B683 /* solenoid.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF2F1E82435C0067B683 /* solenoid.h */; };
+		777F01301EF8E4C600EEFE1F /* ti_battery_packs.c in Sources */ = {isa = PBXBuildFile; fileRef = 777F012E1EF8E4C600EEFE1F /* ti_battery_packs.c */; };
+		777F01311EF8E4C600EEFE1F /* ti_battery_packs.h in Headers */ = {isa = PBXBuildFile; fileRef = 777F012F1EF8E4C600EEFE1F /* ti_battery_packs.h */; };
 		778A5FBD1E82581E0099A66D /* commander.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FA11E82581E0099A66D /* commander.c */; };
 		778A5FBE1E82581E0099A66D /* commands.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FA31E82581E0099A66D /* commands.c */; };
 		778A5FBF1E82581E0099A66D /* core.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FAC1E82581E0099A66D /* core.c */; };
@@ -189,6 +193,9 @@
 		771BC7741EAC53C90027E537 /* core_checklists.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = core_checklists.c; sourceTree = "<group>"; };
 		7730C0C31EB5439B00881CF2 /* logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = logging.h; path = liblog/logging.h; sourceTree = "<group>"; };
 		7730C0C41EB5441000881CF2 /* pod-defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "pod-defs.h"; sourceTree = "<group>"; };
+		77365AE41EE11F3A0010583E /* bus_manager.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bus_manager.c; sourceTree = "<group>"; };
+		77365AE51EE11F3A0010583E /* bus_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bus_manager.h; sourceTree = "<group>"; };
+		77365AE71EE12E180010583E /* gpio_shim.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gpio_shim.c; path = libbbb/gpio_shim.c; sourceTree = "<group>"; };
 		7744EE141E5853C1004EC3F9 /* libhw.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhw.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7747BF231E82435C0067B683 /* hw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hw.h; path = libhw/hw.h; sourceTree = "<group>"; };
 		7747BF241E82435C0067B683 /* interface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = interface.c; path = libhw/interface.c; sourceTree = "<group>"; };
@@ -203,6 +210,8 @@
 		7747BF2D1E82435C0067B683 /* shims.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shims.h; path = libhw/shims.h; sourceTree = "<group>"; };
 		7747BF2E1E82435C0067B683 /* solenoid.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = solenoid.c; path = libhw/solenoid.c; sourceTree = "<group>"; };
 		7747BF2F1E82435C0067B683 /* solenoid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = solenoid.h; path = libhw/solenoid.h; sourceTree = "<group>"; };
+		777F012E1EF8E4C600EEFE1F /* ti_battery_packs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ti_battery_packs.c; path = libhw/ti_battery_packs.c; sourceTree = "<group>"; };
+		777F012F1EF8E4C600EEFE1F /* ti_battery_packs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ti_battery_packs.h; path = libhw/ti_battery_packs.h; sourceTree = "<group>"; };
 		778A5FA01E82581E0099A66D /* cdefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cdefs.h; sourceTree = "<group>"; };
 		778A5FA11E82581E0099A66D /* commander.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = commander.c; sourceTree = "<group>"; };
 		778A5FA21E82581E0099A66D /* commander.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commander.h; sourceTree = "<group>"; };
@@ -347,6 +356,8 @@
 				7747BF2F1E82435C0067B683 /* solenoid.h */,
 				77E19E9B1EA2CB5500C6766A /* mpye.c */,
 				77E19E9C1EA2CB5500C6766A /* mpye.h */,
+				777F012E1EF8E4C600EEFE1F /* ti_battery_packs.c */,
+				777F012F1EF8E4C600EEFE1F /* ti_battery_packs.h */,
 			);
 			name = libhw;
 			sourceTree = "<group>";
@@ -420,6 +431,8 @@
 				778A5FBA1E82581E0099A66D /* states.c */,
 				778A5FBB1E82581E0099A66D /* states.h */,
 				778A5FBC1E82581E0099A66D /* tests.c */,
+				77365AE41EE11F3A0010583E /* bus_manager.c */,
+				77365AE51EE11F3A0010583E /* bus_manager.h */,
 			);
 			path = core;
 			sourceTree = "<group>";
@@ -487,6 +500,7 @@
 			children = (
 				77B333361F47A2E4001C5993 /* bbb.c */,
 				77F29D551E585BDE00EC907D /* bbb.h */,
+				77365AE71EE12E180010583E /* gpio_shim.c */,
 				77F29D581E585C1700EC907D /* gpio.c */,
 			);
 			name = libbbb;
@@ -505,6 +519,7 @@
 				7747BF3A1E82435C0067B683 /* shims.h in Headers */,
 				7747BF381E82435C0067B683 /* relay.h in Headers */,
 				7747BF3C1E82435C0067B683 /* solenoid.h in Headers */,
+				777F01311EF8E4C600EEFE1F /* ti_battery_packs.h in Headers */,
 				7747BF301E82435C0067B683 /* hw.h in Headers */,
 				77E19E9E1EA2CB5500C6766A /* mpye.h in Headers */,
 			);
@@ -756,6 +771,7 @@
 				7747BF351E82435C0067B683 /* pins.c in Sources */,
 				7747BF371E82435C0067B683 /* relay.c in Sources */,
 				7747BF331E82435C0067B683 /* libBBB.c in Sources */,
+				777F01301EF8E4C600EEFE1F /* ti_battery_packs.c in Sources */,
 				7747BF311E82435C0067B683 /* interface.c in Sources */,
 				77E19E9D1EA2CB5500C6766A /* mpye.c in Sources */,
 				7747BF3B1E82435C0067B683 /* solenoid.c in Sources */,
@@ -778,6 +794,7 @@
 				778A5FBF1E82581E0099A66D /* core.c in Sources */,
 				778A5FC81E82581E0099A66D /* states.c in Sources */,
 				778A5FC01E82581E0099A66D /* panic.c in Sources */,
+				77365AE61EE11F3A0010583E /* bus_manager.c in Sources */,
 				778A5FC31E82581E0099A66D /* pod-helpers.c in Sources */,
 				77E19E971E9F415700C6766A /* telemetry.c in Sources */,
 				771BC7751EAC53C90027E537 /* core_checklists.c in Sources */,
@@ -833,6 +850,7 @@
 			files = (
 				77B333371F47A2E4001C5993 /* bbb.c in Sources */,
 				77F29D591E585C1700EC907D /* gpio.c in Sources */,
+				77365AE81EE12E180010583E /* gpio_shim.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

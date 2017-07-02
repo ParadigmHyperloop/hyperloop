@@ -309,6 +309,11 @@ int main(int argc, char *argv[]) {
 
     pthread_create(&(pod->core_thread), NULL, core_main, NULL);
 
+//    bus_init(&(pod->i2c[0]), "I2C0", ^{ return 12; });
+//    bus_init(&(pod->i2c[1]), "I2C1", ^{ return 13; });
+//    pthread_create(&(pod->core_thread), NULL, bus_main, (void *) &(pod->i2c[0]));
+//    pthread_create(&(pod->core_thread), NULL, bus_main, (void *) &(pod->i2c[1]));
+    
     // we're using the built-in linux Round Roboin scheduling
     // priorities are 1-99, higher is more important
     // important note: this is not hard real-time

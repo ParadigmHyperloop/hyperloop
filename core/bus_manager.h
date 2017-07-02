@@ -30,70 +30,50 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-
-#ifndef PARADIGM_REALTIME_H
-#define PARADIGM_REALTIME_H
-
 #include "pod.h"
 
-/**
- * Get the current time of the pod in microseconds
- *
- * TODO: Make this function return nanosecond precision
- *
- * @return The current timestamp in microseconds
- */
-uint64_t get_time_usec(void);
+#ifndef PARADIGM_BUS_MANAGER_H
+#define PARADIGM_BUS_MANAGER_H
 
-/**
- * @brief Loads the current RealTime timespec into the given address t.
- *
- * @note In the event of a failure to retrieve the current Realtime timespec,
- * an emergency condition is declared and the pod will safe itself.  A cached
- * timespec from the last successful realtime timespec will be copied into t
- */
-void get_timespec(struct timespec *t);
+#define MAX_HEAP_SIZE 64
 
-/**
- * @brief Adds the given number of microseconds to the timespec pointed to by t
- */
-void timespec_add_us(struct timespec *t, long us);
+struct bus_task;
 
-/**
- * @brief 
- * Adds the given timespec t2 to t1
- *
- * @discussion
- * Equivalent to logical: (t1 = t1 - t2)
- *
- * @param t1 The timespec to subtrack t2 from
- * @param t2 The timespec to subtrack from t1
- */
-void timespec_add(struct timespec *t1, const struct timespec *t2);
+typedef enum bus_task_variant {
+  Immediate,
+  Single,
+  Looping
+} bus_task_variant_t;
 
-/**
- * @brief
- * Subtracts the given timespec t2 from t1
- *
- * @discussion
- * Equivalent to logical: (t1 = t1 - t2)
- *
- * @param t1 The timespec to subtrack t2 from
- * @param t2 The timespec to subtrack from t1
- */
-void timespec_sub(struct timespec *t1, const struct timespec *t2);
+typedef struct bus {
+  int fd;
+  char name[16];
+  struct bus_task ** queue;
+  ring_buf_t buf;
+  struct bus_task * heap;
+  uint16_t heap_size;
+  uint64_t heap_map;
+  pthread_mutex_t mutex;
+} bus_t;
 
+typedef void (^bus_block_t)(bus_t * bus);
+
+typedef struct bus_task {
+  struct bus_task * next;
+  struct bus_task * prev;
+  bus_block_t execute;
+  useconds_t min_time;
+  bus_task_variant_t variant;
   
-/**
- * Compares two timespecs.
- *
- * @see strcmp
- */
-int timespec_cmp(struct timespec *a, struct timespec *b);
+} bus_task_t;
 
-/**
- * Returns the total number of nanoseconds in the timespec
- */
-int64_t timespec_to_nsec(struct timespec *t);
 
-#endif /* PARADIGM_REALTIME_H */
+int bus_init(bus_t *bus, char *name, int (^open_block)(void));
+
+int bus_destroy(bus_t *bus);
+  
+int bus_enqueue(bus_t * bus, bus_block_t block, bus_task_variant_t variant);
+
+void * bus_main(bus_t * bus);
+
+#endif /* PARADIGM_BUS_MANAGER_H */

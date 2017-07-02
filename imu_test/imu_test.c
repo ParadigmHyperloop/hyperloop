@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <inttypes.h>
+#include <string.h>
 
 #ifdef __linux__
 static char *PORT_NAME = "/dev/ttyUSB0";
@@ -129,10 +130,13 @@ int main(int argc, char *argv[]) {
   int i = 0;
   int poop = 0;
 
-  imu_datagram_t average = IMU_DATAGRAM_INIT;
+  imu_datagram_t average;
+  memset(&average, 0, sizeof(imu_datagram_t));
+
   uint64_t start = getTime();
   while (i < config.iterations || config.iterations == 0) {
-    imu_datagram_t data = IMU_DATAGRAM_INIT;
+    imu_datagram_t data;
+    memset(&data, 0, sizeof(imu_datagram_t));
 
     ssize_t success = 0;
     while (success == 0) {
