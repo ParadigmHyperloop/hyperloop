@@ -30,7 +30,7 @@ void * bus_main(bus_t * bus) {
       head = head->next;
     }
     error("Bus %s is empty", bus->name);
-    sleep(1);
+    sem_wait(bus->sem);
   }
   
   warn("Bus Manager %s is shutting down", bus->name);
@@ -72,9 +72,8 @@ int bus_enqueue(bus_t * bus, bus_block_t block, bus_task_variant_t variant) {
     (*bus->queue)->prev = task;
     bus->queue = &task;
   }
-
   pthread_mutex_unlock(&bus->mutex);
-
+  sem_post(bus->sem);
   return 0;
 }
 
@@ -88,7 +87,8 @@ int bus_init(bus_t *bus, char *name, int (^open_block)(void)) {
   bus->heap_size = MAX_HEAP_SIZE;
   bus->heap_map = 0;
   bus->heap = malloc(bus->heap_size);
-  
+  bus->sem = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 0);
+
   if (bus->heap == NULL) {
     return -1;
   }

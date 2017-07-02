@@ -54,6 +54,7 @@ typedef struct bus {
   uint16_t heap_size;
   uint64_t heap_map;
   pthread_mutex_t mutex;
+  sem_t *sem;
 } bus_t;
 
 typedef void (^bus_block_t)(bus_t * bus);
@@ -71,7 +72,8 @@ typedef struct bus_task {
 int bus_init(bus_t *bus, char *name, int (^open_block)(void));
 
 int bus_destroy(bus_t *bus);
-  
+
+
 int bus_enqueue(bus_t * bus, bus_block_t block, bus_task_variant_t variant);
 
 void * bus_main(bus_t * bus);
