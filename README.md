@@ -54,13 +54,13 @@ The following is a high level getting started geared for new developers
 
 The minimal controls system is comprised of 5 distinct systems that you will need to install.
 
-1. [The Core Controller](https://github.com/ParadigmTransportation/hyperloop-core) (this repo)
-2. [The OpenLoop Data Shuttle](https://github.com/ParadigmTransportation/ODS)
-3. [The PodCtl Tool](https://github.com/ParadigmTransportation/podctl)
+1. [The Core Controller](https://github.com/ParadigmHyperloop/hyperloop-core) (this repo)
+2. [The OpenLoop Data Shuttle](https://github.com/ParadigmHyperloop/ODS)
+3. [The PodCtl Tool](https://github.com/ParadigmHyperloop/ODS) (found in the ODS repo)
 4. [Influxdb](https://www.influxdata.com)
 5. [Grafana](https://grafana.net)
 
-You will also need sane C and Python development environments installed.
+You will also need clang/LLVM and Python development environments installed.
 
 ## Build Environment
 
@@ -77,7 +77,7 @@ sudo pip install virtualenv
 ### Linux
 
 ```
-sudo apt-get install build-esential python-pip
+sudo apt-get install build-esential python-pip clang llvm
 ```
 
 ## Influxdb and Grafana
@@ -90,15 +90,15 @@ Clone this repo somewhere safe, then cd into it.
 
 ```
 mkdir ~/dev
-cd dev
-git clone git@github.com:ParadigmTransportation/hyperloop-core.git
-cd hyperloop-core
+cd ~/dev
+git clone git@github.com:ParadigmHyperloop/hyperloop.git
+cd hyperloop
 ```
 
 ## ODS
 
 Clone and run ODS in a new terminal window following the instructions on the
-[ODS README](https://github.com/ParadigmTransportation/ODS)
+[ODS README](https://github.com/ParadigmHyperloop/ODS)
 
 ## PodCTL
 
@@ -106,11 +106,11 @@ PodCTL is now bundled as part of the ODS Project
 
 ## Core Startup
 
-You should now be running all 4 of the aforementioned services on your dev machine.  Now it is time to start up core
+You should now be running all 4 of the aforementioned services (InfluxDB, Grafana, ODS, and PodCTL) on your dev machine.  Now it is time to start up core
 
 - Clone this repo and then cd into it.
-- Run `make`
-- To start the core controller in developer mode `make run`
+- Run `make clean all install`
+- To start the core controller run `./BUILD/obj/core -i -`
 
 You should see the core controller start with output like this
 
@@ -160,7 +160,8 @@ Available Commands:
 
 The ODS window will start printing telemetry data to it's terminal window.
 The telemetry data will be accessible in Grafana at http://localhost:3000 as
-well
+well, but you will need to configure a data source and some dashboards (more on
+that later)
 
 # Glossary
 
@@ -175,7 +176,7 @@ A Jenkins server builds and tests all changes made to this repository
 automatically.  Whenever you open a pull request, a build will be triggered and
 a link to the results will be attached to the PR.
 
-Before you checkin code, run the following to catch any errors before the
+Before you checkin code, run the following to catch errors before the
 Jenkins server catches them
 
 ```
