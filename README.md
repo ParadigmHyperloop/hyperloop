@@ -1,6 +1,8 @@
 # Paradigm Hyperloop Pod Software
 
-The code for the Hyperloop Pod Control systems
+The code for the Paradigm Pod Control systems.
+
+[![Paradigm Hyperloop Intro](https://user-images.githubusercontent.com/1410448/28060825-469cafb4-65dd-11e7-8c29-82d99712fb81.png)](https://www.youtube.com/watch?v=6h-bhs3t1jQ "Paradigm Hyperloop Intro")
 
 # About
 
