@@ -1,4 +1,4 @@
-# hyperloop-core ![Build Status](https://ci.paradigmhyperloop.com/buildStatus/icon?job=ParadigmHyperloop/hyperloop-core/master)
+# Paradigm Hyperloop Pod Software
 
 The code for the Hyperloop Pod Control systems
 
