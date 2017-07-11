@@ -2,6 +2,38 @@
 
 The code for the Hyperloop Pod Control systems
 
+# About
+
+The Core Control Software found in this repository is designed to run in a RealTime Linux environment on a high performance 
+ARM core. Suitable platforms include the TI Sitara am335x series of processors, convieniently found in the consumer and
+industrial grade [BeagleBoard](http://beagleboard.org) Open Source Hardware. We utilize the BeagleBone black hardware 
+and make extensive use of the onboard TI Sitara ARM core to manage the system level control loop for the Paradigm Pod
+
+This breaks down into several responsibilies:
+ - Maintain comunications with an external control point (Operations Center/Mission Control)
+   - Stream Telemetry Data
+   - Accept Commands
+   - Exchange heartbeats to detect connection loss
+   - Accept Software Updates
+   - Enable Live Debugging and Testing of the pod's control system
+ - Read and process information from sensors
+   - Gather acceleration data from our IMU
+   - Read various analog sensors attached to the Motherboard over SPI
+     - Optical Distance Sensors
+     - Inductive Proximity Sensors
+     - Pressure transducers
+     - Thermocouple Amplifiers
+     - Pusher Detection Module
+   - Communicate on a shared RS485 bus
+     - Gather information from our tachometer/counter modules
+     - Interact with our external status indicator module
+ - Control our various outputs
+   - Solenoids
+   - Actuated Ball Valves
+   - MPYE Valves
+   - Main Power Board
+   - Battery Packs
+
 # Documentation
 
 There is more documentation in this repository and on the internal Paradigm Google Drive.
@@ -70,8 +102,7 @@ Clone and run ODS in a new terminal window following the instructions on the
 
 ## PodCTL
 
-Clone and run PodCtl in a new terminal window following the instructions on the
-[PodCtl README](https://github.com/ParadigmTransportation/podctl)
+PodCTL is now bundled as part of the ODS Project
 
 ## Core Startup
 
@@ -103,29 +134,29 @@ You should see the core controller start with output like this
 
 The podctl terminal window should connect and show you a prompt like this
 
-   ```
-   → ./podctl.py
-    Trying 127.0.0.1...
-    Connected to localhost.
-    Escape character is '^]'.
-    OpenLoop Pod CLI 0.0.1-alpha. Copyright 2016
-    This tool allows you to control various aspects of the pod
-     - TCP:7779
-     - STDIN
+```
+→ ./podctl.py
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+Paradigm Pod CLI 0.0.1-alpha. Copyright 2016
+This tool allows you to control various aspects of the pod
+- TCP:7779
+- STDIN
 
-    Available Commands:
-     - help
-     - ping
-     - ready
-     - brake
-     - skate
-     - status
-     - emergency (alias: e)
-     - exit
-     - kill
+Available Commands:
+ - help
+ - ping
+ - ready
+ - brake
+ - skate
+ - status
+ - emergency (alias: e)
+ - exit
+ - kill
 
-    >
-    ```
+>
+```
 
 The ODS window will start printing telemetry data to it's terminal window.
 The telemetry data will be accessible in Grafana at http://localhost:3000 as
