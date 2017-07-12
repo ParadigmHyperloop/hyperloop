@@ -85,7 +85,7 @@
 // filter for the IMU input.
 // The formula used is:
 //   (new_accel = (1.0-IMU_EMA_ALPHA)*old_accel + IMU_EMA_ALPHA*accel_reading)
-#define IMU_EMA_ALPHA 0.01f
+#define IMU_EMA_ALPHA 0.1f
 
 #define EX_REBOOT 50
 
