@@ -38,7 +38,9 @@
 typedef enum solenoid_state {
   kSolenoidError,
   kSolenoidOpen,
-  kSolenoidClosed
+  kSolenoidClosed,
+  kSolenoidOpening,
+  kSolenoidClosing,
 } solenoid_state_t;
 
 typedef enum solenoid_type {
@@ -47,17 +49,29 @@ typedef enum solenoid_type {
 } solenoid_type_t;
 
 typedef struct solenoid {
-  // The GPIO pin used to control this solenoid
-  int gpio;
+  // The I2C Address of the IC this solenoid is connected to
+  unsigned char address;
+  // The Channel this solenoid is connected to (0-15)
+  unsigned char channel;
   // The Human Readable name of the solenoid
   char name[MAX_NAME];
-  // The current value of this solenoid (0 for default position, 1 for active)
-  int value;
   // Prevent this solenoid from changing state without an explicit unlock
   bool locked;
   // The logic type of the solenoid (Normally Open or Normally Closed)
   solenoid_type_t type;
+  // The state of the valve
+  solenoid_state_t state;
+  // Scheduler
+  bus_t *bus;
 } solenoid_t;
+
+/**
+ * Initializes a solenoid_t
+ */
+int solenoid_init(solenoid_t *s, char *name, bus_t *bus,
+                  unsigned char address,
+                  unsigned char channel,
+                  solenoid_type_t type);
 
 /**
  * Sets the desired solenoid state
@@ -113,9 +127,20 @@ void unlock_solenoid(solenoid_t *s);
 bool is_solenoid_open(solenoid_t *s);
 
 /**
+  * Determines if a solenoid is in the process of opening
+  */
+bool is_solenoid_opening(solenoid_t *solenoid);
+
+/**
  * Determines if a solenoid is in it's closed state
  */
 bool is_solenoid_closed(solenoid_t *s);
+
+/**
+ * Determines if a solenoid is in the process of closing
+ */
+bool is_solenoid_closing(solenoid_t *solenoid);
+
 
 /**
  * Determines if a solenoid is in a locked out state

@@ -118,9 +118,9 @@
   { 8, 9 }
 #define SKATE_PRESSURE_ERR LP_PRESSURE_ERR
 
-#define N_MPYES 6
-#define MPYE_I2C_DAC_ADDR                                                      \
-  { 0, 1, 2, 3, 4, 5 }
+#define N_MPYES 4
+#define MPYE_CHANNELS                                                          \
+  { 13, 14, 29, 30 }
 
 // --------------------------
 // Clamp Brakes

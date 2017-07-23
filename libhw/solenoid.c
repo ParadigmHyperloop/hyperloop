@@ -32,30 +32,43 @@
 
 #include "solenoid.h"
 
-bool is_solenoid_open(solenoid_t *solenoid) {
-  switch (solenoid->type) {
-    case kSolenoidNormallyOpen:
-      return solenoid->value != 1;
-      break;
+int solenoid_init(solenoid_t *s, char *name, bus_t *bus, unsigned char address, unsigned char channel, solenoid_type_t type) {
+  strncpy(s->name, name, MAX_NAME);
+  s->bus = bus;
+  s->address = address;
+  s->channel = channel;
+  s->type = type;
+  
+  // TODO: Read in from IC
+  switch (s->type) {
     case kSolenoidNormallyClosed:
-      return solenoid->value == 1;
+      s->state = kSolenoidClosed;
       break;
-    default:
-      abort();
+    case kSolenoidNormallyOpen:
+      s->state = kSolenoidOpen;
+      break;
   }
+
+  s->locked = false;
+  return 0;
+}
+
+bool is_solenoid_open(solenoid_t *solenoid) {
+  return solenoid->state == kSolenoidOpen;
 }
 
 bool is_solenoid_closed(solenoid_t *solenoid) {
-  switch (solenoid->type) {
-    case kSolenoidNormallyOpen:
-      return solenoid->value == 1;
-      break;
-    case kSolenoidNormallyClosed:
-      return solenoid->value != 1;
-      break;
-    default:
-      abort();
-  }
+  return solenoid->state == kSolenoidClosed;
+}
+
+
+bool is_solenoid_opening(solenoid_t *solenoid) {
+  return solenoid->state == kSolenoidOpening;
+}
+
+
+bool is_solenoid_closing(solenoid_t *solenoid) {
+  return solenoid->state == kSolenoidClosing;
 }
 
 void set_solenoid(solenoid_t *s, solenoid_state_t val) {
@@ -74,43 +87,89 @@ void set_solenoid(solenoid_t *s, solenoid_state_t val) {
   }
 }
 
-solenoid_state_t read_solenoid_state(const solenoid_t *solenoid) {
-  relay_state_t r = read_relay_state(solenoid->gpio);
-  switch (r) {
-    case kRelayOn:
-      return (solenoid->type == kSolenoidNormallyClosed ? kSolenoidOpen : kSolenoidClosed);
-      break;
-    case kRelayOff:
-      return (solenoid->type == kSolenoidNormallyClosed ? kSolenoidClosed : kSolenoidOpen);
-      break;
-    default:
-      // TODO: Handle
-      return kSolenoidError;
-  }
+solenoid_state_t read_solenoid_state(__unused const solenoid_t *solenoid) {
+  abort();
+  return kSolenoidError;
 }
 
 bool open_solenoid(solenoid_t *s) {
   if (is_solenoid_locked(s)) {
     return is_solenoid_open(s);
   }
+  
+  if (is_solenoid_opening(s)) {
+    return true;
+  }
 
   if (!is_solenoid_open(s)) {
-    // TODO: Prove
-    set_relay(s->gpio, (s->value ? kRelayOff : kRelayOn));
-    s->value = (s->value == 0 ? 1 : 0);
+    // TODO: execute bus enqueue
   }
   return true;
 }
 
 bool close_solenoid(solenoid_t *s) {
   if (is_solenoid_locked(s)) {
-    return is_solenoid_closed(s);
+    return is_solenoid_closed(s) || is_solenoid_closing(s);
+  }
+  
+  if (is_solenoid_closing(s)) {
+    return true;
   }
 
   if (is_solenoid_open(s)) {
-    // TODO: Prove
-    set_relay(s->gpio, (s->value ? kRelayOff : kRelayOn));
-    s->value = (s->value == 0 ? 1 : 0);
+    __block solenoid_t *solenoid = s;
+    bus_enqueue(s->bus, ^(bus_t *bus) {
+      unsigned char data[3];
+      data[1] = solenoid->address;
+      data[2] = solenoid->channel;
+      unsigned char *state = &(data[3]); // To Be Optimized
+      
+      if (solenoid->type == kSolenoidNormallyOpen) {
+        if (solenoid->state == kSolenoidOpening) {
+          *state = 0;
+        } else if (solenoid->state == kSolenoidClosing) {
+          *state = 255;
+        } else {
+//          DECLARE_EMERGENCY("Non-transient Solenoid State: %d", solenoid->state);
+        }
+      } else if (solenoid->type == kSolenoidNormallyClosed) {
+        if (solenoid->state == kSolenoidOpening) {
+          *state = 255;
+        } else if (solenoid->state == kSolenoidClosing) {
+          *state = 0;
+        } else {
+//          DECLARE_EMERGENCY("Non-transient Solenoid State: %d", solenoid->state);
+        }
+      } else {
+//        DECLARE_EMERGENCY("Unsuppported Solenoid Type: %d", solenoid->type);
+      }
+      
+      if (solenoid->type == kSolenoidNormallyOpen) {
+        if (solenoid->state == kSolenoidOpening) {
+          *state = 0;
+        } else {
+          *state = 255;
+        }
+      }
+      // Write out
+      ssize_t rc = write(bus->fd, data, 3);
+      if (rc != 3) {
+        // DECLARE_EMERGENCY(<#message, ...#>)
+      } else {
+        switch (solenoid->state) {
+        case kSolenoidOpening:
+          solenoid->state = kSolenoidOpen;
+          break;
+        case kSolenoidClosing:
+          solenoid->state = kSolenoidClosed;
+          break;
+        default:
+          // Error Out
+          break;
+        }
+      }
+      
+    });
   }
   return true;
 }

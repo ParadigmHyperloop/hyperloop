@@ -5,8 +5,8 @@ pipeline {
       steps {
         parallel(
           "Build": {
-            sh 'make'
-            sh 'make install'
+            sh 'make -d'
+            sh 'make -d install'
             
           },
           "Style": {
@@ -29,9 +29,9 @@ pipeline {
     }
     stage('Build-32bit') {
       steps {
-        sh 'make clean'
-        sh 'make all'
-        sh 'make install'
+        sh 'make -d clean'
+        sh 'make -d all'
+        sh 'make -d install'
       }
     }
     stage('Test-32') {

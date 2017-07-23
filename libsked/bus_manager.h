@@ -30,52 +30,55 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "pod.h"
-
 #ifndef PARADIGM_BUS_MANAGER_H
 #define PARADIGM_BUS_MANAGER_H
+
+#include <sys/semaphore.h>
+#include <unistd.h>
+#include <pthread.h>
 
 #define MAX_HEAP_SIZE 64
 
 struct bus_task;
 
-typedef enum bus_task_variant {
-  Immediate,
-  Single,
-  Looping
-} bus_task_variant_t;
+typedef enum bus_state { Error, Init, Run, Killed } bus_state_t;
 
 typedef struct bus {
   int fd;
-  char name[16];
-  struct bus_task ** queue;
-  ring_buf_t buf;
-  struct bus_task * heap;
-  uint16_t heap_size;
-  uint64_t heap_map;
+  const char *name;
+  struct bus_task *queue;
+  struct bus_task *tail;
+  bus_state_t state;
+  useconds_t throttle;
   pthread_mutex_t mutex;
+  pthread_t thread;
   sem_t *sem;
 } bus_t;
 
-typedef void (^bus_block_t)(bus_t * bus);
+typedef void (^bus_block_t)(bus_t *bus);
 
 typedef struct bus_task {
-  struct bus_task * next;
-  struct bus_task * prev;
+  struct bus_task *next;
+  struct bus_task *prev;
   bus_block_t execute;
-  useconds_t min_time;
-  bus_task_variant_t variant;
-  
 } bus_task_t;
 
+int bus_init(bus_t *bus, const char *name, int (^open_block)(void));
 
-int bus_init(bus_t *bus, char *name, int (^open_block)(void));
+void bus_run(bus_t *bus);
 
 int bus_destroy(bus_t *bus);
 
+int bus_enqueue(bus_t *bus, bus_block_t block);
 
-int bus_enqueue(bus_t * bus, bus_block_t block, bus_task_variant_t variant);
-
-void * bus_main(bus_t * bus);
+/**
+ * Sends an asyncronous kill command to the bus, which will stop the thread and
+ * make it joinable.
+ *
+ * @param bus The bus you would like to kill
+ *
+ * @results -1 on failure to post to the busses semaphore, otherwise zero
+ */
+int bus_kill(bus_t *bus);
 
 #endif /* PARADIGM_BUS_MANAGER_H */

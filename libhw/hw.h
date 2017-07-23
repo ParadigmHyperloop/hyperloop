@@ -37,6 +37,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include "bus_manager.h"
 
 #include "bbb.h"
 
@@ -46,6 +47,8 @@
 #include "relay.h"
 #include "shims.h"
 #include "pins.h"
+
+
 
 #ifndef __unused
 #define __unused  __attribute__((unused))

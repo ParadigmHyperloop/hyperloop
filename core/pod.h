@@ -44,6 +44,7 @@
 #include <hw.h>
 #include <imu.h>
 #include <log.h>
+#include <Block.h>
 
 #include "bus_manager.h"
 #include "states.h"

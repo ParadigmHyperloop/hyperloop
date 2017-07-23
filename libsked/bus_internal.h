@@ -30,18 +30,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
+
+#ifndef PARADIGM_BUS_INTERNAL_H
+#define PARADIGM_BUS_INTERNAL_H
+
 #include "pod.h"
+#include "bus_manager.h"
 
-void pod_panic(__unused int subsystem, char *file, int line, char *notes, ...) {
-
-  static char msg[MAX_LOG_LINE];
-  va_list arg;
-  va_start(arg, notes);
-  vsnprintf(&msg[0], MAX_LOG_LINE, notes, arg);
-  va_end(arg);
-
-  fprintf(stderr, "[PANIC] %s:%d -> %s\n", file, line, msg);
-  fflush(stderr);
-
-  exit(EX_PANIC);
-}
+#endif /* PARADIGM_BUS_INTERNAL_H */
