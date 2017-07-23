@@ -170,101 +170,118 @@ int init_pod(void) {
   memcpy(&local_pod, &_init_pod, sizeof(local_pod));
 
   pod_t *pod = &local_pod;
-
+  char name[MAX_NAME];
   // ----------------
   // INITIALIZE MPYES
   // ----------------
   int i;
+  unsigned int mpye_pins[N_MPYES] = {13, 14, 30, 31};
+  
   for (i = 0; i < N_MPYES; i++) {
-    pod->mpye[i] = (mpye_t) {.pin = 0,
-                             .locked = false,
-                             .queued = false,
-                             .value = 0};
+    mpye_init(&pod->mpye[i],
+              name,
+              &pod->i2c[1],
+              mpye_pins[i] < 16 ? 0x30 : 0x31,
+              mpye_pins[i] % 16);
   }
 
   // --------------------
   // INITIALIZE SOLENOIDS
   // --------------------
   
-  int skate_pins[] = SKATE_SOLENOIDS;
+  unsigned short skate_pins[] = SKATE_SOLENOIDS;
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-    info("Setting Up Skate Solenoid %d of %d on pin %d", i, N_SKATE_SOLONOIDS, skate_pins[i]);
-    pod->skate_solonoids[i] = (solenoid_t){.gpio = skate_pins[i],
-                                           .value = 0,
-                                           .type = kSolenoidNormallyClosed,
-                                           .locked = false};
-    snprintf(pod->skate_solonoids[i].name, MAX_NAME, "skt_%c%c", (i * 2) + 'a',
-             (i * 2) + 'b');
-    setup_pin(skate_pins[i]);
+    snprintf(name, MAX_NAME, "skt_%c%c", (i * 2) + 'a', (i * 2) + 'b');
+    
+    solenoid_init(&pod->skate_solonoids[i],
+                  name,
+                  &pod->i2c[1],
+                  skate_pins[i] < 16 ? 0x30 : 0x31,
+                  skate_pins[i] % 16,
+                  kSolenoidNormallyClosed);
+
   }
 
-  int clamp_engage_pins[] = CLAMP_ENGAGE_SOLONOIDS;
+  unsigned short clamp_engage_pins[] = CLAMP_ENGAGE_SOLONOIDS;
   for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-    pod->clamp_engage_solonoids[i] =
-        (solenoid_t){.gpio = clamp_engage_pins[i],
-                     .value = 0,
-                     .type = kSolenoidNormallyClosed,
-                     .locked = false,
-                     .name = {0}};
-    snprintf(pod->clamp_engage_solonoids[i].name, MAX_NAME, "clmp_eng_%d", i);
-    setup_pin(clamp_engage_pins[i]);
+    snprintf(name, MAX_NAME, "clmp_eng_%d", i);
+    
+    solenoid_init(&pod->clamp_engage_solonoids[i],
+                  name,
+                  &pod->i2c[1],
+                  clamp_engage_pins[i] < 16 ? 0x30 : 0x31,
+                  clamp_engage_pins[i] % 16,
+                  kSolenoidNormallyClosed);
   }
 
-  int clamp_release_pins[] = CLAMP_RELEASE_SOLONOIDS;
+  unsigned short clamp_release_pins[] = CLAMP_RELEASE_SOLONOIDS;
   for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-    pod->clamp_release_solonoids[i] =
-        (solenoid_t){.gpio = clamp_release_pins[i],
-                     .value = 0,
-                     .type = kSolenoidNormallyClosed,
-                     .locked = false};
-    snprintf(pod->clamp_release_solonoids[i].name, MAX_NAME, "clmp_rel_%d", i);
-    setup_pin(clamp_release_pins[i]);
+    snprintf(name, MAX_NAME, "clmp_rel_%d", i);
+    
+    solenoid_init(&pod->clamp_release_solonoids[i],
+                  name,
+                  &pod->i2c[1],
+                  clamp_release_pins[i] < 16 ? 0x30 : 0x31,
+                  clamp_release_pins[i] % 16,
+                  kSolenoidNormallyClosed);
   }
 
-  int wheel_pins[] = WHEEL_SOLONOIDS;
+  unsigned short wheel_pins[] = WHEEL_SOLONOIDS;
   for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    pod->wheel_solonoids[i] = (solenoid_t){.gpio = wheel_pins[i],
-                                           .value = 0,
-                                           .type = kSolenoidNormallyClosed,
-                                           .locked = false};
-    snprintf(pod->wheel_solonoids[i].name, MAX_NAME, "wheel_%d", i);
-    setup_pin(wheel_pins[i]);
+    snprintf(name, MAX_NAME, "wheel_%d", i);
+    
+    solenoid_init(&pod->wheel_solonoids[i],
+                  name,
+                  &pod->i2c[1],
+                  wheel_pins[i] < 16 ? 0x30 : 0x31,
+                  wheel_pins[i] % 16,
+                  kSolenoidNormallyClosed);
   }
 
-  int lp_fill_valves[] = LP_FILL_SOLENOIDS;
+  unsigned short lp_fill_valves[] = LP_FILL_SOLENOIDS;
   for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    pod->lp_fill_valve[i] = (solenoid_t){.gpio = lp_fill_valves[i],
-                                         .value = 0,
-                                         .type = kSolenoidNormallyClosed,
-                                         .locked = false};
-    snprintf(pod->lp_fill_valve[i].name, MAX_NAME, "lp_fill_%d", i);
-    setup_pin(lp_fill_valves[i]);
+    snprintf(name, MAX_NAME, "lp_fill_%d", i);
+    
+    solenoid_init(&pod->lp_fill_valve[i],
+                  name,
+                  &pod->i2c[1],
+                  lp_fill_valves[i] < 16 ? 0x30 : 0x31,
+                  lp_fill_valves[i] % 16,
+                  kSolenoidNormallyClosed);
   }
 
-  int lat_fill_solenoids[] = LAT_FILL_SOLENOIDS;
+  unsigned short lat_fill_solenoids[] = LAT_FILL_SOLENOIDS;
   for (i = 0; i < N_LAT_FILL_SOLENOIDS; i++) {
-    pod->lateral_fill_solenoids[i] =
-        (solenoid_t){.gpio = lat_fill_solenoids[i],
-                     .value = 0,
-                     .type = kSolenoidNormallyClosed,
-                     .locked = false};
-    snprintf(pod->lateral_fill_solenoids[i].name, MAX_NAME, "lat_%d", i);
-    setup_pin(lat_fill_solenoids[i]);
+    snprintf(name, MAX_NAME, "lat_%d", i);
+    
+    solenoid_init(&pod->lateral_fill_solenoids[i],
+                  name,
+                  &pod->i2c[1],
+                  lat_fill_solenoids[i] < 16 ? 0x30 : 0x31,
+                  lat_fill_solenoids[i] % 16,
+                  kSolenoidNormallyClosed);
   }
 
-  pod->hp_fill_valve = (solenoid_t){.gpio = HP_FILL_SOLENOID,
-                                    .value = 0,
-                                    .type = kSolenoidNormallyClosed,
-                                    .locked = false};
-  snprintf(pod->hp_fill_valve.name, MAX_NAME, "hp_fill");
-  setup_pin(HP_FILL_SOLENOID);
+  
+  snprintf(name, MAX_NAME, "hp_fill");
 
-  pod->vent_solenoid = (solenoid_t){.gpio = VENT_SOLENOID,
-                                    .value = 0,
-                                    .type = kSolenoidNormallyOpen,
-                                    .locked = false};
-  snprintf(pod->vent_solenoid.name, MAX_NAME, "vent");
-  setup_pin(VENT_SOLENOID);
+  solenoid_init(&pod->hp_fill_valve,
+                name,
+                &pod->i2c[1],
+                HP_FILL_SOLENOID < 16 ? 0x30 : 0x31,
+                HP_FILL_SOLENOID % 16,
+                kSolenoidNormallyClosed);
+  
+  
+  snprintf(name, MAX_NAME, "vent");
+  
+  solenoid_init(&pod->hp_fill_valve,
+                name,
+                &pod->i2c[1],
+                VENT_SOLENOID < 16 ? 0x30 : 0x31,
+                VENT_SOLENOID % 16,
+                kSolenoidNormallyOpen);
+
 
   // ----------------
   // Distance Sensors

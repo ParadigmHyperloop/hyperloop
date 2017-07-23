@@ -170,12 +170,13 @@ int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
         int val = atoi(argv[2]);
 
         for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-          set_skate_target(i, val, true);
+          // Map -100 to 100 logic to raw MPYE setpoint.
+          set_skate_target(i, (unsigned short)(val * 1275 / 1000) + 128, true);
         }
       } else if (argc == 4) {
         int i = atoi(argv[2]);
         int val = atoi(argv[3]);
-        set_skate_target(i, val, true);
+        set_skate_target(i, (unsigned short)(val * 1275 / 1000) + 128, true);
       }
     }
   } else if (strncmp(argv[1], "brake", 5)) {

@@ -88,6 +88,7 @@
 #define IMU_EMA_ALPHA 0.01f
 
 #define EX_REBOOT 50
+#define EX_PANIC 51
 
 // -------------------------
 // Subsystem Identifiers
@@ -156,6 +157,14 @@
 #define DECLARE_EMERGENCY(message, ...)                                        \
   set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message, ##__VA_ARGS__)
 
+
+#define errassert(cond) do { \
+  if (!(cond)) { \
+    perror("POSIX Error: "); \
+    assert(errno == 0); \
+  } \
+} while (0)
+
 #pragma clang diagnostic pop
 
 // ------------------
@@ -218,7 +227,7 @@
 
 #define MAX_CMD_CLIENTS 16
 
-#define N_I2C_BUSSES 2;
+#define N_I2C_BUSSES 2
 // Misc
 #define POD_BOOT_SEM "/openloop.pod.boot"
 

@@ -1,12 +1,9 @@
-EXECUTABLE=$(OBJROOT)/core
-
 include ../config.mk
 
 RUN_ARGS := -i -
-override LDFLAGS += -L$(OBJROOT) -limu -llog -lhw -lbbb -lsked
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)
+		$(MAKE_LIB) $@ $^
 
 $(OBJROOT)/%.o : $(SRCROOT)/%.c
 	mkdir -p $(dir $@)
@@ -14,10 +11,9 @@ $(OBJROOT)/%.o : $(SRCROOT)/%.c
 
 all: install_headers $(EXECUTABLE)
 
-
 install:
-	mkdir -p $(DSTROOT)/usr/local/bin
-	install -m 755 $(EXECUTABLE) $(DSTROOT)/usr/local/bin
+	mkdir -p $(DSTROOT)/usr/local/lib
+	install -m 755 $(EXECUTABLE) $(DSTROOT)/usr/local/lib
 
 run: clean all
 	$(EXECUTABLE) $(RUN_ARGS)
