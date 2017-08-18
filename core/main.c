@@ -45,7 +45,7 @@ struct arguments {
 struct arguments args = {
     .tests = false, .ready = false, .imu_device = IMU_DEVICE, .telemetry_dump = NULL};
 
-const char *BUS_NAMES[] = { "/sem-i2c-0", "/sem-i2c-1", "/sem-i2c-2" };
+const char *BUS_NAMES[] = { "/sem-i2c-0", "/sem-i2c-1" };
 
 /**
  * WARNING: Do Not Directly Access this struct, use get_pod() instead to
