@@ -158,4 +158,14 @@ gpio_value_t get_pin_value(gpio_t pin) {
       return kGpioValError;
   }
 }
+#else
+gpio_value_t get_pin_value(__unused gpio_t pin) {
+  printf("[SIM] get_pin_value(%d)\n", pin);
+  return kGpioValError;
+}
+
+ssize_t set_pin_value(gpio_t pin, gpio_value_t value) {
+  printf("[SIM] set_pin_value(%d, %d)\n", pin, value);
+  return -1;
+}
 #endif
