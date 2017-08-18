@@ -37,10 +37,12 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <assert.h>
 #include "bus_manager.h"
 
 #include "bbb.h"
-
+#include "i2c.h"
 #include "libBBB.h"
 #include "mpye.h"
 #include "solenoid.h"

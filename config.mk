@@ -57,7 +57,7 @@ ifeq ($(UNAME_S),Darwin)
 endif
 
 ifeq ($(UNAME_S),Linux)
-	override LDFLAGS += -pthread -lrt
+	override LDFLAGS += -pthread -lrt -lBlocksRuntime
 endif
 
 ifneq (,$(findstring bone,$(UNAME_R)))
@@ -65,7 +65,7 @@ ifneq (,$(findstring bone,$(UNAME_R)))
 endif
 
 # Compiler and Linker Flags
-override CFLAGS += -Os -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL)
+override CFLAGS += -Os -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL) -fblocks
 
 # Main Warning Flag Set
 override CFLAGS += -Wall -Werror -Wno-unknown-pragmas

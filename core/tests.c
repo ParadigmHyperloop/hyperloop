@@ -110,7 +110,7 @@ int test_bus_manager() {
   sem_t *test_sem = sem_open(TEST_SEM_NAME, O_CREAT,
                              S_IRUSR | S_IWUSR, 0);
   __block int test_fd = -1;
-  bus_init(&test_bus, TEST_BUS_NAME, ^ {
+  bus_init(&test_bus, TEST_BUS_NAME, ^ int {
     test_fd = open("/dev/random", O_RDONLY);
     return test_fd;
   });
@@ -136,6 +136,7 @@ int test_bus_manager() {
     }
     sem_post(test_sem);
   });
+
   CONFIRM(test_bus.state == Init);
   CONFIRM(running == 0);
   sleep(1);
@@ -177,7 +178,7 @@ int test_bus_manager() {
     }
   }
   
-  CONFIRM(test_bus.queue == NULL);
+  CONFIRM(test_bus.head == NULL);
   int rc = bus_destroy(&test_bus);
   CONFIRM(rc == 0);
 

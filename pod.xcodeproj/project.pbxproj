@@ -30,12 +30,14 @@
 		770E337D1F248B6700D7E845 /* bus_manager.c in Sources */ = {isa = PBXBuildFile; fileRef = 770E337B1F248B6700D7E845 /* bus_manager.c */; };
 		770E337E1F248B6700D7E845 /* bus_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = 770E337C1F248B6700D7E845 /* bus_manager.h */; };
 		770E337F1F248B8400D7E845 /* liblibsked.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 770E33771F248AA300D7E845 /* liblibsked.a */; };
+		770E33831F25BC4D00D7E845 /* adc.c in Sources */ = {isa = PBXBuildFile; fileRef = 770E33811F25BC4D00D7E845 /* adc.c */; };
+		770E33841F25BC4D00D7E845 /* adc.h in Headers */ = {isa = PBXBuildFile; fileRef = 770E33821F25BC4D00D7E845 /* adc.h */; };
 		771BC7751EAC53C90027E537 /* core_checklists.c in Sources */ = {isa = PBXBuildFile; fileRef = 771BC7741EAC53C90027E537 /* core_checklists.c */; };
 		77365AE81EE12E180010583E /* gpio_shim.c in Sources */ = {isa = PBXBuildFile; fileRef = 77365AE71EE12E180010583E /* gpio_shim.c */; };
+		7737EE881F47A08A00A2BFE5 /* i2c.c in Sources */ = {isa = PBXBuildFile; fileRef = 7737EE861F47A08A00A2BFE5 /* i2c.c */; };
+		7737EE891F47A08A00A2BFE5 /* i2c.h in Headers */ = {isa = PBXBuildFile; fileRef = 7737EE871F47A08A00A2BFE5 /* i2c.h */; };
 		7744EE2C1E58573D004EC3F9 /* libhw.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7744EE141E5853C1004EC3F9 /* libhw.a */; };
 		7747BF301E82435C0067B683 /* hw.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF231E82435C0067B683 /* hw.h */; };
-		7747BF311E82435C0067B683 /* interface.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF241E82435C0067B683 /* interface.c */; };
-		7747BF321E82435C0067B683 /* interface.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF251E82435C0067B683 /* interface.h */; };
 		7747BF331E82435C0067B683 /* libBBB.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF261E82435C0067B683 /* libBBB.c */; };
 		7747BF341E82435C0067B683 /* libBBB.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF271E82435C0067B683 /* libBBB.h */; };
 		7747BF351E82435C0067B683 /* pins.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF281E82435C0067B683 /* pins.c */; };
@@ -46,7 +48,6 @@
 		7747BF3A1E82435C0067B683 /* shims.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF2D1E82435C0067B683 /* shims.h */; };
 		7747BF3B1E82435C0067B683 /* solenoid.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF2E1E82435C0067B683 /* solenoid.c */; };
 		7747BF3C1E82435C0067B683 /* solenoid.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF2F1E82435C0067B683 /* solenoid.h */; };
-		777F01311EF8E4C600EEFE1F /* ti_battery_packs.h in Headers */ = {isa = PBXBuildFile; fileRef = 777F012F1EF8E4C600EEFE1F /* ti_battery_packs.h */; };
 		778A5FBD1E82581E0099A66D /* commander.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FA11E82581E0099A66D /* commander.c */; };
 		778A5FBE1E82581E0099A66D /* commands.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FA31E82581E0099A66D /* commands.c */; };
 		778A5FBF1E82581E0099A66D /* core.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FAC1E82581E0099A66D /* core.c */; };
@@ -74,7 +75,6 @@
 		77E19E9A1EA2C3EE00C6766A /* realtime.c in Sources */ = {isa = PBXBuildFile; fileRef = 77E19E981EA2C3EE00C6766A /* realtime.c */; };
 		77E19E9D1EA2CB5500C6766A /* mpye.c in Sources */ = {isa = PBXBuildFile; fileRef = 77E19E9B1EA2CB5500C6766A /* mpye.c */; };
 		77E19E9E1EA2CB5500C6766A /* mpye.h in Headers */ = {isa = PBXBuildFile; fileRef = 77E19E9C1EA2CB5500C6766A /* mpye.h */; };
-		77E19EA91EA2DA1900C6766A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 77E19EA81EA2DA1900C6766A /* main.c */; };
 		77F29D531E585BBC00EC907D /* libbbb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77F29D4C1E585B9A00EC907D /* libbbb.a */; };
 		77F29D571E585BDE00EC907D /* bbb.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D551E585BDE00EC907D /* bbb.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		77F29D591E585C1700EC907D /* gpio.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D581E585C1700EC907D /* gpio.c */; };
@@ -194,15 +194,17 @@
 		770E337B1F248B6700D7E845 /* bus_manager.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bus_manager.c; path = libsked/bus_manager.c; sourceTree = "<group>"; };
 		770E337C1F248B6700D7E845 /* bus_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bus_manager.h; path = libsked/bus_manager.h; sourceTree = "<group>"; };
 		770E33801F2491CC00D7E845 /* bus_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bus_internal.h; path = libsked/bus_internal.h; sourceTree = "<group>"; };
+		770E33811F25BC4D00D7E845 /* adc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = adc.c; path = libhw/adc.c; sourceTree = "<group>"; };
+		770E33821F25BC4D00D7E845 /* adc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = adc.h; path = libhw/adc.h; sourceTree = "<group>"; };
 		771BC7731EAC53330027E537 /* core_checklists.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = core_checklists.h; sourceTree = "<group>"; };
 		771BC7741EAC53C90027E537 /* core_checklists.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = core_checklists.c; sourceTree = "<group>"; };
 		7730C0C31EB5439B00881CF2 /* logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = logging.h; path = liblog/logging.h; sourceTree = "<group>"; };
 		7730C0C41EB5441000881CF2 /* pod-defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "pod-defs.h"; sourceTree = "<group>"; };
 		77365AE71EE12E180010583E /* gpio_shim.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gpio_shim.c; path = libbbb/gpio_shim.c; sourceTree = "<group>"; };
+		7737EE861F47A08A00A2BFE5 /* i2c.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = i2c.c; path = libhw/i2c.c; sourceTree = "<group>"; };
+		7737EE871F47A08A00A2BFE5 /* i2c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = i2c.h; path = libhw/i2c.h; sourceTree = "<group>"; };
 		7744EE141E5853C1004EC3F9 /* libhw.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhw.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7747BF231E82435C0067B683 /* hw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hw.h; path = libhw/hw.h; sourceTree = "<group>"; };
-		7747BF241E82435C0067B683 /* interface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = interface.c; path = libhw/interface.c; sourceTree = "<group>"; };
-		7747BF251E82435C0067B683 /* interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = interface.h; path = libhw/interface.h; sourceTree = "<group>"; };
 		7747BF261E82435C0067B683 /* libBBB.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = libBBB.c; path = libhw/libBBB.c; sourceTree = "<group>"; };
 		7747BF271E82435C0067B683 /* libBBB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libBBB.h; path = libhw/libBBB.h; sourceTree = "<group>"; };
 		7747BF281E82435C0067B683 /* pins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pins.c; path = libhw/pins.c; sourceTree = "<group>"; };
@@ -213,8 +215,6 @@
 		7747BF2D1E82435C0067B683 /* shims.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shims.h; path = libhw/shims.h; sourceTree = "<group>"; };
 		7747BF2E1E82435C0067B683 /* solenoid.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = solenoid.c; path = libhw/solenoid.c; sourceTree = "<group>"; };
 		7747BF2F1E82435C0067B683 /* solenoid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = solenoid.h; path = libhw/solenoid.h; sourceTree = "<group>"; };
-		777F012E1EF8E4C600EEFE1F /* ti_battery_packs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ti_battery_packs.c; path = libhw/ti_battery_packs.c; sourceTree = "<group>"; };
-		777F012F1EF8E4C600EEFE1F /* ti_battery_packs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ti_battery_packs.h; path = libhw/ti_battery_packs.h; sourceTree = "<group>"; };
 		778A5FA01E82581E0099A66D /* cdefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cdefs.h; sourceTree = "<group>"; };
 		778A5FA11E82581E0099A66D /* commander.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = commander.c; sourceTree = "<group>"; };
 		778A5FA21E82581E0099A66D /* commander.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commander.h; sourceTree = "<group>"; };
@@ -244,8 +244,6 @@
 		778A5FBC1E82581E0099A66D /* tests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tests.c; sourceTree = "<group>"; };
 		77B145891E5820D700988FE3 /* core */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = core; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B145C71E58210F00988FE3 /* libimu.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libimu.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		77B145FA1E58226B00988FE3 /* ADCCollector.hp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ADCCollector.hp; sourceTree = "<group>"; };
-		77B145FB1E58226B00988FE3 /* ADCCollector.p */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = ADCCollector.p; sourceTree = "<group>"; };
 		77B18BCB1E5845DD00DDD8B5 /* liblog.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblog.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B333361F47A2E4001C5993 /* bbb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bbb.c; path = libbbb/bbb.c; sourceTree = "<group>"; };
 		77B6C42F1E624CC2009DFE69 /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = liblog/log.c; sourceTree = "<group>"; };
@@ -265,7 +263,6 @@
 		77E19E9B1EA2CB5500C6766A /* mpye.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mpye.c; path = libhw/mpye.c; sourceTree = "<group>"; };
 		77E19E9C1EA2CB5500C6766A /* mpye.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mpye.h; path = libhw/mpye.h; sourceTree = "<group>"; };
 		77E19EA61EA2DA1900C6766A /* tparse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tparse; sourceTree = BUILT_PRODUCTS_DIR; };
-		77E19EA81EA2DA1900C6766A /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		77F29D4C1E585B9A00EC907D /* libbbb.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libbbb.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		77F29D551E585BDE00EC907D /* bbb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bbb.h; path = libbbb/bbb.h; sourceTree = "<group>"; };
 		77F29D581E585C1700EC907D /* gpio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gpio.c; path = libbbb/gpio.c; sourceTree = "<group>"; };
@@ -363,8 +360,6 @@
 			isa = PBXGroup;
 			children = (
 				7747BF231E82435C0067B683 /* hw.h */,
-				7747BF241E82435C0067B683 /* interface.c */,
-				7747BF251E82435C0067B683 /* interface.h */,
 				7747BF261E82435C0067B683 /* libBBB.c */,
 				7747BF271E82435C0067B683 /* libBBB.h */,
 				7747BF281E82435C0067B683 /* pins.c */,
@@ -377,8 +372,10 @@
 				7747BF2F1E82435C0067B683 /* solenoid.h */,
 				77E19E9B1EA2CB5500C6766A /* mpye.c */,
 				77E19E9C1EA2CB5500C6766A /* mpye.h */,
-				777F012E1EF8E4C600EEFE1F /* ti_battery_packs.c */,
-				777F012F1EF8E4C600EEFE1F /* ti_battery_packs.h */,
+				770E33811F25BC4D00D7E845 /* adc.c */,
+				770E33821F25BC4D00D7E845 /* adc.h */,
+				7737EE861F47A08A00A2BFE5 /* i2c.c */,
+				7737EE871F47A08A00A2BFE5 /* i2c.h */,
 			);
 			name = libhw;
 			sourceTree = "<group>";
@@ -392,8 +389,6 @@
 				7744EDFB1E585330004EC3F9 /* libhw */,
 				77B18BBE1E58450700DDD8B5 /* liblog */,
 				77B145CB1E58212800988FE3 /* libimu */,
-				77B145F91E58226B00988FE3 /* pru */,
-				77E19EA71EA2DA1900C6766A /* tparse */,
 				77DA26211EAEF5F200509AE4 /* imu_config */,
 				77DA262C1EAEF5FC00509AE4 /* imu_test */,
 				77B1458A1E5820D700988FE3 /* Products */,
@@ -469,16 +464,6 @@
 			name = libimu;
 			sourceTree = "<group>";
 		};
-		77B145F91E58226B00988FE3 /* pru */ = {
-			isa = PBXGroup;
-			children = (
-				77B145FA1E58226B00988FE3 /* ADCCollector.hp */,
-				77B145FB1E58226B00988FE3 /* ADCCollector.p */,
-			);
-			name = pru;
-			path = core/pru;
-			sourceTree = "<group>";
-		};
 		77B18BBE1E58450700DDD8B5 /* liblog */ = {
 			isa = PBXGroup;
 			children = (
@@ -508,14 +493,6 @@
 			path = imu_test;
 			sourceTree = "<group>";
 		};
-		77E19EA71EA2DA1900C6766A /* tparse */ = {
-			isa = PBXGroup;
-			children = (
-				77E19EA81EA2DA1900C6766A /* main.c */,
-			);
-			path = tparse;
-			sourceTree = "<group>";
-		};
 		77F29D471E585B8200EC907D /* libbbb */ = {
 			isa = PBXGroup;
 			children = (
@@ -543,12 +520,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				7747BF341E82435C0067B683 /* libBBB.h in Headers */,
-				7747BF321E82435C0067B683 /* interface.h in Headers */,
 				7747BF361E82435C0067B683 /* pins.h in Headers */,
 				7747BF3A1E82435C0067B683 /* shims.h in Headers */,
+				7737EE891F47A08A00A2BFE5 /* i2c.h in Headers */,
 				7747BF381E82435C0067B683 /* relay.h in Headers */,
 				7747BF3C1E82435C0067B683 /* solenoid.h in Headers */,
-				777F01311EF8E4C600EEFE1F /* ti_battery_packs.h in Headers */,
+				770E33841F25BC4D00D7E845 /* adc.h in Headers */,
 				7747BF301E82435C0067B683 /* hw.h in Headers */,
 				77E19E9E1EA2CB5500C6766A /* mpye.h in Headers */,
 			);
@@ -829,8 +806,9 @@
 			files = (
 				7747BF351E82435C0067B683 /* pins.c in Sources */,
 				7747BF371E82435C0067B683 /* relay.c in Sources */,
+				770E33831F25BC4D00D7E845 /* adc.c in Sources */,
 				7747BF331E82435C0067B683 /* libBBB.c in Sources */,
-				7747BF311E82435C0067B683 /* interface.c in Sources */,
+				7737EE881F47A08A00A2BFE5 /* i2c.c in Sources */,
 				77E19E9D1EA2CB5500C6766A /* mpye.c in Sources */,
 				7747BF3B1E82435C0067B683 /* solenoid.c in Sources */,
 				7747BF391E82435C0067B683 /* shims.c in Sources */,
@@ -897,7 +875,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				77E19EA91EA2DA1900C6766A /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

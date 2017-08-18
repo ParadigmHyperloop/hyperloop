@@ -236,7 +236,7 @@ typedef struct pod {
   solenoid_t *relays[N_RELAY_CHANNELS];
   sensor_t *sensors[N_MUX_INPUTS * N_MUXES];
   
-  bus_t i2c[2];
+  bus_t i2c[N_I2C_BUSSES];
 
   int imu;
   int logging_socket;

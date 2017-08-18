@@ -44,6 +44,9 @@
 #endif
 #endif
 
+#ifndef PATH_MAX
+#define PATH_MAX 255
+#endif
 // --------------------------
 // Branding
 // --------------------------
@@ -63,6 +66,9 @@
 #ifndef POD_NAME
 #define POD_NAME "POD-" __XSTR__(PD_GIT_SHA1_SHORT)
 #endif
+
+#define SSR_BOARD_1_ADDRESS 0x42
+#define SSR_BOARD_2_ADDRESS 0x40
 
 // Error Thresholds
 #define A_ERR_X 0.02
@@ -227,7 +233,8 @@
 
 #define MAX_CMD_CLIENTS 16
 
-#define N_I2C_BUSSES 2
+#define N_I2C_BUSSES 3
+
 // Misc
 #define POD_BOOT_SEM "/openloop.pod.boot"
 

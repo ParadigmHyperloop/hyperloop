@@ -210,6 +210,7 @@ int main(int argc, char *argv[]) {
                 i, data.temperature);
         finish(1, fd);
       }
+      
       fflush(stdout);
 
     } else if (i == (config.spinup - 1)) {

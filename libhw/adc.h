@@ -30,4 +30,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "interface.h"
+#ifndef PARADIGM_ADC_H
+#define PARADIGM_ADC_H
+
+#include "hw.h"
+
+typedef struct adc {
+  // The ID number for the ADC (Used to switch the demux)
+  uint32_t num;
+  // The human identifiable name of the ADC
+  const char *name;
+  // The scheduler
+  bus_t *bus;
+} adc_t;
+
+typedef struct adc_response_t {
+  // The Return code for the ADC Value (0 on success, -1 on error)
+  int rc;
+  // The raw value read from the ADC
+  int raw;
+  // The ADC struct
+  adc_t *adc;
+} adc_response_t;
+
+typedef int (^ADCBlock)(adc_response_t raw);
+
+void init_adc(adc_t *adc, bus_t *bus, const char *name, int num);
+
+void read_adc(adc_t *adc, int channel, ADCBlock callback);
+
+
+
+#endif /* PARADIGM_ADC_H */

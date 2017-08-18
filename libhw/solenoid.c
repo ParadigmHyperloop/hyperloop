@@ -32,6 +32,19 @@
 
 #include "solenoid.h"
 
+int ssr_board_init(bus_t * b, int address) {
+  bus_enqueue(b, ^(__unused bus_t *bus) {
+    
+    
+    // Paste SSR Board Bringup Here
+    
+    printf("%d\n", address);
+    
+  });
+  return 0;
+}
+
+
 int solenoid_init(solenoid_t *s, char *name, bus_t *bus, unsigned char address, unsigned char channel, solenoid_type_t type) {
   strncpy(s->name, name, MAX_NAME);
   s->bus = bus;
@@ -102,7 +115,26 @@ bool open_solenoid(solenoid_t *s) {
   }
 
   if (!is_solenoid_open(s)) {
-    // TODO: execute bus enqueue
+    int channel = s->channel;
+    int addr = s->address;
+    int handle = s->bus->fd;
+    
+    int value;
+    switch (s->type) {
+      case kSolenoidNormallyOpen:
+        value = 0;
+        break;
+      case kSolenoidNormallyClosed:
+        value = 4095;
+        break;
+      default:
+        abort();
+    }
+
+    i2c_write_reg(handle, addr, 0x06 + 4 * channel, 0);
+    i2c_write_reg(handle, addr, 0x07 + 4 * channel, 0);
+    i2c_write_reg(handle, addr, 0x08 + 4 * channel, 0xFF & value);
+    i2c_write_reg(handle, addr, 0x09 + 4 * channel, (value >> 8) & 0xFF);
   }
   return true;
 }
@@ -117,59 +149,82 @@ bool close_solenoid(solenoid_t *s) {
   }
 
   if (is_solenoid_open(s)) {
-    __block solenoid_t *solenoid = s;
-    bus_enqueue(s->bus, ^(bus_t *bus) {
-      unsigned char data[3];
-      data[1] = solenoid->address;
-      data[2] = solenoid->channel;
-      unsigned char *state = &(data[3]); // To Be Optimized
-      
-      if (solenoid->type == kSolenoidNormallyOpen) {
-        if (solenoid->state == kSolenoidOpening) {
-          *state = 0;
-        } else if (solenoid->state == kSolenoidClosing) {
-          *state = 255;
-        } else {
-//          DECLARE_EMERGENCY("Non-transient Solenoid State: %d", solenoid->state);
-        }
-      } else if (solenoid->type == kSolenoidNormallyClosed) {
-        if (solenoid->state == kSolenoidOpening) {
-          *state = 255;
-        } else if (solenoid->state == kSolenoidClosing) {
-          *state = 0;
-        } else {
-//          DECLARE_EMERGENCY("Non-transient Solenoid State: %d", solenoid->state);
-        }
-      } else {
-//        DECLARE_EMERGENCY("Unsuppported Solenoid Type: %d", solenoid->type);
-      }
-      
-      if (solenoid->type == kSolenoidNormallyOpen) {
-        if (solenoid->state == kSolenoidOpening) {
-          *state = 0;
-        } else {
-          *state = 255;
-        }
-      }
-      // Write out
-      ssize_t rc = write(bus->fd, data, 3);
-      if (rc != 3) {
-        // DECLARE_EMERGENCY(<#message, ...#>)
-      } else {
-        switch (solenoid->state) {
-        case kSolenoidOpening:
-          solenoid->state = kSolenoidOpen;
-          break;
-        case kSolenoidClosing:
-          solenoid->state = kSolenoidClosed;
-          break;
-        default:
-          // Error Out
-          break;
-        }
-      }
-      
-    });
+    int channel = s->channel;
+    int addr = s->address;
+    int handle = s->bus->fd;
+    
+    int value;
+    switch (s->type) {
+      case kSolenoidNormallyOpen:
+        value = 4095;
+        break;
+      case kSolenoidNormallyClosed:
+        value = 0;
+        break;
+      default:
+        abort();
+    }
+    
+    i2c_write_reg(handle, addr, 0x06 + 4 * channel, 0);
+    i2c_write_reg(handle, addr, 0x07 + 4 * channel, 0);
+    i2c_write_reg(handle, addr, 0x08 + 4 * channel, 0xFF & value);
+    i2c_write_reg(handle, addr, 0x09 + 4 * channel, (value >> 8) & 0xFF);
+    
+    
+//    
+//    __block solenoid_t *solenoid = s;
+//    bus_enqueue(s->bus, ^(bus_t *bus) {
+//      unsigned char data[3];
+//      data[1] = solenoid->address;
+//      data[2] = solenoid->channel;
+//      unsigned char *state = &(data[3]); // To Be Optimized
+//      
+//      if (solenoid->type == kSolenoidNormallyOpen) {
+//        if (solenoid->state == kSolenoidOpening) {
+//          *state = 0;
+//        } else if (solenoid->state == kSolenoidClosing) {
+//          *state = 255;
+//        } else {
+////          DECLARE_EMERGENCY("Non-transient Solenoid State: %d", solenoid->state);
+//        }
+//      } else if (solenoid->type == kSolenoidNormallyClosed) {
+//        if (solenoid->state == kSolenoidOpening) {
+//          *state = 255;
+//        } else if (solenoid->state == kSolenoidClosing) {
+//          *state = 0;
+//        } else {
+////          DECLARE_EMERGENCY("Non-transient Solenoid State: %d", solenoid->state);
+//        }
+//      } else {
+////        DECLARE_EMERGENCY("Unsuppported Solenoid Type: %d", solenoid->type);
+//      }
+//      
+//      if (solenoid->type == kSolenoidNormallyOpen) {
+//        if (solenoid->state == kSolenoidOpening) {
+//          *state = 0;
+//        } else {
+//          *state = 255;
+//        }
+//      }
+//      // Write out
+//      ssize_t rc = write(bus->fd, data, 3);
+//      if (rc != 3) {
+//        // DECLARE_EMERGENCY(<#message, ...#>)
+//      } else {
+//        switch (solenoid->state) {
+//        case kSolenoidOpening:
+//          solenoid->state = kSolenoidOpen;
+//          break;
+//        case kSolenoidClosing:
+//          solenoid->state = kSolenoidClosed;
+//          break;
+//        default:
+//          // Error Out
+//          break;
+//        }
+//      }
+//      
+//    });
   }
   return true;
 }

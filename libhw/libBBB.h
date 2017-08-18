@@ -51,7 +51,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //#include <linux/i2c-dev.h>
 #endif
 #include <sys/ioctl.h>
-
+#include "hw.h"
 // Type definitions
 typedef struct { struct termios u; } UART;
 

@@ -24,12 +24,13 @@ static bus_task_t *task_create(bus_block_t execution) {
   }
 
   task->execute = execution;
-  Block_copy(task->execute);
+  assert(Block_copy(task->execute));
 
   return task;
 }
 
 static void task_destroy(bus_task_t *task) {
+  assert(task);
   Block_release(task->execute);
   free(task);
 }
@@ -39,39 +40,51 @@ static bus_task_t * bus_dequeue(bus_t *bus) {
   
   pthread_mutex_lock(&bus->mutex);
 
-  bus_task_t * head = bus->queue;
-  if (head) {
-    bus->queue = head->next;
+  bus_task_t * task = bus->head;
+  if (task) {
+    bus->head = task->next;
   }
   
   pthread_mutex_unlock(&bus->mutex);
   
   
-  return head;
+  return task;
 }
 
 static void *bus_main(bus_t *bus) {
-  bus_task_t *head = bus->queue;
+  
   bus->state = Run;
 
   uint64_t timestamp = get_time_usec();
   while (bus->state != Killed) {
     int rc = sem_wait(bus->sem);
     errassert(rc == 0);
-    head = bus_dequeue(bus);
-    if (head && bus->state != Killed) {
-      debug("Executing Task %p", (void *)head);
+    bus_task_t *task = bus_dequeue(bus);
+    if (task && bus->state != Killed) {
+      debug("Executing Task %p", (void *)bus->head);
       timestamp = get_time_usec();
+      if (task->mode != Cancelled) {
+        task_run(task, bus);
 
-      task_run(head, bus);
+        useconds_t elapsed = (useconds_t)(get_time_usec() - timestamp);
 
-      useconds_t elapsed = (useconds_t)(get_time_usec() - timestamp);
-
-      if (elapsed < bus->throttle) {
-        usleep(bus->throttle - elapsed);
+        if (elapsed < bus->throttle) {
+          usleep(bus->throttle - elapsed);
+        }
       }
+      
+      pthread_mutex_lock(&bus->mutex);
 
-      head = head->next;
+      if (task->mode == Requeue) {
+        // Put the task back onto the tail of the queue
+        bus->tail->next = task;
+        task->prev = bus->tail;
+        bus->tail = task;
+      } else {
+        task_destroy(task);
+      }
+      pthread_mutex_unlock(&bus->mutex);
+
     } else {
       note("Bus %s is empty or bus is being killed", bus->name);
     }
@@ -99,11 +112,11 @@ int bus_kill(bus_t *bus) {
   return (rc != 0 ? -1 : 0);
 }
 
-int bus_enqueue(bus_t *bus, bus_block_t block) {
+bus_task_t * bus_enqueue(bus_t *bus, bus_block_t block) {
   bus_task_t *task = task_create(block);
   if (!task) {
     DECLARE_EMERGENCY("Task failed to schedule on bus %p", bus);
-    return -1;
+    return NULL;
   }
 
   pthread_mutex_lock(&bus->mutex);
@@ -112,10 +125,10 @@ int bus_enqueue(bus_t *bus, bus_block_t block) {
 
   task->execute = block;
 
-  if (bus->queue == NULL) {
+  if (bus->head == NULL) {
     // If the queue is empty then set this to the first and only element.
-    bus->queue = task;
-    task->prev = task; // Infinite Loop
+    bus->head = task;
+    task->prev = NULL;
     task->next = NULL;
     bus->tail = task;
   } else {
@@ -126,25 +139,37 @@ int bus_enqueue(bus_t *bus, bus_block_t block) {
   }
   pthread_mutex_unlock(&bus->mutex);
 
-  Block_copy(task->execute);
+  assert(Block_copy(task->execute));
 
   int rc = sem_post(bus->sem);
   errassert(rc == 0);
 
-  return 0;
+  return task;
 }
 
 int bus_init(bus_t *bus, const char *name, int (^open_block)(void)) {
   bus->name = name;
-  debug("Initialized bus: %s", bus->name);
-  pthread_mutex_init(&bus->mutex, NULL);
 
   bus->fd = open_block();
-  bus->queue = NULL;
+  
+  if (bus->fd < 0) {
+    perror("Bus Failed to open: ");
+    return -1;
+  }
+  
+  bus->head = NULL;
   bus->throttle = TASK_THROTTLE;
   bus->state = Init;
+
+  pthread_mutex_init(&bus->mutex, NULL);
   bus->sem = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP, 0);
   errassert(bus->sem != SEM_FAILED);
+  
+  for (int i = 0; i < BUS_BUFFER_SIZE; i++) {
+    bus->mem[i] = 0;
+  }
+  
+  debug("Initialized bus: %s", bus->name);
 
   return 0;
 }
@@ -155,7 +180,7 @@ int bus_destroy(bus_t *bus) {
 
   rc = pthread_join(bus->thread, NULL);
   errassert(rc == 0);
-  bus_task_t *next, *head = bus->queue;
+  bus_task_t *next, *head = bus->head;
   while (head) {
     next = head->next;
     task_destroy(head);

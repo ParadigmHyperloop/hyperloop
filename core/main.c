@@ -34,6 +34,7 @@
 #include "pru.h"
 #include <sys/mount.h>
 
+
 struct arguments {
   bool tests;
   bool ready;
@@ -43,6 +44,8 @@ struct arguments {
 
 struct arguments args = {
     .tests = false, .ready = false, .imu_device = IMU_DEVICE, .telemetry_dump = NULL};
+
+const char *BUS_NAMES[] = { "/dev/i2c-0", "/dev/i2c-1", "/dev/i2c-2" };
 
 /**
  * WARNING: Do Not Directly Access this struct, use get_pod() instead to
@@ -263,6 +266,27 @@ int main(int argc, char *argv[]) {
 #ifdef HAS_PRU
     pru_init();
 #endif
+    
+
+    for (int i = 0; i < N_I2C_BUSSES; i++) {
+      int rc = bus_init(&pod->i2c[0], BUS_NAMES[i], ^ int {
+#ifdef BBB
+        return open(BUS_NAMES[i], O_RDWR);
+#else
+        return open("/dev/zero", O_RDWR);
+#endif
+      });
+      
+      assert(rc == 0);
+
+      bus_run(&pod->i2c[0]);
+    }
+
+#ifdef BBB
+    ssr_board_init(&pod->i2c[1], SSR_BOARD_1_ADDRESS);
+    ssr_board_init(&pod->i2c[1], SSR_BOARD_2_ADDRESS);
+#endif
+  
     // -----------------------------------------
     // Logging - Remote Logging System
     // -----------------------------------------
@@ -308,11 +332,6 @@ int main(int argc, char *argv[]) {
     info("Booting Core Controller Logic Thread");
 
     pthread_create(&(pod->core_thread), NULL, core_main, NULL);
-
-//    bus_init(&(pod->i2c[0]), "I2C0", ^{ return 12; });
-//    bus_init(&(pod->i2c[1]), "I2C1", ^{ return 13; });
-//    pthread_create(&(pod->core_thread), NULL, bus_main, (void *) &(pod->i2c[0]));
-//    pthread_create(&(pod->core_thread), NULL, bus_main, (void *) &(pod->i2c[1]));
     
     // we're using the built-in linux Round Roboin scheduling
     // priorities are 1-99, higher is more important

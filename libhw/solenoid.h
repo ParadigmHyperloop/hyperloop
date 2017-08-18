@@ -29,11 +29,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
+#include "hw.h"
 
 #ifndef PARADIGM_SOLENOID_H
 #define PARADIGM_SOLENOID_H
 
-#include "hw.h"
 
 typedef enum solenoid_state {
   kSolenoidError,
@@ -64,6 +64,11 @@ typedef struct solenoid {
   // Scheduler
   bus_t *bus;
 } solenoid_t;
+
+/**
+ * Initialize an SSR Board
+ */
+int ssr_board_init(bus_t * bus, int address);
 
 /**
  * Initializes a solenoid_t

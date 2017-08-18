@@ -52,6 +52,7 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
       (1.0f - IMU_EMA_ALPHA) * acceleration + (IMU_EMA_ALPHA * accel);
   debug("RAW %f, old: %f, filtered %f, ema: %f", accel, acceleration, new_accel,
         IMU_EMA_ALPHA);
+  
   // Calculate the new_velocity (oldv + (olda + newa) / 2)
 
   // float dv = calcDu(dt, acceleration, new_accel);
