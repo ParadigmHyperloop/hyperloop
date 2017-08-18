@@ -129,10 +129,10 @@ int main(int argc, char *argv[]) {
   int i = 0;
   int poop = 0;
 
-  imu_datagram_t average = {0};
+  imu_datagram_t average = IMU_DATAGRAM_INIT;
   uint64_t start = getTime();
   while (i < config.iterations || config.iterations == 0) {
-    imu_datagram_t data = {0};
+    imu_datagram_t data = IMU_DATAGRAM_INIT;
 
     ssize_t success = 0;
     while (success == 0) {

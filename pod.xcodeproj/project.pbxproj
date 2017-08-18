@@ -54,6 +54,7 @@
 		778A5FC81E82581E0099A66D /* states.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FBA1E82581E0099A66D /* states.c */; };
 		778A5FC91E82581E0099A66D /* tests.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FBC1E82581E0099A66D /* tests.c */; };
 		77B18BCF1E5845E300DDD8B5 /* liblog.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77B18BCB1E5845DD00DDD8B5 /* liblog.a */; };
+		77B333371F47A2E4001C5993 /* bbb.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B333361F47A2E4001C5993 /* bbb.c */; };
 		77B6C4341E624CC2009DFE69 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B6C42F1E624CC2009DFE69 /* log.c */; };
 		77B6C4351E624CC2009DFE69 /* log.h in Headers */ = {isa = PBXBuildFile; fileRef = 77B6C4301E624CC2009DFE69 /* log.h */; };
 		77B6C4361E624CC2009DFE69 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 77B6C4311E624CC2009DFE69 /* logging.c */; };
@@ -70,7 +71,6 @@
 		77E19E9E1EA2CB5500C6766A /* mpye.h in Headers */ = {isa = PBXBuildFile; fileRef = 77E19E9C1EA2CB5500C6766A /* mpye.h */; };
 		77E19EA91EA2DA1900C6766A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 77E19EA81EA2DA1900C6766A /* main.c */; };
 		77F29D531E585BBC00EC907D /* libbbb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77F29D4C1E585B9A00EC907D /* libbbb.a */; };
-		77F29D561E585BDE00EC907D /* bbb.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D541E585BDE00EC907D /* bbb.c */; };
 		77F29D571E585BDE00EC907D /* bbb.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D551E585BDE00EC907D /* bbb.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		77F29D591E585C1700EC907D /* gpio.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D581E585C1700EC907D /* gpio.c */; };
 		77F29D621E5A83F600EC907D /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D5C1E5A83F600EC907D /* crc.c */; };
@@ -235,6 +235,7 @@
 		77B145FA1E58226B00988FE3 /* ADCCollector.hp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ADCCollector.hp; sourceTree = "<group>"; };
 		77B145FB1E58226B00988FE3 /* ADCCollector.p */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = ADCCollector.p; sourceTree = "<group>"; };
 		77B18BCB1E5845DD00DDD8B5 /* liblog.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblog.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		77B333361F47A2E4001C5993 /* bbb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bbb.c; path = libbbb/bbb.c; sourceTree = "<group>"; };
 		77B6C42F1E624CC2009DFE69 /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = liblog/log.c; sourceTree = "<group>"; };
 		77B6C4301E624CC2009DFE69 /* log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = log.h; path = liblog/log.h; sourceTree = "<group>"; };
 		77B6C4311E624CC2009DFE69 /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = liblog/logging.c; sourceTree = "<group>"; };
@@ -254,7 +255,6 @@
 		77E19EA61EA2DA1900C6766A /* tparse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tparse; sourceTree = BUILT_PRODUCTS_DIR; };
 		77E19EA81EA2DA1900C6766A /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		77F29D4C1E585B9A00EC907D /* libbbb.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libbbb.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		77F29D541E585BDE00EC907D /* bbb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bbb.c; path = libbbb/bbb.c; sourceTree = "<group>"; };
 		77F29D551E585BDE00EC907D /* bbb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bbb.h; path = libbbb/bbb.h; sourceTree = "<group>"; };
 		77F29D581E585C1700EC907D /* gpio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gpio.c; path = libbbb/gpio.c; sourceTree = "<group>"; };
 		77F29D5C1E5A83F600EC907D /* crc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = crc.c; path = libimu/crc.c; sourceTree = "<group>"; };
@@ -485,7 +485,7 @@
 		77F29D471E585B8200EC907D /* libbbb */ = {
 			isa = PBXGroup;
 			children = (
-				77F29D541E585BDE00EC907D /* bbb.c */,
+				77B333361F47A2E4001C5993 /* bbb.c */,
 				77F29D551E585BDE00EC907D /* bbb.h */,
 				77F29D581E585C1700EC907D /* gpio.c */,
 			);
@@ -831,8 +831,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				77B333371F47A2E4001C5993 /* bbb.c in Sources */,
 				77F29D591E585C1700EC907D /* gpio.c in Sources */,
-				77F29D561E585BDE00EC907D /* bbb.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
