@@ -65,7 +65,7 @@ ifneq (,$(findstring bone,$(UNAME_R)))
 endif
 
 # Compiler and Linker Flags
-override CFLAGS += -Os -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL) -fblocks
+override CFLAGS += -DPOD_DEBUG -g -Os -pthread -std=gnu99 -I$(HDRROOT)$(HDR_INSTALL) -fblocks
 
 # Main Warning Flag Set
 override CFLAGS += -Wall -Werror -Wno-unknown-pragmas

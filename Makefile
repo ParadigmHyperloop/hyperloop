@@ -63,6 +63,9 @@ style:
 test:
 	$(DSTROOT)$(TEST_CMD)
 
+run:
+	$(DSTROOT)/usr/local/bin/core -i -
+
 deb:
 	mkdir -p $(DEBROOT)
 	mkdir -p $(DEBROOT)/DEBIAN

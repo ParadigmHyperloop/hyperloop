@@ -130,10 +130,15 @@ int log_send(log_t *l) {
 
 void *logging_main(__unused void *arg) {
   debug("[logging_main] Thread Start");
-
+  sleep(1);
+  debug("[logging_main] getting a pod");
+  sleep(1);
   pod_t *pod = get_pod();
+  sleep(1);
+  debug("[logging_main] Got a pod");
 
   while (pod->logging_socket < 0 && get_pod_mode() != Shutdown) {
+    debug("[logging_main] Opening loggin socket");
     pod->logging_socket = log_connect();
     if (pod->logging_socket < 0) {
       error("Logging Socket failed to connect: %s", strerror(errno));
@@ -144,6 +149,8 @@ void *logging_main(__unused void *arg) {
   }
   
   while (pod->logging_fd < 0) {
+    debug("[logging_main] Opening Log File");
+
     pod->logging_fd = log_open(pod->logging_filename);
     if (pod->logging_fd < 0) {
       error("Logging File failed to open: %s", strerror(errno));

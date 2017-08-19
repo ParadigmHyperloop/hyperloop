@@ -165,11 +165,13 @@ int init_pod(void) {
       .launch_time = 0,
       .pusher_plate = POD_VALUE_INITIALIZER_INT32,
       .shutdown = Halt};
-  pod_t local_pod;
+  
+  memcpy(&_pod, &_init_pod, sizeof(_pod));
+  
+  pod_t *pod = &_pod;
+  
+  debug("Applied pod_t template to local_pod");
 
-  memcpy(&local_pod, &_init_pod, sizeof(local_pod));
-
-  pod_t *pod = &local_pod;
   char name[MAX_NAME];
   // ----------------
   // INITIALIZE MPYES
@@ -177,6 +179,7 @@ int init_pod(void) {
   int i;
   unsigned int mpye_pins[N_MPYES] = {13, 14, 30, 31};
   
+  debug("Initializing MPYEs");
   for (i = 0; i < N_MPYES; i++) {
     mpye_init(&pod->mpye[i],
               name,
@@ -184,11 +187,14 @@ int init_pod(void) {
               mpye_pins[i] < 16 ? 0x30 : 0x31,
               mpye_pins[i] % 16);
   }
+  
+  
 
   // --------------------
   // INITIALIZE SOLENOIDS
   // --------------------
   
+  debug("Initializing Skate Solenoids");
   unsigned short skate_pins[] = SKATE_SOLENOIDS;
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
     snprintf(name, MAX_NAME, "skt_%c%c", (i * 2) + 'a', (i * 2) + 'b');
@@ -201,6 +207,8 @@ int init_pod(void) {
                   kSolenoidNormallyClosed);
 
   }
+
+  debug("Initializing Brake Solenoids");
 
   unsigned short clamp_engage_pins[] = CLAMP_ENGAGE_SOLONOIDS;
   for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
@@ -225,44 +233,9 @@ int init_pod(void) {
                   clamp_release_pins[i] % 16,
                   kSolenoidNormallyClosed);
   }
-
-  unsigned short wheel_pins[] = WHEEL_SOLONOIDS;
-  for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    snprintf(name, MAX_NAME, "wheel_%d", i);
-    
-    solenoid_init(&pod->wheel_solonoids[i],
-                  name,
-                  &pod->i2c[1],
-                  wheel_pins[i] < 16 ? 0x30 : 0x31,
-                  wheel_pins[i] % 16,
-                  kSolenoidNormallyClosed);
-  }
-
-  unsigned short lp_fill_valves[] = LP_FILL_SOLENOIDS;
-  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    snprintf(name, MAX_NAME, "lp_fill_%d", i);
-    
-    solenoid_init(&pod->lp_fill_valve[i],
-                  name,
-                  &pod->i2c[1],
-                  lp_fill_valves[i] < 16 ? 0x30 : 0x31,
-                  lp_fill_valves[i] % 16,
-                  kSolenoidNormallyClosed);
-  }
-
-  unsigned short lat_fill_solenoids[] = LAT_FILL_SOLENOIDS;
-  for (i = 0; i < N_LAT_FILL_SOLENOIDS; i++) {
-    snprintf(name, MAX_NAME, "lat_%d", i);
-    
-    solenoid_init(&pod->lateral_fill_solenoids[i],
-                  name,
-                  &pod->i2c[1],
-                  lat_fill_solenoids[i] < 16 ? 0x30 : 0x31,
-                  lat_fill_solenoids[i] % 16,
-                  kSolenoidNormallyClosed);
-  }
-
   
+  debug("Initializing Fill and Vent Valves");
+
   snprintf(name, MAX_NAME, "hp_fill");
 
   solenoid_init(&pod->hp_fill_valve,
@@ -282,6 +255,8 @@ int init_pod(void) {
                 VENT_SOLENOID % 16,
                 kSolenoidNormallyOpen);
 
+
+  debug("Initializing Distance Sensors");
 
   // ----------------
   // Distance Sensors
@@ -340,6 +315,8 @@ int init_pod(void) {
   // --------------------
   // Pressure Transducers
   // --------------------
+
+  debug("Initializing Transducers");
 
   int hp_pressure = HP_PRESSURE_INPUT;
   int id = N_MUX_INPUTS * PRESSURE_MUX + hp_pressure;
@@ -407,6 +384,8 @@ int init_pod(void) {
 
     snprintf(pod->lateral_pressure[i].name, MAX_NAME, "lateral_pressure_%d", i);
   }
+
+  debug("Initializing Thermocouples");
 
   // -------------
   // Thermocouples
@@ -499,20 +478,25 @@ int init_pod(void) {
 
   pthread_rwlock_init(&(pod->mode_mutex), NULL);
 
+  debug("Initializing Boot Semaphore");
+
   // assert(sem_init(&(pod->boot_sem), 0, 0) == 0);
   pod->boot_sem = sem_open(POD_BOOT_SEM, O_CREAT, S_IRUSR | S_IWUSR, 0);
+  
+  debug("Boot Sem is %p", (void*)pod->boot_sem);
 
-  note("Telemetry Packets are %lu bytes in size", sizeof(telemetry_packet_t));
   if (pod->boot_sem == SEM_FAILED) {
     error("boot_sem failed to open");
     return -1;
   }
 
+  note("Telemetry Packets are %lu bytes in size", sizeof(telemetry_packet_t));
+
   pod->initialized = true; // get_time_usec();
 
-  // We are done, so overwrite the global _pod struct
-  debug("Global Pod struct is located at %p", (void *)&_pod);
-  memcpy(&_pod, &local_pod, sizeof(local_pod));
+  // done
+  debug("Global Pod struct is located at %p (wrote to %p)", (void *)&_pod, (void*)pod);
+  
   return 0;
 }
 

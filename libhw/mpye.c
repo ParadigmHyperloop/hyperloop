@@ -8,13 +8,13 @@
 
 #include "mpye.h"
 
-static void enqueue_mpye_update(mpye_t *m) {
-  bus_enqueue(m->bus, ^(bus_t *bus) {
-    unsigned char data[] = { m->address, m->channel, (unsigned char)m->value};
-    
-    write(bus->fd, data, sizeof(data)/sizeof(unsigned char));
-    m->queued = false;
-  });
+static void enqueue_mpye_update(__unused mpye_t *m) {
+//  bus_enqueue(m->bus, ^(bus_t *bus) {
+//    unsigned char data[] = { m->address, m->channel, (unsigned char)m->value};
+//    
+//    write(bus->fd, data, sizeof(data)/sizeof(unsigned char));
+//    m->queued = false;
+//  });
 }
 
 void set_mpye(mpye_t *m, mpye_value_t val) {

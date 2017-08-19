@@ -46,6 +46,8 @@ struct arguments args = {
     .tests = false, .ready = false, .imu_device = IMU_DEVICE, .telemetry_dump = NULL};
 
 const char *BUS_NAMES[] = { "/sem-i2c-0", "/sem-i2c-1" };
+const char *BUS_FILES[] = { "/dev/i2c-0", "/dev/i2c-1" };
+
 
 /**
  * WARNING: Do Not Directly Access this struct, use get_pod() instead to
@@ -233,14 +235,14 @@ int main(int argc, char *argv[]) {
 
     int boot_sem_ret = 0;
     info("POD Booting...");
-    info("Initializing Pod");
+    info("Initializing Pod State Tracker...");
 
     if (init_pod() < 0) {
       fprintf(stderr, "Failed to Initialize Pod");
       pod_exit(1);
     }
 
-    info("Loading Pod struct for the first time");
+    info("Initialized");
     pod_t *pod = get_pod();
 
     if (args.tests) {
@@ -269,38 +271,55 @@ int main(int argc, char *argv[]) {
     
 
     for (int i = 0; i < N_I2C_BUSSES; i++) {
-      int rc = bus_init(&pod->i2c[0], BUS_NAMES[i], ^ int {
+//      int rc = bus_init(&pod->i2c[i], BUS_NAMES[i], ^ int {
+//#ifdef BBB
+//        return open(BUS_FILES[i], O_RDWR);
+//#else
+//        return open("/dev/zero", O_RDWR);
+//#endif
+//      });
 #ifdef BBB
-        return open(BUS_NAMES[i], O_RDWR);
+        pod->i2c[i].fd = open(BUS_FILES[i], O_RDWR);
 #else
-        return open("/dev/zero", O_RDWR);
+        pod->i2c[i].fd = open("/dev/zero", O_RDWR);
 #endif
-      });
-      
-      assert(rc == 0);
+      assert(pod->i2c[i].fd > 0);
 
-      bus_run(&pod->i2c[0]);
+      info("Initialized %s", BUS_FILES[i]);
+      //assert(rc == 0);
+
+//      bus_run(&pod->i2c[i]);
     }
+    debug("FUUUUUUUCKKCKCKCKCKC");
+    
+    
+    
 
-#ifdef BBB
-    ssr_board_init(&pod->i2c[1], SSR_BOARD_1_ADDRESS);
-    ssr_board_init(&pod->i2c[1], SSR_BOARD_2_ADDRESS);
-#endif
+//#ifdef BBB
+//    ssr_board_init(&pod->i2c[1], SSR_BOARD_1_ADDRESS);
+//    ssr_board_init(&pod->i2c[1], SSR_BOARD_2_ADDRESS);
+//#endif
   
     // -----------------------------------------
     // Logging - Remote Logging System
     // -----------------------------------------
     info("Starting the Logging Client Connection");
     pthread_create(&(pod->logging_thread), NULL, logging_main, NULL);
+    sleep(2);
 
     // Wait for logging thread to connect to the logging server
     if (!args.ready) {
+      info("Waiting on Logging Client");
+
       boot_sem_ret = sem_wait(pod->boot_sem);
       if (boot_sem_ret != 0) {
         perror("sem_wait wait failed: ");
         pod_exit(1);
       }
     }
+    
+    info("Logging Reported Started");
+
 
     if (get_pod_mode() != Boot) {
       error(
@@ -316,6 +335,7 @@ int main(int argc, char *argv[]) {
 
     // Wait for command thread to start it's server
     if (!args.ready) {
+      info("Waiting on Command Server");
       boot_sem_ret = sem_wait(pod->boot_sem);
       if (boot_sem_ret != 0) {
         perror("sem_wait wait failed: ");

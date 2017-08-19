@@ -32,15 +32,15 @@
 
 #include "solenoid.h"
 
-int ssr_board_init(bus_t * b, int address) {
-  bus_enqueue(b, ^(__unused bus_t *bus) {
-    
-    
-    // Paste SSR Board Bringup Here
-    
-    printf("%d\n", address);
-    
-  });
+int ssr_board_init(__unused bus_t * b, __unused int address) {
+//  bus_enqueue(b, ^(__unused bus_t *bus) {
+//    
+//    
+//    // Paste SSR Board Bringup Here
+//    
+//    printf("%d\n", address);
+//    
+//  });
   return 0;
 }
 
