@@ -290,7 +290,6 @@ int main(int argc, char *argv[]) {
 
 //      bus_run(&pod->i2c[i]);
     }
-    debug("FUUUUUUUCKKCKCKCKCKC");
     
     
     
