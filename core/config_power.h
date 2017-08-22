@@ -55,9 +55,7 @@
 // Batteries
 // --------------------------
 
-#define N_BATTERIES 3
-#define BATTERY_I2C_ADDRESSES                                                  \
-  { 0x0b, 0x0b, 0x0b }
+#define N_BATTERIES 2
 
 // --------------------------
 // Frame Thermocouple

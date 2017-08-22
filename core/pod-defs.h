@@ -68,7 +68,7 @@ typedef struct {
   int sensor_id;
   // The Human readable name of the sensor
   char name[MAX_NAME];
-  int mux;
+  int adc_num;
   int input;
   // The last calibrated sensor value
   pod_value_t value;
@@ -164,55 +164,33 @@ typedef struct pod {
   solenoid_t skate_solonoids[N_SKATE_SOLONOIDS];
   solenoid_t clamp_engage_solonoids[N_CLAMP_ENGAGE_SOLONOIDS];
   solenoid_t clamp_release_solonoids[N_CLAMP_RELEASE_SOLONOIDS];
-  solenoid_t wheel_solonoids[N_WHEEL_SOLONOIDS];
   solenoid_t vent_solenoid;
   solenoid_t hp_fill_valve;
-  solenoid_t lp_fill_valve[N_LP_FILL_SOLENOIDS];
-  solenoid_t lateral_fill_solenoids[N_LAT_FILL_SOLENOIDS];
   
   // MPYEs
   mpye_t mpye[N_MPYES];
   
   // Pressure Transducers
   sensor_t hp_pressure;
-  sensor_t lateral_pressure[N_LAT_FILL_PRESSURE];
-  sensor_t skate_pressure[N_SKATE_PRESSURE];
   sensor_t reg_pressure[N_REG_PRESSURE];
-  
+  sensor_t clamp_pressure[N_CLAMP_PRESSURE];
+  sensor_t brake_tank_pressure[N_BRAKE_TANK_PRESSURE];
+
   // Thermocouples
   sensor_t hp_thermo;
   sensor_t power_thermo[N_POWER_THERMO];
-  sensor_t clamp_pressure[N_CLAMP_PRESSURE];
   sensor_t reg_thermo[N_REG_THERMO];
   sensor_t reg_surf_thermo[N_REG_THERMO];
   sensor_t frame_thermo;
   sensor_t clamp_thermo[N_CLAMP_PAD_THERMO];
   
   // Distance Sensors
-  sensor_t lateral_distance[N_LATERAL_DISTANCE];
-  sensor_t corner_distance[N_CORNER_DISTANCE];
-  sensor_t wheel_distance[N_WHEEL_DISTANCE];
-  
-  // RPM State
-  pod_value_t rpms[N_WHEEL_PHOTO];
-  uint64_t last_wheel_stripe[N_WHEEL_PHOTO];
-  
-  // Tube Stripe State
-  
-  // time when stripe was last seen by each sensor
-  uint64_t last_tube_stripe[N_WHEEL_PHOTO];
-  // Stripe counts as seem by each sensor individually
-  pod_value_t stripe_counts[N_WHEEL_PHOTO];
-  // Average time between stripes
-  uint64_t stripe_intervals[N_WHEEL_PHOTO];
-  // The actual stripe count
-  pod_value_t stripe_count;
-  
-  // Pusher plate
+  sensor_t pusher_plate_distance[N_PUSHER_DISTANCE];
+  sensor_t levitation_distance[N_LEVITATION_DISTANCE];
+
+  // Pusher Plate
   pod_value_t pusher_plate;
-  pod_value_t pusher_plate_raw;
-  uint64_t last_pusher_plate_low;
-  bool pusher_plate_override;
+  uint64_t last_pusher_seen;
   
   uint64_t launch_time;
   
@@ -234,7 +212,7 @@ typedef struct pod {
   // Pointers to all the solenoids that are connected to the relays
   // (Don't think too much about this one, it is really just a convienience)
   solenoid_t *relays[N_RELAY_CHANNELS];
-  sensor_t *sensors[N_MUX_INPUTS * N_MUXES];
+  sensor_t *sensors[N_ADC_CHANNELS * N_ADCS];
   
   bus_t i2c[N_I2C_BUSSES];
 
@@ -267,11 +245,6 @@ typedef struct pod {
  * Sets the target flow through the skates on a scale of 0% to 100%
  */
 int set_skate_target(int no, mpye_value_t val, bool override);
-
-/**
- * Sets the caliper brake state
- */
-int ensure_caliper_brakes(int no, solenoid_state_t val, bool override);
 
 /**
  * Sets the clamp brake state

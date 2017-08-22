@@ -50,28 +50,43 @@
 #define _HP_PRESSURE_ERR 20
 #define _LP_PRESSURE_ERR 5
 
+//#define LP_TRANSDUCER_CALIBRATION_A 0.0
+//#define LP_TRANSDUCER_CALIBRATION_B 15.491
+//#define LP_TRANSDUCER_CALIBRATION_C 206.13
+
 #define LP_TRANSDUCER_CALIBRATION_A 0.0
-#define LP_TRANSDUCER_CALIBRATION_B 15.491
-#define LP_TRANSDUCER_CALIBRATION_C 206.13
+#define LP_TRANSDUCER_CALIBRATION_B 0.045507696 // 37.28 * 0.0012207
+#define LP_TRANSDUCER_CALIBRATION_C -14.2553
 
-#define WHITE_THERMO_CALIBRATION_A 0.0
-#define WHITE_THERMO_CALIBRATION_B 0.4025
-#define WHITE_THERMO_CALIBRATION_C -251.49
 
-#define CLAMP_THERMO_CALIBRATION_A 0.0
-#define CLAMP_THERMO_CALIBRATION_B -0.4234
-#define CLAMP_THERMO_CALIBRATION_C 313.74
+#define HP_TRANSDUCER_CALIBRATION_A 0.0
+#define HP_TRANSDUCER_CALIBRATION_B 477.59 // 37.28 * 0.0012207
+#define HP_TRANSDUCER_CALIBRATION_C -227.01
 
-#define FLOW_THERMO_CALIBRATION_A 0.0
-#define FLOW_THERMO_CALIBRATION_B -0.2115
-#define FLOW_THERMO_CALIBRATION_C 171.17
+
+// FROM PROOF TEST
+//#define HP_TRANSDUCER_CALIBRATION_A 0.0
+//#define HP_TRANSDUCER_CALIBRATION_B 0.584410125 // 37.28 * 0.0012207
+//#define HP_TRANSDUCER_CALIBRATION_C -151.39
+
+//#define WHITE_THERMO_CALIBRATION_A 0.0
+//#define WHITE_THERMO_CALIBRATION_B 0.4025
+//#define WHITE_THERMO_CALIBRATION_C -251.49
+//
+//#define CLAMP_THERMO_CALIBRATION_A 0.0
+//#define CLAMP_THERMO_CALIBRATION_B -0.4234
+//#define CLAMP_THERMO_CALIBRATION_C 313.74
+//
+//#define FLOW_THERMO_CALIBRATION_A 0.0
+//#define FLOW_THERMO_CALIBRATION_B -0.2115
+//#define FLOW_THERMO_CALIBRATION_C 171.17
 
 // --------------------------
 // HP Package
 // --------------------------
 #define N_HP_PRESSURE 1
-#define HP_PRESSURE_MUX PRESSURE_MUX
-#define HP_PRESSURE_INPUT 10
+#define HP_PRESSURE_ADC PRESSURE_ADC
+#define HP_PRESSURE_INPUT 12
 #define HP_PRESSURE_ERR _HP_PRESSURE_ERR
 
 #define N_HP_THERMO 1
@@ -85,9 +100,9 @@
 #define LP_PRESSURE_ERR 5
 
 #define N_REG_PRESSURE 4
-#define REG_PRESSURE_MUX PRESSURE_MUX
+#define REG_PRESSURE_ADC PRESSURE_ADC
 #define REG_PRESSURE_INPUTS                                                    \
-  { 0, 1, 2, 3 }
+  { 14, 1, 13, 2 }
 #define REG_PRESSURE_ERR LP_PRESSURE_ERR
 
 #define N_REG_THERMO 4
@@ -107,16 +122,9 @@
 // --------------------------
 
 // Front, Mid, Rear
-#define N_SKATE_SOLONOIDS 3
+#define N_SKATE_SOLONOIDS 4
 #define SKATE_SOLENOIDS                                                        \
-  { 10, 9, 8 }
-
-// Mid Left and Mid Right
-#define N_SKATE_PRESSURE 2
-#define SKATE_PRESSURE_MUX PRESSURE_MUX
-#define SKATE_PRESSURE_INPUTS                                                  \
-  { 8, 9 }
-#define SKATE_PRESSURE_ERR LP_PRESSURE_ERR
+  { 0, 1, 2, 3 }
 
 #define N_MPYES 4
 #define MPYE_CHANNELS                                                          \
@@ -128,11 +136,11 @@
 #define N_CLAMP_SOLONOIDS 2
 #define N_CLAMP_ENGAGE_SOLONOIDS N_CLAMP_SOLONOIDS
 #define CLAMP_ENGAGE_SOLONOIDS                                                 \
-  { 78, 74 }
+  { 4, 6 }
 
 #define N_CLAMP_RELEASE_SOLONOIDS N_CLAMP_SOLONOIDS
 #define CLAMP_RELEASE_SOLONOIDS                                                \
-  { 76, 72 }
+  { 5, 7 }
 
 // Which solenoid (index) to use for primary braking
 #define PRIMARY_BRAKING_CLAMP 1
@@ -143,51 +151,40 @@
   { 4, 5 }
 
 #define N_CLAMP_PRESSURE 2
-#define CLAMP_PRESSURE_MUX PRESSURE_MUX
+#define CLAMP_PRESSURE_ADC PRESSURE_ADC
 #define CLAMP_PRESSURE_INPUTS                                                  \
-  { 4, 5 }
+  { 10, 5 }
+
+#define N_BRAKE_TANK_PRESSURE 2
+#define BRAKE_TANK_PRESSURE_ADC PRESSURE_ADC
+#define BRAKE_TANK_PRESSURE_INPUTS                                             \
+  { 3, 4 }
+
 #define CLAMP_PRESSURE_ERR _LP_PRESSURE_ERR
 #define NOMINAL_CLAMP_BRAKING_ACCEL -8.134f // m/s^2 (-0.83 G)
-
-// --------------------------
-// Wheels
-// --------------------------
-
-#define N_WHEEL_SOLONOIDS 3
-#define WHEEL_SOLONOIDS                                                        \
-  { 70, 71, 73 }
 
 // --------------------------
 // HP Fill
 // --------------------------
 
-#define HP_FILL_SOLENOID 75
-
-// --------------------------
-// LP FILL
-// --------------------------
-
-#define N_LP_FILL_SOLENOIDS 2
-#define LP_FILL_SOLENOIDS                                                      \
-  { 79, 80 }
-
-// --------------------------
-// LP FILL
-// --------------------------
-
-#define N_LAT_FILL_SOLENOIDS 2
-#define LAT_FILL_SOLENOIDS                                                     \
-  { 81, 11 }
-
-#define N_LAT_FILL_PRESSURE 2
-#define LAT_FILL_PRESSURE_MUX PRESSURE_MUX
-#define LAT_FILL_PRESSURE_INPUTS                                               \
-  { 6, 7 }
+#define HP_FILL_SOLENOID 8
 
 // --------------------------
 // Releif solenoid
 // --------------------------
 
-#define VENT_SOLENOID 77
+#define VENT_SOLENOID 9
+
+// --------------------------
+// Pack A Enable
+// --------------------------
+
+#define PACK_A_ENABLE 10
+
+// --------------------------
+// Pack B Enable
+// --------------------------
+
+#define PACK_B_ENABLE 11
 
 #endif /* PARADIGM_CONFIG_AIRSUPPLY_H */

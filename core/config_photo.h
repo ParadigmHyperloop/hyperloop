@@ -37,41 +37,26 @@
 // Vertical
 // --------------------------
 
-#define N_CORNER_DISTANCE 4
-#define CORNER_DISTANCE_MUX DISTANCE_MUX
-#define CORNER_DISTANCE_INPUTS                                                 \
-  { 0, 1, 2, 3 }
+#define N_LEVITATION_DISTANCE 8
+#define LEVITATION_DISTANCE_ADC DISTANCE_ADC
+#define LEVITATION_DISTANCE_SENSORS                                                 \
+  { 5, 10, 4, 11, 3, 12, 2, 13 }
 
-#define N_WHEEL_DISTANCE 3
-#define WHEEL_DISTANCE_MUX DISTANCE_MUX
-#define WHEEL_DISTANCE_INPUTS                                                  \
-  { 4, 5, 6 }
 
 // --------------------------
-// Lateral
+// Pusher
 // --------------------------
 
-#define N_LATERAL_DISTANCE 3
-#define LATERAL_DISTANCE_MUX DISTANCE_MUX
-#define LATERAL_DISTANCE_INPUTS                                                \
-  { 7, 8, 9 }
+#define N_PUSHER_DISTANCE 4
+#define PUSHER_DISTANCE_ADC DISTANCE_ADC
+#define PUSHER_DISTANCE_INPUTS                                                \
+  { 9, 6, 8, 7 }
 
-// --------------------------
-// Shell
-// --------------------------
+#define PUSHER_PRESENT_DISTANCE 0.05
+#define PUSHER_TIMEOUT 1 * 1000 * 1000
 
-#define N_SHELL_PHOTO 4
-#define SHELL_PHOTO_MUX PHOTO_MUX
-#define SHELL_PHOTO_INPUTS                                                     \
-  { 0, 1, 2, 3 }
-
-// --------------------------
-// Wheels
-// --------------------------
-
-#define N_WHEEL_PHOTO 3
-#define WHEEL_PHOTO_MUX PHOTO_MUX
-#define WHEEL_PHOTO_INPUTS                                                     \
-  { 4, 5, 6 }
+#define DISTANCE_CALIBRATION_A 6.0434
+#define DISTANCE_CALIBRATION_B -19.279
+#define DISTANCE_CALIBRATION_C 18.546
 
 #endif /* PARADIGM_CONFIG_PHOTO_H */

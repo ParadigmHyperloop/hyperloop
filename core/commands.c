@@ -111,7 +111,8 @@ int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (set_pod_mode(Armed, "Remote Command Armed Pod")) {
     return snprintf(outbuf, outbufc, "Armed");
   } else {
-    return snprintf(outbuf, outbufc, "Controller declined to transition to Armed State. Ensure pod is in Standby.");
+    return snprintf(outbuf, outbufc, "Controller declined to transition to "
+                                     "Armed State. Ensure pod is in Standby.");
   }
 }
 
@@ -129,27 +130,15 @@ int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 
 int statusCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
-
   return status_dump(pod, outbuf, outbufc);
 }
 
 int fillCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
-  if (argc == 2) {
-    if (strncmp(argv[1], "lp", 2) == 0) {
-      if (start_lp_fill()) {
-        return snprintf(outbuf, outbufc, "Entered LP Fill State");
-      } else {
-        return snprintf(outbuf, outbufc, "LP Fill Pre-Check Failure");
-      }
-    } else if (strncmp(argv[1], "hp", 2) == 0) {
-      if (start_hp_fill()) {
-        return snprintf(outbuf, outbufc, "Entered HP Fill State");
-      } else {
-        return snprintf(outbuf, outbufc, "HP Fill Pre-Check Failure");
-      }
-    }
+  if (start_hp_fill()) {
+    return snprintf(outbuf, outbufc, "Entered HP Fill State");
+  } else {
+    return snprintf(outbuf, outbufc, "HP Fill Pre-Check Failure");
   }
-  return snprintf(outbuf, outbufc, "Usage: fill <lp|hp>");
 }
 
 int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
@@ -225,21 +214,8 @@ int killCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 }
 
 int pushCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
-  pod_t *pod = get_pod();
-
-  if (argc > 1) {
-    pod->pusher_plate_override = 1;
-    set_value(&(pod->pusher_plate), atoi(argv[1]));
-    return snprintf(outbuf, outbufc, "Set Pusher plate override to %s",
-                    (atoi(argv[1]) == 1 ? "ACTIVE" : "INACTIVE"));
-  } else {
-    if (pod->pusher_plate_override == 1) {
-      pod->pusher_plate_override = 0;
-      return snprintf(outbuf, outbufc, "Disabled Pusher Plate Override");
-    } else {
-      return snprintf(outbuf, outbufc, "No Pusher Plate Override In Effect");
-    }
-  }
+  return snprintf(outbuf, outbufc, "Push Command Not Allowed");
+  
 }
 
 // You must keep this list in order from Longest String to Shortest,

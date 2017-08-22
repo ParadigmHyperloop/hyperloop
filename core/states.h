@@ -34,24 +34,23 @@
 #define PARADIGM_STATES_H
 #include "pod.h"
 
-#define N_POD_STATES 15
+#define N_POD_STATES 14
 
 typedef enum {
   NonState = -1, // NULL STATE, not a valid state, used to terminate arrays
   POST = 0,
   Boot = 1,
-  LPFill = 2,
-  HPFill = 3,
-  Load = 4,
-  Standby = 5,
-  Armed = 6,
-  Pushing = 7,
-  Coasting = 8,
-  Braking = 9,
-  Vent = 10,
-  Retrieval = 11,
-  Emergency = 12,
-  Shutdown = 13,
+  HPFill = 2,
+  Load = 3,
+  Standby = 4,
+  Armed = 5,
+  Pushing = 6,
+  Coasting = 7,
+  Braking = 8,
+  Vent = 9,
+  Retrieval = 10,
+  Emergency = 11,
+  Shutdown = 12
 } pod_mode_t;
 
 /**

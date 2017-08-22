@@ -32,14 +32,6 @@
 
 #include "pod-helpers.h"
 
-bool start_lp_fill() {
-  debug("start_lp_fill has been called, performing pre-transition checks");
-  if (pod_safe_checklist(get_pod())) {
-    return set_pod_mode(LPFill, "Control Point Initiated LP Fill");
-  }
-  return false;
-}
-
 bool start_hp_fill() {
   debug("start_hp_fill has been called, performing pre-transition checks");
   if (pod_hp_safe_checklist(get_pod())) {
@@ -51,15 +43,6 @@ bool start_hp_fill() {
 bool any_clamp_brakes(__unused pod_t *pod) {
   for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
     if (is_solenoid_open(&pod->clamp_engage_solonoids[i])) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool any_calipers(__unused pod_t *pod) {
-  for (int i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    if (is_solenoid_open(&pod->wheel_solonoids[i])) {
       return true;
     }
   }
@@ -130,15 +113,36 @@ sensor_t *get_sensor_by_name(pod_t *pod, char *name) {
   return NULL;
 }
 
-sensor_t *get_sensor_by_address(pod_t *pod, int mux, int input) {
+sensor_t *get_sensor_by_address(pod_t *pod, int adc_num, int input) {
   size_t i;
   sensor_t *s = NULL;
   for (i = 0; i < sizeof(pod->sensors) / sizeof(pod->sensors[0]); i++) {
     if ((s = pod->sensors[i]) != NULL) {
-      if (s->mux == mux && s->input == input) {
+      if (s->adc_num == adc_num && s->input == input) {
         return s;
       }
     }
   }
   return NULL;
+}
+
+bool is_pusher_present(pod_t *pod) {
+  int pp_active_count = 0;
+  
+  for (int pp = 0; pp < N_PUSHER_DISTANCE; pp++) {
+    float distance = get_sensor(&pod->pusher_plate_distance[pp]);
+    
+    if (distance < PUSHER_PRESENT_DISTANCE) {
+      pp_active_count++;
+    }
+  }
+  
+  if (pp_active_count >= 2) {
+    pod->last_pusher_seen = get_time_usec();
+    return true;
+  } else if (pod->last_pusher_seen + PUSHER_TIMEOUT > get_time_usec()) {
+    return true;
+  }
+  return false;
+  
 }

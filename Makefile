@@ -64,6 +64,7 @@ test:
 	$(DSTROOT)$(TEST_CMD)
 
 run:
+	killall -KILL core || true
 	$(DSTROOT)/usr/local/bin/core -i -
 
 deb:

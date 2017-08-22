@@ -268,29 +268,16 @@ int main(int argc, char *argv[]) {
 #ifdef HAS_PRU
     pru_init();
 #endif
-    
 
-    for (int i = 0; i < N_I2C_BUSSES; i++) {
-//      int rc = bus_init(&pod->i2c[i], BUS_NAMES[i], ^ int {
-//#ifdef BBB
-//        return open(BUS_FILES[i], O_RDWR);
-//#else
-//        return open("/dev/zero", O_RDWR);
-//#endif
-//      });
 #ifdef BBB
-        pod->i2c[i].fd = open(BUS_FILES[i], O_RDWR);
+    pod->i2c[SSR_I2C_BUS].fd = i2c_open(SSR_I2C_BUS, 0x40);
 #else
-        pod->i2c[i].fd = open("/dev/zero", O_RDWR);
+    pod->i2c[SSR_I2C_BUS].fd = open("/dev/zero", O_RDWR);
 #endif
-      assert(pod->i2c[i].fd > 0);
-
-      info("Initialized %s", BUS_FILES[i]);
-      //assert(rc == 0);
-
-//      bus_run(&pod->i2c[i]);
-    }
     
+    assert(pod->i2c[SSR_I2C_BUS].fd > 0);
+    
+    info("Initialized I2C-%d", SSR_I2C_BUS);
     
     
 

@@ -55,14 +55,11 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
     .hp_pressure = 0.0,
     .reg_pressure = {0},
     .clamp_pressure = {0},
-    .skate_pressure = {0},
-    .lateral_pressure = {0},
 
     // Distance sensors
-    .corners = {0},
-    .wheels = {0},
-    .lateral = {0},
-
+    .pusher = {0},
+    .levitation = {0},
+    
     // Thermo
     .hp_thermo = 0.0,
     .reg_thermo = {0},
@@ -72,28 +69,17 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
 
     // batteries
     .voltages = {0},
-    .currents = {0},
-    // Photo
-    .rpms = {0},
-    .stripe_count =
-    (uint16_t)get_value_f(&(pod->stripe_count))};
+    .currents = {0}
+  };
+
 
   // Distance sensors
-  for (i = 0; i < N_CORNER_DISTANCE; i++) {
-    packet.corners[i] = get_sensor(&(pod->corner_distance[i]));
+  for (i = 0; i < N_LEVITATION_DISTANCE; i++) {
+    packet.pusher[i] = get_sensor(&(pod->pusher_plate_distance[i]));
   }
 
-  for (i = 0; i < N_WHEEL_DISTANCE; i++) {
-    packet.wheels[i] = get_sensor(&(pod->wheel_distance[i]));
-  }
-
-  for (i = 0; i < N_LATERAL_DISTANCE; i++) {
-    packet.lateral[i] = get_sensor(&(pod->lateral_distance[i]));
-  }
-
-  // Photo
-  for (i = 0; i < N_WHEEL_PHOTO; i++) {
-    packet.rpms[i] = get_value_f(&(pod->rpms[i]));
+  for (i = 0; i < N_LEVITATION_DISTANCE; i++) {
+    packet.levitation[i] = get_sensor(&(pod->levitation_distance[i]));
   }
 
   // Pressures
@@ -106,14 +92,11 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
   for (i = 0; i < N_CLAMP_PRESSURE; i++) {
     packet.clamp_pressure[i] = get_sensor(&(pod->clamp_pressure[i]));
   }
-
-  for (i = 0; i < N_SKATE_PRESSURE; i++) {
-    packet.skate_pressure[i] = get_sensor(&(pod->skate_pressure[i]));
+  
+  for (i = 0; i < N_CLAMP_PRESSURE; i++) {
+    packet.brake_tank_pressure[i] = get_sensor(&(pod->brake_tank_pressure[i]));
   }
 
-  for (i = 0; i < N_LAT_FILL_PRESSURE; i++) {
-    packet.lateral_pressure[i] = get_sensor(&(pod->lateral_pressure[i]));
-  }
 
   // Temperatures
   packet.hp_thermo = get_sensor(&(pod->hp_thermo));
@@ -172,16 +155,11 @@ void emit_telemetry(telemetry_packet_t *t, void (*outf)(char *key, size_t index,
   emit_one(acceleration_x, t, outf);
   emit_one(acceleration_y, t, outf);
   emit_one(acceleration_z, t, outf);
+  
   emit_one(hp_pressure, t, outf);
-
   emit_all(reg_pressure, t, outf);
   emit_all(clamp_pressure, t, outf);
-  emit_all(skate_pressure, t, outf);
-  emit_all(lateral_pressure, t, outf);
-
-  emit_all(corners, t, outf);
-  emit_all(wheels, t, outf);
-  emit_all(lateral, t, outf);
+  emit_all(brake_tank_pressure, t, outf);
 
   emit_one(hp_thermo, t, outf);
   emit_all(reg_thermo, t, outf);
@@ -191,9 +169,6 @@ void emit_telemetry(telemetry_packet_t *t, void (*outf)(char *key, size_t index,
 
   emit_all(voltages, t, outf);
   emit_all(currents, t, outf);
-
-  emit_all(rpms, t, outf);
-  emit_one(stripe_count, t, outf);
 }
 
 static bool emit_comma(bool open) {

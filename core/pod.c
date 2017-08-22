@@ -108,12 +108,6 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
         (is_solenoid_open(&(pod->skate_solonoids[i])) ? "open" : "closed"));
   }
 
-  for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    c += snprintf(
-        &buf[c], len - c, "Caliper %d:\t%s\n", i,
-        (is_solenoid_open(&(pod->wheel_solonoids[i])) ? "open" : "closed"));
-  }
-
   for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
     c += snprintf(&buf[c], len - c, "Clamp Eng %d:\t%s\n", i,
                   (is_solenoid_open(&(pod->clamp_engage_solonoids[i]))
@@ -126,12 +120,6 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
                   (is_solenoid_open(&(pod->clamp_release_solonoids[i]))
                        ? "open"
                        : "closed"));
-  }
-
-  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    c += snprintf(
-        &buf[c], len - c, "LP Fill %d:\t%s\n", i,
-        (is_solenoid_open(&(pod->lp_fill_valve[i])) ? "open" : "closed"));
   }
 
   c += snprintf(&buf[c], len - c, "HP Fill:\t%s\n",

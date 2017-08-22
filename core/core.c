@@ -41,15 +41,14 @@ void common_checks(pod_t *pod) {
   if (pod->launch_time > 0) {
     uint64_t now = get_time_usec();
     if (now - pod->launch_time >= WATCHDOG_TIMER) {
-      if (!is_pod_stopped(pod)) {
-        if (!(get_pod_mode() == Braking || get_pod_mode() == Vent ||
-              get_pod_mode() == Retrieval)) {
-          set_pod_mode(Emergency, "Watchdog Timer Expired");
-        }
+      if (!(get_pod_mode() == Braking || get_pod_mode() == Vent ||
+            get_pod_mode() == Retrieval)) {
+        set_pod_mode(Emergency, "Watchdog Timer Expired");
       }
     }
   }
 }
+
 /**
  * Checks to be performed when the pod's state is Boot
  */
@@ -60,21 +59,6 @@ void boot_state_checks(__unused pod_t *pod) {
 void post_state_checks(pod_t *pod) {
   if (pod_safe_checklist(pod) && pod->last_ping > 0) {
     set_pod_mode(Boot, "System POST checklist passed");
-  }
-}
-
-void lp_fill_state_checks(pod_t *pod) {
-  int i;
-
-  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    float psia = get_sensor(&(pod->clamp_pressure[i]));
-
-    if (psia < NOMINAL_MINI_TANK_PSIA + CLAMP_PRESSURE_ERR) {
-      open_solenoid(&(pod->lp_fill_valve[i]));
-    } else {
-      close_solenoid(&(pod->lp_fill_valve[i]));
-      lock_solenoid(&(pod->lp_fill_valve[i]));
-    }
   }
 }
 
@@ -89,30 +73,19 @@ void hp_fill_state_checks(pod_t *pod) {
 }
 
 void load_state_checks(pod_t *pod) {
-  if (!core_pod_checklist(pod)) {
-    set_pod_mode(Emergency, "Core Checklist Failed");
-  }
-
-  if (get_value(&(pod->pusher_plate)) == 0) {
+  if (core_pod_checklist(pod) && get_value(&(pod->pusher_plate)) == 0) {
     set_pod_mode(Standby, "Standing By");
   }
 }
 
 void standby_state_checks(pod_t *pod) {
-  if (!core_pod_checklist(pod)) {
-    set_pod_mode(Emergency, "Core Checklist Failed");
-  }
-  if (get_value(&(pod->pusher_plate)) == 1) {
+  if (core_pod_checklist(pod) && get_value(&(pod->pusher_plate)) == 1) {
     set_pod_mode(Load, "Moving/Loading");
   }
 }
 
 void armed_state_checks(pod_t *pod) {
-  if (!core_pod_checklist(pod)) {
-    set_pod_mode(Emergency, "Core Checklist Failed");
-  }
-
-  if (get_value(&(pod->pusher_plate)) == 1) {
+  if (core_pod_checklist(pod) && get_value(&(pod->pusher_plate)) == 1) {
     set_pod_mode(Pushing, "Pusher Plate depressed for at least 0.1s");
   }
 }
@@ -121,8 +94,10 @@ void armed_state_checks(pod_t *pod) {
  * Checks to be performed when the pod's state is Emergency
  */
 void emergency_state_checks(pod_t *pod) {
-  if (is_pod_stopped(pod) && any_clamp_brakes(pod) && any_calipers(pod)) {
-    set_pod_mode(Vent, "Pod has been determined to be ready for venting");
+  if (is_pod_stopped(pod) && any_clamp_brakes(pod)) {
+    if (time_in_state() > EMERGENCY_HOLD) {
+      set_pod_mode(Vent, "Pod has been determined to be ready for venting");
+    }
   }
 }
 
@@ -134,9 +109,9 @@ void pushing_state_checks(pod_t *pod) {
     set_pod_mode(Coasting, "Pod has negative acceleration in the X dir");
   }
 
-  if (get_value_f(&(pod->position_x)) > START_BRAKING) {
-    set_pod_mode(Braking, "Pod has entered braking range of travel");
-  }
+//  if (get_value_f(&(pod->position_x)) > START_BRAKING) {
+//    set_pod_mode(Braking, "Pod has entered braking range of travel");
+//  }
 
   if (pod->launch_time == 0) {
     pod->launch_time = get_time_usec();
@@ -146,30 +121,28 @@ void pushing_state_checks(pod_t *pod) {
 /**
  * Checks to be performed when the pod's state is Coasting
  */
-void coasting_state_checks(pod_t *pod) {
-  if (get_value_f(&(pod->position_x)) > START_BRAKING) {
-    set_pod_mode(Braking, "Pod has entered braking range of travel");
-  }
+void coasting_state_checks(__unused pod_t *pod) {
+//  if (get_value_f(&(pod->position_x)) > START_BRAKING) {
+//    set_pod_mode(Braking, "Pod has entered braking range of travel");
+//  }
 }
 
 /**
  * Checks to be performed when the pod's state is Braking
  */
 void braking_state_checks(pod_t *pod) {
-  // TODO: This is an issue, Engineers need the look at this
-  //       Do Not Ship without this baking algorithm reviewed
-  if (PRIMARY_BRAKING_ACCEL_X_MAX > get_value_f(&(pod->accel_x))) {
-    set_pod_mode(Emergency, "Pod decelleration is too high");
-  } else if (PRIMARY_BRAKING_ACCEL_X_MIN < get_value_f(&(pod->accel_x))) {
-    float ax = get_value_f(&(pod->accel_x));
-    float vx = get_value_f(&(pod->velocity_x));
-
-    if (is_pod_stopped(pod)) {
-      set_pod_mode(Vent, "Pod has stopped");
-    } else if (ax > -vx) { // TODO: this calculation is BS.
+  
+  if (time_in_state() > BRAKING_WAIT) {
+    if (get_value_f(&(pod->accel_x)) < PRIMARY_BRAKING_ACCEL_X_MIN) {
+      debug("Suboptimal Braking");
       set_pod_mode(Emergency, "Pod decelleration is too low");
     }
   }
+  
+  if (time_in_state() > BRAKING_TIMEOUT) {
+    set_pod_mode(Vent, "Braking Time Expired");
+  }
+  
 }
 
 void vent_state_checks(pod_t *pod) {
@@ -182,14 +155,8 @@ void vent_state_checks(pod_t *pod) {
 
 void retrieval_state_checks(__unused pod_t *pod) {}
 
-void skate_sensor_checks(pod_t *pod) {
-  int i;
-  for (i = 0; i < N_CORNER_DISTANCE; i++) {
-    if (OUTSIDE(HEIGHT_MIN, get_sensor(&(pod->corner_distance[i])),
-                HEIGHT_MAX)) {
-      set_pod_mode(Emergency, "Height sensor %d out of range", i);
-    }
-  }
+void skate_sensor_checks(__unused pod_t *pod) {
+  // PASS
 }
 
 void lp_package_checks(pod_t *pod) {
@@ -202,20 +169,8 @@ void lp_package_checks(pod_t *pod) {
   }
 }
 
-void lateral_sensor_checks(pod_t *pod) {
-  int errors = 0;
-  int i;
-  for (i = 0; i < N_LATERAL_DISTANCE; i++) {
-    if (OUTSIDE(LATERAL_MIN, get_sensor(&(pod->lateral_distance[i])),
-                LATERAL_MAX)) {
-      errors |= (0x1 << i);
-    }
-  }
-
-  if (errors) {
-    error("lateral error mask: %X", errors);
-    set_pod_mode(Emergency, "lateral sensor(s) is out of bounds");
-  }
+void lateral_sensor_checks(__unused pod_t *pod) {
+ // PASS
 }
 
 int set_skate_target(int no, mpye_value_t val, bool override) {
@@ -233,19 +188,6 @@ int set_skate_target(int no, mpye_value_t val, bool override) {
 
   set_mpye(&(pod->mpye[no]), val);
 
-  return 0;
-}
-
-int ensure_caliper_brakes(int no, solenoid_state_t val, bool override) {
-  // TODO: Implement Me
-  pod_t *pod = get_pod();
-  uint64_t skate_override[] = SKATE_OVERRIDE_LIST;
-  if (is_surface_overriden(skate_override[no]) && !override) {
-    warn("Skates are in override mode!");
-    return -1;
-  }
-
-  set_solenoid(&(pod->wheel_solonoids[no]), val);
   return 0;
 }
 
@@ -283,7 +225,6 @@ void adjust_brakes(__unused pod_t *pod) {
   switch (get_pod_mode()) {
   case POST:
   case Boot:
-  case LPFill:
   case HPFill:
   case Load:
   case Standby:
@@ -322,7 +263,6 @@ void adjust_skates(__unused pod_t *pod) {
   switch (get_pod_mode()) {
   case POST:
   case Boot:
-  case LPFill:
   case HPFill:
   case Load:
   case Standby:
@@ -352,7 +292,6 @@ void adjust_vent(pod_t *pod) {
   switch (get_pod_mode()) {
   case POST:
   case Boot:
-  case LPFill:
   case HPFill:
   case Load:
   case Standby:
@@ -377,7 +316,6 @@ void adjust_hp_fill(pod_t *pod) {
   switch (get_pod_mode()) {
   case POST:
   case Boot:
-  case LPFill:
   case Load:
   case Standby:
   case Armed:
@@ -399,6 +337,8 @@ void adjust_hp_fill(pod_t *pod) {
   }
 }
 
+
+
 /**
  * The Core Run Loop
  */
@@ -413,7 +353,13 @@ void *core_main(__unused void *arg) {
   size_t imu_score = 0;
   pod_mode_t mode;
   imu_datagram_t imu_data;
-
+  
+  /// ADC Init
+  adc_t adc[2];
+  int spi_fd = open_spi();
+  init_adc(&adc[0], spi_fd, "ADC6", 6);
+  init_adc(&adc[1], spi_fd, "ADC7", 7);
+  
   struct timespec next, now;
   get_timespec(&next);
 
@@ -451,17 +397,30 @@ void *core_main(__unused void *arg) {
     pru_read(pod);
 #endif
 
-    // Pusher Plate D-Bounce
-    if (pod->pusher_plate_override != 1) {
-      if (get_value(&(pod->pusher_plate_raw)) == 1) {
-        if (get_time_usec() - pod->last_pusher_plate_low > 0.1 * USEC_PER_SEC) {
-          set_value(&(pod->pusher_plate_raw), 1);
+    for (int a = 6; a < 8; a++) {
+      for (uint8_t channel = 0; channel < 16; channel++) {
+        sensor_t *s = get_sensor_by_address(pod, a, channel);
+        if (s != NULL) {
+          int value = read_adc(&adc[a - 6], channel);
+          if (value < 0) {
+            set_pod_mode(Emergency, "Motherboard Communication Failure");
+            continue;
+          }
+          
+          double voltage = value * 0.0012207;
+
+          debug("Sensor %s: ADC%d Channel %02d: %d (%lf Volts)", s->name, a, channel, value, voltage);
+
+          queue_sensor(s, value);
+          update_sensor(s);
+        } else {
+          debug("No Sensor for ADC%d Channel %d", a, channel);
         }
-      } else {
-        pod->last_pusher_plate_low = get_time_usec();
-        set_value(&(pod->pusher_plate), 0);
       }
     }
+
+    // Pusher Plate
+
 
     // -------------------------------------------
     // SECTION: State Machine to determine actions
@@ -476,9 +435,6 @@ void *core_main(__unused void *arg) {
       break;
     case Boot:
       boot_state_checks(pod);
-      break;
-    case LPFill:
-      lp_fill_state_checks(pod);
       break;
     case HPFill:
       hp_fill_state_checks(pod);

@@ -39,7 +39,6 @@ int ssr_board_init(__unused bus_t * b, __unused int address) {
 //    // Paste SSR Board Bringup Here
 //    
 //    printf("%d\n", address);
-//    
 //  });
   return 0;
 }

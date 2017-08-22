@@ -42,6 +42,7 @@ typedef struct adc {
   const char *name;
   // The scheduler
   bus_t *bus;
+  int fd;
 } adc_t;
 
 typedef struct adc_response_t {
@@ -55,10 +56,14 @@ typedef struct adc_response_t {
 
 typedef int (^ADCBlock)(adc_response_t raw);
 
-void init_adc(adc_t *adc, bus_t *bus, const char *name, int num);
+int init_adc(adc_t *adc, int fd, const char *name, int num);
 
-void read_adc(adc_t *adc, int channel, ADCBlock callback);
+int read_adc(adc_t *adc, uint8_t channel);
 
+void set_gpio_for_adc(adc_t *adc);
 
+uint16_t int_to_spi_channel(uint8_t channel);
+
+int open_spi(void);
 
 #endif /* PARADIGM_ADC_H */

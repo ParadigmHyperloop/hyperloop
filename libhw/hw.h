@@ -46,6 +46,7 @@
 #include "libBBB.h"
 #include "mpye.h"
 #include "solenoid.h"
+#include "adc.h"
 #include "relay.h"
 #include "shims.h"
 #include "pins.h"

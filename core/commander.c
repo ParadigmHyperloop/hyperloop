@@ -73,6 +73,7 @@ void commander_init(commander_t *commander) {
 int cmd_start_tcp_server(int portno) {
   int fd;
   struct sockaddr_in self;
+  note("Command server will start on 0.0.0.0:%d", portno);
 
   // Create a socket
   if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -111,7 +112,7 @@ int cmd_start_tcp_server(int portno) {
 
   // Assign a port number to the socket
   if (bind(fd, (struct sockaddr *)&self, sizeof(self)) != 0) {
-    error("Command Server Socket bind() %s", strerror(errno));
+    error("Command Server Socket bind(): %s", strerror(errno));
     return -1;
   }
 

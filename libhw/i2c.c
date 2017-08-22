@@ -165,11 +165,12 @@ void i2c_read_reg(int handle, int addr, unsigned char reg, unsigned char *buf,
 }
 
 void i2c_write_reg(int handle, int addr, int reg, int val) {
+  printf("[0x%X] Writing 0x%X to register 0x%X\n", addr, val, reg);
+
   if (ioctl(handle, I2C_SLAVE, addr) < 0) {
     perror("Failed to change I2C Address: ");
     return;
   }
-  printf("[0x%X] Writing 0x%X to register 0x%X\n", addr, val, reg);
   char pair[2];
   pair[0] = reg & 0xFF;
   pair[1] = val & 0xFF;
