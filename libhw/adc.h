@@ -60,7 +60,7 @@ int init_adc(adc_t *adc, int fd, const char *name, int num);
 
 int read_adc(adc_t *adc, uint8_t channel);
 
-void set_gpio_for_adc(adc_t *adc);
+int set_gpio_for_adc(adc_t *adc);
 
 uint16_t int_to_spi_channel(uint8_t channel);
 

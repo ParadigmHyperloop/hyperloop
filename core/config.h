@@ -158,11 +158,8 @@
 #define panic(subsystem, notes, ...)                                           \
   pod_panic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 
-// Helper that wraps set_pod_mode but adds file and line number
-// REVIEW: Probably should remove
 #define DECLARE_EMERGENCY(message, ...)                                        \
   set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message, ##__VA_ARGS__)
-
 
 #define errassert(cond) do { \
   if (!(cond)) { \
@@ -186,7 +183,7 @@
 // Pushing Thresholds
 //----------------------
 
-// If the accell drops to below this value, the pod will change to Coasting
+// If  accell drops to below this value, the pod will change to Coasting
 // This value should indicate when the pusher has fully detached
 #define PUSHING_MIN_ACCEL 0.2
 

@@ -45,6 +45,8 @@ int i2c_close(int handle);
 void i2c_read_reg(int handle, int addr, unsigned char reg, unsigned char *buf,
                   size_t len);
 
-void i2c_write_reg(int handle, int addr, int reg, int val);
+int i2c_write_reg(int handle, int addr, int reg, int val);
+
+int set_ssr(int handle, int addr, int channel, int value);
 
 #endif /* i2c_h */

@@ -167,6 +167,10 @@ typedef struct pod {
   solenoid_t vent_solenoid;
   solenoid_t hp_fill_valve;
   
+  // HP Fill Valve Limit Switches
+  sensor_t hp_fill_valve_open;
+  sensor_t hp_fill_valve_close;
+  
   // MPYEs
   mpye_t mpye[N_MPYES];
   
@@ -191,7 +195,6 @@ typedef struct pod {
   // Pusher Plate
   pod_value_t pusher_plate;
   uint64_t last_pusher_seen;
-  
   uint64_t launch_time;
   
   // Batteries
@@ -216,11 +219,19 @@ typedef struct pod {
   
   bus_t i2c[N_I2C_BUSSES];
 
+  // fd of the IMU
   int imu;
+  
+  // socket for the logging UDP socket
   int logging_socket;
+  
+  // log file
   int logging_fd;
-  int hw_watchdog;
+  
+  // log file name
   char logging_filename[PATH_MAX];
+  
+  
   uint64_t last_ping;
   uint64_t last_transition;
   pod_value_t core_speed;
@@ -236,7 +247,6 @@ typedef struct pod {
   pthread_rwlock_t overrides_mutex;
   
   pod_shutdown_t shutdown;
-  
   bool initialized;
 } pod_t;
 

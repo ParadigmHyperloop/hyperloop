@@ -157,10 +157,24 @@ int init_adc(adc_t *adc, int fd, const char *name, int num) {
   return 0;
 }
 
-void set_gpio_for_adc(adc_t *adc) {
-  set_pin_value(ADC_DEMUX_A, (adc->num >> 0) & 0x1);
-  set_pin_value(ADC_DEMUX_B, (adc->num >> 1) & 0x1);
-  set_pin_value(ADC_DEMUX_C, (adc->num >> 2) & 0x1);
+int set_gpio_for_adc(adc_t *adc) {
+  int rc = 0;
+  
+  rc = (int)set_pin_value(ADC_DEMUX_A, (adc->num >> 0) & 0x1);
+  if (rc < 0) {
+    return rc;
+  }
+  
+  rc = (int)set_pin_value(ADC_DEMUX_B, (adc->num >> 1) & 0x1);
+  if (rc < 0) {
+    return rc;
+  }
+  
+  rc = (int)set_pin_value(ADC_DEMUX_C, (adc->num >> 2) & 0x1);
+  if (rc < 0) {
+    return rc;
+  }
+  return 0;
 }
 
 int read_adc(__unused adc_t *adc, __unused uint8_t channel) {
@@ -168,7 +182,6 @@ int read_adc(__unused adc_t *adc, __unused uint8_t channel) {
 #ifdef BBB
   int new_channel = -1, attempts = 0;
   do {
-    set_gpio_for_adc(adc);
 
     uint16_t send = int_to_spi_channel(channel);
     char data[2] = {send >> 8, send & 0xFF};

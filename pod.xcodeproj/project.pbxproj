@@ -48,6 +48,7 @@
 		7747BF3A1E82435C0067B683 /* shims.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF2D1E82435C0067B683 /* shims.h */; };
 		7747BF3B1E82435C0067B683 /* solenoid.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF2E1E82435C0067B683 /* solenoid.c */; };
 		7747BF3C1E82435C0067B683 /* solenoid.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF2F1E82435C0067B683 /* solenoid.h */; };
+		775D50B31F4D776200F1A66A /* gpio.h in Headers */ = {isa = PBXBuildFile; fileRef = 775D50B21F4D776200F1A66A /* gpio.h */; };
 		778A5FBD1E82581E0099A66D /* commander.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FA11E82581E0099A66D /* commander.c */; };
 		778A5FBE1E82581E0099A66D /* commands.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FA31E82581E0099A66D /* commands.c */; };
 		778A5FBF1E82581E0099A66D /* core.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FAC1E82581E0099A66D /* core.c */; };
@@ -215,6 +216,7 @@
 		7747BF2D1E82435C0067B683 /* shims.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shims.h; path = libhw/shims.h; sourceTree = "<group>"; };
 		7747BF2E1E82435C0067B683 /* solenoid.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = solenoid.c; path = libhw/solenoid.c; sourceTree = "<group>"; };
 		7747BF2F1E82435C0067B683 /* solenoid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = solenoid.h; path = libhw/solenoid.h; sourceTree = "<group>"; };
+		775D50B21F4D776200F1A66A /* gpio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gpio.h; path = libbbb/gpio.h; sourceTree = "<group>"; };
 		778A5FA01E82581E0099A66D /* cdefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cdefs.h; sourceTree = "<group>"; };
 		778A5FA11E82581E0099A66D /* commander.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = commander.c; sourceTree = "<group>"; };
 		778A5FA21E82581E0099A66D /* commander.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commander.h; sourceTree = "<group>"; };
@@ -499,6 +501,7 @@
 				77B333361F47A2E4001C5993 /* bbb.c */,
 				77F29D551E585BDE00EC907D /* bbb.h */,
 				77365AE71EE12E180010583E /* gpio_shim.c */,
+				775D50B21F4D776200F1A66A /* gpio.h */,
 				77F29D581E585C1700EC907D /* gpio.c */,
 			);
 			name = libbbb;
@@ -524,6 +527,7 @@
 				7747BF3A1E82435C0067B683 /* shims.h in Headers */,
 				7737EE891F47A08A00A2BFE5 /* i2c.h in Headers */,
 				7747BF381E82435C0067B683 /* relay.h in Headers */,
+				775D50B31F4D776200F1A66A /* gpio.h in Headers */,
 				7747BF3C1E82435C0067B683 /* solenoid.h in Headers */,
 				770E33841F25BC4D00D7E845 /* adc.h in Headers */,
 				7747BF301E82435C0067B683 /* hw.h in Headers */,

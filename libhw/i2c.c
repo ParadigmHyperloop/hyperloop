@@ -164,17 +164,37 @@ void i2c_read_reg(int handle, int addr, unsigned char reg, unsigned char *buf,
   i2c_write_read(handle, addr, &reg, 1, addr, buf, len);
 }
 
-void i2c_write_reg(int handle, int addr, int reg, int val) {
+int i2c_write_reg(int handle, int addr, int reg, int val) {
   printf("[0x%X] Writing 0x%X to register 0x%X\n", addr, val, reg);
 
   if (ioctl(handle, I2C_SLAVE, addr) < 0) {
     perror("Failed to change I2C Address: ");
-    return;
+    return -1;
   }
   char pair[2];
   pair[0] = reg & 0xFF;
   pair[1] = val & 0xFF;
-  i2c_write(handle, (unsigned char *)pair, 2);
+  return i2c_write(handle, (unsigned char *)pair, 2);
+}
+
+int set_ssr(int handle, int addr, int channel, int value) {
+  if (i2c_write_reg(handle, addr, 0x06 + 4 * channel, 0)) {
+    return -1;
+  }
+
+  if (i2c_write_reg(handle, addr, 0x07 + 4 * channel, 0)) {
+    return -1;
+  }
+
+  if (i2c_write_reg(handle, addr, 0x08 + 4 * channel, 0xFF & value)) {
+    return -1;
+  }
+
+  if (i2c_write_reg(handle, addr, 0x09 + 4 * channel, (value >> 8) & 0xFF)) {
+    return -1;
+  }
+
+  return 0;
 }
 
 #else
@@ -215,6 +235,10 @@ int i2c_read_no_ack(int handle, unsigned char addr_r, unsigned char *buf,
 void i2c_read_reg(int handle, int addr, unsigned char reg, unsigned char *buf,
                   size_t len) {}
 
-void i2c_write_reg(int handle, int addr, int reg, int val) {}
+int i2c_write_reg(int handle, int addr, int reg, int val) { return -1; }
+
+int set_ssr(int handle, int addr, int channel, int value) {
+  return 0;
+}
 #pragma clang diagnostic pop
 #endif

@@ -114,10 +114,6 @@ bool open_solenoid(solenoid_t *s) {
   }
 
   if (!is_solenoid_open(s)) {
-    int channel = s->channel;
-    int addr = s->address;
-    int handle = s->bus->fd;
-    
     int value;
     switch (s->type) {
       case kSolenoidNormallyOpen:
@@ -130,10 +126,7 @@ bool open_solenoid(solenoid_t *s) {
         abort();
     }
 
-    i2c_write_reg(handle, addr, 0x06 + 4 * channel, 0);
-    i2c_write_reg(handle, addr, 0x07 + 4 * channel, 0);
-    i2c_write_reg(handle, addr, 0x08 + 4 * channel, 0xFF & value);
-    i2c_write_reg(handle, addr, 0x09 + 4 * channel, (value >> 8) & 0xFF);
+    set_ssr(s->bus->fd, s->address, s->channel, value);
   }
   return true;
 }

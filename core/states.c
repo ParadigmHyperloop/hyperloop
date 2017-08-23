@@ -201,7 +201,6 @@ int init_pod(void) {
                   skate_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_1_ADDRESS,
                   skate_pins[i] % 16,
                   kSolenoidNormallyClosed);
-
   }
 
   debug("Initializing Brake Solenoids");
@@ -213,7 +212,7 @@ int init_pod(void) {
     solenoid_init(&pod->clamp_engage_solonoids[i],
                   name,
                   &pod->i2c[SSR_I2C_BUS],
-                  clamp_engage_pins[i] < 16 ? 0x30 : 0x31,
+                  clamp_engage_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
                   clamp_engage_pins[i] % 16,
                   kSolenoidNormallyClosed);
   }
@@ -225,7 +224,7 @@ int init_pod(void) {
     solenoid_init(&pod->clamp_release_solonoids[i],
                   name,
                   &pod->i2c[SSR_I2C_BUS],
-                  clamp_release_pins[i] < 16 ? 0x30 : 0x31,
+                  clamp_release_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
                   clamp_release_pins[i] % 16,
                   kSolenoidNormallyClosed);
   }
@@ -237,7 +236,7 @@ int init_pod(void) {
   solenoid_init(&pod->hp_fill_valve,
                 name,
                 &pod->i2c[SSR_I2C_BUS],
-                HP_FILL_SOLENOID < 16 ? 0x30 : 0x31,
+                HP_FILL_SOLENOID < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
                 HP_FILL_SOLENOID % 16,
                 kSolenoidNormallyClosed);
   
@@ -247,7 +246,7 @@ int init_pod(void) {
   solenoid_init(&pod->vent_solenoid,
                 name,
                 &pod->i2c[SSR_I2C_BUS],
-                VENT_SOLENOID < 16 ? 0x30 : 0x31,
+                VENT_SOLENOID < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
                 VENT_SOLENOID % 16,
                 kSolenoidNormallyOpen);
 
@@ -264,13 +263,13 @@ int init_pod(void) {
     pod->levitation_distance[i] = (sensor_t){.sensor_id = id,
                                              .name = {0},
                                              .value = POD_VALUE_INITIALIZER_FL,
-                                             .cal_a = 0,
-                                             .cal_b = 1,
-                                             .cal_c = 0,
+                                             .cal_a = DISTANCE_CALIBRATION_A,
+                                             .cal_b = DISTANCE_CALIBRATION_B,
+                                             .cal_c = DISTANCE_CALIBRATION_C,
                                              .alpha = 1.0,
-                                            .offset = 0.0,
-                                         .adc_num = LEVITATION_DISTANCE_ADC,
-                                         .input = levitation_distance[i]};
+                                             .offset = 0.0,
+                                             .adc_num = LEVITATION_DISTANCE_ADC,
+                                             .input = levitation_distance[i]};
     snprintf(pod->levitation_distance[i].name, MAX_NAME, "lev_%d", i);
   }
 
@@ -281,9 +280,9 @@ int init_pod(void) {
     pod->pusher_plate_distance[i] = (sensor_t){.sensor_id = id,
       .name = {0},
       .value = POD_VALUE_INITIALIZER_FL,
-      .cal_a = 0,
-      .cal_b = 1,
-      .cal_c = 0,
+      .cal_a = DISTANCE_CALIBRATION_A,
+      .cal_b = DISTANCE_CALIBRATION_B,
+      .cal_c = DISTANCE_CALIBRATION_C,
       .alpha = 1.0,
       .offset = 0.0,
       .adc_num = PUSHER_DISTANCE_ADC,
@@ -291,6 +290,8 @@ int init_pod(void) {
     snprintf(pod->pusher_plate_distance[i].name, MAX_NAME, "pusher_%d", i);
   }
   
+  
+  int id;
   // --------------------
   // Pressure Transducers
   // --------------------
@@ -298,7 +299,7 @@ int init_pod(void) {
   debug("Initializing Transducers");
 
   int hp_pressure = HP_PRESSURE_INPUT;
-  int id = N_ADC_CHANNELS * PRESSURE_ADC + hp_pressure;
+  id = N_ADC_CHANNELS * PRESSURE_ADC + hp_pressure;
   pod->sensors[id] = &(_pod.hp_pressure);
   pod->hp_pressure = (sensor_t){.sensor_id = id,
                                 .name = {0},
@@ -322,7 +323,7 @@ int init_pod(void) {
                                       .cal_a = LP_TRANSDUCER_CALIBRATION_A,
                                       .cal_b = LP_TRANSDUCER_CALIBRATION_B,
                                       .cal_c = LP_TRANSDUCER_CALIBRATION_C,
-                                      .alpha = 1.0,
+                                      .alpha = 0.4,
                                       .offset = 0.0,
                                       .adc_num = PRESSURE_ADC,
                                       .input = reg_pressures[i]};
@@ -339,7 +340,7 @@ int init_pod(void) {
                                         .cal_a = LP_TRANSDUCER_CALIBRATION_A,
                                         .cal_b = LP_TRANSDUCER_CALIBRATION_B,
                                         .cal_c = LP_TRANSDUCER_CALIBRATION_C,
-                                        .alpha = 1.0,
+                                        .alpha = 0.4,
                                         .offset = 0.0,
                                         .adc_num = PRESSURE_ADC,
                                         .input = clamp_pressure[i]};
@@ -348,7 +349,7 @@ int init_pod(void) {
   
   int brake_tank_pressure[] = BRAKE_TANK_PRESSURE_INPUTS;
   for (i = 0; i < N_BRAKE_TANK_PRESSURE; i++) {
-    id = N_ADC_CHANNELS * N_BRAKE_TANK_PRESSURE + brake_tank_pressure[i];
+    id = N_ADC_CHANNELS * BRAKE_TANK_PRESSURE_ADC + brake_tank_pressure[i];
     pod->sensors[id] = &(_pod.brake_tank_pressure[i]);
     pod->brake_tank_pressure[i] = (sensor_t){.sensor_id = id,
       .name = {0},
@@ -356,13 +357,45 @@ int init_pod(void) {
       .cal_a = LP_TRANSDUCER_CALIBRATION_A,
       .cal_b = LP_TRANSDUCER_CALIBRATION_B,
       .cal_c = LP_TRANSDUCER_CALIBRATION_C,
-      .alpha = 1.0,
+      .alpha = 0.4,
       .offset = 0.0,
       .adc_num = PRESSURE_ADC,
       .input = brake_tank_pressure[i]};
     snprintf(pod->brake_tank_pressure[i].name, MAX_NAME, "brake_tank_pressure_%d", i);
   }
 
+
+  id = N_ADC_CHANNELS * HP_FILL_VALVE_ADC + pusher_distance[i];
+  pod->sensors[id] = &(_pod.hp_fill_valve_open);
+  pod->hp_fill_valve_open = (sensor_t){.sensor_id = id,
+    .name = {0},
+    .value = POD_VALUE_INITIALIZER_FL,
+    .cal_a = 0,
+    .cal_b = 1,
+    .cal_c = 0,
+    .alpha = 1.0,
+    .offset = 0.0,
+    .adc_num = HP_FILL_VALVE_ADC,
+    .input = HP_FILL_VALVE_OPEN_SWITCH};
+  snprintf(pod->hp_fill_valve_open.name, MAX_NAME, "fill_open");
+  
+  
+  id = N_ADC_CHANNELS * HP_FILL_VALVE_ADC + pusher_distance[i];
+  pod->sensors[id] = &(_pod.hp_fill_valve_close);
+  pod->hp_fill_valve_close = (sensor_t){.sensor_id = id,
+    .name = {0},
+    .value = POD_VALUE_INITIALIZER_FL,
+    .cal_a = 0,
+    .cal_b = 1,
+    .cal_c = 0,
+    .alpha = 1.0,
+    .offset = 0.0,
+    .adc_num = HP_FILL_VALVE_ADC,
+    .input = HP_FILL_VALVE_OPEN_SWITCH};
+  snprintf(pod->hp_fill_valve_close.name, MAX_NAME, "fill_close");
+  
+
+  
   debug("Initializing Thermocouples");
 
   // -------------

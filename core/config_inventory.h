@@ -48,7 +48,6 @@
 #define BRAKING_WAIT 1 * USEC_PER_SEC
 #define BRAKING_TIMEOUT 10 * USEC_PER_SEC
 
-
 // --------------------------
 // Relay
 // --------------------------

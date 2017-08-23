@@ -192,7 +192,6 @@ int set_skate_target(int no, mpye_value_t val, bool override) {
 }
 
 int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override) {
-  // TODO: Implement actually and also implement locking
   pod_t *pod = get_pod();
   uint64_t clamp_override[] = CLAMP_OVERRIDE_LIST;
 
@@ -257,8 +256,6 @@ void adjust_brakes(__unused pod_t *pod) {
 }
 
 void adjust_skates(__unused pod_t *pod) {
-  // Skates are completely controlled by pod state, therefore we can just
-  // switch over them
   int i;
   switch (get_pod_mode()) {
   case POST:
@@ -270,6 +267,7 @@ void adjust_skates(__unused pod_t *pod) {
   case Vent:
   case Retrieval:
   case Emergency:
+  case Shutdown:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
       set_skate_target(i, 0, false);
     }
@@ -277,7 +275,6 @@ void adjust_skates(__unused pod_t *pod) {
   case Pushing:
   case Coasting:
   case Braking:
-  case Shutdown:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
       // TODO Implement PID for Skates
       set_skate_target(i, 100, false);
@@ -398,9 +395,16 @@ void *core_main(__unused void *arg) {
 #endif
 
     for (int a = 6; a < 8; a++) {
+      int rc = set_gpio_for_adc(&adc[a - 6]);
+      if (rc < 0) {
+        set_pod_mode(Emergency, "Motherboard Demux Communication Failure");
+      }
+
       for (uint8_t channel = 0; channel < 16; channel++) {
         sensor_t *s = get_sensor_by_address(pod, a, channel);
         if (s != NULL) {
+          
+
           int value = read_adc(&adc[a - 6], channel);
           if (value < 0) {
             set_pod_mode(Emergency, "Motherboard Communication Failure");
