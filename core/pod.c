@@ -89,11 +89,11 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
   int i = 0;
 
   c += snprintf(
-      &buf[c], len, "mode: %s\n"
+      &buf[c], len, "mode: %s\nreason: %s\n"
                     "acl m/s/s: x: %f, y: %f, z: %f\n"
                     "vel m/s  : x: %f, y: %f, z: %f\n"
                     "pos m    : x: %f, y: %f, z: %f\n",
-      pod_mode_names[get_pod_mode()], get_value_f(&(pod->accel_x)),
+      pod_mode_names[get_pod_mode()], pod->state_reason, get_value_f(&(pod->accel_x)),
       get_value_f(&(pod->accel_y)), get_value_f(&(pod->accel_z)),
       get_value_f(&(pod->velocity_x)), get_value_f(&(pod->velocity_y)),
       get_value_f(&(pod->velocity_z)), get_value_f(&(pod->position_x)),

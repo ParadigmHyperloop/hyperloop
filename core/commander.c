@@ -350,8 +350,8 @@ int cmd_server() {
       if (FD_ISSET(commander.clients[i], &read_fd_set)) {
         if (cmd_process_request(commander.clients[i], commander.clients[i], &commander) < 0) {
           // remove the client
-          set_pod_mode(Emergency, "Operator Client %d (fd %d) disconnected", i,
-                       commander.clients[i]);
+//          set_pod_mode(Emergency, "Operator Client %d (fd %d) disconnected", i,
+//                       commander.clients[i]);
           close(commander.clients[i]);
           int j;
           for (j = i + 1; j < commander.nclients; j++) {

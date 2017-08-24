@@ -67,8 +67,8 @@
 #define POD_NAME "POD-" __XSTR__(PD_GIT_SHA1_SHORT)
 #endif
 
-#define SSR_BOARD_1_ADDRESS 0x42
-#define SSR_BOARD_2_ADDRESS 0x40
+#define SSR_BOARD_1_ADDRESS 0x40
+#define SSR_BOARD_2_ADDRESS 0x41
 
 // Error Thresholds
 #define A_ERR_X 0.02
@@ -78,7 +78,7 @@
 #define V_ERR_Y 0.1
 #define V_ERR_Z 0.1
 
-#define HEARTBEAT_TIMEOUT_USEC 1 * USEC_PER_SEC
+#define HEARTBEAT_TIMEOUT_USEC 10 * USEC_PER_SEC
 
 // Signals
 #define POD_SIGPANIC SIGUSR1

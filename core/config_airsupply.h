@@ -36,8 +36,8 @@
 // --------------------------
 // Configuration Constants
 // --------------------------
-#define MIN_SAFE_PSIA -10
-#define MAX_SAFE_PSIA 20
+#define MIN_SAFE_PSI -20
+#define MAX_SAFE_PSI 20
 
 #define NOMINAL_HP_PSIA 1770
 #define NOMINAL_MINI_TANK_PSIA 145

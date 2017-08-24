@@ -333,14 +333,149 @@ void adjust_hp_fill(pod_t *pod) {
           "Pod Mode unknown, cannot make a hp fill decsion");
   }
 }
-
-
+//
+//static void setup(void) {
+//  pod_t *pod = get_pod();
+//  
+//  debug("=== Begin Setup ===");
+//  for (int i = 0; i < N_MPYES; i++) {
+//    mpye_t *m = &(pod->mpye[i]);
+//    set_ssr(m->bus->fd, m->address, m->channel, 0);
+//  }
+//  
+//  for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
+//    solenoid_t *s = &(pod->skate_solonoids[i]);
+//    set_ssr(s->bus->fd, s->address, s->channel, 0);
+//  }
+//  
+//  for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+//    solenoid_t *s = &(pod->clamp_engage_solonoids[i]);
+//    set_ssr(s->bus->fd, s->address, s->channel, 0);
+//  }
+//
+//  
+//  for (int i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
+//    solenoid_t *s = &(pod->clamp_release_solonoids[i]);
+//    set_ssr(s->bus->fd, s->address, s->channel, 0);
+//  }
+//
+//  solenoid_t *s;
+//  s = &(pod->hp_fill_valve);
+//  set_ssr(s->bus->fd, s->address, s->channel, 0);
+//  
+//  s = &(pod->vent_solenoid);
+//  set_ssr(s->bus->fd, s->address, s->channel, 0);
+//  debug("=== End Setup ===");
+//}
+//
+//
+//static void functional_check(void) {
+//  pod_t *pod = get_pod();
+//  debug("=== Begin Functional Check ===");
+//  
+//  for (int iterations = 0; iterations < 10; iterations++) {
+//    for (uint8_t j = 0; j <= 100; j++) {
+//      for (int i = 0; i < N_MPYES; i++) {
+//        mpye_t *m = &(pod->mpye[i]);
+//        set_mpye(m, j);
+//      }
+//    }
+//    
+//    for (uint8_t j = 100; j >= 0; j--) {
+//      for (int i = 0; i < N_MPYES; i++) {
+//        mpye_t *m = &(pod->mpye[i]);
+//        set_mpye(m, j);
+//      }
+//    }
+//  }
+//
+//  sleep(5);
+//  
+//  for (int iterations = 0; iterations < 2; iterations++) {
+//    for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
+//      solenoid_t *s = &(pod->skate_solonoids[i]);
+//      open_solenoid(s);
+//      sleep(1);
+//    }
+//    
+//    for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
+//      solenoid_t *s = &(pod->skate_solonoids[i]);
+//      close_solenoid(s);
+//      sleep(1);
+//    }
+//  }
+//  
+//  sleep(5);
+//
+//  for (int iterations = 0; iterations < 2; iterations++) {
+//    for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
+//      solenoid_t *s = &(pod->skate_solonoids[i]);
+//      open_solenoid(s);
+//      sleep(1);
+//    }
+//    
+//    for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
+//      solenoid_t *s = &(pod->skate_solonoids[i]);
+//      close_solenoid(s);
+//      sleep(1);
+//    }
+//  }
+//
+//  sleep(5);
+//  
+//  for (int iterations = 0; iterations < 2; iterations++) {
+//    for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+//      solenoid_t *s = &(pod->clamp_engage_solonoids[i]);
+//      open_solenoid(s);
+//      sleep(1);
+//    }
+//    
+//    for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+//      solenoid_t *s = &(pod->clamp_engage_solonoids[i]);
+//      close_solenoid(s);
+//      sleep(1);
+//    }
+//  }
+//
+//  sleep(5);
+//  
+//  for (int iterations = 0; iterations < 2; iterations++) {
+//    for (int i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
+//      solenoid_t *s = &(pod->clamp_release_solonoids[i]);
+//      open_solenoid(s);
+//      sleep(1);
+//    }
+//    for (int i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
+//      solenoid_t *s = &(pod->clamp_release_solonoids[i]);
+//      close_solenoid(s);
+//      sleep(1);
+//    }
+//  }
+//
+//  
+//  solenoid_t *s;
+//  // HP Fill Valve
+//  s = &(pod->hp_fill_valve);
+//  open_solenoid(s);
+//  sleep(13);
+//  close_solenoid(s);
+//  sleep(13);
+//  
+//  // Vent Solenoid
+//  s = &(pod->vent_solenoid);
+//  open_solenoid(s);
+//  sleep(1);
+//  close_solenoid(s);
+//  set_ssr(s->bus->fd, s->address, s->channel, 0);
+//  
+//  debug("=== End Setup ===");
+//}
+//
 
 /**
  * The Core Run Loop
  */
 void *core_main(__unused void *arg) {
-
   double iteration_time = 0;
   uint64_t usec_last = 0;
 
@@ -359,6 +494,12 @@ void *core_main(__unused void *arg) {
   
   struct timespec next, now;
   get_timespec(&next);
+
+//  setup();
+//
+//  if (pod->func_test) {
+//    functional_check();
+//  }
 
   while ((mode = get_pod_mode()) != Shutdown) {
     // --------------------------------------------
@@ -506,10 +647,10 @@ void *core_main(__unused void *arg) {
     // --------------------------------------------
     // Heartbeat handling
     // --------------------------------------------
-    if (get_time_usec() - pod->last_ping > HEARTBEAT_TIMEOUT_USEC &&
-        pod->last_ping > 0 && get_pod_mode() != Emergency) {
-      set_pod_mode(Emergency, "Heartbeat timeout");
-    }
+//    if (get_time_usec() - pod->last_ping > HEARTBEAT_TIMEOUT_USEC &&
+//        pod->last_ping > 0 && get_pod_mode() != Emergency) {
+//      set_pod_mode(Emergency, "Heartbeat timeout");
+//    }
 
 // --------------------------------------------
 // Yield to other threads

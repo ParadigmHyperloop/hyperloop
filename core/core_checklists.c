@@ -59,12 +59,24 @@ bool core_pod_checklist(pod_t *pod) {
  * Is the pod safe. Used to inhibit transitions to various different states
  */
 bool pod_safe_checklist(pod_t *pod) {
-  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_pod_vented(pod);
+  if (!core_pod_checklist(pod)) {
+    warn("core pod checklist failed");
+    return false;
+  }
+  if (!is_pod_stopped(pod)) {
+    warn("Pod is not stopped");
+    return false;
+  }
+  if (!is_pod_vented(pod)) {
+    warn("Pod is not vented");
+    return false;
+  }
+  return true;
 }
 
 /**
  * Is the pod safe to proceed to an HP Fill
  */
 bool pod_hp_safe_checklist(pod_t *pod) {
-  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_hp_vented(pod);
+  return pod_safe_checklist(pod);
 }

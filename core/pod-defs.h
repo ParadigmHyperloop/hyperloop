@@ -34,6 +34,8 @@
 #ifndef PARADIGM_POD_DEFS_H
 #define PARADIGM_POD_DEFS_H
 
+#define MAX_STATE_REASON_MSG 255
+
 typedef struct pod_value {
   union {
     int32_t int32;
@@ -231,7 +233,8 @@ typedef struct pod {
   // log file name
   char logging_filename[PATH_MAX];
   
-  
+  char state_reason[MAX_STATE_REASON_MSG];
+
   uint64_t last_ping;
   uint64_t last_transition;
   pod_value_t core_speed;
@@ -239,6 +242,7 @@ typedef struct pod {
   enum pod_warning warnings;
   
   bool calibrated;
+  bool func_test;
   
   sem_t *boot_sem;
   uint64_t last_imu_reading;

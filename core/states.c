@@ -56,7 +56,7 @@ pod_t _pod;
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
       {POST, Boot, Emergency, Shutdown, NonState},
-      {Boot, Emergency, Shutdown, NonState},
+      {Boot, HPFill, Emergency, Shutdown, NonState},
       {HPFill, Load, Emergency, NonState},
       {Load, Standby, Emergency, NonState},
       {Standby, Load, Armed, Emergency, NonState},
@@ -161,7 +161,8 @@ int init_pod(void) {
       .launch_time = 0,
       .pusher_plate = POD_VALUE_INITIALIZER_INT32,
       .shutdown = Halt,
-      .last_pusher_seen = 0};
+      .last_pusher_seen = 0,
+      .func_test = false};
   
   memcpy(&_pod, &_init_pod, sizeof(_pod));
   
@@ -549,7 +550,7 @@ bool set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
     pthread_rwlock_unlock(&(pod->mode_mutex));
     warn("Request to set mode from %s to %s: approved",
          pod_mode_names[old_mode], pod_mode_names[new_mode]);
-
+    strncpy(pod->state_reason, reason, MAX_STATE_REASON_MSG);
     return true;
   } else {
     warn("Request to set mode from %s to %s: denied", pod_mode_names[old_mode],

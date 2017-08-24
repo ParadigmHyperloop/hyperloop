@@ -246,7 +246,8 @@ int main(int argc, char *argv[]) {
     pod_t *pod = get_pod();
 
     if (args.tests) {
-      pod_exit(self_tests(pod));
+//      pod_exit(self_tests(pod));
+      pod->func_test = true;
     }
 
     // Disable IMU by starting with core -i -
@@ -270,7 +271,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef BBB
-    pod->i2c[SSR_I2C_BUS].fd = i2c_open(SSR_I2C_BUS, 0x40);
+    pod->i2c[SSR_I2C_BUS].fd = i2c_open(SSR_I2C_BUS, SSR_BOARD_1_ADDRESS);
 #else
     pod->i2c[SSR_I2C_BUS].fd = open("/dev/zero", O_RDWR);
 #endif

@@ -138,8 +138,6 @@ gpio_dir_t get_pin_direction(gpio_t pin) {
 
 
 ssize_t set_pin_value(gpio_t pin, gpio_value_t value) {
-  printf("[GPIO] set_pin_value(%d, %d)\n", pin, value);
-
   char *data = "";
   switch (value) {
     case kGpioLow:

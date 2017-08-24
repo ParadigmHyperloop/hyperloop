@@ -215,7 +215,6 @@ int read_adc(__unused adc_t *adc, __unused uint8_t channel) {
     int value = (((int)data[1] & 0x0F) << 8) | (int)data[0];
 
     if (new_channel == channel) {
-      printf("Got Valid Value: %d\n", value);
       return value;
     }
     attempts++;
