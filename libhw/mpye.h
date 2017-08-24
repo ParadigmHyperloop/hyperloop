@@ -11,7 +11,7 @@
 
 #include "hw.h"
 
-typedef unsigned short mpye_value_t;
+typedef unsigned int mpye_value_t;
 
 typedef struct mpye {
   // The I2C address of the controller managing this MPYE
@@ -21,7 +21,7 @@ typedef struct mpye {
   // The Human Readable name of the solenoid
   char name[MAX_NAME];
   // The current value of this mpye (0 for closed, +100 full A, -100 full B)
-  unsigned short value;
+  unsigned int value;
   // The current value of this mpye (0 for closed, +100 full A, -100 full B)
   bool queued;
   // Prevent this mpye from changing state without an explicit unlock

@@ -267,7 +267,7 @@ int init_pod(void) {
                                              .cal_a = DISTANCE_CALIBRATION_A,
                                              .cal_b = DISTANCE_CALIBRATION_B,
                                              .cal_c = DISTANCE_CALIBRATION_C,
-                                             .alpha = 1.0,
+                                             .alpha = 0.7,
                                              .offset = 0.0,
                                              .adc_num = LEVITATION_DISTANCE_ADC,
                                              .input = levitation_distance[i]};

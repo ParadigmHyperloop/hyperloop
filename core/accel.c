@@ -104,11 +104,35 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
   float y = data->y + get_value_f(&(s->imu_calibration_y));
   float z = data->z + get_value_f(&(s->imu_calibration_z));
 
-  set_value_f(&(s->variance_x), get_value_f(&(s->variance_x)) + x);
-  set_value_f(&(s->variance_y), get_value_f(&(s->variance_y)) + y);
-  set_value_f(&(s->variance_z), get_value_f(&(s->variance_z)) + z);
-
-  calcState(&(s->accel_x), &(s->velocity_x), &(s->position_x), x, dt);
-  calcState(&(s->accel_y), &(s->velocity_y), &(s->position_y), y, dt);
-  calcState(&(s->accel_z), &(s->velocity_z), &(s->position_z), z, dt);
+  switch (get_pod_mode()) {
+    case Standby:
+      pod_calibrate();
+      set_value_f(&(s->accel_x), x);
+      set_value_f(&(s->accel_y), y);
+      set_value_f(&(s->accel_z), z);
+      break;
+    case POST:
+    case Boot:
+    case HPFill:
+    case Load:
+    case Vent:
+    case Retrieval:
+    case Shutdown:
+      set_value_f(&(s->accel_x), x);
+      set_value_f(&(s->accel_y), y);
+      set_value_f(&(s->accel_z), z);
+      break;
+    case Pushing:
+    case Coasting:
+    case Braking:
+    case Armed:
+    case Emergency:
+      calcState(&(s->accel_x), &(s->velocity_x), &(s->position_x), x, dt);
+      calcState(&(s->accel_y), &(s->velocity_y), &(s->position_y), y, dt);
+      calcState(&(s->accel_z), &(s->velocity_z), &(s->position_z), z, dt);
+      break;
+    default:
+      panic(POD_CORE_SUBSYSTEM,
+            "Pod Mode unknown, cannot make a hp fill decsion");
+  }
 }

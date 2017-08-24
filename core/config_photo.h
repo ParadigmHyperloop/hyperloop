@@ -52,7 +52,7 @@
 #define PUSHER_DISTANCE_INPUTS                                                \
   { 9, 6, 8, 7 }
 
-#define PUSHER_PRESENT_DISTANCE 0.05
+#define PUSHER_PRESENT_DISTANCE 70 // millimeters
 #define PUSHER_TIMEOUT 1 * 1000 * 1000
 
 
