@@ -278,8 +278,7 @@ int main(int argc, char *argv[]) {
     
     assert(pod->i2c[SSR_I2C_BUS].fd > 0);
     
-    info("Initialized I2C-%d", SSR_I2C_BUS);
-    
+    info("Initialized I2C-%d as fd %d", SSR_I2C_BUS, pod->i2c[SSR_I2C_BUS].fd);
     
 
 //#ifdef BBB

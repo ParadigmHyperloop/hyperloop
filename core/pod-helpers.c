@@ -34,11 +34,18 @@
 
 bool start_hp_fill() {
   debug("start_hp_fill has been called, performing pre-transition checks");
-  if (pod_hp_safe_checklist(get_pod())) {
-    return set_pod_mode(HPFill, "Control Point Initiated HP Fill");
-  }
+  return set_pod_mode(HPFill, "Control Point Initiated HP Fill");
+//  if (pod_hp_safe_checklist(get_pod())) {
+//    
+//  }
   return false;
 }
+
+bool start_standby() {
+  debug("start_standby has been called, performing pre-transition checks");
+  return set_pod_mode(Standby, "Control Point Initiated Standby");
+}
+
 
 bool any_clamp_brakes(__unused pod_t *pod) {
   for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {

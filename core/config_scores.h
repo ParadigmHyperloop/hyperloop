@@ -33,11 +33,15 @@
 #ifndef PARADIGM_CONFIG_SCORES_H
 #define PARADIGM_CONFIG_SCORES_H
 
-// Must have at least 50 read failures, each good read brings back down 1.
+// Must have at least 5000 read failures, each good read brings back down 1.
 // A 10% fail rate is marked acceptable and will not be caught
-#define IMU_SCORE_MAX 5000
+#define IMU_SCORE_MAX 50000
 #define IMU_SCORE_STEP_UP 10
 #define IMU_SCORE_STEP_DOWN 1
+
+#define MOBO_SCORE_MAX 50000
+#define MOBO_SCORE_STEP_UP 10
+#define MOBO_SCORE_STEP_DOWN 1
 
 #define SKATE_SCORE_MAX 500
 #define SKATE_SCORE_STEP_UP 10

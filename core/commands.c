@@ -141,6 +141,14 @@ int fillCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   }
 }
 
+int standbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+  if (start_standby()) {
+    return snprintf(outbuf, outbufc, "Entered Standby");
+  } else {
+    return snprintf(outbuf, outbufc, "Failed to enter Standby");
+  }
+}
+
 int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (argc < 3) {
     return snprintf(outbuf, outbufc,
@@ -225,6 +233,7 @@ int pushCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "calibrate", .func = calibrateCommand},
                         {.name = "override", .func = overrideCommand},
+                        {.name = "standby", .func = standbyCommand},
                         {.name = "status", .func = statusCommand},
                         {.name = "offset", .func = offsetCommand},
                         {.name = "ready", .func = readyCommand},

@@ -80,6 +80,7 @@ typedef struct telemetry_packet {
   // Batteries
   float voltages[N_BATTERIES]; // 3
   float currents[N_BATTERIES]; // 3
+  
 } telemetry_packet_t;
 
 

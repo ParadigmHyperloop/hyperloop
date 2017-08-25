@@ -57,10 +57,10 @@ bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
       {POST, Boot, Emergency, Shutdown, NonState},
       {Boot, HPFill, Emergency, Shutdown, NonState},
-      {HPFill, Load, Emergency, NonState},
+      {HPFill, Load, Standby, Emergency, NonState},
       {Load, Standby, Emergency, NonState},
       {Standby, Load, Armed, Emergency, NonState},
-      {Armed, Standby, Pushing, Emergency, NonState},
+      {Armed, Standby, Pushing, Coasting, Emergency, NonState},
       {Pushing, Coasting, Braking, Emergency, NonState},
       {Coasting, Braking, Pushing, Emergency, NonState},
       {Braking, Pushing, Vent, Emergency, NonState},
@@ -180,10 +180,11 @@ int init_pod(void) {
   
   debug("Initializing MPYEs");
   for (i = 0; i < N_MPYES; i++) {
+    snprintf(name, MAX_NAME, "mpye_%c", (i * 2) + 'a');
     mpye_init(&pod->mpye[i],
               name,
               &pod->i2c[SSR_I2C_BUS],
-              mpye_pins[i] < 16 ? 0x30 : 0x31,
+              mpye_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
               mpye_pins[i] % 16);
   }
 
@@ -194,7 +195,7 @@ int init_pod(void) {
   debug("Initializing Skate Solenoids");
   unsigned short skate_pins[] = SKATE_SOLENOIDS;
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-    snprintf(name, MAX_NAME, "skt_%c%c", (i * 2) + 'a', (i * 2) + 'b');
+    snprintf(name, MAX_NAME, "skt_%c", (i * 2) + 'a');
     
     solenoid_init(&pod->skate_solonoids[i],
                   name,

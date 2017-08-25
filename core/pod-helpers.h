@@ -45,7 +45,7 @@
  *         failed
  */
 bool start_hp_fill(void);
-
+bool start_standby(void);
 /**
  * Determine if the Emergency Brakes are engaged based on their braking presure
  *

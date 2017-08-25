@@ -128,7 +128,7 @@
 
 #define N_MPYES 4
 #define MPYE_CHANNELS                                                          \
-  { 13, 14, 29, 30 }
+  { 13, 14, 15, 30 }
 
 // --------------------------
 // Clamp Brakes
@@ -144,6 +144,7 @@
 
 // Which solenoid (index) to use for primary braking
 #define PRIMARY_BRAKING_CLAMP 1
+#define SECONDARY_BRAKING_CLAMP 0
 
 #define N_CLAMP_PAD_THERMO 2
 #define CLAMP_PAD_THERMO_MUX THERMO_MUX_1

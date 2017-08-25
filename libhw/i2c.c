@@ -178,19 +178,23 @@ int i2c_write_reg(int handle, int addr, int reg, int val) {
 }
 
 int set_ssr(int handle, int addr, int channel, int value) {
-  if (i2c_write_reg(handle, addr, 0x06 + 4 * channel, 0)) {
+  if (i2c_write_reg(handle, addr, 0x06 + 4 * channel, 0) < 0) {
+    printf("i2c_write_reg Failed");
     return -1;
   }
 
-  if (i2c_write_reg(handle, addr, 0x07 + 4 * channel, 0)) {
+  if (i2c_write_reg(handle, addr, 0x07 + 4 * channel, 0) < 0) {
+    printf("i2c_write_reg Failed");
     return -1;
   }
 
-  if (i2c_write_reg(handle, addr, 0x08 + 4 * channel, 0xFF & value)) {
+  if (i2c_write_reg(handle, addr, 0x08 + 4 * channel, 0xFF & value) < 0) {
+    printf("i2c_write_reg Failed");
     return -1;
   }
 
-  if (i2c_write_reg(handle, addr, 0x09 + 4 * channel, (value >> 8) & 0xFF)) {
+  if (i2c_write_reg(handle, addr, 0x09 + 4 * channel, (value >> 8) & 0xFF) < 0) {
+    printf("i2c_write_reg Failed");
     return -1;
   }
 

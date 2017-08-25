@@ -114,7 +114,6 @@ bool open_solenoid(solenoid_t *s) {
   }
 
   if (!is_solenoid_open(s)) {
-    printf("Opening Solenoid %s (Addr: %d Ch: %d)\n", s->name, s->address, s->channel);
     int value;
     switch (s->type) {
       case kSolenoidNormallyOpen:
@@ -126,6 +125,9 @@ bool open_solenoid(solenoid_t *s) {
       default:
         abort();
     }
+    
+    printf("Opening Solenoid %s (Addr: %d Ch: %d Val: %d)\n", s->name, s->address, s->channel, value);
+
 
     set_ssr(s->bus->fd, s->address, s->channel, value);
     s->state = kSolenoidOpen;
@@ -143,7 +145,6 @@ bool close_solenoid(solenoid_t *s) {
   }
 
   if (is_solenoid_open(s)) {
-    printf("Closing Solenoid %s (Addr: %d Ch: %d)\n", s->name, s->address, s->channel);
     int value;
     switch (s->type) {
       case kSolenoidNormallyOpen:
@@ -155,6 +156,9 @@ bool close_solenoid(solenoid_t *s) {
       default:
         abort();
     }
+    
+    printf("Closing Solenoid %s (Addr: %d Ch: %d Val: %d)\n", s->name, s->address, s->channel, value);
+
     
     set_ssr(s->bus->fd, s->address, s->channel, value);
     s->state = kSolenoidClosed;

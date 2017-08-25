@@ -81,6 +81,23 @@ relay_mask_t get_relay_mask(pod_t *pod) {
       mask |= (0x01 << i);
     }
   }
+
+  mask = 0x0000;
+  
+  mask |= ((is_solenoid_open(&pod->skate_solonoids[0]) & 0x1) << 0);
+  mask |= ((is_solenoid_open(&pod->skate_solonoids[1]) & 0x1) << 1);
+  mask |= ((is_solenoid_open(&pod->skate_solonoids[2]) & 0x1) << 2);
+  mask |= ((is_solenoid_open(&pod->skate_solonoids[3]) & 0x1) << 3);
+
+  mask |= ((is_solenoid_open(&pod->clamp_engage_solonoids[0]) & 0x1) << 4);
+  mask |= ((is_solenoid_open(&pod->clamp_release_solonoids[0]) & 0x1) << 5);
+  mask |= ((is_solenoid_open(&pod->clamp_engage_solonoids[1]) & 0x1) << 6);
+  mask |= ((is_solenoid_open(&pod->clamp_release_solonoids[1]) & 0x1) << 7);
+  
+  mask |= ((is_solenoid_open(&pod->hp_fill_valve) & 0x1) << 8);
+  mask |= ((is_solenoid_open(&pod->vent_solenoid) & 0x1) << 9);
+  mask |= ((get_value(&pod->pusher_plate) & 0x1) << 10);
+
   return mask;
 }
 

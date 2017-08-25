@@ -97,7 +97,6 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
     packet.brake_tank_pressure[i] = get_sensor(&(pod->brake_tank_pressure[i]));
   }
 
-
   // Temperatures
   packet.hp_thermo = get_sensor(&(pod->hp_thermo));
   packet.frame_thermo = get_sensor(&(pod->frame_thermo));

@@ -78,6 +78,8 @@
 #define V_ERR_Y 0.1
 #define V_ERR_Z 0.1
 
+#define PUSHING_STATE_ACCEL_X 0.0002
+
 #define HEARTBEAT_TIMEOUT_USEC 10 * USEC_PER_SEC
 
 // Signals

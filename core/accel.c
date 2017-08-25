@@ -95,7 +95,8 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
   if (dt == 0) {
     return;
   } else if (dt > IMU_MAX_TIME_DIFF_USEC) {
-    panic(POD_CORE_SUBSYSTEM, "IMU Reading dt in excess of " __XSTR__(IMU_MAX_TIME_DIFF_USEC) "us");
+    error("IMU Reading dt in excess of " __XSTR__(IMU_MAX_TIME_DIFF_USEC) "us");
+    return;
   }
 
   s->last_imu_reading = new_imu_reading;
