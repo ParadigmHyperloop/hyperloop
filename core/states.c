@@ -309,7 +309,7 @@ int init_pod(void) {
                                 .cal_a = HP_TRANSDUCER_CALIBRATION_A,
                                 .cal_b = HP_TRANSDUCER_CALIBRATION_B,
                                 .cal_c = HP_TRANSDUCER_CALIBRATION_C,
-                                .alpha = 0.95,
+                                .alpha = 0.7,
                                 .offset = 0.0,
                                 .adc_num = PRESSURE_ADC,
                                 .input = HP_PRESSURE_INPUT};
