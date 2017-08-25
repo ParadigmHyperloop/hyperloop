@@ -128,7 +128,7 @@
 
 #define N_MPYES 4
 #define MPYE_CHANNELS                                                          \
-  { 13, 14, 15, 30 }
+  { 13, 14, 30, 15 }
 
 // --------------------------
 // Clamp Brakes

@@ -47,6 +47,10 @@ void common_checks(pod_t *pod) {
       }
     }
   }
+  
+  if (get_pod_mode() == Vent && pod->return_to_standby) {
+    set_pod_mode(Standby, "Returning to Standby per configuration");
+  }
 }
 
 /**
@@ -88,10 +92,6 @@ void armed_state_checks(pod_t *pod) {
   if (get_value_f(&(pod->accel_x)) > PUSHING_STATE_ACCEL_X) {
     set_pod_mode(Pushing, "Positive Accel");
   }
-  
-  if (get_value(&(pod->pusher_plate)) == 0) {
-    set_pod_mode(Coasting, "Pusher Disengaged");
-  }
 }
 
 /**
@@ -112,14 +112,6 @@ void pushing_state_checks(pod_t *pod) {
   if (get_value_f(&(pod->accel_x)) <= COASTING_MIN_ACCEL_TRIGGER) {
     set_pod_mode(Coasting, "Pod has negative acceleration in the X dir");
   }
-
-  if (get_value(&(pod->pusher_plate)) == 0) {
-    set_pod_mode(Coasting, "Pusher Plate Disengaged");
-  }
-
-//  if (get_value_f(&(pod->position_x)) > START_BRAKING) {
-//    set_pod_mode(Braking, "Pod has entered braking range of travel");
-//  }
 
   if (pod->launch_time == 0) {
     pod->launch_time = get_time_usec();
@@ -143,18 +135,9 @@ void coasting_state_checks(__unused pod_t *pod) {
  * Checks to be performed when the pod's state is Braking
  */
 void braking_state_checks(pod_t *pod) {
-  
-  if (time_in_state() > BRAKING_WAIT) {
-    if (get_value_f(&(pod->accel_x)) < PRIMARY_BRAKING_ACCEL_X_MIN) {
-      debug("Suboptimal Braking");
-      set_pod_mode(Emergency, "Pod decelleration is too low");
-    }
-  }
-  
   if (time_in_state() > BRAKING_TIMEOUT) {
     set_pod_mode(Vent, "Braking Time Expired");
   }
-  
 }
 
 void vent_state_checks(pod_t *pod) {
@@ -253,9 +236,14 @@ void adjust_brakes(__unused pod_t *pod) {
     break;
   case Braking:
       ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
-      if (time_in_state() > 2 * USEC_PER_SEC) {
-        ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
+
+      if (time_in_state() > BRAKING_WAIT) {
+        if (get_value_f(&(pod->accel_x)) < PRIMARY_BRAKING_ACCEL_X_MIN) {
+          debug("Suboptimal Braking");
+          ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
+        }
       }
+      break;
   case Emergency:
     for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
       ensure_clamp_brakes(i, kClampBrakeEngaged, false);
@@ -356,15 +344,15 @@ static void setup(void) {
   pod_t *pod = get_pod();
   
   debug("=== Begin Setup ===");
-  for (int i = 0; i < N_MPYES; i++) {
-    mpye_t *m = &(pod->mpye[i]);
-    debug("%p\n", (void*)m);
-    debug("%d\n", m->address);
-    debug("%d\n", m->channel);
-    debug("%p\n", (void*)m->bus);
-    debug("%d\n", m->bus->fd);
-    set_ssr(m->bus->fd, m->address, m->channel, 0);
-  }
+//  for (int i = 0; i < N_MPYES; i++) {
+//    mpye_t *m = &(pod->mpye[i]);
+//    debug("%p\n", (void*)m);
+//    debug("%d\n", m->address);
+//    debug("%d\n", m->channel);
+//    debug("%p\n", (void*)m->bus);
+//    debug("%d\n", m->bus->fd);
+//    set_ssr(m->bus->fd, m->address, m->channel, 0);
+//  }
   
   for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
     solenoid_t *s = &(pod->skate_solonoids[i]);
@@ -533,17 +521,20 @@ void *core_main(__unused void *arg) {
     // --------------------------------------------
 
     if (pod->imu > -1) {
-      if (imu_read(pod->imu, &imu_data) <= 0 && imu_score < IMU_SCORE_MAX) {
-        warn("BAD IMU READ");
-        imu_score += IMU_SCORE_STEP_UP;
-        //Todo Uncomment when IMU Reliability improves
-//        if (imu_score > IMU_SCORE_MAX) {
-//          DECLARE_EMERGENCY("IMU FAILED");
-//        }
-      } else if (imu_score > 0) {
-        imu_score -= IMU_SCORE_STEP_DOWN;
+      if (imu_read(pod->imu, &imu_data) <= 0) {
+        if (imu_score < IMU_SCORE_MAX) {
+          warn("BAD IMU READ");
+          imu_score += IMU_SCORE_STEP_UP;
+          //Todo Uncomment when IMU Reliability improves
+          if (imu_score > IMU_SCORE_MAX) {
+            DECLARE_EMERGENCY("IMU FAILED");
+          }
+        } else if (imu_score > 0) {
+          imu_score -= IMU_SCORE_STEP_DOWN;
+        }
+      } else {
+        add_imu_data(&imu_data, pod);
       }
-      add_imu_data(&imu_data, pod);
     }
 
     for (int a = 6; a < 8; a++) {
@@ -573,9 +564,9 @@ void *core_main(__unused void *arg) {
             continue;
           }
           
-          double voltage = value * 0.0012207;
+        //  double voltage = value * 0.0012207;
 
-          debug("Sensor %s: ADC%d Channel %02d: %d (%lf Volts)", s->name, a, channel, value, voltage);
+//          debug("Sensor %s: ADC%d Channel %02d: %d (%lf Volts)", s->name, a, channel, value, voltage);
 
           queue_sensor(s, value);
           update_sensor(s);

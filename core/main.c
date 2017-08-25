@@ -259,6 +259,7 @@ int main(int argc, char *argv[]) {
           info("IMU connection failed: %s", args.imu_device);
           sleep(1);
         } else {
+          debug("IMU Connected with %d", pod->imu);
           break;
         }
       }

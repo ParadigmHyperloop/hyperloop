@@ -210,8 +210,6 @@ int read_adc(__unused adc_t *adc, __unused uint8_t channel) {
     }
     new_channel = ((int)data[1] & 0xF0) >> 4;
 
-    printf("Recieved Channel: %d, expected %d\n", new_channel, channel);
-
     int value = (((int)data[1] & 0x0F) << 8) | (int)data[0];
 
     if (new_channel == channel) {

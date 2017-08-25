@@ -118,13 +118,11 @@ int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 
 int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
-
-  if (is_pod_stopped(pod)) {
+  pod->return_to_standby = false;
+  if (set_pod_mode(Vent, "Remote Command started Vent")) {
     return snprintf(outbuf, outbufc, "Venting Started");
   } else {
-    return snprintf(
-        outbuf, outbufc,
-        "Pod Not Determined to be Stopped, override solenoid to vent");
+    return snprintf(outbuf, outbufc, "Pod Not Determined to be Stopped");
   }
 }
 
@@ -147,6 +145,17 @@ int standbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   } else {
     return snprintf(outbuf, outbufc, "Failed to enter Standby");
   }
+}
+
+int returnToStandbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+  if (argc < 2) {
+    return snprintf(outbuf, outbufc, "usage: returntostandby <0|1>");
+  }
+  
+  int value = atoi(argv[0]);
+  get_pod()->return_to_standby = value;
+  
+  return snprintf(outbuf, outbufc, "Set return_to_standby to %d", value);
 }
 
 int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {

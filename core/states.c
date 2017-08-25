@@ -60,10 +60,10 @@ bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
       {HPFill, Load, Standby, Emergency, NonState},
       {Load, Standby, Emergency, NonState},
       {Standby, Load, Armed, Emergency, NonState},
-      {Armed, Standby, Pushing, Coasting, Emergency, NonState},
+      {Armed, Standby, Pushing, Coasting, Braking, Emergency, NonState},
       {Pushing, Coasting, Braking, Emergency, NonState},
       {Coasting, Braking, Pushing, Emergency, NonState},
-      {Braking, Pushing, Vent, Emergency, NonState},
+      {Braking, Pushing, Vent, Emergency, Standby, NonState},
       {Vent, Retrieval, Emergency, NonState},
       {Retrieval, Shutdown, NonState},
       {Emergency, Vent, NonState},
@@ -162,7 +162,8 @@ int init_pod(void) {
       .pusher_plate = POD_VALUE_INITIALIZER_INT32,
       .shutdown = Halt,
       .last_pusher_seen = 0,
-      .func_test = false};
+      .func_test = false,
+      .return_to_standby = RETURN_TO_STANDBY};
   
   memcpy(&_pod, &_init_pod, sizeof(_pod));
   
