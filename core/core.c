@@ -109,7 +109,7 @@ void emergency_state_checks(pod_t *pod) {
  * Checks to be performed when the pod's state is Pushing
  */
 void pushing_state_checks(pod_t *pod) {
-  if (get_value_f(&(pod->accel_x)) <= COASTING_MIN_ACCEL_TRIGGER) {
+  if (get_value_f(&(pod->accel_x)) <= COASTING_MIN_ACCEL_TRIGGER && get_value(&(pod->pusher_plate)) == 0) {
     if (time_in_state() > PUSHING_STATE_MIN_TIMER) {
       set_pod_mode(Coasting, "Pod has negative acceleration in the X dir");
     }

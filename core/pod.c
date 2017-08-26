@@ -37,9 +37,17 @@ extern char *pod_mode_names[N_POD_STATES];
 void pod_calibrate() {
   pod_t *pod = get_pod();
 
-  set_value_f(&(pod->imu_calibration_x), get_value_f(&(pod->accel_x)));
-  set_value_f(&(pod->imu_calibration_y), get_value_f(&(pod->accel_y)));
-  set_value_f(&(pod->imu_calibration_z), get_value_f(&(pod->accel_z)));
+  set_value_f(&(pod->imu_calibration_x), -get_value_f(&(pod->accel_x)));
+  set_value_f(&(pod->imu_calibration_y), -get_value_f(&(pod->accel_y)));
+  set_value_f(&(pod->imu_calibration_z), -get_value_f(&(pod->accel_z)));
+  
+  set_value_f(&(pod->velocity_x), 0.0f);
+  set_value_f(&(pod->velocity_y), 0.0f);
+  set_value_f(&(pod->velocity_z), 0.0f);
+
+  set_value_f(&(pod->position_x), 0.0f);
+  set_value_f(&(pod->position_y), 0.0f);
+  set_value_f(&(pod->position_z), 0.0f);
 }
 
 bool pod_reset() {

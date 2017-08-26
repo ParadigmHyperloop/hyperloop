@@ -46,14 +46,14 @@
 // --------------------------
 // Timers
 // --------------------------
-#define WATCHDOG_TIMER 10 * USEC_PER_SEC  // 5MPH 4300000
-#define EMERGENCY_HOLD 30 * USEC_PER_SEC
+#define WATCHDOG_TIMER 30 * USEC_PER_SEC   // Main braking timeout initiated by pushing state // 5MPH 4300000
+#define EMERGENCY_HOLD 30 * USEC_PER_SEC   // 30 seconds held in the emergency state
 #define BRAKING_WAIT 1 * USEC_PER_SEC      // Time before engaging secondary brake, if needed
 #define BRAKING_TIMEOUT 20 * USEC_PER_SEC  // min time to hold brakes before vent
-#define PUSHER_TIMEOUT 2 * USEC_PER_SEC
+#define PUSHER_TIMEOUT 2 * USEC_PER_SEC    // Timeout for the pusher plate debounce
 #define RETURN_TO_STANDBY false
-#define PUSHING_STATE_ACCEL_X 1 // m/s/s
-#define PUSHING_STATE_MIN_TIMER 3 * USEC_PER_SEC
+#define PUSHING_STATE_ACCEL_X 1 // m/s/s   // Threshold for transitioning into the pushing state
+#define PUSHING_STATE_MIN_TIMER 10 * USEC_PER_SEC   // Minimium time in the pushing state
 
 // --------------------------
 // Relay
