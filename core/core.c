@@ -110,9 +110,10 @@ void emergency_state_checks(pod_t *pod) {
  */
 void pushing_state_checks(pod_t *pod) {
   if (get_value_f(&(pod->accel_x)) <= COASTING_MIN_ACCEL_TRIGGER) {
-    set_pod_mode(Coasting, "Pod has negative acceleration in the X dir");
+    if (time_in_state() > PUSHING_STATE_MIN_TIMER) {
+      set_pod_mode(Coasting, "Pod has negative acceleration in the X dir");
+    }
   }
-  
 
   if (pod->launch_time == 0) {
     pod->launch_time = get_time_usec();
@@ -282,6 +283,8 @@ void adjust_skates(__unused pod_t *pod) {
   case Retrieval:
   case Emergency:
   case Shutdown:
+  case Armed:
+  case Pushing:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
       close_solenoid(&(pod->skate_solonoids[i]));
     }
@@ -289,8 +292,6 @@ void adjust_skates(__unused pod_t *pod) {
       set_mpye(&(pod->mpye[i]), 0);
     }
     break;
-  case Armed:
-  case Pushing:
   case Coasting:
   case Braking:
     for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
@@ -527,9 +528,9 @@ void *core_main(__unused void *arg) {
     clock_gettime(CLOCK_REALTIME, &now);
     timespec_add_us(&next, CORE_PERIOD_USEC);
     if (timespec_cmp(&now, &next) > 0) {
-      fprintf(stderr, "Deadline miss for core thread\n");
-      fprintf(stderr, "now: %ld.%ldns next: %ld.%ldns ()\n",
-              now.tv_sec, now.tv_nsec, next.tv_sec, next.tv_nsec);
+//      fprintf(stderr, "Deadline miss for core thread\n");
+//      fprintf(stderr, "now: %ld.%ldns next: %ld.%ldns ()\n",
+//              now.tv_sec, now.tv_nsec, next.tv_sec, next.tv_nsec);
     }
 
     // --------------------------------------------
@@ -540,7 +541,7 @@ void *core_main(__unused void *arg) {
       if (imu_read(pod->imu, &imu_data) <= 0) {
         // Bad Read
         if (imu_score < IMU_SCORE_MAX) {
-          warn("BAD IMU READ");
+//          warn("BAD IMU READ");
           imu_score += IMU_SCORE_STEP_UP;
         }
         if (imu_score >= IMU_SCORE_MAX) {

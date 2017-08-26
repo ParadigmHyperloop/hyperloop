@@ -53,6 +53,7 @@
 #define PUSHER_TIMEOUT 2 * USEC_PER_SEC
 #define RETURN_TO_STANDBY false
 #define PUSHING_STATE_ACCEL_X 1 // m/s/s
+#define PUSHING_STATE_MIN_TIMER 3 * USEC_PER_SEC
 
 // --------------------------
 // Relay
