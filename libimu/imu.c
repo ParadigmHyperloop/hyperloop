@@ -120,9 +120,9 @@ ssize_t imu_read(int fd, imu_datagram_t *gram) {
       memset(gram, 0, sizeof(imu_datagram_t));
       return -1;
     } else if (r < remaining) {
-      // for (i=0; i<imubufc; i++) {
-      //   printf("%x ", imubuf[i]);
-      // }
+      for (i=0; i<imubufc; i++) {
+        printf("%x ", imubuf[i]);
+      }
       assert(imubufc < 36);
       memset(gram, 0, sizeof(imu_datagram_t));
       return 0;

@@ -159,13 +159,13 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
 
 void log_dump(pod_t *pod) {
 #ifdef POD_DEBUG
-  note("Logging System -> Dumping");
-  char s[8096];
+  //note("Logging System -> Dumping");
+  //char s[8096];
 
   // Load up `s` with a textual status dump
-  status_dump(pod, s, sizeof(s) / sizeof(s[0]));
+  //status_dump(pod, s, sizeof(s) / sizeof(s[0]));
 
-  printf("%s", s);
+  //printf("%s", s);
 #endif
 
   // Telemetry streaming

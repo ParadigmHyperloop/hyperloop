@@ -57,7 +57,7 @@ ssize_t sysfs_write(int pin, char *op, char *data) {
   char path[SYSFS_GPIO_MAX_PATH];
   snprintf(path, SYSFS_GPIO_MAX_PATH, SYSFS_GPIO_PIN_FMT, pin, op);
 
-  printf("Writing %s to %s\n", data, path);
+//  printf("Writing %s to %s\n", data, path);
 
   int fd = open(path, O_WRONLY);
 

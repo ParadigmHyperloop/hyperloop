@@ -163,7 +163,8 @@ int init_pod(void) {
       .shutdown = Halt,
       .last_pusher_seen = 0,
       .func_test = false,
-      .return_to_standby = RETURN_TO_STANDBY};
+      .return_to_standby = RETURN_TO_STANDBY,
+      .engaged_brakes = 0};
   
   memcpy(&_pod, &_init_pod, sizeof(_pod));
   

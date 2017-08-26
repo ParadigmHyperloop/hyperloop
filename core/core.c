@@ -89,7 +89,7 @@ void standby_state_checks(pod_t *pod) {
 }
 
 void armed_state_checks(pod_t *pod) {
-  if (get_value_f(&(pod->accel_x)) > PUSHING_STATE_ACCEL_X) {
+  if (get_value_f(&(pod->accel_x)) > PUSHING_STATE_ACCEL_X && get_value(&(pod->pusher_plate)) == 1) {
     set_pod_mode(Pushing, "Positive Accel");
   }
 }
@@ -112,6 +112,7 @@ void pushing_state_checks(pod_t *pod) {
   if (get_value_f(&(pod->accel_x)) <= COASTING_MIN_ACCEL_TRIGGER) {
     set_pod_mode(Coasting, "Pod has negative acceleration in the X dir");
   }
+  
 
   if (pod->launch_time == 0) {
     pod->launch_time = get_time_usec();
@@ -134,8 +135,8 @@ void coasting_state_checks(__unused pod_t *pod) {
 /**
  * Checks to be performed when the pod's state is Braking
  */
-void braking_state_checks(pod_t *pod) {
-  if (time_in_state() > BRAKING_TIMEOUT) {
+void braking_state_checks(__unused pod_t *pod) {
+  if (pod->engaged_brakes > 0 && get_time_usec() - pod->engaged_brakes > BRAKING_TIMEOUT) {
     set_pod_mode(Vent, "Braking Time Expired");
   }
 }
@@ -235,12 +236,27 @@ void adjust_brakes(__unused pod_t *pod) {
     }
     break;
   case Braking:
-      ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
+      if (get_value(&(pod->pusher_plate)) == 1) {
+        debug("Pusher Plate Engaged, inhibiting brakes");
+        for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+          ensure_clamp_brakes(i, kClampBrakeReleased, false);
+        }
+      } else if (get_value_f(&(pod->accel_x)) > PUSHING_STATE_ACCEL_X) {
+        debug("Accelerating via IMU, inhibiting brakes");
+        for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+          ensure_clamp_brakes(i, kClampBrakeReleased, false);
+        }
+      } else {
+        if (pod->engaged_brakes == 0) {
+          pod->engaged_brakes = get_time_usec();
+        }
 
-      if (time_in_state() > BRAKING_WAIT) {
-        if (get_value_f(&(pod->accel_x)) < PRIMARY_BRAKING_ACCEL_X_MIN) {
-          debug("Suboptimal Braking");
-          ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
+        ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
+        if ((get_time_usec() - pod->engaged_brakes) > BRAKING_WAIT) {
+          if (get_value_f(&(pod->accel_x)) > PRIMARY_BRAKING_ACCEL_X_MIN) {
+            debug("Suboptimal Braking");
+            ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
+          }
         }
       }
       break;
@@ -522,18 +538,20 @@ void *core_main(__unused void *arg) {
 
     if (pod->imu > -1) {
       if (imu_read(pod->imu, &imu_data) <= 0) {
+        // Bad Read
         if (imu_score < IMU_SCORE_MAX) {
           warn("BAD IMU READ");
           imu_score += IMU_SCORE_STEP_UP;
-          //Todo Uncomment when IMU Reliability improves
-          if (imu_score > IMU_SCORE_MAX) {
-            DECLARE_EMERGENCY("IMU FAILED");
-          }
-        } else if (imu_score > 0) {
-          imu_score -= IMU_SCORE_STEP_DOWN;
+        }
+        if (imu_score >= IMU_SCORE_MAX) {
+//          DECLARE_EMERGENCY("IMU FAILED");
         }
       } else {
         add_imu_data(&imu_data, pod);
+        if (imu_score > 0) {
+          imu_score -= IMU_SCORE_STEP_DOWN;
+        }
+
       }
     }
 
@@ -546,8 +564,6 @@ void *core_main(__unused void *arg) {
       for (uint8_t channel = 0; channel < 16; channel++) {
         sensor_t *s = get_sensor_by_address(pod, a, channel);
         if (s != NULL) {
-          
-
           int value = read_adc(&adc[a - 6], channel);
           if (value < 0) {
             if (mobo_score < MOBO_SCORE_MAX) {
@@ -571,7 +587,7 @@ void *core_main(__unused void *arg) {
           queue_sensor(s, value);
           update_sensor(s);
         } else {
-          debug("No Sensor for ADC%d Channel %d", a, channel);
+//          debug("No Sensor for ADC%d Channel %d", a, channel);
         }
       }
     }

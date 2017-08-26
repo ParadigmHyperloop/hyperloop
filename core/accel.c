@@ -36,22 +36,22 @@
 int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
               double dt);
 
-int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
+int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float raw_accel,
               double dt) {
   float acceleration = get_value_f(a);
   float velocity = get_value_f(v);
   float position = get_value_f(x);
 
-  if (OUTSIDE(-10.0, accel, 10.0)) {
-    warn("Value out of range for IMU (%f)", accel);
+  if (OUTSIDE(-10.0, raw_accel, 10.0)) {
+    warn("Value out of range for IMU (%f)", raw_accel);
     return -1;
   }
 
   // Exponential Moving Average
   float new_accel =
-      (1.0f - IMU_EMA_ALPHA) * acceleration + (IMU_EMA_ALPHA * accel);
-  debug("RAW %f, old: %f, filtered %f, ema: %f", accel, acceleration, new_accel,
-        IMU_EMA_ALPHA);
+      (1.0f - IMU_FILTER_ALPHA) * acceleration + (IMU_FILTER_ALPHA * raw_accel);
+  debug("RAW %f, old: %f, filtered %f, ema: %f", raw_accel, acceleration, new_accel,
+        IMU_FILTER_ALPHA);
   
   // Calculate the new_velocity (oldv + (olda + newa) / 2)
 
@@ -63,7 +63,7 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float accel,
   float dx = (float)((dt * new_velocity) / USEC_PER_SEC);
   float new_position = (position + dx);
 
-  // debug("dt: %lf us, dv: %f m/s, dx: %f m", dt, dv, dx);
+  debug("dt: %lf us, dv: %f m/s, dx: %f m", dt, dv, dx);
 
   set_value_f(a, new_accel);
   set_value_f(v, new_velocity);
@@ -91,7 +91,9 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
   uint64_t new_imu_reading = get_time_usec();
 
   uint64_t dt = new_imu_reading - s->last_imu_reading;
-
+  
+  s->last_imu_reading = new_imu_reading;
+  
   if (dt == 0) {
     return;
   } else if (dt > IMU_MAX_TIME_DIFF_USEC) {
@@ -99,41 +101,11 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
     return;
   }
 
-  s->last_imu_reading = new_imu_reading;
-  
-  float x = data->x + get_value_f(&(s->imu_calibration_x));
-  float y = data->y + get_value_f(&(s->imu_calibration_y));
-  float z = data->z + get_value_f(&(s->imu_calibration_z));
+  float x = (data->x * 9.81f) + get_value_f(&(s->imu_calibration_x));
+  float y = (data->y * 9.81f) + get_value_f(&(s->imu_calibration_y));
+  float z = (data->z * 9.81f) + get_value_f(&(s->imu_calibration_z));
 
-  switch (get_pod_mode()) {
-    case Standby:
-      pod_calibrate();
-      set_value_f(&(s->accel_x), x);
-      set_value_f(&(s->accel_y), y);
-      set_value_f(&(s->accel_z), z);
-      break;
-    case POST:
-    case Boot:
-    case HPFill:
-    case Load:
-    case Vent:
-    case Retrieval:
-    case Shutdown:
-      set_value_f(&(s->accel_x), x);
-      set_value_f(&(s->accel_y), y);
-      set_value_f(&(s->accel_z), z);
-      break;
-    case Pushing:
-    case Coasting:
-    case Braking:
-    case Armed:
-    case Emergency:
-      calcState(&(s->accel_x), &(s->velocity_x), &(s->position_x), x, dt);
-      calcState(&(s->accel_y), &(s->velocity_y), &(s->position_y), y, dt);
-      calcState(&(s->accel_z), &(s->velocity_z), &(s->position_z), z, dt);
-      break;
-    default:
-      panic(POD_CORE_SUBSYSTEM,
-            "Pod Mode unknown, cannot make a hp fill decsion");
-  }
+  calcState(&(s->accel_x), &(s->velocity_x), &(s->position_x), x, dt);
+  calcState(&(s->accel_y), &(s->velocity_y), &(s->position_y), y, dt);
+  calcState(&(s->accel_z), &(s->velocity_z), &(s->position_z), z, dt);
 }

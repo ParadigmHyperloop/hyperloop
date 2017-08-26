@@ -78,8 +78,6 @@
 #define V_ERR_Y 0.1
 #define V_ERR_Z 0.1
 
-#define PUSHING_STATE_ACCEL_X 0.05
-
 #define HEARTBEAT_TIMEOUT_USEC 10 * USEC_PER_SEC
 
 // Signals
@@ -92,8 +90,8 @@
 // Defines how much filtering should be done in the Exponential Moving Average
 // filter for the IMU input.
 // The formula used is:
-//   (new_accel = (1.0-IMU_EMA_ALPHA)*old_accel + IMU_EMA_ALPHA*accel_reading)
-#define IMU_EMA_ALPHA 0.1f
+//   (new_accel = (1.0-IMU_FILTER_ALPHA)*old_accel + IMU_FILTER_ALPHA*accel_reading)
+#define IMU_FILTER_ALPHA 0.95f
 
 #define EX_REBOOT 50
 #define EX_PANIC 51
@@ -184,10 +182,6 @@
 //----------------------
 // Pushing Thresholds
 //----------------------
-
-// If  accell drops to below this value, the pod will change to Coasting
-// This value should indicate when the pusher has fully detached
-#define PUSHING_MIN_ACCEL 0.2
 
 // If the accell drops to below this value, the pod will change to Coasting
 // This value should indicate when the pusher has fully detached

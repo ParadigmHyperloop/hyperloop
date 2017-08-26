@@ -43,12 +43,16 @@
 #define STOP_MARGIN 100
 #define START_BRAKING 1100
 
-#define WATCHDOG_TIMER 4300000
+// --------------------------
+// Timers
+// --------------------------
+#define WATCHDOG_TIMER 10 * USEC_PER_SEC  // 5MPH 4300000
 #define EMERGENCY_HOLD 30 * USEC_PER_SEC
-#define BRAKING_WAIT 1 * USEC_PER_SEC
-#define BRAKING_TIMEOUT 10 * USEC_PER_SEC
+#define BRAKING_WAIT 1 * USEC_PER_SEC      // Time before engaging secondary brake, if needed
+#define BRAKING_TIMEOUT 20 * USEC_PER_SEC  // min time to hold brakes before vent
 #define PUSHER_TIMEOUT 2 * USEC_PER_SEC
 #define RETURN_TO_STANDBY false
+#define PUSHING_STATE_ACCEL_X 1 // m/s/s
 
 // --------------------------
 // Relay

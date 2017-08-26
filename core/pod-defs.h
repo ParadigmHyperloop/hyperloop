@@ -237,6 +237,7 @@ typedef struct pod {
 
   uint64_t last_ping;
   uint64_t last_transition;
+  uint64_t engaged_brakes;
   pod_value_t core_speed;
   enum pod_caution cautions;
   enum pod_warning warnings;
