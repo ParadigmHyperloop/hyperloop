@@ -65,4 +65,8 @@
 #define FRAME_THERMO_INPUTS                                                    \
   { 10 }
 
+
+#define N_BATTERY_PACK_RELAYS 2
+#define BATTERY_PACK_RELAYS { 16, 17 }
+
 #endif /* PARADIGM_CONFIG_POWER_H */

@@ -65,7 +65,7 @@ test:
 
 run:
 	killall -KILL core || true
-	$(DSTROOT)/usr/local/bin/core
+	$(DSTROOT)/usr/local/bin/core -t
 
 deb:
 	mkdir -p $(DEBROOT)

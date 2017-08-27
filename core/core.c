@@ -272,7 +272,6 @@ void adjust_brakes(__unused pod_t *pod) {
 }
 
 void adjust_skates(__unused pod_t *pod) {
-  int i;
   switch (get_pod_mode()) {
   case POST:
   case Boot:
@@ -285,20 +284,39 @@ void adjust_skates(__unused pod_t *pod) {
   case Shutdown:
   case Armed:
   case Pushing:
-    for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
+    for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
       close_solenoid(&(pod->skate_solonoids[i]));
     }
-    for (i = 0; i < N_MPYES; i++) {
+    for (int i = 0; i < N_MPYES; i++) {
       set_mpye(&(pod->mpye[i]), 0);
     }
     break;
   case Coasting:
   case Braking:
-    for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      open_solenoid(&(pod->skate_solonoids[i]));
-    }
-    for (i = 0; i < N_MPYES; i++) {
-      set_mpye(&(pod->mpye[i]), 3000);
+    if (get_value(&(pod->pusher_plate)) == 1) {
+      debug("Pusher Plate Engaged, inhibiting skates");
+      for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
+        close_solenoid(&(pod->skate_solonoids[i]));
+      }
+      for (int i = 0; i < N_MPYES; i++) {
+        set_mpye(&(pod->mpye[i]), 0);
+      }
+    } else if (get_value_f(&(pod->accel_x)) > PUSHING_STATE_ACCEL_X) {
+      debug("Accelerating via IMU, inhibiting skates");
+      for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
+        close_solenoid(&(pod->skate_solonoids[i]));
+      }
+      for (int i = 0; i < N_MPYES; i++) {
+        set_mpye(&(pod->mpye[i]), 0);
+      }
+    } else {
+      // Open Skates
+      for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
+        open_solenoid(&(pod->skate_solonoids[i]));
+      }
+      for (int i = 0; i < N_MPYES; i++) {
+        set_mpye(&(pod->mpye[i]), 3000);
+      }
     }
     break;
   default:
@@ -361,15 +379,15 @@ static void setup(void) {
   pod_t *pod = get_pod();
   
   debug("=== Begin Setup ===");
-//  for (int i = 0; i < N_MPYES; i++) {
-//    mpye_t *m = &(pod->mpye[i]);
-//    debug("%p\n", (void*)m);
-//    debug("%d\n", m->address);
-//    debug("%d\n", m->channel);
-//    debug("%p\n", (void*)m->bus);
-//    debug("%d\n", m->bus->fd);
-//    set_ssr(m->bus->fd, m->address, m->channel, 0);
-//  }
+  for (int i = 0; i < N_MPYES; i++) {
+    mpye_t *m = &(pod->mpye[i]);
+    debug("%p\n", (void*)m);
+    debug("%d\n", m->address);
+    debug("%d\n", m->channel);
+    debug("%p\n", (void*)m->bus);
+    debug("%d\n", m->bus->fd);
+    set_ssr(m->bus->fd, m->address, m->channel, 0);
+  }
   
   for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
     solenoid_t *s = &(pod->skate_solonoids[i]);
@@ -393,6 +411,12 @@ static void setup(void) {
   
   s = &(pod->vent_solenoid);
   set_ssr(s->bus->fd, s->address, s->channel, 0);
+  
+  for (int i = 0; i < N_BATTERY_PACK_RELAYS; i++) {
+    s = &(pod->battery_pack_relays[i]);
+    set_ssr(s->bus->fd, s->address, s->channel, 0);
+  }
+
   sleep(1);
   debug("=== End Setup ===");
 }

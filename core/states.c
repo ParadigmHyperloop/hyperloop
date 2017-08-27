@@ -178,7 +178,7 @@ int init_pod(void) {
   // INITIALIZE MPYES
   // ----------------
   int i;
-  unsigned int mpye_pins[N_MPYES] = {13, 14, 30, 31};
+  unsigned int mpye_pins[N_MPYES] = MPYE_CHANNELS;
   
   debug("Initializing MPYEs");
   for (i = 0; i < N_MPYES; i++) {
@@ -198,7 +198,7 @@ int init_pod(void) {
   unsigned short skate_pins[] = SKATE_SOLENOIDS;
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
     snprintf(name, MAX_NAME, "skt_%c", (i * 2) + 'a');
-    
+
     solenoid_init(&pod->skate_solonoids[i],
                   name,
                   &pod->i2c[SSR_I2C_BUS],
@@ -223,13 +223,25 @@ int init_pod(void) {
 
   unsigned short clamp_release_pins[] = CLAMP_RELEASE_SOLONOIDS;
   for (i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
-    snprintf(name, MAX_NAME, "clmp_rel_%d", i);
+    snprintf(name, MAX_NAME, "pack_%d", i);
     
     solenoid_init(&pod->clamp_release_solonoids[i],
                   name,
                   &pod->i2c[SSR_I2C_BUS],
                   clamp_release_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
                   clamp_release_pins[i] % 16,
+                  kSolenoidNormallyClosed);
+  }
+
+  unsigned short battery_pack_pins[] = BATTERY_PACK_RELAYS;
+  for (i = 0; i < N_BATTERY_PACK_RELAYS; i++) {
+    snprintf(name, MAX_NAME, "pack_%d", i);
+    
+    solenoid_init(&pod->battery_pack_relays[i],
+                  name,
+                  &pod->i2c[SSR_I2C_BUS],
+                  battery_pack_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
+                  battery_pack_pins[i] % 16,
                   kSolenoidNormallyClosed);
   }
   
@@ -253,7 +265,7 @@ int init_pod(void) {
                 VENT_SOLENOID < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
                 VENT_SOLENOID % 16,
                 kSolenoidNormallyOpen);
-
+  
 
   debug("Initializing Distance Sensors");
 

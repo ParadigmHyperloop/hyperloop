@@ -15,7 +15,7 @@
 void set_mpye(mpye_t *m, mpye_value_t val) {
   pthread_mutex_lock(&(m->mutex));
   m->value = val;
-  //set_ssr(m->bus->fd, m->address, m->channel, val);
+  set_ssr(m->bus->fd, m->address, m->channel, val);
   pthread_mutex_unlock(&(m->mutex));
 }
 

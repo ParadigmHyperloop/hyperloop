@@ -168,6 +168,7 @@ typedef struct pod {
   solenoid_t clamp_release_solonoids[N_CLAMP_RELEASE_SOLONOIDS];
   solenoid_t vent_solenoid;
   solenoid_t hp_fill_valve;
+  solenoid_t battery_pack_relays[N_BATTERY_PACK_RELAYS];
   
   // HP Fill Valve Limit Switches
   sensor_t hp_fill_valve_open;

@@ -85,7 +85,7 @@
 
 // IMU Device
 #define IMU_DEVICE "/dev/ttyUSB0"
-#define IMU_MESSAGE_SIZE 32
+
 
 // Defines how much filtering should be done in the Exponential Moving Average
 // filter for the IMU input.
@@ -175,9 +175,6 @@
 // ------------------
 
 /// 0.8 G = 0.8 * 9.8 m/s/s * 1000 mm / m
-#define PRIMARY_BRAKING_ACCEL_X_MIN -5.88 // -0.6 G => mm/s/s
-#define PRIMARY_BRAKING_ACCEL_X_NOM -7.84 // -0.8 G => mm/s/s
-#define PRIMARY_BRAKING_ACCEL_X_MAX -24.5 // -2.5 G => mm/s/s
 
 //----------------------
 // Pushing Thresholds

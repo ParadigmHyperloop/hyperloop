@@ -211,6 +211,26 @@ int offsetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
                   old_offset, offset, get_sensor(sensor));
 }
 
+int packCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+  pod_t *pod = get_pod();
+  
+  if (argc < 3) {
+    return snprintf(outbuf, outbufc, "Usage: pack <pack> <0|1>");
+  }
+  
+  int pack = atoi(argv[1]);
+  int on_off = atoi(argv[2]);
+  
+  solenoid_t *s = &pod->battery_pack_relays[pack];
+  if (on_off == 0) {
+    close_solenoid(s);
+  } else {
+    open_solenoid(s);
+  }
+  
+  return snprintf(outbuf, outbufc, "Set %s to %d", s->name, on_off);
+}
+
 int emergencyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   set_pod_mode(Emergency, "Command Line Initialized Emergency");
   return snprintf(outbuf, outbufc, "Pod Mode: %d", get_pod_mode());
@@ -235,6 +255,9 @@ int pushCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   
 }
 
+
+// battery_pack_relays
+
 // You must keep this list in order from Longest String to Shortest,
 // Doesn't matter the order amongst names of equal length.
 // Has to deal with how commands are located, where "e" undercuts any command
@@ -248,6 +271,7 @@ command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "ready", .func = readyCommand},
                         {.name = "reset", .func = resetCommand},
                         {.name = "vent", .func = ventCommand},
+                        {.name = "pack", .func = packCommand},
                         {.name = "help", .func = helpCommand},
                         {.name = "fill", .func = fillCommand},
                         {.name = "ping", .func = pingCommand},
