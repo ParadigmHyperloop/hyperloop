@@ -196,4 +196,4 @@ way, you must contact us first and receive written permission to utilize the
 source for the purpose you require.
 
 Lastly, DON'T trust this code to work for your HyperLoop pod, or your project.
-This code is only being verified and tested on the OpenLoop platform.
+This code is only being verified and tested on the OpenLoop platform.  
