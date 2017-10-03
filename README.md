@@ -69,12 +69,6 @@ You will also need clang/LLVM and Python development environments installed.
 ### Mac
 
 * You will need [Xcode](https://apple.com/xcode/)
-* You will also need a semi-sane Python environment. Set that up on a mac with:
-
-```
-sudo easy_install pip
-sudo pip install virtualenv
-```
 
 ### Linux
 
