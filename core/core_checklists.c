@@ -63,10 +63,6 @@ bool pod_safe_checklist(pod_t *pod) {
     warn("core pod checklist failed");
     return false;
   }
-  if (!is_pod_stopped(pod)) {
-    warn("Pod is not stopped");
-    return false;
-  }
   if (!is_pod_vented(pod)) {
     warn("Pod is not vented");
     return false;

@@ -164,7 +164,8 @@ int init_pod(void) {
       .last_pusher_seen = 0,
       .func_test = false,
       .return_to_standby = RETURN_TO_STANDBY,
-      .engaged_brakes = 0};
+      .engaged_brakes = 0,
+      .manual_emergency = false};
   
   memcpy(&_pod, &_init_pod, sizeof(_pod));
   
@@ -299,7 +300,7 @@ int init_pod(void) {
       .cal_a = DISTANCE_CALIBRATION_A,
       .cal_b = DISTANCE_CALIBRATION_B,
       .cal_c = DISTANCE_CALIBRATION_C,
-      .alpha = 1.0,
+      .alpha = 0.7,
       .offset = 0.0,
       .adc_num = PUSHER_DISTANCE_ADC,
       .input = pusher_distance[i]};

@@ -233,6 +233,7 @@ int packCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 
 int emergencyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   set_pod_mode(Emergency, "Command Line Initialized Emergency");
+  get_pod()->manual_emergency = true;
   return snprintf(outbuf, outbufc, "Pod Mode: %d", get_pod_mode());
 }
 

@@ -220,6 +220,13 @@ int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override) {
 }
 
 void adjust_brakes(__unused pod_t *pod) {
+  if (get_pod_mode() == Emergency && pod->manual_emergency == true) {
+    for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+      ensure_clamp_brakes(i, kClampBrakeEngaged, false);
+    }
+    return;
+  }
+
   switch (get_pod_mode()) {
   case POST:
   case Boot:
@@ -237,6 +244,7 @@ void adjust_brakes(__unused pod_t *pod) {
     }
     break;
   case Braking:
+  case Emergency:
       if (get_value(&(pod->pusher_plate)) == 1) {
         debug("Pusher Plate Engaged, inhibiting brakes");
         for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
@@ -261,14 +269,10 @@ void adjust_brakes(__unused pod_t *pod) {
         }
       }
       break;
-  case Emergency:
-    for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
-      ensure_clamp_brakes(i, kClampBrakeEngaged, false);
-    }
-    break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");
   }
+  
 }
 
 void adjust_skates(__unused pod_t *pod) {

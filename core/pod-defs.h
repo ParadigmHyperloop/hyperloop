@@ -246,6 +246,7 @@ typedef struct pod {
   bool calibrated;
   bool func_test;
   bool return_to_standby;
+  bool manual_emergency;
   sem_t *boot_sem;
   uint64_t last_imu_reading;
   uint64_t start;

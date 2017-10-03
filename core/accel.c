@@ -66,9 +66,19 @@ int calcState(pod_value_t *a, pod_value_t *v, pod_value_t *x, float raw_accel,
 //  debug("dt: %lf us, dv: %f m/s, dx: %f m", dt, dv, dx);
 
   set_value_f(a, new_accel);
-  set_value_f(v, new_velocity);
-  set_value_f(x, new_position);
-
+  
+  switch (get_pod_mode()) {
+    case Armed:
+    case Pushing:
+    case Coasting:
+    case Braking:
+      set_value_f(v, new_velocity);
+      set_value_f(x, new_position);
+      break;
+    default:
+      break;
+  }
+  
   return 0;
 }
 
@@ -103,9 +113,9 @@ void add_imu_data(imu_datagram_t *data, pod_t *s) {
 
   float x = (data->x * 9.81f) + get_value_f(&(s->imu_calibration_x));
 //  float y = (data->y * 9.81f) + get_value_f(&(s->imu_calibration_y));
-//  float z = (data->z * 9.81f) + get_value_f(&(s->imu_calibration_z));
+  float z = (data->z * 9.81f) + get_value_f(&(s->imu_calibration_z));
 
   calcState(&(s->accel_x), &(s->velocity_x), &(s->position_x), x, dt);
 //  calcState(&(s->accel_y), &(s->velocity_y), &(s->position_y), y, dt);
-//  calcState(&(s->accel_z), &(s->velocity_z), &(s->position_z), z, dt);
+  calcState(&(s->accel_z), &(s->velocity_z), &(s->position_z), z, dt);
 }

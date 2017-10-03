@@ -52,7 +52,6 @@
 #define PUSHER_DISTANCE_INPUTS                                                \
   { 9, 6, 8, 7 }
 
-#define PUSHER_PRESENT_DISTANCE 70 // millimeters
 
 
 
