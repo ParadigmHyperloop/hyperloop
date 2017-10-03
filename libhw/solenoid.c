@@ -32,30 +32,55 @@
 
 #include "solenoid.h"
 
-bool is_solenoid_open(solenoid_t *solenoid) {
-  switch (solenoid->type) {
-    case kSolenoidNormallyOpen:
-      return solenoid->value != 1;
-      break;
+int ssr_board_init(__unused bus_t * b, __unused int address) {
+//  bus_enqueue(b, ^(__unused bus_t *bus) {
+//    
+//    
+//    // Paste SSR Board Bringup Here
+//    
+//    printf("%d\n", address);
+//  });
+  return 0;
+}
+
+
+int solenoid_init(solenoid_t *s, char *name, bus_t *bus, unsigned char address, unsigned char channel, solenoid_type_t type) {
+  strncpy(s->name, name, MAX_NAME);
+  s->bus = bus;
+  s->address = address;
+  s->channel = channel;
+  s->type = type;
+  
+  // TODO: Read in from IC
+  switch (s->type) {
     case kSolenoidNormallyClosed:
-      return solenoid->value == 1;
+      s->state = kSolenoidClosed;
       break;
-    default:
-      abort();
+    case kSolenoidNormallyOpen:
+      s->state = kSolenoidOpen;
+      break;
   }
+
+  s->locked = false;
+  return 0;
+}
+
+bool is_solenoid_open(solenoid_t *solenoid) {
+  return solenoid->state == kSolenoidOpen;
 }
 
 bool is_solenoid_closed(solenoid_t *solenoid) {
-  switch (solenoid->type) {
-    case kSolenoidNormallyOpen:
-      return solenoid->value == 1;
-      break;
-    case kSolenoidNormallyClosed:
-      return solenoid->value != 1;
-      break;
-    default:
-      abort();
-  }
+  return solenoid->state == kSolenoidClosed;
+}
+
+
+bool is_solenoid_opening(solenoid_t *solenoid) {
+  return solenoid->state == kSolenoidOpening;
+}
+
+
+bool is_solenoid_closing(solenoid_t *solenoid) {
+  return solenoid->state == kSolenoidClosing;
 }
 
 void set_solenoid(solenoid_t *s, solenoid_state_t val) {
@@ -74,43 +99,69 @@ void set_solenoid(solenoid_t *s, solenoid_state_t val) {
   }
 }
 
-solenoid_state_t read_solenoid_state(const solenoid_t *solenoid) {
-  relay_state_t r = read_relay_state(solenoid->gpio);
-  switch (r) {
-    case kRelayOn:
-      return (solenoid->type == kSolenoidNormallyClosed ? kSolenoidOpen : kSolenoidClosed);
-      break;
-    case kRelayOff:
-      return (solenoid->type == kSolenoidNormallyClosed ? kSolenoidClosed : kSolenoidOpen);
-      break;
-    default:
-      // TODO: Handle
-      return kSolenoidError;
-  }
+solenoid_state_t read_solenoid_state(__unused const solenoid_t *solenoid) {
+  abort();
+  return kSolenoidError;
 }
 
 bool open_solenoid(solenoid_t *s) {
   if (is_solenoid_locked(s)) {
     return is_solenoid_open(s);
   }
+  
+  if (is_solenoid_opening(s)) {
+    return true;
+  }
 
   if (!is_solenoid_open(s)) {
-    // TODO: Prove
-    set_relay(s->gpio, (s->value ? kRelayOff : kRelayOn));
-    s->value = (s->value == 0 ? 1 : 0);
+    int value;
+    switch (s->type) {
+      case kSolenoidNormallyOpen:
+        value = 0;
+        break;
+      case kSolenoidNormallyClosed:
+        value = 4095;
+        break;
+      default:
+        abort();
+    }
+    
+    printf("Opening Solenoid %s (Addr: %d Ch: %d Val: %d)\n", s->name, s->address, s->channel, value);
+
+
+    set_ssr(s->bus->fd, s->address, s->channel, value);
+    s->state = kSolenoidOpen;
   }
   return true;
 }
 
 bool close_solenoid(solenoid_t *s) {
   if (is_solenoid_locked(s)) {
-    return is_solenoid_closed(s);
+    return is_solenoid_closed(s) || is_solenoid_closing(s);
+  }
+  
+  if (is_solenoid_closing(s)) {
+    return true;
   }
 
   if (is_solenoid_open(s)) {
-    // TODO: Prove
-    set_relay(s->gpio, (s->value ? kRelayOff : kRelayOn));
-    s->value = (s->value == 0 ? 1 : 0);
+    int value;
+    switch (s->type) {
+      case kSolenoidNormallyOpen:
+        value = 4095;
+        break;
+      case kSolenoidNormallyClosed:
+        value = 0;
+        break;
+      default:
+        abort();
+    }
+    
+    printf("Closing Solenoid %s (Addr: %d Ch: %d Val: %d)\n", s->name, s->address, s->channel, value);
+
+    
+    set_ssr(s->bus->fd, s->address, s->channel, value);
+    s->state = kSolenoidClosed;
   }
   return true;
 }

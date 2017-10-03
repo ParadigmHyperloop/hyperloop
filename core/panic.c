@@ -43,7 +43,5 @@ void pod_panic(__unused int subsystem, char *file, int line, char *notes, ...) {
   fprintf(stderr, "[PANIC] %s:%d -> %s\n", file, line, msg);
   fflush(stderr);
 
-  kill(getpid(), POD_SIGPANIC);
-  // Alternate
-  // exit(POD_EX_PANIC);
+  exit(EX_PANIC);
 }

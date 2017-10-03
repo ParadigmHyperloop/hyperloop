@@ -60,15 +60,15 @@ typedef int gpio_t;
 // TODO: Determine if it's C99 standard to store enums as (un)signed ints...
 // then assign explicit values to each enum case
 typedef enum gpio_value {
- kGpioValError,
- kGpioHigh,
- kGpioLow
+ kGpioValError = -1,
+ kGpioLow = 0,
+ kGpioHigh = 1
 } gpio_value_t;
 
 typedef enum gpio_dir {
- kGpioDirError,
- kGpioOut,
- kGpioIn
+ kGpioDirError = -1,
+ kGpioIn = 0,
+ kGpioOut = 1
 } gpio_dir_t;
 
 // SYSFS Helpers

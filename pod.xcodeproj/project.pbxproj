@@ -27,11 +27,17 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		770E337D1F248B6700D7E845 /* bus_manager.c in Sources */ = {isa = PBXBuildFile; fileRef = 770E337B1F248B6700D7E845 /* bus_manager.c */; };
+		770E337E1F248B6700D7E845 /* bus_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = 770E337C1F248B6700D7E845 /* bus_manager.h */; };
+		770E337F1F248B8400D7E845 /* liblibsked.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 770E33771F248AA300D7E845 /* liblibsked.a */; };
+		770E33831F25BC4D00D7E845 /* adc.c in Sources */ = {isa = PBXBuildFile; fileRef = 770E33811F25BC4D00D7E845 /* adc.c */; };
+		770E33841F25BC4D00D7E845 /* adc.h in Headers */ = {isa = PBXBuildFile; fileRef = 770E33821F25BC4D00D7E845 /* adc.h */; };
 		771BC7751EAC53C90027E537 /* core_checklists.c in Sources */ = {isa = PBXBuildFile; fileRef = 771BC7741EAC53C90027E537 /* core_checklists.c */; };
+		77365AE81EE12E180010583E /* gpio_shim.c in Sources */ = {isa = PBXBuildFile; fileRef = 77365AE71EE12E180010583E /* gpio_shim.c */; };
+		7737EE881F47A08A00A2BFE5 /* i2c.c in Sources */ = {isa = PBXBuildFile; fileRef = 7737EE861F47A08A00A2BFE5 /* i2c.c */; };
+		7737EE891F47A08A00A2BFE5 /* i2c.h in Headers */ = {isa = PBXBuildFile; fileRef = 7737EE871F47A08A00A2BFE5 /* i2c.h */; };
 		7744EE2C1E58573D004EC3F9 /* libhw.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7744EE141E5853C1004EC3F9 /* libhw.a */; };
 		7747BF301E82435C0067B683 /* hw.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF231E82435C0067B683 /* hw.h */; };
-		7747BF311E82435C0067B683 /* interface.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF241E82435C0067B683 /* interface.c */; };
-		7747BF321E82435C0067B683 /* interface.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF251E82435C0067B683 /* interface.h */; };
 		7747BF331E82435C0067B683 /* libBBB.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF261E82435C0067B683 /* libBBB.c */; };
 		7747BF341E82435C0067B683 /* libBBB.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF271E82435C0067B683 /* libBBB.h */; };
 		7747BF351E82435C0067B683 /* pins.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF281E82435C0067B683 /* pins.c */; };
@@ -42,6 +48,7 @@
 		7747BF3A1E82435C0067B683 /* shims.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF2D1E82435C0067B683 /* shims.h */; };
 		7747BF3B1E82435C0067B683 /* solenoid.c in Sources */ = {isa = PBXBuildFile; fileRef = 7747BF2E1E82435C0067B683 /* solenoid.c */; };
 		7747BF3C1E82435C0067B683 /* solenoid.h in Headers */ = {isa = PBXBuildFile; fileRef = 7747BF2F1E82435C0067B683 /* solenoid.h */; };
+		775D50B31F4D776200F1A66A /* gpio.h in Headers */ = {isa = PBXBuildFile; fileRef = 775D50B21F4D776200F1A66A /* gpio.h */; };
 		778A5FBD1E82581E0099A66D /* commander.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FA11E82581E0099A66D /* commander.c */; };
 		778A5FBE1E82581E0099A66D /* commands.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FA31E82581E0099A66D /* commands.c */; };
 		778A5FBF1E82581E0099A66D /* core.c in Sources */ = {isa = PBXBuildFile; fileRef = 778A5FAC1E82581E0099A66D /* core.c */; };
@@ -69,7 +76,6 @@
 		77E19E9A1EA2C3EE00C6766A /* realtime.c in Sources */ = {isa = PBXBuildFile; fileRef = 77E19E981EA2C3EE00C6766A /* realtime.c */; };
 		77E19E9D1EA2CB5500C6766A /* mpye.c in Sources */ = {isa = PBXBuildFile; fileRef = 77E19E9B1EA2CB5500C6766A /* mpye.c */; };
 		77E19E9E1EA2CB5500C6766A /* mpye.h in Headers */ = {isa = PBXBuildFile; fileRef = 77E19E9C1EA2CB5500C6766A /* mpye.h */; };
-		77E19EA91EA2DA1900C6766A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 77E19EA81EA2DA1900C6766A /* main.c */; };
 		77F29D531E585BBC00EC907D /* libbbb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77F29D4C1E585B9A00EC907D /* libbbb.a */; };
 		77F29D571E585BDE00EC907D /* bbb.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F29D551E585BDE00EC907D /* bbb.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		77F29D591E585C1700EC907D /* gpio.c in Sources */ = {isa = PBXBuildFile; fileRef = 77F29D581E585C1700EC907D /* gpio.c */; };
@@ -185,14 +191,21 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		770E33771F248AA300D7E845 /* liblibsked.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibsked.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		770E337B1F248B6700D7E845 /* bus_manager.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bus_manager.c; path = libsked/bus_manager.c; sourceTree = "<group>"; };
+		770E337C1F248B6700D7E845 /* bus_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bus_manager.h; path = libsked/bus_manager.h; sourceTree = "<group>"; };
+		770E33801F2491CC00D7E845 /* bus_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bus_internal.h; path = libsked/bus_internal.h; sourceTree = "<group>"; };
+		770E33811F25BC4D00D7E845 /* adc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = adc.c; path = libhw/adc.c; sourceTree = "<group>"; };
+		770E33821F25BC4D00D7E845 /* adc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = adc.h; path = libhw/adc.h; sourceTree = "<group>"; };
 		771BC7731EAC53330027E537 /* core_checklists.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = core_checklists.h; sourceTree = "<group>"; };
 		771BC7741EAC53C90027E537 /* core_checklists.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = core_checklists.c; sourceTree = "<group>"; };
 		7730C0C31EB5439B00881CF2 /* logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = logging.h; path = liblog/logging.h; sourceTree = "<group>"; };
 		7730C0C41EB5441000881CF2 /* pod-defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "pod-defs.h"; sourceTree = "<group>"; };
+		77365AE71EE12E180010583E /* gpio_shim.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gpio_shim.c; path = libbbb/gpio_shim.c; sourceTree = "<group>"; };
+		7737EE861F47A08A00A2BFE5 /* i2c.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = i2c.c; path = libhw/i2c.c; sourceTree = "<group>"; };
+		7737EE871F47A08A00A2BFE5 /* i2c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = i2c.h; path = libhw/i2c.h; sourceTree = "<group>"; };
 		7744EE141E5853C1004EC3F9 /* libhw.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhw.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7747BF231E82435C0067B683 /* hw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hw.h; path = libhw/hw.h; sourceTree = "<group>"; };
-		7747BF241E82435C0067B683 /* interface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = interface.c; path = libhw/interface.c; sourceTree = "<group>"; };
-		7747BF251E82435C0067B683 /* interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = interface.h; path = libhw/interface.h; sourceTree = "<group>"; };
 		7747BF261E82435C0067B683 /* libBBB.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = libBBB.c; path = libhw/libBBB.c; sourceTree = "<group>"; };
 		7747BF271E82435C0067B683 /* libBBB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libBBB.h; path = libhw/libBBB.h; sourceTree = "<group>"; };
 		7747BF281E82435C0067B683 /* pins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pins.c; path = libhw/pins.c; sourceTree = "<group>"; };
@@ -203,6 +216,7 @@
 		7747BF2D1E82435C0067B683 /* shims.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shims.h; path = libhw/shims.h; sourceTree = "<group>"; };
 		7747BF2E1E82435C0067B683 /* solenoid.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = solenoid.c; path = libhw/solenoid.c; sourceTree = "<group>"; };
 		7747BF2F1E82435C0067B683 /* solenoid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = solenoid.h; path = libhw/solenoid.h; sourceTree = "<group>"; };
+		775D50B21F4D776200F1A66A /* gpio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gpio.h; path = libbbb/gpio.h; sourceTree = "<group>"; };
 		778A5FA01E82581E0099A66D /* cdefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cdefs.h; sourceTree = "<group>"; };
 		778A5FA11E82581E0099A66D /* commander.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = commander.c; sourceTree = "<group>"; };
 		778A5FA21E82581E0099A66D /* commander.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commander.h; sourceTree = "<group>"; };
@@ -232,8 +246,6 @@
 		778A5FBC1E82581E0099A66D /* tests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tests.c; sourceTree = "<group>"; };
 		77B145891E5820D700988FE3 /* core */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = core; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B145C71E58210F00988FE3 /* libimu.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libimu.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		77B145FA1E58226B00988FE3 /* ADCCollector.hp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ADCCollector.hp; sourceTree = "<group>"; };
-		77B145FB1E58226B00988FE3 /* ADCCollector.p */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = ADCCollector.p; sourceTree = "<group>"; };
 		77B18BCB1E5845DD00DDD8B5 /* liblog.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblog.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B333361F47A2E4001C5993 /* bbb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bbb.c; path = libbbb/bbb.c; sourceTree = "<group>"; };
 		77B6C42F1E624CC2009DFE69 /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = liblog/log.c; sourceTree = "<group>"; };
@@ -253,7 +265,6 @@
 		77E19E9B1EA2CB5500C6766A /* mpye.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mpye.c; path = libhw/mpye.c; sourceTree = "<group>"; };
 		77E19E9C1EA2CB5500C6766A /* mpye.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mpye.h; path = libhw/mpye.h; sourceTree = "<group>"; };
 		77E19EA61EA2DA1900C6766A /* tparse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tparse; sourceTree = BUILT_PRODUCTS_DIR; };
-		77E19EA81EA2DA1900C6766A /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		77F29D4C1E585B9A00EC907D /* libbbb.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libbbb.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		77F29D551E585BDE00EC907D /* bbb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bbb.h; path = libbbb/bbb.h; sourceTree = "<group>"; };
 		77F29D581E585C1700EC907D /* gpio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gpio.c; path = libbbb/gpio.c; sourceTree = "<group>"; };
@@ -264,6 +275,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		770E33741F248AA300D7E845 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7744EE111E5853C1004EC3F9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -276,6 +294,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				770E337F1F248B8400D7E845 /* liblibsked.a in Frameworks */,
 				7744EE2C1E58573D004EC3F9 /* libhw.a in Frameworks */,
 				77B18BCF1E5845E300DDD8B5 /* liblog.a in Frameworks */,
 				77C21F731E5824760081C524 /* libimu.a in Frameworks */,
@@ -329,12 +348,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		770E33721F248A6E00D7E845 /* libsked */ = {
+			isa = PBXGroup;
+			children = (
+				770E337B1F248B6700D7E845 /* bus_manager.c */,
+				770E337C1F248B6700D7E845 /* bus_manager.h */,
+				770E33801F2491CC00D7E845 /* bus_internal.h */,
+			);
+			name = libsked;
+			sourceTree = "<group>";
+		};
 		7744EDFB1E585330004EC3F9 /* libhw */ = {
 			isa = PBXGroup;
 			children = (
 				7747BF231E82435C0067B683 /* hw.h */,
-				7747BF241E82435C0067B683 /* interface.c */,
-				7747BF251E82435C0067B683 /* interface.h */,
 				7747BF261E82435C0067B683 /* libBBB.c */,
 				7747BF271E82435C0067B683 /* libBBB.h */,
 				7747BF281E82435C0067B683 /* pins.c */,
@@ -347,6 +374,10 @@
 				7747BF2F1E82435C0067B683 /* solenoid.h */,
 				77E19E9B1EA2CB5500C6766A /* mpye.c */,
 				77E19E9C1EA2CB5500C6766A /* mpye.h */,
+				770E33811F25BC4D00D7E845 /* adc.c */,
+				770E33821F25BC4D00D7E845 /* adc.h */,
+				7737EE861F47A08A00A2BFE5 /* i2c.c */,
+				7737EE871F47A08A00A2BFE5 /* i2c.h */,
 			);
 			name = libhw;
 			sourceTree = "<group>";
@@ -354,13 +385,12 @@
 		77B1457E1E58208800988FE3 = {
 			isa = PBXGroup;
 			children = (
+				770E33721F248A6E00D7E845 /* libsked */,
 				77B1458B1E5820D700988FE3 /* core */,
 				77F29D471E585B8200EC907D /* libbbb */,
 				7744EDFB1E585330004EC3F9 /* libhw */,
 				77B18BBE1E58450700DDD8B5 /* liblog */,
 				77B145CB1E58212800988FE3 /* libimu */,
-				77B145F91E58226B00988FE3 /* pru */,
-				77E19EA71EA2DA1900C6766A /* tparse */,
 				77DA26211EAEF5F200509AE4 /* imu_config */,
 				77DA262C1EAEF5FC00509AE4 /* imu_test */,
 				77B1458A1E5820D700988FE3 /* Products */,
@@ -378,6 +408,7 @@
 				77E19EA61EA2DA1900C6766A /* tparse */,
 				77DA26201EAEF5F100509AE4 /* imu_config */,
 				77DA262B1EAEF5FB00509AE4 /* imu_test */,
+				770E33771F248AA300D7E845 /* liblibsked.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -435,16 +466,6 @@
 			name = libimu;
 			sourceTree = "<group>";
 		};
-		77B145F91E58226B00988FE3 /* pru */ = {
-			isa = PBXGroup;
-			children = (
-				77B145FA1E58226B00988FE3 /* ADCCollector.hp */,
-				77B145FB1E58226B00988FE3 /* ADCCollector.p */,
-			);
-			name = pru;
-			path = core/pru;
-			sourceTree = "<group>";
-		};
 		77B18BBE1E58450700DDD8B5 /* liblog */ = {
 			isa = PBXGroup;
 			children = (
@@ -474,19 +495,13 @@
 			path = imu_test;
 			sourceTree = "<group>";
 		};
-		77E19EA71EA2DA1900C6766A /* tparse */ = {
-			isa = PBXGroup;
-			children = (
-				77E19EA81EA2DA1900C6766A /* main.c */,
-			);
-			path = tparse;
-			sourceTree = "<group>";
-		};
 		77F29D471E585B8200EC907D /* libbbb */ = {
 			isa = PBXGroup;
 			children = (
 				77B333361F47A2E4001C5993 /* bbb.c */,
 				77F29D551E585BDE00EC907D /* bbb.h */,
+				77365AE71EE12E180010583E /* gpio_shim.c */,
+				775D50B21F4D776200F1A66A /* gpio.h */,
 				77F29D581E585C1700EC907D /* gpio.c */,
 			);
 			name = libbbb;
@@ -495,16 +510,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		770E33751F248AA300D7E845 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				770E337E1F248B6700D7E845 /* bus_manager.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7744EE121E5853C1004EC3F9 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				7747BF341E82435C0067B683 /* libBBB.h in Headers */,
-				7747BF321E82435C0067B683 /* interface.h in Headers */,
 				7747BF361E82435C0067B683 /* pins.h in Headers */,
 				7747BF3A1E82435C0067B683 /* shims.h in Headers */,
+				7737EE891F47A08A00A2BFE5 /* i2c.h in Headers */,
 				7747BF381E82435C0067B683 /* relay.h in Headers */,
+				775D50B31F4D776200F1A66A /* gpio.h in Headers */,
 				7747BF3C1E82435C0067B683 /* solenoid.h in Headers */,
+				770E33841F25BC4D00D7E845 /* adc.h in Headers */,
 				7747BF301E82435C0067B683 /* hw.h in Headers */,
 				77E19E9E1EA2CB5500C6766A /* mpye.h in Headers */,
 			);
@@ -539,6 +564,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		770E33761F248AA300D7E845 /* libsked */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 770E33781F248AA300D7E845 /* Build configuration list for PBXNativeTarget "libsked" */;
+			buildPhases = (
+				770E33731F248AA300D7E845 /* Sources */,
+				770E33741F248AA300D7E845 /* Frameworks */,
+				770E33751F248AA300D7E845 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libsked;
+			productName = libsked;
+			productReference = 770E33771F248AA300D7E845 /* liblibsked.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		7744EE131E5853C1004EC3F9 /* hw */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7744EE151E5853C1004EC3F9 /* Build configuration list for PBXNativeTarget "hw" */;
@@ -685,6 +727,10 @@
 			attributes = {
 				LastUpgradeCheck = 0830;
 				TargetAttributes = {
+					770E33761F248AA300D7E845 = {
+						CreatedOnToolsVersion = 8.3.3;
+						ProvisioningStyle = Automatic;
+					};
 					7744EE131E5853C1004EC3F9 = {
 						CreatedOnToolsVersion = 8.3;
 						ProvisioningStyle = Automatic;
@@ -744,19 +790,29 @@
 				77E19EA51EA2DA1900C6766A /* tparse */,
 				77DA261F1EAEF5F100509AE4 /* imu_config */,
 				77DA262A1EAEF5FB00509AE4 /* imu_test */,
+				770E33761F248AA300D7E845 /* libsked */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		770E33731F248AA300D7E845 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				770E337D1F248B6700D7E845 /* bus_manager.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7744EE101E5853C1004EC3F9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				7747BF351E82435C0067B683 /* pins.c in Sources */,
 				7747BF371E82435C0067B683 /* relay.c in Sources */,
+				770E33831F25BC4D00D7E845 /* adc.c in Sources */,
 				7747BF331E82435C0067B683 /* libBBB.c in Sources */,
-				7747BF311E82435C0067B683 /* interface.c in Sources */,
+				7737EE881F47A08A00A2BFE5 /* i2c.c in Sources */,
 				77E19E9D1EA2CB5500C6766A /* mpye.c in Sources */,
 				7747BF3B1E82435C0067B683 /* solenoid.c in Sources */,
 				7747BF391E82435C0067B683 /* shims.c in Sources */,
@@ -823,7 +879,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				77E19EA91EA2DA1900C6766A /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -833,6 +888,7 @@
 			files = (
 				77B333371F47A2E4001C5993 /* bbb.c in Sources */,
 				77F29D591E585C1700EC907D /* gpio.c in Sources */,
+				77365AE81EE12E180010583E /* gpio_shim.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -887,6 +943,87 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		770E33791F248AA300D7E845 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		770E337A1F248AA300D7E845 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		7744EE161E5853C1004EC3F9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1005,6 +1142,7 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
 				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
@@ -1039,6 +1177,7 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
 				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
@@ -1672,6 +1811,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		770E33781F248AA300D7E845 /* Build configuration list for PBXNativeTarget "libsked" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				770E33791F248AA300D7E845 /* Debug */,
+				770E337A1F248AA300D7E845 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		7744EE151E5853C1004EC3F9 /* Build configuration list for PBXNativeTarget "hw" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

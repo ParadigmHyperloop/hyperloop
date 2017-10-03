@@ -37,9 +37,17 @@ extern char *pod_mode_names[N_POD_STATES];
 void pod_calibrate() {
   pod_t *pod = get_pod();
 
-  set_value_f(&(pod->imu_calibration_x), get_value_f(&(pod->accel_x)));
-  set_value_f(&(pod->imu_calibration_y), get_value_f(&(pod->accel_y)));
-  set_value_f(&(pod->imu_calibration_z), get_value_f(&(pod->accel_z)));
+  set_value_f(&(pod->imu_calibration_x), -get_value_f(&(pod->accel_x)));
+  set_value_f(&(pod->imu_calibration_y), -get_value_f(&(pod->accel_y)));
+  set_value_f(&(pod->imu_calibration_z), -get_value_f(&(pod->accel_z)));
+  
+  set_value_f(&(pod->velocity_x), 0.0f);
+  set_value_f(&(pod->velocity_y), 0.0f);
+  set_value_f(&(pod->velocity_z), 0.0f);
+
+  set_value_f(&(pod->position_x), 0.0f);
+  set_value_f(&(pod->position_y), 0.0f);
+  set_value_f(&(pod->position_z), 0.0f);
 }
 
 bool pod_reset() {
@@ -81,6 +89,23 @@ relay_mask_t get_relay_mask(pod_t *pod) {
       mask |= (0x01 << i);
     }
   }
+
+  mask = 0x0000;
+  
+  mask |= ((is_solenoid_open(&pod->skate_solonoids[0]) & 0x1) << 0);
+  mask |= ((is_solenoid_open(&pod->skate_solonoids[1]) & 0x1) << 1);
+  mask |= ((is_solenoid_open(&pod->skate_solonoids[2]) & 0x1) << 2);
+  mask |= ((is_solenoid_open(&pod->skate_solonoids[3]) & 0x1) << 3);
+
+  mask |= ((is_solenoid_open(&pod->clamp_engage_solonoids[0]) & 0x1) << 4);
+  mask |= ((is_solenoid_open(&pod->clamp_release_solonoids[0]) & 0x1) << 5);
+  mask |= ((is_solenoid_open(&pod->clamp_engage_solonoids[1]) & 0x1) << 6);
+  mask |= ((is_solenoid_open(&pod->clamp_release_solonoids[1]) & 0x1) << 7);
+  
+  mask |= ((is_solenoid_open(&pod->hp_fill_valve) & 0x1) << 8);
+  mask |= ((is_solenoid_open(&pod->vent_solenoid) & 0x1) << 9);
+  mask |= ((get_value(&pod->pusher_plate) & 0x1) << 10);
+
   return mask;
 }
 
@@ -89,11 +114,11 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
   int i = 0;
 
   c += snprintf(
-      &buf[c], len, "mode: %s\n"
+      &buf[c], len, "mode: %s\nreason: %s\n"
                     "acl m/s/s: x: %f, y: %f, z: %f\n"
                     "vel m/s  : x: %f, y: %f, z: %f\n"
                     "pos m    : x: %f, y: %f, z: %f\n",
-      pod_mode_names[get_pod_mode()], get_value_f(&(pod->accel_x)),
+      pod_mode_names[get_pod_mode()], pod->state_reason, get_value_f(&(pod->accel_x)),
       get_value_f(&(pod->accel_y)), get_value_f(&(pod->accel_z)),
       get_value_f(&(pod->velocity_x)), get_value_f(&(pod->velocity_y)),
       get_value_f(&(pod->velocity_z)), get_value_f(&(pod->position_x)),
@@ -108,12 +133,6 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
         (is_solenoid_open(&(pod->skate_solonoids[i])) ? "open" : "closed"));
   }
 
-  for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    c += snprintf(
-        &buf[c], len - c, "Caliper %d:\t%s\n", i,
-        (is_solenoid_open(&(pod->wheel_solonoids[i])) ? "open" : "closed"));
-  }
-
   for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
     c += snprintf(&buf[c], len - c, "Clamp Eng %d:\t%s\n", i,
                   (is_solenoid_open(&(pod->clamp_engage_solonoids[i]))
@@ -126,12 +145,6 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
                   (is_solenoid_open(&(pod->clamp_release_solonoids[i]))
                        ? "open"
                        : "closed"));
-  }
-
-  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    c += snprintf(
-        &buf[c], len - c, "LP Fill %d:\t%s\n", i,
-        (is_solenoid_open(&(pod->lp_fill_valve[i])) ? "open" : "closed"));
   }
 
   c += snprintf(&buf[c], len - c, "HP Fill:\t%s\n",
@@ -154,13 +167,13 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
 
 void log_dump(pod_t *pod) {
 #ifdef POD_DEBUG
-  note("Logging System -> Dumping");
-  char s[8096];
+  //note("Logging System -> Dumping");
+  //char s[8096];
 
   // Load up `s` with a textual status dump
-  status_dump(pod, s, sizeof(s) / sizeof(s[0]));
+  //status_dump(pod, s, sizeof(s) / sizeof(s[0]));
 
-  printf("%s", s);
+  //printf("%s", s);
 #endif
 
   // Telemetry streaming

@@ -43,47 +43,63 @@
 #define STOP_MARGIN 100
 #define START_BRAKING 1100
 
-#define WATCHDOG_TIMER 16 * USEC_PER_SEC
+// --------------------------
+// Timers
+// --------------------------
 
-/*
+// 113.5 MPH
+#define WATCHDOG_TIMER 32000000           // 28.2 seconds // Main braking timeout initiated by pushing state // 5MPH 4300000
+#define EMERGENCY_HOLD 30 * USEC_PER_SEC  // 30 seconds held in the emergency state
+#define BRAKING_WAIT 2 * USEC_PER_SEC     // Time before engaging secondary brake, if needed
+#define BRAKING_TIMEOUT 30 * USEC_PER_SEC // min time to hold brakes before vent
+#define PUSHER_TIMEOUT 1 * USEC_PER_SEC   // Timeout for the pusher plate debounce
+#define PUSHING_STATE_ACCEL_X 0.25f       // m/s/s // Threshold for transitioning into the pushing state
+#define PUSHING_STATE_MIN_TIMER 24000000  // 20.2 seconds // Minimium time in the pushing state
+#define PUSHER_PRESENT_DISTANCE 70        // mm // Distance to register the pusher as present
+#define PRIMARY_BRAKING_ACCEL_X_MIN -6.25 // m/s/s // "minimum" acceptable acceleration while braking
 
-Phase
-Distance Travelled (m)
-Velocity Range (m/s)
-Acceleration (G’s)
-Time (s)
-Acceleration
-202
-0  →  82
-1.70
-4.9
-Coasting
-895
-82
-0
-10.9
-Braking
-412
-82 → 0
-0.83
-10.4
-*/
+// 50 MPH
+//#define WATCHDOG_TIMER 20200000                   // 20.2 seconds // Main braking timeout initiated by pushing state // 5MPH 4300000
+//#define EMERGENCY_HOLD 30 * USEC_PER_SEC          // 30 seconds held in the emergency state
+//#define BRAKING_WAIT 2 * USEC_PER_SEC             // Time before engaging secondary brake, if needed
+//#define BRAKING_TIMEOUT 30 * USEC_PER_SEC         // min time to hold brakes before vent
+//#define PUSHER_TIMEOUT 1 * USEC_PER_SEC           // Timeout for the pusher plate debounce
+//#define PUSHING_STATE_ACCEL_X 0.2f // m/s/s       // Threshold for transitioning into the pushing state
+//#define PUSHING_STATE_MIN_TIMER 15200000          // 15.2 seconds // Minimium time in the pushing state
 
+
+// 15 MPH
+//#define WATCHDOG_TIMER 8400000                    // 8.4 seconds // Main braking timeout initiated by pushing state // 5MPH 4300000
+//#define EMERGENCY_HOLD 30 * USEC_PER_SEC          // 30 seconds held in the emergency state
+//#define BRAKING_WAIT 2 * USEC_PER_SEC             // Time before engaging secondary brake, if needed
+//#define BRAKING_TIMEOUT 20 * USEC_PER_SEC         // min time to hold brakes before vent
+//#define PUSHER_TIMEOUT 1 * USEC_PER_SEC           // Timeout for the pusher plate debounce
+//#define PUSHING_STATE_ACCEL_X 1.0 // m/s/s        // Threshold for transitioning into the pushing state
+//#define PUSHING_STATE_MIN_TIMER 3400000           // 3.4 seconds // Minimium time in the pushing state
+
+
+
+#define PRIMARY_BRAKING_ACCEL_X_NOM -7.84 // -0.8 G => mm/s/s
+#define PRIMARY_BRAKING_ACCEL_X_MAX -24.5 // -2.5 G => mm/s/s
+
+
+#define RETURN_TO_STANDBY false
 // --------------------------
 // Relay
 // --------------------------
-#define N_RELAY_CHANNELS 16
+#define N_RELAY_CHANNELS 10
 
 // --------------------------
 // MUX
 // --------------------------
-#define N_MUXES 7
-#define N_MUX_INPUTS 16
+#define N_ADCS 8
+#define N_ADC_CHANNELS 16
 #define THERMO_MUX_0 0
 #define THERMO_MUX_1 1
-#define PRESSURE_MUX 2
-#define DISTANCE_MUX 3
+#define PRESSURE_ADC 6
+#define DISTANCE_ADC 7
 #define PHOTO_MUX 4
 #define SPARE_MUX_0 5
 #define SPARE_MUX_1 6
+
 #endif /* PARADIGM_CONFIG_INVENTORY_H */

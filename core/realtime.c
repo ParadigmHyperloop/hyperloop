@@ -48,7 +48,7 @@ void get_timespec(struct timespec *t) {
   }
 }
 
-static void timespec_add(struct timespec *t1, struct timespec *t2) {
+void timespec_add(struct timespec *t1, const struct timespec *t2) {
   long sec = t2->tv_sec + t1->tv_sec;
   long nsec = t2->tv_nsec + t1->tv_nsec;
 
@@ -61,6 +61,16 @@ static void timespec_add(struct timespec *t1, struct timespec *t2) {
   t1->tv_nsec = nsec;
 }
 
+void timespec_sub(struct timespec *t1, const struct timespec *t2) {
+  if ((t1->tv_nsec - t2->tv_nsec) < 0) {
+    t1->tv_sec = t1->tv_sec - t2->tv_sec - 1;
+    t1->tv_nsec = t1->tv_nsec - t2->tv_nsec + 1000000000;
+  } else {
+    t1->tv_sec = t1->tv_sec - t2->tv_sec;
+    t1->tv_nsec = t1->tv_nsec - t2->tv_nsec;
+  }
+}
+
 static void timespec_add_ns(struct timespec *t, long ns) {
   struct timespec t2 = {.tv_sec = ns / 1000000000, .tv_nsec = ns % 1000000000};
   timespec_add(t, &t2);
@@ -69,6 +79,7 @@ static void timespec_add_ns(struct timespec *t, long ns) {
 void timespec_add_us(struct timespec *t, long us) {
   timespec_add_ns(t, us * 1000);
 }
+
 
 int timespec_cmp(struct timespec *a, struct timespec *b) {
   if (a->tv_sec > b->tv_sec)
@@ -88,9 +99,9 @@ int timespec_cmp(struct timespec *a, struct timespec *b) {
 }
 
 int64_t timespec_to_nsec(struct timespec *t) {
-  if (t->tv_sec >= (INT32_MAX - 1) / (long)NSEC_PER_SEC) {
-    return -1;
-  }
+//  if (t->tv_sec >= (INT32_MAX - 1) / (long)NSEC_PER_SEC) {
+//    return -1;
+//  }
   
   return (t->tv_sec * NSEC_PER_SEC) + t->tv_nsec;
 }

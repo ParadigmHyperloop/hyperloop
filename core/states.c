@@ -35,7 +35,7 @@
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
 
 char *pod_mode_names[N_POD_STATES] = {
-    "POST",    "Boot",      "LPFill",    "HPFill",   "Load",
+    "POST",    "Boot",      "HPFill",   "Load",
     "Standby", "Armed",     "Pushing",   "Coasting", "Braking",
     "Vent",    "Retrieval", "Emergency", "Shutdown"};
 
@@ -56,15 +56,14 @@ pod_t _pod;
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
       {POST, Boot, Emergency, Shutdown, NonState},
-      {Boot, LPFill, Emergency, Shutdown, NonState},
-      {LPFill, HPFill, Emergency, NonState},
-      {HPFill, Load, Emergency, NonState},
+      {Boot, HPFill, Emergency, Shutdown, NonState},
+      {HPFill, Load, Standby, Emergency, NonState},
       {Load, Standby, Emergency, NonState},
       {Standby, Load, Armed, Emergency, NonState},
-      {Armed, Standby, Pushing, Emergency, NonState},
+      {Armed, Standby, Pushing, Coasting, Braking, Emergency, NonState},
       {Pushing, Coasting, Braking, Emergency, NonState},
       {Coasting, Braking, Pushing, Emergency, NonState},
-      {Braking, Pushing, Vent, Emergency, NonState},
+      {Braking, Pushing, Vent, Emergency, Standby, NonState},
       {Vent, Retrieval, Emergency, NonState},
       {Retrieval, Shutdown, NonState},
       {Emergency, Vent, NonState},
@@ -152,196 +151,188 @@ int init_pod(void) {
       .logging_filename = TELEMETRY_LOG_BIN,
       .last_ping = 0,
       .relays = {&(_pod.skate_solonoids[0]), &(_pod.skate_solonoids[1]),
-                 &(_pod.skate_solonoids[2]), &(_pod.clamp_engage_solonoids[0]),
+                 &(_pod.skate_solonoids[2]), &(_pod.skate_solonoids[3]),
+                 &(_pod.clamp_engage_solonoids[0]),
                  &(_pod.clamp_release_solonoids[0]),
                  &(_pod.clamp_engage_solonoids[1]),
-                 &(_pod.clamp_release_solonoids[1]), &(_pod.wheel_solonoids[0]),
-                 &(_pod.wheel_solonoids[1]), &(_pod.wheel_solonoids[2]),
-                 &(_pod.hp_fill_valve), &(_pod.vent_solenoid),
-                 &(_pod.lp_fill_valve[0]), &(_pod.lp_fill_valve[1]),
-                 &(_pod.lateral_fill_solenoids[0]),
-                 &(_pod.lateral_fill_solenoids[1])},
+                 &(_pod.clamp_release_solonoids[1]),
+                 &(_pod.hp_fill_valve), &(_pod.vent_solenoid)},
       .sensors = {0},
       .launch_time = 0,
       .pusher_plate = POD_VALUE_INITIALIZER_INT32,
-      .shutdown = Halt};
-  pod_t local_pod;
+      .shutdown = Halt,
+      .last_pusher_seen = 0,
+      .func_test = false,
+      .return_to_standby = RETURN_TO_STANDBY,
+      .engaged_brakes = 0,
+      .manual_emergency = false};
+  
+  memcpy(&_pod, &_init_pod, sizeof(_pod));
+  
+  pod_t *pod = &_pod;
+  
+  debug("Applied pod_t template to local_pod");
 
-  memcpy(&local_pod, &_init_pod, sizeof(local_pod));
-
-  pod_t *pod = &local_pod;
+  char name[MAX_NAME];
 
   // ----------------
   // INITIALIZE MPYES
   // ----------------
   int i;
+  unsigned int mpye_pins[N_MPYES] = MPYE_CHANNELS;
+  
+  debug("Initializing MPYEs");
   for (i = 0; i < N_MPYES; i++) {
-    pod->mpye[i] = (mpye_t) {.pin = 0,
-                             .locked = false,
-                             .queued = false,
-                             .value = 0};
+    snprintf(name, MAX_NAME, "mpye_%c", (i * 2) + 'a');
+    mpye_init(&pod->mpye[i],
+              name,
+              &pod->i2c[SSR_I2C_BUS],
+              mpye_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
+              mpye_pins[i] % 16);
   }
 
   // --------------------
   // INITIALIZE SOLENOIDS
   // --------------------
   
-  int skate_pins[] = SKATE_SOLENOIDS;
+  debug("Initializing Skate Solenoids");
+  unsigned short skate_pins[] = SKATE_SOLENOIDS;
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-    info("Setting Up Skate Solenoid %d of %d on pin %d", i, N_SKATE_SOLONOIDS, skate_pins[i]);
-    pod->skate_solonoids[i] = (solenoid_t){.gpio = skate_pins[i],
-                                           .value = 0,
-                                           .type = kSolenoidNormallyClosed,
-                                           .locked = false};
-    snprintf(pod->skate_solonoids[i].name, MAX_NAME, "skt_%c%c", (i * 2) + 'a',
-             (i * 2) + 'b');
-    setup_pin(skate_pins[i]);
+    snprintf(name, MAX_NAME, "skt_%c", (i * 2) + 'a');
+
+    solenoid_init(&pod->skate_solonoids[i],
+                  name,
+                  &pod->i2c[SSR_I2C_BUS],
+                  skate_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_1_ADDRESS,
+                  skate_pins[i] % 16,
+                  kSolenoidNormallyClosed);
   }
 
-  int clamp_engage_pins[] = CLAMP_ENGAGE_SOLONOIDS;
+  debug("Initializing Brake Solenoids");
+
+  unsigned short clamp_engage_pins[] = CLAMP_ENGAGE_SOLONOIDS;
   for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-    pod->clamp_engage_solonoids[i] =
-        (solenoid_t){.gpio = clamp_engage_pins[i],
-                     .value = 0,
-                     .type = kSolenoidNormallyClosed,
-                     .locked = false,
-                     .name = {0}};
-    snprintf(pod->clamp_engage_solonoids[i].name, MAX_NAME, "clmp_eng_%d", i);
-    setup_pin(clamp_engage_pins[i]);
+    snprintf(name, MAX_NAME, "clmp_eng_%d", i);
+    
+    solenoid_init(&pod->clamp_engage_solonoids[i],
+                  name,
+                  &pod->i2c[SSR_I2C_BUS],
+                  clamp_engage_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
+                  clamp_engage_pins[i] % 16,
+                  kSolenoidNormallyClosed);
   }
 
-  int clamp_release_pins[] = CLAMP_RELEASE_SOLONOIDS;
-  for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-    pod->clamp_release_solonoids[i] =
-        (solenoid_t){.gpio = clamp_release_pins[i],
-                     .value = 0,
-                     .type = kSolenoidNormallyClosed,
-                     .locked = false};
-    snprintf(pod->clamp_release_solonoids[i].name, MAX_NAME, "clmp_rel_%d", i);
-    setup_pin(clamp_release_pins[i]);
+  unsigned short clamp_release_pins[] = CLAMP_RELEASE_SOLONOIDS;
+  for (i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
+    snprintf(name, MAX_NAME, "pack_%d", i);
+    
+    solenoid_init(&pod->clamp_release_solonoids[i],
+                  name,
+                  &pod->i2c[SSR_I2C_BUS],
+                  clamp_release_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
+                  clamp_release_pins[i] % 16,
+                  kSolenoidNormallyClosed);
   }
 
-  int wheel_pins[] = WHEEL_SOLONOIDS;
-  for (i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    pod->wheel_solonoids[i] = (solenoid_t){.gpio = wheel_pins[i],
-                                           .value = 0,
-                                           .type = kSolenoidNormallyClosed,
-                                           .locked = false};
-    snprintf(pod->wheel_solonoids[i].name, MAX_NAME, "wheel_%d", i);
-    setup_pin(wheel_pins[i]);
+  unsigned short battery_pack_pins[] = BATTERY_PACK_RELAYS;
+  for (i = 0; i < N_BATTERY_PACK_RELAYS; i++) {
+    snprintf(name, MAX_NAME, "pack_%d", i);
+    
+    solenoid_init(&pod->battery_pack_relays[i],
+                  name,
+                  &pod->i2c[SSR_I2C_BUS],
+                  battery_pack_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
+                  battery_pack_pins[i] % 16,
+                  kSolenoidNormallyClosed);
   }
+  
+  debug("Initializing Fill and Vent Valves");
 
-  int lp_fill_valves[] = LP_FILL_SOLENOIDS;
-  for (i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    pod->lp_fill_valve[i] = (solenoid_t){.gpio = lp_fill_valves[i],
-                                         .value = 0,
-                                         .type = kSolenoidNormallyClosed,
-                                         .locked = false};
-    snprintf(pod->lp_fill_valve[i].name, MAX_NAME, "lp_fill_%d", i);
-    setup_pin(lp_fill_valves[i]);
-  }
+  snprintf(name, MAX_NAME, "hp_fill");
 
-  int lat_fill_solenoids[] = LAT_FILL_SOLENOIDS;
-  for (i = 0; i < N_LAT_FILL_SOLENOIDS; i++) {
-    pod->lateral_fill_solenoids[i] =
-        (solenoid_t){.gpio = lat_fill_solenoids[i],
-                     .value = 0,
-                     .type = kSolenoidNormallyClosed,
-                     .locked = false};
-    snprintf(pod->lateral_fill_solenoids[i].name, MAX_NAME, "lat_%d", i);
-    setup_pin(lat_fill_solenoids[i]);
-  }
+  solenoid_init(&pod->hp_fill_valve,
+                name,
+                &pod->i2c[SSR_I2C_BUS],
+                HP_FILL_SOLENOID < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
+                HP_FILL_SOLENOID % 16,
+                kSolenoidNormallyClosed);
+  
+  
+  snprintf(name, MAX_NAME, "vent");
+  
+  solenoid_init(&pod->vent_solenoid,
+                name,
+                &pod->i2c[SSR_I2C_BUS],
+                VENT_SOLENOID < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
+                VENT_SOLENOID % 16,
+                kSolenoidNormallyOpen);
+  
 
-  pod->hp_fill_valve = (solenoid_t){.gpio = HP_FILL_SOLENOID,
-                                    .value = 0,
-                                    .type = kSolenoidNormallyClosed,
-                                    .locked = false};
-  snprintf(pod->hp_fill_valve.name, MAX_NAME, "hp_fill");
-  setup_pin(HP_FILL_SOLENOID);
-
-  pod->vent_solenoid = (solenoid_t){.gpio = VENT_SOLENOID,
-                                    .value = 0,
-                                    .type = kSolenoidNormallyOpen,
-                                    .locked = false};
-  snprintf(pod->vent_solenoid.name, MAX_NAME, "vent");
-  setup_pin(VENT_SOLENOID);
+  debug("Initializing Distance Sensors");
 
   // ----------------
   // Distance Sensors
   // ----------------
-  int corner_distance[] = CORNER_DISTANCE_INPUTS;
-  for (i = 0; i < N_CORNER_DISTANCE; i++) {
-    int id = N_MUX_INPUTS * CORNER_DISTANCE_MUX + corner_distance[i];
-    pod->sensors[id] = &(_pod.corner_distance[i]);
-    pod->corner_distance[i] = (sensor_t){.sensor_id = id,
-                                         .name = {0},
-                                         .value = POD_VALUE_INITIALIZER_FL,
-                                         .cal_a = 0,
-                                         .cal_b = 1,
-                                         .cal_c = 0,
-                                         .alpha = 1.0,
-                                         .offset = 0.0,
-                                         .mux = DISTANCE_MUX,
-                                         .input = corner_distance[i]};
-    snprintf(pod->corner_distance[i].name, MAX_NAME, "corner_%d", i);
+  int levitation_distance[] = LEVITATION_DISTANCE_SENSORS;
+  for (i = 0; i < N_LEVITATION_DISTANCE; i++) {
+    int id = N_ADC_CHANNELS * LEVITATION_DISTANCE_ADC + levitation_distance[i];
+    pod->sensors[id] = &(_pod.levitation_distance[i]);
+    pod->levitation_distance[i] = (sensor_t){.sensor_id = id,
+                                             .name = {0},
+                                             .value = POD_VALUE_INITIALIZER_FL,
+                                             .cal_a = DISTANCE_CALIBRATION_A,
+                                             .cal_b = DISTANCE_CALIBRATION_B,
+                                             .cal_c = DISTANCE_CALIBRATION_C,
+                                             .alpha = 0.7,
+                                             .offset = 0.0,
+                                             .adc_num = LEVITATION_DISTANCE_ADC,
+                                             .input = levitation_distance[i]};
+    snprintf(pod->levitation_distance[i].name, MAX_NAME, "lev_%d", i);
   }
 
-  int lateral_distance[] = LATERAL_DISTANCE_INPUTS;
-  for (i = 0; i < N_LATERAL_DISTANCE; i++) {
-    int id = N_MUX_INPUTS * LATERAL_DISTANCE_MUX + lateral_distance[i];
-    pod->sensors[id] = &(_pod.lateral_distance[i]);
-    pod->lateral_distance[i] = (sensor_t){.sensor_id = id,
-                                          .name = {0},
-                                          .value = POD_VALUE_INITIALIZER_FL,
-                                          .cal_a = 0,
-                                          .cal_b = 1,
-                                          .cal_c = 0,
-                                          .alpha = 1.0,
-                                          .offset = 0.0,
-                                          .mux = DISTANCE_MUX,
-                                          .input = lateral_distance[i]};
-    snprintf(pod->lateral_distance[i].name, MAX_NAME, "lateral_%d", i);
+  int pusher_distance[] = PUSHER_DISTANCE_INPUTS;
+  for (i = 0; i < N_PUSHER_DISTANCE; i++) {
+    int id = N_ADC_CHANNELS * PUSHER_DISTANCE_ADC + pusher_distance[i];
+    pod->sensors[id] = &(_pod.pusher_plate_distance[i]);
+    pod->pusher_plate_distance[i] = (sensor_t){.sensor_id = id,
+      .name = {0},
+      .value = POD_VALUE_INITIALIZER_FL,
+      .cal_a = DISTANCE_CALIBRATION_A,
+      .cal_b = DISTANCE_CALIBRATION_B,
+      .cal_c = DISTANCE_CALIBRATION_C,
+      .alpha = 0.7,
+      .offset = 0.0,
+      .adc_num = PUSHER_DISTANCE_ADC,
+      .input = pusher_distance[i]};
+    snprintf(pod->pusher_plate_distance[i].name, MAX_NAME, "pusher_%d", i);
   }
-
-  int wheel_distance[] = WHEEL_DISTANCE_INPUTS;
-  for (i = 0; i < N_WHEEL_DISTANCE; i++) {
-    int id = N_MUX_INPUTS * WHEEL_DISTANCE_MUX + wheel_distance[i];
-    pod->sensors[id] = &(_pod.wheel_distance[i]);
-    pod->wheel_distance[i] = (sensor_t){.sensor_id = id,
-                                        .name = {0},
-                                        .value = POD_VALUE_INITIALIZER_FL,
-                                        .cal_a = 0,
-                                        .cal_b = 1,
-                                        .cal_c = 0,
-                                        .alpha = 1.0,
-                                        .offset = 0.0,
-                                        .mux = DISTANCE_MUX,
-                                        .input = wheel_distance[i]};
-    snprintf(pod->wheel_distance[i].name, MAX_NAME, "wheel_%d", i);
-  }
-
+  
+  
+  int id;
   // --------------------
   // Pressure Transducers
   // --------------------
 
+  debug("Initializing Transducers");
+
   int hp_pressure = HP_PRESSURE_INPUT;
-  int id = N_MUX_INPUTS * PRESSURE_MUX + hp_pressure;
+  id = N_ADC_CHANNELS * PRESSURE_ADC + hp_pressure;
   pod->sensors[id] = &(_pod.hp_pressure);
   pod->hp_pressure = (sensor_t){.sensor_id = id,
                                 .name = {0},
                                 .value = POD_VALUE_INITIALIZER_FL,
-                                .cal_a = 0,
-                                .cal_b = 1,
-                                .cal_c = 0,
-                                .alpha = 1.0,
+                                .cal_a = HP_TRANSDUCER_CALIBRATION_A,
+                                .cal_b = HP_TRANSDUCER_CALIBRATION_B,
+                                .cal_c = HP_TRANSDUCER_CALIBRATION_C,
+                                .alpha = 0.7,
                                 .offset = 0.0,
-                                .mux = PRESSURE_MUX,
+                                .adc_num = PRESSURE_ADC,
                                 .input = HP_PRESSURE_INPUT};
   snprintf(pod->hp_pressure.name, MAX_NAME, "hp_pressure");
 
   int reg_pressures[] = REG_PRESSURE_INPUTS;
   for (i = 0; i < N_REG_PRESSURE; i++) {
-    id = N_MUX_INPUTS * REG_PRESSURE_MUX + reg_pressures[i];
+    id = N_ADC_CHANNELS * REG_PRESSURE_ADC + reg_pressures[i];
     pod->sensors[id] = &(_pod.reg_pressure[i]);
     pod->reg_pressure[i] = (sensor_t){.sensor_id = id,
                                       .name = {0},
@@ -349,16 +340,16 @@ int init_pod(void) {
                                       .cal_a = LP_TRANSDUCER_CALIBRATION_A,
                                       .cal_b = LP_TRANSDUCER_CALIBRATION_B,
                                       .cal_c = LP_TRANSDUCER_CALIBRATION_C,
-                                      .alpha = 1.0,
+                                      .alpha = 0.4,
                                       .offset = 0.0,
-                                      .mux = PRESSURE_MUX,
+                                      .adc_num = PRESSURE_ADC,
                                       .input = reg_pressures[i]};
     snprintf(pod->reg_pressure[i].name, MAX_NAME, "reg_pressure_%c", i + 'a');
   }
 
   int clamp_pressure[] = CLAMP_PRESSURE_INPUTS;
   for (i = 0; i < N_CLAMP_PRESSURE; i++) {
-    id = N_MUX_INPUTS * CLAMP_PRESSURE_MUX + clamp_pressure[i];
+    id = N_ADC_CHANNELS * CLAMP_PRESSURE_ADC + clamp_pressure[i];
     pod->sensors[id] = &(_pod.clamp_pressure[i]);
     pod->clamp_pressure[i] = (sensor_t){.sensor_id = id,
                                         .name = {0},
@@ -366,135 +357,174 @@ int init_pod(void) {
                                         .cal_a = LP_TRANSDUCER_CALIBRATION_A,
                                         .cal_b = LP_TRANSDUCER_CALIBRATION_B,
                                         .cal_c = LP_TRANSDUCER_CALIBRATION_C,
-                                        .alpha = 1.0,
+                                        .alpha = 0.4,
                                         .offset = 0.0,
-                                        .mux = PRESSURE_MUX,
+                                        .adc_num = PRESSURE_ADC,
                                         .input = clamp_pressure[i]};
     snprintf(pod->clamp_pressure[i].name, MAX_NAME, "clamp_pressure_%d", i);
   }
-
-  int lateral_pressure[] = LAT_FILL_PRESSURE_INPUTS;
-  for (i = 0; i < N_LAT_FILL_PRESSURE; i++) {
-    id = N_MUX_INPUTS * LAT_FILL_PRESSURE_MUX + lateral_pressure[i];
-    pod->sensors[id] = &(_pod.lateral_pressure[i]);
-    pod->lateral_pressure[i] = (sensor_t){.sensor_id = id,
-                                          .name = {0},
-                                          .value = POD_VALUE_INITIALIZER_FL,
-                                          .cal_a = LP_TRANSDUCER_CALIBRATION_A,
-                                          .cal_b = LP_TRANSDUCER_CALIBRATION_B,
-                                          .cal_c = LP_TRANSDUCER_CALIBRATION_C,
-                                          .alpha = 1.0,
-                                          .offset = 0.0,
-                                          .mux = PRESSURE_MUX,
-                                          .input = lateral_pressure[i]};
-
-    snprintf(pod->lateral_pressure[i].name, MAX_NAME, "lateral_pressure_%d", i);
+  
+  int brake_tank_pressure[] = BRAKE_TANK_PRESSURE_INPUTS;
+  for (i = 0; i < N_BRAKE_TANK_PRESSURE; i++) {
+    id = N_ADC_CHANNELS * BRAKE_TANK_PRESSURE_ADC + brake_tank_pressure[i];
+    pod->sensors[id] = &(_pod.brake_tank_pressure[i]);
+    pod->brake_tank_pressure[i] = (sensor_t){.sensor_id = id,
+      .name = {0},
+      .value = POD_VALUE_INITIALIZER_FL,
+      .cal_a = LP_TRANSDUCER_CALIBRATION_A,
+      .cal_b = LP_TRANSDUCER_CALIBRATION_B,
+      .cal_c = LP_TRANSDUCER_CALIBRATION_C,
+      .alpha = 0.4,
+      .offset = 0.0,
+      .adc_num = PRESSURE_ADC,
+      .input = brake_tank_pressure[i]};
+    snprintf(pod->brake_tank_pressure[i].name, MAX_NAME, "brake_tank_pressure_%d", i);
   }
+
+
+  id = N_ADC_CHANNELS * HP_FILL_VALVE_ADC + pusher_distance[i];
+  pod->sensors[id] = &(_pod.hp_fill_valve_open);
+  pod->hp_fill_valve_open = (sensor_t){.sensor_id = id,
+    .name = {0},
+    .value = POD_VALUE_INITIALIZER_FL,
+    .cal_a = 0,
+    .cal_b = 1,
+    .cal_c = 0,
+    .alpha = 1.0,
+    .offset = 0.0,
+    .adc_num = HP_FILL_VALVE_ADC,
+    .input = HP_FILL_VALVE_OPEN_SWITCH};
+  snprintf(pod->hp_fill_valve_open.name, MAX_NAME, "fill_open");
+  
+  
+  id = N_ADC_CHANNELS * HP_FILL_VALVE_ADC + pusher_distance[i];
+  pod->sensors[id] = &(_pod.hp_fill_valve_close);
+  pod->hp_fill_valve_close = (sensor_t){.sensor_id = id,
+    .name = {0},
+    .value = POD_VALUE_INITIALIZER_FL,
+    .cal_a = 0,
+    .cal_b = 1,
+    .cal_c = 0,
+    .alpha = 1.0,
+    .offset = 0.0,
+    .adc_num = HP_FILL_VALVE_ADC,
+    .input = HP_FILL_VALVE_OPEN_SWITCH};
+  snprintf(pod->hp_fill_valve_close.name, MAX_NAME, "fill_close");
+  
+
+  
+  debug("Initializing Thermocouples");
 
   // -------------
   // Thermocouples
   // -------------
-  int reg_thermo[] = REG_THERMO_INPUTS;
-  for (i = 0; i < N_REG_THERMO; i++) {
-    id = N_MUX_INPUTS * REG_THERMO_MUX + reg_thermo[i];
-    pod->sensors[id] = &(_pod.reg_thermo[i]);
-    pod->reg_thermo[i] = (sensor_t){.sensor_id = id,
-                                    .name = {0},
-                                    .value = POD_VALUE_INITIALIZER_FL,
-                                    .cal_a = FLOW_THERMO_CALIBRATION_A,
-                                    .cal_b = FLOW_THERMO_CALIBRATION_B,
-                                    .cal_c = FLOW_THERMO_CALIBRATION_C,
-                                    .alpha = 0.01,
-                                    .offset = 0.0,
-                                    .mux = REG_THERMO_MUX,
-                                    .input = reg_thermo[i]};
-
-    snprintf(pod->reg_thermo[i].name, MAX_NAME, "reg_thermo_%d", i);
-  }
-
-  int reg_surf_thermo[] = REG_SURF_THERMO_INPUTS;
-  for (i = 0; i < N_REG_SURF_THERMO; i++) {
-    id = N_MUX_INPUTS * REG_SURF_THERMO_MUX + reg_surf_thermo[i];
-    pod->sensors[id] = &(_pod.reg_surf_thermo[i]);
-    pod->reg_surf_thermo[i] = (sensor_t){.sensor_id = id,
-                                         .name = {0},
-                                         .value = POD_VALUE_INITIALIZER_FL,
-                                         .cal_a = WHITE_THERMO_CALIBRATION_A,
-                                         .cal_b = WHITE_THERMO_CALIBRATION_B,
-                                         .cal_c = WHITE_THERMO_CALIBRATION_C,
-                                         .alpha = 0.01,
-                                         .offset = 0.0,
-                                         .mux = REG_SURF_THERMO_MUX,
-                                         .input = reg_surf_thermo[i]};
-
-    snprintf(pod->reg_surf_thermo[i].name, MAX_NAME, "reg_surf_thermo_%d", i);
-  }
-
-  int power_thermo[] = POWER_THERMO_INPUTS;
-  for (i = 0; i < N_POWER_THERMO; i++) {
-    id = N_MUX_INPUTS * POWER_THERMO_MUX + power_thermo[i];
-    pod->sensors[id] = &(_pod.power_thermo[i]);
-    pod->power_thermo[i] = (sensor_t){.sensor_id = id,
-                                      .name = {0},
-                                      .value = POD_VALUE_INITIALIZER_FL,
-                                      .cal_a = WHITE_THERMO_CALIBRATION_A,
-                                      .cal_b = WHITE_THERMO_CALIBRATION_B,
-                                      .cal_c = WHITE_THERMO_CALIBRATION_C,
-                                      .alpha = 0.01,
-                                      .offset = 0.0,
-                                      .mux = POWER_THERMO_MUX,
-                                      .input = power_thermo[i]};
-
-    snprintf(pod->power_thermo[i].name, MAX_NAME, "power_thermo_%d", i);
-  }
-
-  int clamp_pad_thermo[] = CLAMP_PAD_THERMO_INPUTS;
-  for (i = 0; i < N_CLAMP_PAD_THERMO; i++) {
-    id = N_MUX_INPUTS * CLAMP_PAD_THERMO_MUX + clamp_pad_thermo[i];
-    pod->sensors[id] = &(_pod.clamp_thermo[i]);
-    pod->clamp_thermo[i] = (sensor_t){.sensor_id = id,
-                                      .name = {0},
-                                      .value = POD_VALUE_INITIALIZER_FL,
-                                      .cal_a = WHITE_THERMO_CALIBRATION_A,
-                                      .cal_b = WHITE_THERMO_CALIBRATION_B,
-                                      .cal_c = WHITE_THERMO_CALIBRATION_C,
-                                      .alpha = 0.01,
-                                      .offset = 0.0,
-                                      .mux = CLAMP_PAD_THERMO_MUX,
-                                      .input = clamp_pad_thermo[i]};
-
-    snprintf(pod->clamp_thermo[i].name, MAX_NAME, "clamp_pad_%d", i);
-  }
-
-  id = N_MUX_INPUTS * HP_THERMO_MUX + HP_THERMO_INPUT;
-  pod->sensors[id] = &(_pod.hp_thermo);
-  pod->hp_thermo = (sensor_t){.sensor_id = id,
-                              .name = {0},
-                              .value = POD_VALUE_INITIALIZER_FL,
-                              .cal_a = FLOW_THERMO_CALIBRATION_A,
-                              .cal_b = FLOW_THERMO_CALIBRATION_B,
-                              .cal_c = FLOW_THERMO_CALIBRATION_C,
-                              .alpha = 1.0,
-                              .offset = 0.0,
-                              .mux = HP_THERMO_MUX,
-                              .input = HP_THERMO_INPUT};
-  snprintf(pod->hp_thermo.name, MAX_NAME, "hp_thermo");
+//  int reg_thermo[] = REG_THERMO_INPUTS;
+//  for (i = 0; i < N_REG_THERMO; i++) {
+//    id = N_ADC_CHANNELS * REG_THERMO_MUX + reg_thermo[i];
+//    pod->sensors[id] = &(_pod.reg_thermo[i]);
+//    pod->reg_thermo[i] = (sensor_t){.sensor_id = id,
+//                                    .name = {0},
+//                                    .value = POD_VALUE_INITIALIZER_FL,
+//                                    .cal_a = FLOW_THERMO_CALIBRATION_A,
+//                                    .cal_b = FLOW_THERMO_CALIBRATION_B,
+//                                    .cal_c = FLOW_THERMO_CALIBRATION_C,
+//                                    .alpha = 0.01,
+//                                    .offset = 0.0,
+//                                    .adc_num = REG_THERMO_MUX,
+//                                    .input = reg_thermo[i]};
+//
+//    snprintf(pod->reg_thermo[i].name, MAX_NAME, "reg_thermo_%d", i);
+//  }
+//
+//  int reg_surf_thermo[] = REG_SURF_THERMO_INPUTS;
+//  for (i = 0; i < N_REG_SURF_THERMO; i++) {
+//    id = N_ADC_CHANNELS * REG_SURF_THERMO_MUX + reg_surf_thermo[i];
+//    pod->sensors[id] = &(_pod.reg_surf_thermo[i]);
+//    pod->reg_surf_thermo[i] = (sensor_t){.sensor_id = id,
+//                                         .name = {0},
+//                                         .value = POD_VALUE_INITIALIZER_FL,
+//                                         .cal_a = WHITE_THERMO_CALIBRATION_A,
+//                                         .cal_b = WHITE_THERMO_CALIBRATION_B,
+//                                         .cal_c = WHITE_THERMO_CALIBRATION_C,
+//                                         .alpha = 0.01,
+//                                         .offset = 0.0,
+//                                         .adc_num = REG_SURF_THERMO_MUX,
+//                                         .input = reg_surf_thermo[i]};
+//
+//    snprintf(pod->reg_surf_thermo[i].name, MAX_NAME, "reg_surf_thermo_%d", i);
+//  }
+//
+//  int power_thermo[] = POWER_THERMO_INPUTS;
+//  for (i = 0; i < N_POWER_THERMO; i++) {
+//    id = N_ADC_CHANNELS * POWER_THERMO_MUX + power_thermo[i];
+//    pod->sensors[id] = &(_pod.power_thermo[i]);
+//    pod->power_thermo[i] = (sensor_t){.sensor_id = id,
+//                                      .name = {0},
+//                                      .value = POD_VALUE_INITIALIZER_FL,
+//                                      .cal_a = WHITE_THERMO_CALIBRATION_A,
+//                                      .cal_b = WHITE_THERMO_CALIBRATION_B,
+//                                      .cal_c = WHITE_THERMO_CALIBRATION_C,
+//                                      .alpha = 0.01,
+//                                      .offset = 0.0,
+//                                      .adc_num = POWER_THERMO_MUX,
+//                                      .input = power_thermo[i]};
+//
+//    snprintf(pod->power_thermo[i].name, MAX_NAME, "power_thermo_%d", i);
+//  }
+//
+//  int clamp_pad_thermo[] = CLAMP_PAD_THERMO_INPUTS;
+//  for (i = 0; i < N_CLAMP_PAD_THERMO; i++) {
+//    id = N_ADC_CHANNELS * CLAMP_PAD_THERMO_MUX + clamp_pad_thermo[i];
+//    pod->sensors[id] = &(_pod.clamp_thermo[i]);
+//    pod->clamp_thermo[i] = (sensor_t){.sensor_id = id,
+//                                      .name = {0},
+//                                      .value = POD_VALUE_INITIALIZER_FL,
+//                                      .cal_a = WHITE_THERMO_CALIBRATION_A,
+//                                      .cal_b = WHITE_THERMO_CALIBRATION_B,
+//                                      .cal_c = WHITE_THERMO_CALIBRATION_C,
+//                                      .alpha = 0.01,
+//                                      .offset = 0.0,
+//                                      .adc_num = CLAMP_PAD_THERMO_MUX,
+//                                      .input = clamp_pad_thermo[i]};
+//
+//    snprintf(pod->clamp_thermo[i].name, MAX_NAME, "clamp_pad_%d", i);
+//  }
+//
+//  id = N_ADC_CHANNELS * HP_THERMO_MUX + HP_THERMO_INPUT;
+//  pod->sensors[id] = &(_pod.hp_thermo);
+//  pod->hp_thermo = (sensor_t){.sensor_id = id,
+//                              .name = {0},
+//                              .value = POD_VALUE_INITIALIZER_FL,
+//                              .cal_a = FLOW_THERMO_CALIBRATION_A,
+//                              .cal_b = FLOW_THERMO_CALIBRATION_B,
+//                              .cal_c = FLOW_THERMO_CALIBRATION_C,
+//                              .alpha = 1.0,
+//                              .offset = 0.0,
+//                              .adc_num = HP_THERMO_MUX,
+//                              .input = HP_THERMO_INPUT};
+//  snprintf(pod->hp_thermo.name, MAX_NAME, "hp_thermo");
 
   pthread_rwlock_init(&(pod->mode_mutex), NULL);
 
+  debug("Initializing Boot Semaphore");
+
   // assert(sem_init(&(pod->boot_sem), 0, 0) == 0);
   pod->boot_sem = sem_open(POD_BOOT_SEM, O_CREAT, S_IRUSR | S_IWUSR, 0);
+  
+  debug("Boot Sem is %p", (void*)pod->boot_sem);
 
   if (pod->boot_sem == SEM_FAILED) {
     error("boot_sem failed to open");
     return -1;
   }
 
+  note("Telemetry Packets are %lu bytes in size", sizeof(telemetry_packet_t));
+
   pod->initialized = true; // get_time_usec();
 
-  // We are done, so overwrite the global _pod struct
-  debug("Global Pod struct is located at %p", (void *)&_pod);
-  memcpy(&_pod, &local_pod, sizeof(local_pod));
+  // done
+  debug("Global Pod struct is located at %p (wrote to %p)", (void *)&_pod, (void*)pod);
+  
   return 0;
 }
 
@@ -536,7 +566,7 @@ bool set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
     pthread_rwlock_unlock(&(pod->mode_mutex));
     warn("Request to set mode from %s to %s: approved",
          pod_mode_names[old_mode], pod_mode_names[new_mode]);
-
+    strncpy(pod->state_reason, reason, MAX_STATE_REASON_MSG);
     return true;
   } else {
     warn("Request to set mode from %s to %s: denied", pod_mode_names[old_mode],

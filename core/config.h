@@ -44,6 +44,9 @@
 #endif
 #endif
 
+#ifndef PATH_MAX
+#define PATH_MAX 255
+#endif
 // --------------------------
 // Branding
 // --------------------------
@@ -64,6 +67,9 @@
 #define POD_NAME "POD-" __XSTR__(PD_GIT_SHA1_SHORT)
 #endif
 
+#define SSR_BOARD_1_ADDRESS 0x40
+#define SSR_BOARD_2_ADDRESS 0x41
+
 // Error Thresholds
 #define A_ERR_X 0.02
 #define A_ERR_Y 0.02
@@ -72,22 +78,23 @@
 #define V_ERR_Y 0.1
 #define V_ERR_Z 0.1
 
-#define HEARTBEAT_TIMEOUT_USEC 1 * USEC_PER_SEC
+#define HEARTBEAT_TIMEOUT_USEC 10 * USEC_PER_SEC
 
 // Signals
 #define POD_SIGPANIC SIGUSR1
 
 // IMU Device
 #define IMU_DEVICE "/dev/ttyUSB0"
-#define IMU_MESSAGE_SIZE 32
+
 
 // Defines how much filtering should be done in the Exponential Moving Average
 // filter for the IMU input.
 // The formula used is:
-//   (new_accel = (1.0-IMU_EMA_ALPHA)*old_accel + IMU_EMA_ALPHA*accel_reading)
-#define IMU_EMA_ALPHA 0.1f
+//   (new_accel = (1.0-IMU_FILTER_ALPHA)*old_accel + IMU_FILTER_ALPHA*accel_reading)
+#define IMU_FILTER_ALPHA 0.95f
 
 #define EX_REBOOT 50
+#define EX_PANIC 51
 
 // -------------------------
 // Subsystem Identifiers
@@ -151,10 +158,15 @@
 #define panic(subsystem, notes, ...)                                           \
   pod_panic(subsystem, __FILE__, __LINE__, notes, ##__VA_ARGS__)
 
-// Helper that wraps set_pod_mode but adds file and line number
-// REVIEW: Probably should remove
 #define DECLARE_EMERGENCY(message, ...)                                        \
   set_pod_mode(Emergency, __FILE__ ":" __XSTR__(LINE__) message, ##__VA_ARGS__)
+
+#define errassert(cond) do { \
+  if (!(cond)) { \
+    perror("POSIX Error: "); \
+    assert(errno == 0); \
+  } \
+} while (0)
 
 #pragma clang diagnostic pop
 
@@ -163,17 +175,10 @@
 // ------------------
 
 /// 0.8 G = 0.8 * 9.8 m/s/s * 1000 mm / m
-#define PRIMARY_BRAKING_ACCEL_X_MIN -5.88 // -0.6 G => mm/s/s
-#define PRIMARY_BRAKING_ACCEL_X_NOM -7.84 // -0.8 G => mm/s/s
-#define PRIMARY_BRAKING_ACCEL_X_MAX -24.5 // -2.5 G => mm/s/s
 
 //----------------------
 // Pushing Thresholds
 //----------------------
-
-// If the accell drops to below this value, the pod will change to Coasting
-// This value should indicate when the pusher has fully detached
-#define PUSHING_MIN_ACCEL 0.2
 
 // If the accell drops to below this value, the pod will change to Coasting
 // This value should indicate when the pusher has fully detached
@@ -203,6 +208,7 @@
 #define LOG_SVR_PORT 7778
 #define MAX_LOG_LINE 512
 #define LOG_BUF_SIZE MAX_LOG_LINE * 50
+#define MAX_ATTEMPTS_PER_LOG 5
 
 // ---------------
 // Command Control
@@ -216,6 +222,9 @@
 #define CMD_OUT_BUF 4096
 
 #define MAX_CMD_CLIENTS 16
+
+#define N_I2C_BUSSES 2
+#define SSR_I2C_BUS 1
 
 // Misc
 #define POD_BOOT_SEM "/openloop.pod.boot"

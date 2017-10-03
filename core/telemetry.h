@@ -60,16 +60,14 @@ typedef struct telemetry_packet {
   float acceleration_z;
 
   // Distance sensors
-  float corners[N_CORNER_DISTANCE];  // 4
-  float wheels[N_WHEEL_DISTANCE];    // 3
-  float lateral[N_LATERAL_DISTANCE]; // 3
+  float pusher[N_PUSHER_DISTANCE];  // 4
+  float levitation[N_LEVITATION_DISTANCE];    // 8
 
   // Pressures
   float hp_pressure;                           // 1
   float reg_pressure[N_REG_PRESSURE];          // 4
   float clamp_pressure[N_CLAMP_PRESSURE];      // 2
-  float skate_pressure[N_SKATE_PRESSURE];      // 2
-  float lateral_pressure[N_LAT_FILL_PRESSURE]; // 2
+  float brake_tank_pressure[N_BRAKE_TANK_PRESSURE];      // 2
 
   // Thermocouples
   float hp_thermo;                          // 1
@@ -82,10 +80,7 @@ typedef struct telemetry_packet {
   // Batteries
   float voltages[N_BATTERIES]; // 3
   float currents[N_BATTERIES]; // 3
-
-  // Photo
-  float rpms[N_WHEEL_PHOTO]; // 3
-  uint32_t stripe_count;
+  
 } telemetry_packet_t;
 
 

@@ -132,8 +132,10 @@ void *logging_main(__unused void *arg) {
   debug("[logging_main] Thread Start");
 
   pod_t *pod = get_pod();
+  debug("[logging_main] Got a pod");
 
   while (pod->logging_socket < 0 && get_pod_mode() != Shutdown) {
+    debug("[logging_main] Opening loggin socket");
     pod->logging_socket = log_connect();
     if (pod->logging_socket < 0) {
       error("Logging Socket failed to connect: %s", strerror(errno));
@@ -144,6 +146,8 @@ void *logging_main(__unused void *arg) {
   }
   
   while (pod->logging_fd < 0) {
+    debug("[logging_main] Opening Log File");
+
     pod->logging_fd = log_open(pod->logging_filename);
     if (pod->logging_fd < 0) {
       error("Logging File failed to open: %s", strerror(errno));
@@ -169,11 +173,14 @@ void *logging_main(__unused void *arg) {
     if (r == 0) {
       // Send the log, attempt 3 additional tries if it failed
       int result = log_send(&l), attempts = 0;
-      while (result < 0 && attempts < 3) {
-        usleep(LOGGING_THREAD_SLEEP);
-        result = log_send(&l);
+      while (result < 0 && attempts < MAX_ATTEMPTS_PER_LOG) {
         attempts++;
-        fprintf(stderr, "Log Retry #%d result %d\n", attempts, result);
+        usleep(LOGGING_THREAD_SLEEP * attempts * attempts);
+        fprintf(stderr, "Log Retry %d of %d. rc: %d\n", attempts, MAX_ATTEMPTS_PER_LOG, result);
+        result = log_send(&l);
+        if (result == 0) {
+          fprintf(stderr, "Log Retry %d of %d. Success!\n", attempts, MAX_ATTEMPTS_PER_LOG);
+        }
       }
 
       // Failed to send logs.
@@ -181,7 +188,8 @@ void *logging_main(__unused void *arg) {
       if (result < 0) {
         running = false;
         fprintf(stderr, "Alert: Log Send Failed %d\n", result);
-        set_pod_mode(Emergency, "Log Send Failed");
+        set_pod_mode(Emergency, "Log Send Failed, Shutting Down Logger");
+        break;
       }
     } else {
       // No logs in the queue, lets sit for a while

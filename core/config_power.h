@@ -55,9 +55,7 @@
 // Batteries
 // --------------------------
 
-#define N_BATTERIES 3
-#define BATTERY_I2C_ADDRESSES                                                  \
-  { 0x0b, 0x0b, 0x0b }
+#define N_BATTERIES 2
 
 // --------------------------
 // Frame Thermocouple
@@ -66,5 +64,9 @@
 #define FRAME_THERMO_MUX THERMO_MUX_1
 #define FRAME_THERMO_INPUTS                                                    \
   { 10 }
+
+
+#define N_BATTERY_PACK_RELAYS 2
+#define BATTERY_PACK_RELAYS { 16, 17 }
 
 #endif /* PARADIGM_CONFIG_POWER_H */

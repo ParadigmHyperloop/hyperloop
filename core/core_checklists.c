@@ -47,11 +47,6 @@ bool core_pod_checklist(pod_t *pod) {
   // TODO: is_frame_pressure_ok() // 0 -> 20 PSIA VERIFIED
   // TODO: is_hp_pressure_ok()    // 0 -> 1770 PSI... @akeating
   // TODO: is_lp_pressure_ok()    // 0 -> 150 PSI... @akeating
-  for (int i = 0; i < N_LP_FILL_SOLENOIDS; i++) {
-    if (is_solenoid_open(&(pod->lp_fill_valve[i]))) {
-      return false;
-    }
-  }
   
   if (is_solenoid_open(&(pod->hp_fill_valve))) {
     return false;
@@ -64,12 +59,20 @@ bool core_pod_checklist(pod_t *pod) {
  * Is the pod safe. Used to inhibit transitions to various different states
  */
 bool pod_safe_checklist(pod_t *pod) {
-  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_pod_vented(pod);
+  if (!core_pod_checklist(pod)) {
+    warn("core pod checklist failed");
+    return false;
+  }
+  if (!is_pod_vented(pod)) {
+    warn("Pod is not vented");
+    return false;
+  }
+  return true;
 }
 
 /**
  * Is the pod safe to proceed to an HP Fill
  */
 bool pod_hp_safe_checklist(pod_t *pod) {
-  return core_pod_checklist(pod) && is_pod_stopped(pod) && is_hp_vented(pod);
+  return pod_safe_checklist(pod);
 }

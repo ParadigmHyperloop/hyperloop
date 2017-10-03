@@ -111,45 +111,51 @@ int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (set_pod_mode(Armed, "Remote Command Armed Pod")) {
     return snprintf(outbuf, outbufc, "Armed");
   } else {
-    return snprintf(outbuf, outbufc, "Controller declined to transition to Armed State. Ensure pod is in Standby.");
+    return snprintf(outbuf, outbufc, "Controller declined to transition to "
+                                     "Armed State. Ensure pod is in Standby.");
   }
 }
 
 int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
-
-  if (is_pod_stopped(pod)) {
+  pod->return_to_standby = false;
+  if (set_pod_mode(Vent, "Remote Command started Vent")) {
     return snprintf(outbuf, outbufc, "Venting Started");
   } else {
-    return snprintf(
-        outbuf, outbufc,
-        "Pod Not Determined to be Stopped, override solenoid to vent");
+    return snprintf(outbuf, outbufc, "Pod Not Determined to be Stopped");
   }
 }
 
 int statusCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
-
   return status_dump(pod, outbuf, outbufc);
 }
 
 int fillCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
-  if (argc == 2) {
-    if (strncmp(argv[1], "lp", 2) == 0) {
-      if (start_lp_fill()) {
-        return snprintf(outbuf, outbufc, "Entered LP Fill State");
-      } else {
-        return snprintf(outbuf, outbufc, "LP Fill Pre-Check Failure");
-      }
-    } else if (strncmp(argv[1], "hp", 2) == 0) {
-      if (start_hp_fill()) {
-        return snprintf(outbuf, outbufc, "Entered HP Fill State");
-      } else {
-        return snprintf(outbuf, outbufc, "HP Fill Pre-Check Failure");
-      }
-    }
+  if (start_hp_fill()) {
+    return snprintf(outbuf, outbufc, "Entered HP Fill State");
+  } else {
+    return snprintf(outbuf, outbufc, "HP Fill Pre-Check Failure");
   }
-  return snprintf(outbuf, outbufc, "Usage: fill <lp|hp>");
+}
+
+int standbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+  if (start_standby()) {
+    return snprintf(outbuf, outbufc, "Entered Standby");
+  } else {
+    return snprintf(outbuf, outbufc, "Failed to enter Standby");
+  }
+}
+
+int returnToStandbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+  if (argc < 2) {
+    return snprintf(outbuf, outbufc, "usage: returntostandby <0|1>");
+  }
+  
+  int value = atoi(argv[0]);
+  get_pod()->return_to_standby = value;
+  
+  return snprintf(outbuf, outbufc, "Set return_to_standby to %d", value);
 }
 
 int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
@@ -170,12 +176,13 @@ int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
         int val = atoi(argv[2]);
 
         for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
-          set_skate_target(i, val, true);
+          // Map -100 to 100 logic to raw MPYE setpoint.
+          set_skate_target(i, (unsigned short)(val * 1275 / 1000) + 128, true);
         }
       } else if (argc == 4) {
         int i = atoi(argv[2]);
         int val = atoi(argv[3]);
-        set_skate_target(i, val, true);
+        set_skate_target(i, (unsigned short)(val * 1275 / 1000) + 128, true);
       }
     }
   } else if (strncmp(argv[1], "brake", 5)) {
@@ -204,8 +211,29 @@ int offsetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
                   old_offset, offset, get_sensor(sensor));
 }
 
+int packCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+  pod_t *pod = get_pod();
+  
+  if (argc < 3) {
+    return snprintf(outbuf, outbufc, "Usage: pack <pack> <0|1>");
+  }
+  
+  int pack = atoi(argv[1]);
+  int on_off = atoi(argv[2]);
+  
+  solenoid_t *s = &pod->battery_pack_relays[pack];
+  if (on_off == 0) {
+    close_solenoid(s);
+  } else {
+    open_solenoid(s);
+  }
+  
+  return snprintf(outbuf, outbufc, "Set %s to %d", s->name, on_off);
+}
+
 int emergencyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   set_pod_mode(Emergency, "Command Line Initialized Emergency");
+  get_pod()->manual_emergency = true;
   return snprintf(outbuf, outbufc, "Pod Mode: %d", get_pod_mode());
 }
 
@@ -224,22 +252,12 @@ int killCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 }
 
 int pushCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
-  pod_t *pod = get_pod();
-
-  if (argc > 1) {
-    pod->pusher_plate_override = 1;
-    set_value(&(pod->pusher_plate), atoi(argv[1]));
-    return snprintf(outbuf, outbufc, "Set Pusher plate override to %s",
-                    (atoi(argv[1]) == 1 ? "ACTIVE" : "INACTIVE"));
-  } else {
-    if (pod->pusher_plate_override == 1) {
-      pod->pusher_plate_override = 0;
-      return snprintf(outbuf, outbufc, "Disabled Pusher Plate Override");
-    } else {
-      return snprintf(outbuf, outbufc, "No Pusher Plate Override In Effect");
-    }
-  }
+  return snprintf(outbuf, outbufc, "Push Command Not Allowed");
+  
 }
+
+
+// battery_pack_relays
 
 // You must keep this list in order from Longest String to Shortest,
 // Doesn't matter the order amongst names of equal length.
@@ -248,11 +266,13 @@ int pushCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
 command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "calibrate", .func = calibrateCommand},
                         {.name = "override", .func = overrideCommand},
+                        {.name = "standby", .func = standbyCommand},
                         {.name = "status", .func = statusCommand},
                         {.name = "offset", .func = offsetCommand},
                         {.name = "ready", .func = readyCommand},
                         {.name = "reset", .func = resetCommand},
                         {.name = "vent", .func = ventCommand},
+                        {.name = "pack", .func = packCommand},
                         {.name = "help", .func = helpCommand},
                         {.name = "fill", .func = fillCommand},
                         {.name = "ping", .func = pingCommand},

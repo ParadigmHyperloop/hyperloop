@@ -39,21 +39,13 @@
 #include "pod.h"
 
 /**
- * Attempts to enter the LP Fill state
- *
- * @return true if the state transition was successful, false if a condition
- *         failed
- */
-bool start_lp_fill(void);
-
-/**
  * Attempts to enter the HP Fill state
  *
  * @return true if the state transition was successful, false if a condition
  *         failed
  */
 bool start_hp_fill(void);
-
+bool start_standby(void);
 /**
  * Determine if the Emergency Brakes are engaged based on their braking presure
  *
@@ -62,13 +54,8 @@ bool start_hp_fill(void);
  */
 bool any_clamp_brakes(pod_t *pod);
 
-/**
- * Determine if the Primary Brakes are engaged based on their braking presure
- *
- * @param pod A pointer to the pod structure
- * @return true if any of the capipers are engaged, false if all are released
- */
-bool any_calipers(pod_t *pod);
+// Determines if the pusher is present
+bool is_pusher_present(pod_t *pod);
 
 /**
  * Determine if the pod is stopped
@@ -152,11 +139,11 @@ sensor_t *get_sensor_by_name(pod_t *pod, char *name);
  * TODO: This needs to be changed for the new SPI ADCs
  *
  * @param pod A pointer to the pod_t to search
- * @param mux The mux number that the sensor resides on
+ * @param adc_num The adc number that the sensor resides on
  * @param input The input pin on the given mux that the sensor resides on
  *
  * @return A pointer to the sensor_t in the given pod_t or NULL if the sensor
  *         is not found
  */
-sensor_t *get_sensor_by_address(pod_t *pod, int mux, int input);
+sensor_t *get_sensor_by_address(pod_t *pod, int adc_num, int input);
 #endif

@@ -32,34 +32,24 @@
 
 #include "pod-helpers.h"
 
-bool start_lp_fill() {
-  debug("start_lp_fill has been called, performing pre-transition checks");
-  if (pod_safe_checklist(get_pod())) {
-    return set_pod_mode(LPFill, "Control Point Initiated LP Fill");
-  }
+bool start_hp_fill() {
+  debug("start_hp_fill has been called, performing pre-transition checks");
+  return set_pod_mode(HPFill, "Control Point Initiated HP Fill");
+//  if (pod_hp_safe_checklist(get_pod())) {
+//    
+//  }
   return false;
 }
 
-bool start_hp_fill() {
-  debug("start_hp_fill has been called, performing pre-transition checks");
-  if (pod_hp_safe_checklist(get_pod())) {
-    return set_pod_mode(HPFill, "Control Point Initiated HP Fill");
-  }
-  return false;
+bool start_standby() {
+  debug("start_standby has been called, performing pre-transition checks");
+  return set_pod_mode(Standby, "Control Point Initiated Standby");
 }
+
 
 bool any_clamp_brakes(__unused pod_t *pod) {
   for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
     if (is_solenoid_open(&pod->clamp_engage_solonoids[i])) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool any_calipers(__unused pod_t *pod) {
-  for (int i = 0; i < N_WHEEL_SOLONOIDS; i++) {
-    if (is_solenoid_open(&pod->wheel_solonoids[i])) {
       return true;
     }
   }
@@ -98,19 +88,20 @@ bool is_pod_vented(pod_t *pod) {
 bool is_hp_vented(pod_t *pod) {
   int i;
   for (i = 0; i < N_REG_PRESSURE; i++) {
-    float psia = get_sensor(&(pod->reg_pressure[i]));
-    if (OUTSIDE(MIN_SAFE_PSIA, psia, MAX_SAFE_PSIA)) {
+    float psi = get_sensor(&(pod->reg_pressure[i]));
+    if (OUTSIDE(MIN_SAFE_PSI, psi, MAX_SAFE_PSI)) {
+      warn("Sensor %s is not reading safe PSI", pod->reg_pressure[i].name);
       return false;
     }
   }
-  return WITHIN(MIN_SAFE_PSIA, get_sensor(&(pod->hp_pressure)), MAX_SAFE_PSIA);
+  return WITHIN(MIN_SAFE_PSI, get_sensor(&(pod->hp_pressure)), MAX_SAFE_PSI);
 }
 
 bool is_lp_vented(pod_t *pod) {
   int i;
   for (i = 0; i < N_CLAMP_PRESSURE; i++) {
-    float psia = get_sensor(&(pod->clamp_pressure[i]));
-    if (OUTSIDE(MIN_SAFE_PSIA, psia, MAX_SAFE_PSIA)) {
+    float psi = get_sensor(&(pod->clamp_pressure[i]));
+    if (OUTSIDE(MIN_SAFE_PSI, psi, MAX_SAFE_PSI)) {
       return false;
     }
   }
@@ -130,15 +121,36 @@ sensor_t *get_sensor_by_name(pod_t *pod, char *name) {
   return NULL;
 }
 
-sensor_t *get_sensor_by_address(pod_t *pod, int mux, int input) {
+sensor_t *get_sensor_by_address(pod_t *pod, int adc_num, int input) {
   size_t i;
   sensor_t *s = NULL;
   for (i = 0; i < sizeof(pod->sensors) / sizeof(pod->sensors[0]); i++) {
     if ((s = pod->sensors[i]) != NULL) {
-      if (s->mux == mux && s->input == input) {
+      if (s->adc_num == adc_num && s->input == input) {
         return s;
       }
     }
   }
   return NULL;
+}
+
+bool is_pusher_present(pod_t *pod) {
+  int pp_active_count = 0;
+  
+  for (int pp = 0; pp < N_PUSHER_DISTANCE; pp++) {
+    float distance = get_sensor(&pod->pusher_plate_distance[pp]);
+    
+    if (distance < PUSHER_PRESENT_DISTANCE) {
+      pp_active_count++;
+    }
+  }
+  
+  if (pp_active_count >= 2) {
+    pod->last_pusher_seen = get_time_usec();
+    return true;
+  } else if (pod->last_pusher_seen + PUSHER_TIMEOUT > get_time_usec()) {
+    return true;
+  }
+  return false;
+  
 }

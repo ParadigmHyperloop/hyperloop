@@ -30,4 +30,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "interface.h"
+
+#ifndef PARADIGM_BUS_INTERNAL_H
+#define PARADIGM_BUS_INTERNAL_H
+
+#include "pod.h"
+#include "bus_manager.h"
+
+#endif /* PARADIGM_BUS_INTERNAL_H */

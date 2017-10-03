@@ -60,6 +60,31 @@ void get_timespec(struct timespec *t);
 void timespec_add_us(struct timespec *t, long us);
 
 /**
+ * @brief 
+ * Adds the given timespec t2 to t1
+ *
+ * @discussion
+ * Equivalent to logical: (t1 = t1 - t2)
+ *
+ * @param t1 The timespec to subtrack t2 from
+ * @param t2 The timespec to subtrack from t1
+ */
+void timespec_add(struct timespec *t1, const struct timespec *t2);
+
+/**
+ * @brief
+ * Subtracts the given timespec t2 from t1
+ *
+ * @discussion
+ * Equivalent to logical: (t1 = t1 - t2)
+ *
+ * @param t1 The timespec to subtrack t2 from
+ * @param t2 The timespec to subtrack from t1
+ */
+void timespec_sub(struct timespec *t1, const struct timespec *t2);
+
+  
+/**
  * Compares two timespecs.
  *
  * @see strcmp

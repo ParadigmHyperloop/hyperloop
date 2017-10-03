@@ -11,22 +11,29 @@
 
 #include "hw.h"
 
-typedef int mpye_value_t;
+typedef unsigned int mpye_value_t;
 
 typedef struct mpye {
+  // The I2C address of the controller managing this MPYE
+  unsigned char address;
   // The PWM pin used to control this solenoid
-  int pin;
+  unsigned char channel;
   // The Human Readable name of the solenoid
   char name[MAX_NAME];
   // The current value of this mpye (0 for closed, +100 full A, -100 full B)
-  int value;
+  unsigned int value;
   // The current value of this mpye (0 for closed, +100 full A, -100 full B)
   bool queued;
   // Prevent this mpye from changing state without an explicit unlock
   bool locked;
   // A mutex for multithreaded access to this struct
   pthread_mutex_t mutex;
+  // Scheduler
+  bus_t *bus;
 } mpye_t;
+
+
+int mpye_init(mpye_t *m, char *name, bus_t *bus, unsigned char address, unsigned char channel);
 
 /**
  * Sets the desired solenoid state

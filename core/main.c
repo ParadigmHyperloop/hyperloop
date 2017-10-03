@@ -34,6 +34,7 @@
 #include "pru.h"
 #include <sys/mount.h>
 
+
 struct arguments {
   bool tests;
   bool ready;
@@ -43,6 +44,10 @@ struct arguments {
 
 struct arguments args = {
     .tests = false, .ready = false, .imu_device = IMU_DEVICE, .telemetry_dump = NULL};
+
+const char *BUS_NAMES[] = { "/sem-i2c-0", "/sem-i2c-1" };
+const char *BUS_FILES[] = { "/dev/i2c-0", "/dev/i2c-1" };
+
 
 /**
  * WARNING: Do Not Directly Access this struct, use get_pod() instead to
@@ -230,18 +235,19 @@ int main(int argc, char *argv[]) {
 
     int boot_sem_ret = 0;
     info("POD Booting...");
-    info("Initializing Pod");
+    info("Initializing Pod State Tracker...");
 
     if (init_pod() < 0) {
       fprintf(stderr, "Failed to Initialize Pod");
       pod_exit(1);
     }
 
-    info("Loading Pod struct for the first time");
+    info("Initialized");
     pod_t *pod = get_pod();
 
     if (args.tests) {
-      pod_exit(self_tests(pod));
+//      pod_exit(self_tests(pod));
+      pod->func_test = true;
     }
 
     // Disable IMU by starting with core -i -
@@ -253,6 +259,7 @@ int main(int argc, char *argv[]) {
           info("IMU connection failed: %s", args.imu_device);
           sleep(1);
         } else {
+          debug("IMU Connected with %d", pod->imu);
           break;
         }
       }
@@ -263,20 +270,43 @@ int main(int argc, char *argv[]) {
 #ifdef HAS_PRU
     pru_init();
 #endif
+
+#ifdef BBB
+    pod->i2c[SSR_I2C_BUS].fd = i2c_open(SSR_I2C_BUS, SSR_BOARD_1_ADDRESS);
+#else
+    pod->i2c[SSR_I2C_BUS].fd = open("/dev/zero", O_RDWR);
+#endif
+    
+    assert(pod->i2c[SSR_I2C_BUS].fd > 0);
+    
+    info("Initialized I2C-%d as fd %d", SSR_I2C_BUS, pod->i2c[SSR_I2C_BUS].fd);
+    
+
+//#ifdef BBB
+//    ssr_board_init(&pod->i2c[1], SSR_BOARD_1_ADDRESS);
+//    ssr_board_init(&pod->i2c[1], SSR_BOARD_2_ADDRESS);
+//#endif
+  
     // -----------------------------------------
     // Logging - Remote Logging System
     // -----------------------------------------
     info("Starting the Logging Client Connection");
     pthread_create(&(pod->logging_thread), NULL, logging_main, NULL);
+    sleep(2);
 
     // Wait for logging thread to connect to the logging server
     if (!args.ready) {
+      info("Waiting on Logging Client");
+
       boot_sem_ret = sem_wait(pod->boot_sem);
       if (boot_sem_ret != 0) {
         perror("sem_wait wait failed: ");
         pod_exit(1);
       }
     }
+    
+    info("Logging Reported Started");
+
 
     if (get_pod_mode() != Boot) {
       error(
@@ -292,6 +322,7 @@ int main(int argc, char *argv[]) {
 
     // Wait for command thread to start it's server
     if (!args.ready) {
+      info("Waiting on Command Server");
       boot_sem_ret = sem_wait(pod->boot_sem);
       if (boot_sem_ret != 0) {
         perror("sem_wait wait failed: ");
@@ -308,7 +339,7 @@ int main(int argc, char *argv[]) {
     info("Booting Core Controller Logic Thread");
 
     pthread_create(&(pod->core_thread), NULL, core_main, NULL);
-
+    
     // we're using the built-in linux Round Roboin scheduling
     // priorities are 1-99, higher is more important
     // important note: this is not hard real-time

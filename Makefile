@@ -21,6 +21,7 @@ all: install_headers
 	@$(MAKE) -j -C libimu
 	@$(MAKE) -j -C libhw
 	@$(MAKE) -j -C liblog
+	@$(MAKE) -j -C libsked
 	@$(MAKE) -j -C core
 	@$(MAKE) -j -C imu_test
 	@$(MAKE) -j -C imu_config
@@ -30,6 +31,7 @@ install:
 	@$(MAKE) -j -C libimu install
 	@$(MAKE) -j -C libhw install
 	@$(MAKE) -j -C liblog install
+	@$(MAKE) -j -C libsked install
 	@$(MAKE) -j -C core install
 	@$(MAKE) -j -C imu_test install
 	@$(MAKE) -j -C imu_config install
@@ -40,6 +42,7 @@ install_headers:
 	@$(MAKE) -j -C libimu install_headers
 	@$(MAKE) -j -C libhw install_headers
 	@$(MAKE) -j -C liblog install_headers
+	@$(MAKE) -j -C libsked install_headers
 	@$(MAKE) -j -C core install_headers
 	@$(MAKE) -j -C imu_test install_headers
 	@$(MAKE) -j -C imu_config install_headers
@@ -49,6 +52,7 @@ clean:
 	@$(MAKE) -j -C libimu clean
 	@$(MAKE) -j -C libhw clean
 	@$(MAKE) -j -C liblog clean
+	@$(MAKE) -j -C libsked clean
 	@$(MAKE) -j -C core clean
 	@$(MAKE) -j -C imu_test clean
 	@$(MAKE) -j -C imu_config clean
@@ -58,6 +62,10 @@ style:
 
 test:
 	$(DSTROOT)$(TEST_CMD)
+
+run:
+	killall -KILL core || true
+	$(DSTROOT)/usr/local/bin/core -t
 
 deb:
 	mkdir -p $(DEBROOT)
