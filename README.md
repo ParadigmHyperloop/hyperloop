@@ -1,4 +1,4 @@
-# Paradigm Hyperloop Pod Software
+responsibilities# Paradigm Hyperloop Pod Software
 
 The code for the Paradigm Pod Control systems.
 
@@ -6,13 +6,14 @@ The code for the Paradigm Pod Control systems.
 
 # About
 
-The Core Control Software found in this repository is designed to run in a RealTime Linux environment on a high performance 
-ARM core. Suitable platforms include the TI Sitara am335x series of processors, convieniently found in the consumer and
-industrial grade [BeagleBoard](http://beagleboard.org) Open Source Hardware. We utilize the BeagleBone black hardware 
+The Core Control Software found in this repository is designed to run in a RealTime Linux environment on a high performance
+ARM core. Suitable platforms include the TI Sitara am335x series of processors, conveniently found in the consumer and
+industrial grade [BeagleBoard](http://beagleboard.org) Open Source Hardware. We utilize the BeagleBone black hardware
 and make extensive use of the onboard TI Sitara ARM core to manage the system level control loop for the Paradigm Pod
 
-This breaks down into several responsibilies:
- - Maintain comunications with an external control point (Operations Center/Mission Control)
+This breaks down into several responsibilities:
+
+ - Maintain communications with an external control point (Operations Center/Mission Control)
    - Stream Telemetry Data
    - Accept Commands
    - Exchange heartbeats to detect connection loss
@@ -21,14 +22,14 @@ This breaks down into several responsibilies:
  - Read and process information from sensors
    - Gather acceleration data from our IMU
    - Read various analog sensors attached to the Motherboard over SPI
-     - Optical Distance Sensors
+     - IR Distance/Proximity Sensors
      - Inductive Proximity Sensors
      - Pressure transducers
      - Thermocouple Amplifiers
-     - Pusher Detection Module
    - Communicate on a shared RS485 bus
      - Gather information from our tachometer/counter modules
      - Interact with our external status indicator module
+   - Communicate with our Battery Management Systems (USB-to-RS232)
  - Control our various outputs
    - Solenoids
    - Actuated Ball Valves
@@ -54,13 +55,12 @@ The following is a high level getting started geared for new developers
 
 ## Overview
 
-The minimal controls system is comprised of 5 distinct systems that you will need to install.
+The minimal controls system is comprised of 4 distinct systems that you will need to install.
 
 1. [The Core Controller](https://github.com/ParadigmHyperloop/hyperloop-core) (this repo)
 2. [The OpenLoop Data Shuttle](https://github.com/ParadigmHyperloop/ODS)
-3. [The PodCtl Tool](https://github.com/ParadigmHyperloop/ODS) (found in the ODS repo)
-4. [Influxdb](https://www.influxdata.com)
-5. [Grafana](https://grafana.net)
+3. [Influxdb](https://www.influxdata.com)
+4. [Grafana](https://grafana.net)
 
 You will also need clang/LLVM and Python development environments installed.
 
@@ -102,13 +102,9 @@ cd hyperloop
 Clone and run ODS in a new terminal window following the instructions on the
 [ODS README](https://github.com/ParadigmHyperloop/ODS)
 
-## PodCTL
-
-PodCTL is now bundled as part of the ODS Project
-
 ## Core Startup
 
-You should now be running all 4 of the aforementioned services (InfluxDB, Grafana, ODS, and PodCTL) on your dev machine.  Now it is time to start up core
+You should now be running all 4 of the aforementioned services (InfluxDB, Grafana, ODS) on your dev machine.  Now it is time to start up core
 
 - Clone this repo and then cd into it.
 - Run `make clean all install`
@@ -134,32 +130,6 @@ You should see the core controller start with output like this
 [NOTE]  [cmd_server] {commander.c:239} === Waiting for first commander connection ===
 ```
 
-The podctl terminal window should connect and show you a prompt like this
-
-```
-→ ./podctl.py
-Trying 127.0.0.1...
-Connected to localhost.
-Escape character is '^]'.
-Paradigm Pod CLI 0.0.1-alpha. Copyright 2016
-This tool allows you to control various aspects of the pod
-- TCP:7779
-- STDIN
-
-Available Commands:
- - help
- - ping
- - ready
- - brake
- - skate
- - status
- - emergency (alias: e)
- - exit
- - kill
-
->
-```
-
 The ODS window will start printing telemetry data to it's terminal window.
 The telemetry data will be accessible in Grafana at http://localhost:3000 as
 well, but you will need to configure a data source and some dashboards (more on
@@ -170,7 +140,7 @@ that later)
 * **BBB**: Beagle Bone Black, an ARM micro-controller
 * **IMU**: Inertial Measurement Unit, a really sick accelerometer
 * **ODS**: OpenLoop Data Shuttle: the server that the pod sends telemetry data
-  and logs to.
+  and logs to. [Click here]((https://github.com/ParadigmHyperloop/ODS).
 
 # Jenkins
 
