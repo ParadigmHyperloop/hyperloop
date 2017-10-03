@@ -1,4 +1,4 @@
-responsibilities# Paradigm Hyperloop Pod Software
+# Paradigm Hyperloop Pod Software
 
 The code for the Paradigm Pod Control systems.
 
@@ -53,7 +53,7 @@ you already see something you like!
 
 The following is a high level getting started geared for new developers
 
-## Overview
+# Overview
 
 The minimal controls system is comprised of 4 distinct systems that you will need to install.
 
@@ -64,7 +64,7 @@ The minimal controls system is comprised of 4 distinct systems that you will nee
 
 You will also need clang/LLVM and Python development environments installed.
 
-## Build Environment
+## Setup Build Environment
 
 ### Mac
 
@@ -82,11 +82,11 @@ sudo pip install virtualenv
 sudo apt-get install build-esential python-pip clang llvm
 ```
 
-## Influxdb and Grafana
+## Setup Influxdb and Grafana
 
 Install influxdb and grafana per the instructions on their respective websites
 
-## Core Control Code
+## Install Core
 
 Clone this repo somewhere safe, then cd into it.
 
@@ -97,9 +97,9 @@ git clone git@github.com:ParadigmHyperloop/hyperloop.git
 cd hyperloop
 ```
 
-## ODS
+## Install ODS
 
-Clone and run ODS in a new terminal window following the instructions on the
+Clone ODS in a new terminal window following the instructions on the
 [ODS README](https://github.com/ParadigmHyperloop/ODS)
 
 ## Core Startup
@@ -130,7 +130,7 @@ You should see the core controller start with output like this
 [NOTE]  [cmd_server] {commander.c:239} === Waiting for first commander connection ===
 ```
 
-The ODS window will start printing telemetry data to it's terminal window.
+Start ODS, the ODS terminal window will start printing telemetry data.
 The telemetry data will be accessible in Grafana at http://localhost:3000 as
 well, but you will need to configure a data source and some dashboards (more on
 that later)
@@ -150,6 +150,7 @@ a link to the results will be attached to the PR.
 
 Before you checkin code, run the following to catch errors before the
 Jenkins server catches them
+
 
 ```
 make clean all install test
