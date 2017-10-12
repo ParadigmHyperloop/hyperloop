@@ -1,6 +1,6 @@
 include config.mk
 
-TEST_CMD := /usr/local/bin/core -t -i -
+TEST_CMD := ./test.sh
 
 export PROJECT = hyperloop-core
 export VERSION = 1.0-$(shell git rev-parse --short HEAD)
@@ -61,7 +61,7 @@ style:
 	@echo "Not Implemented"
 
 test:
-	$(DSTROOT)$(TEST_CMD)
+	$(TEST_CMD)
 
 run:
 	killall -KILL core || true
