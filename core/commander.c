@@ -86,7 +86,7 @@ int cmd_start_tcp_server(int portno) {
 #ifdef SO_REUSEPORT
   setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &option, sizeof(option));
 #endif
-  
+
   setsockopt(fd, SOL_SOCKET, SO_LINGER, &option, sizeof(option));
 
   struct timeval t;
@@ -240,7 +240,7 @@ int cmd_accept_client(int fd) {
  */
 int cmd_process_request(int infd, int outfd, commander_t *commander) {
   char inbuf[MAX_PACKET_SIZE];
-  
+
   ssize_t nbytes = read(infd, &inbuf[0], MAX_PACKET_SIZE - 1);
 
   if (nbytes <= 0) {
@@ -266,7 +266,7 @@ int cmd_process_request(int infd, int outfd, commander_t *commander) {
     }
     i++;
   }
-  
+
   nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, commander->cmdbuffer);
   commander->cmdbuffer[nbytesout] = '\n';
   nbytesout++;
@@ -295,12 +295,16 @@ int cmd_server() {
   fd_set active_fd_set, read_fd_set;
 
   note("=== Waiting for first commander connection (%d) ===", CMD_SVR_PORT);
-
+  bool disable_stdin = false;
   while (get_pod_mode() != Shutdown) {
     // Setup All File Descriptors we are going to read from
     FD_ZERO(&active_fd_set);
     FD_SET(commander.serverfd, &active_fd_set);
-    FD_SET(STDIN_FILENO, &active_fd_set);
+
+    if (!disable_stdin) {
+        FD_SET(STDIN_FILENO, &active_fd_set);
+    }
+
     int i;
     for (i = 0; i < commander.nclients; i++) {
       if (commander.clients[i] >= 0) {
@@ -341,7 +345,8 @@ int cmd_server() {
     // STDIN
     if (FD_ISSET(STDIN_FILENO, &read_fd_set)) {
       if (cmd_process_request(STDIN_FILENO, STDOUT_FILENO, &commander) < 0) {
-        panic(POD_LOGGING_SUBSYSTEM, "STDIN unprocessable for commands");
+        error("STDIN unprocessable for commands");
+        disable_stdin = true;
       }
     }
 
