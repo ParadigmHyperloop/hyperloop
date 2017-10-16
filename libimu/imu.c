@@ -40,6 +40,7 @@
 #include <termios.h>
 
 #define IMU_MESSAGE_SIZE 36
+#define IMU_HEADER_SIZE 4
 
 #ifndef B921600
 #define B921600 921600
@@ -84,8 +85,8 @@ ssize_t serial_read(int fd, unsigned char *buf, int n);
 //   0x00, 0x01 // temperature bits (Int16)
 // };
 
-unsigned char imubuf[IMU_MESSAGE_SIZE] = {0};
-int imubufc = 0;
+unsigned char imubuf[IMU_MESSAGE_SIZE*2] = {0};
+ssize_t imubufc = 0;
 
 /**
  * fills the buffer pointed to (should be imubuf) until it contains n elements
@@ -107,52 +108,64 @@ ssize_t serial_read(int fd, unsigned char *buf, int n) {
 }
 
 ssize_t imu_read(int fd, imu_datagram_t *gram) {
-  int i = 0;
-  int remaining = IMU_MESSAGE_SIZE - imubufc;
+  memset(gram, 0, sizeof(imu_datagram_t));
 
-  if (remaining > 0) {
-    ssize_t r = serial_read(fd, &imubuf[imubufc], remaining);
-    assert(r <= IMU_MESSAGE_SIZE);
-    assert(r >= -1);
-    imubufc += r;
+  ssize_t r = read(fd, &imubuf[0], IMU_MESSAGE_SIZE);
+  imubufc = r;
 
-    if (r == -1) {
-      memset(gram, 0, sizeof(imu_datagram_t));
-      return -1;
-    } else if (r < remaining) {
-      for (i=0; i<imubufc; i++) {
-        printf("%x ", imubuf[i]);
-      }
-      assert(imubufc < 36);
-      memset(gram, 0, sizeof(imu_datagram_t));
-      return 0;
-    }
-    assert(imubufc == 36);
-  }
-
-  assert(imubufc == 36);
-
-  unsigned char ideal[4] = {0xFE, 0x81, 0xFF, 0x55};
-  assert(imubufc == 36);
-
-  int success = 1;
-  assert(imubufc == 36);
-  for (i = 0; i < 4; i++) {
-    assert(imubufc == 36);
-    if (imubuf[i] != ideal[i]) {
-      success = 0;
-    }
-  }
-
-  assert(imubufc == 36);
-  if (!success) {
-    imubufc--;
-    assert(imubufc == 35);
-    for (i = 0; i < imubufc; i++) {
-      imubuf[i] = imubuf[i + 1];
-    }
-    memset(gram, 0, sizeof(imu_datagram_t));
+  if (r == -1) {
     return -1;
+  } else if (r < IMU_MESSAGE_SIZE) {
+    printf("Read Returned %ld\n", r);
+    for (int i=0; i<imubufc; i++) {
+      printf("%x ", imubuf[i]);
+    }
+    return 0;
+  }
+
+  assert(imubufc == IMU_MESSAGE_SIZE);
+
+  unsigned char header[IMU_HEADER_SIZE] = {0xFE, 0x81, 0xFF, 0x55};
+
+  int matched_header = 0;
+  int i = 0, j = 0;
+
+  for (i = 0; i < IMU_MESSAGE_SIZE; i++) {
+    if (imubuf[i] == header[0]) {
+      for (j = 0; j < IMU_HEADER_SIZE; j++) {
+        if (imubuf[i + j] == header[j]) {
+          matched_header++;
+        }
+      }
+      if (matched_header == IMU_HEADER_SIZE) {
+        break;
+      }
+    }
+  }
+
+  if (matched_header != IMU_HEADER_SIZE) {
+    printf("[WARNING] Failed to Find Header\n");
+    assert(imubufc <= IMU_MESSAGE_SIZE);
+
+    return 0;
+  }
+
+  if (i != 0) {
+    // i ==> the number of remaining bytes to read
+    // IMU_MESSAGE_SIZE - i - 1 ==> The index to start reading at
+
+    printf("[WARNING] Partial Message Recieved, Syncing remaining %d bytes\n", i);
+
+
+    for (j = i; j < IMU_MESSAGE_SIZE; j++) {
+      imubuf[j - i] = imubuf[j];
+    }
+
+    r = read(fd, &imubuf[IMU_MESSAGE_SIZE - i - 1], i);
+    if (r != i) {
+      printf("[ERR] Second Read Failed %ld\n", r);
+      return -1;
+    }
   }
 
   // Massive Bit Shifting Operation.
@@ -201,7 +214,7 @@ int imu_connect(const char *device) {
     return -1;
   }
 
-  int fd = open(device, O_RDWR | O_NONBLOCK);
+  int fd = open(device, O_RDWR);
 
   if (fd < 0) {
     perror("IMU connect failed");
