@@ -37,7 +37,7 @@ bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
 char *pod_mode_names[N_POD_STATES] = {
     "POST",    "Boot",      "HPFill",   "Load",
     "Standby", "Armed",     "Pushing",   "Coasting", "Braking",
-    "Vent",    "Retrieval", "Emergency", "Shutdown"};
+    "Vent",    "Retrieval", "Emergency", "Shutdown", "Manual"};
 
 /**
  * Global Pod Structure.  This stores the entire state of the pod
@@ -55,19 +55,20 @@ pod_t _pod;
  */
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
-      {POST, Boot, Emergency, Shutdown, NonState},
-      {Boot, HPFill, Emergency, Shutdown, NonState},
-      {HPFill, Load, Standby, Emergency, NonState},
-      {Load, Standby, Emergency, NonState},
-      {Standby, Load, Armed, Emergency, NonState},
-      {Armed, Standby, Pushing, Coasting, Braking, Emergency, NonState},
-      {Pushing, Coasting, Braking, Emergency, NonState},
-      {Coasting, Braking, Pushing, Emergency, NonState},
-      {Braking, Pushing, Vent, Emergency, Standby, NonState},
-      {Vent, Retrieval, Emergency, NonState},
-      {Retrieval, Shutdown, NonState},
-      {Emergency, Vent, NonState},
-      {Shutdown, NonState},
+      {POST, Manual, Boot, Emergency, Shutdown, NonState},
+      {Boot, Manual, HPFill, Emergency, Shutdown, NonState},
+      {HPFill, Manual, Load, Standby, Emergency, NonState},
+      {Load, Manual, Standby, Emergency, NonState},
+      {Standby, Manual, Load, Armed, Emergency, NonState},
+      {Armed, Manual, Standby, Pushing, Coasting, Braking, Emergency, NonState},
+      {Pushing, Manual, Coasting, Braking, Emergency, NonState},
+      {Coasting, Manual, Braking, Pushing, Emergency, NonState},
+      {Braking, Manual, Pushing, Vent, Emergency, Standby, NonState},
+      {Vent, Manual, Retrieval, Emergency, NonState},
+      {Retrieval, Manual, Shutdown, NonState},
+      {Emergency, Manual, Vent, NonState},
+      {Shutdown, Manual, NonState},
+      {Manual, POST, Boot, HPFill, Load, Standby, Armed, Pushing, Coasting, Braking, Vent, Retrieval, Emergency, Shutdown, NonState}
   };
 
   // Ensure that the pod's current state can always transition to itself

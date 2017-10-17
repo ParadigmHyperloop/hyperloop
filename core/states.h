@@ -34,7 +34,7 @@
 #define PARADIGM_STATES_H
 #include "pod.h"
 
-#define N_POD_STATES 14
+#define N_POD_STATES 15
 
 typedef enum {
   NonState = -1, // NULL STATE, not a valid state, used to terminate arrays
@@ -50,7 +50,8 @@ typedef enum {
   Vent = 9,
   Retrieval = 10,
   Emergency = 11,
-  Shutdown = 12
+  Shutdown = 12,
+  Manual = 13
 } pod_mode_t;
 
 /**
