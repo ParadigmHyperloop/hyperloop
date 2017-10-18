@@ -79,8 +79,6 @@ bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   int i = 1;
 
   while ((i_state = transitions[current_mode][i]) != NonState) {
-    // debug("Checking %s == %s", pod_mode_names[i_state],
-    // pod_mode_names[new_mode]);
     if (i_state == new_mode) {
       return true;
     }
@@ -176,6 +174,9 @@ int init_pod(void) {
 
   char name[MAX_NAME];
 
+  // -----------------------
+  // INITIALIZE MANUAL STATE
+  // -----------------------
   pod->manual.primary_brake = kClampBrakeClosed;
   pod->manual.secondary_brake = kClampBrakeClosed;
   pod->manual.vent = kSolenoidClosed;
@@ -240,7 +241,7 @@ int init_pod(void) {
 
   unsigned short clamp_release_pins[] = CLAMP_RELEASE_SOLONOIDS;
   for (i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
-    snprintf(name, MAX_NAME, "pack_%d", i);
+    snprintf(name, MAX_NAME, "clmp_rel_%d", i);
     
     solenoid_init(&pod->clamp_release_solonoids[i],
                   name,
