@@ -242,8 +242,8 @@ static int stateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]
   if (argc == 1) {
     // Nothing, proceed to print
   } else if (argc == 2) {
-    for (int i = 0; i < N_POD_STATES; i++) {
-      if (strncmp(pod_mode_names[i], argv[1], strlen(pod_mode_names[i]))) {
+    for (int i = 0; i < N_POD_STATES - 1; i++) {
+      if (strncmp(pod_mode_names[i], argv[1], strlen(pod_mode_names[i])) == 0) {
         new_mode = (pod_mode_t)i;
         break;
       }
@@ -277,8 +277,8 @@ static int manualCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[
   if (argc == 1) {
     // Nothing, just return the printout of the current manual setpoint
   } else if (argc == 15) {
-    c->primary_brake = atoi(argv[1]);
-    c->secondary_brake = atoi(argv[2]);
+    c->front_brake = atoi(argv[1]);
+    c->rear_brake = atoi(argv[2]);
     c->vent = atoi(argv[3]);
     c->fill = atoi(argv[4]);
     c->battery_a = atoi(argv[5]);
@@ -287,17 +287,17 @@ static int manualCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[
     c->skate_b = atoi(argv[8]);
     c->skate_c = atoi(argv[9]);
     c->skate_d = atoi(argv[10]);
-    c->mpye_a = atoi(argv[11]);
-    c->mpye_b = atoi(argv[12]);
-    c->mpye_c = atoi(argv[13]);
-    c->mpye_d = atoi(argv[14]);
+    c->mpye_a = (atoi(argv[11]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
+    c->mpye_b = (atoi(argv[12]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
+    c->mpye_c = (atoi(argv[13]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
+    c->mpye_d = (atoi(argv[14]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
   } else {
     return snprintf(outbuf, outbufc, "Usage: %s [setpoints]", argv[0]);
   }
   
   return snprintf(outbuf, outbufc, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d",
-                  c->primary_brake,
-                  c->secondary_brake,
+                  c->front_brake,
+                  c->rear_brake,
                   c->vent,
                   c->fill,
                   c->battery_a,

@@ -177,8 +177,8 @@ int init_pod(void) {
   // -----------------------
   // INITIALIZE MANUAL STATE
   // -----------------------
-  pod->manual.primary_brake = kClampBrakeClosed;
-  pod->manual.secondary_brake = kClampBrakeClosed;
+  pod->manual.front_brake = kClampBrakeClosed;
+  pod->manual.rear_brake = kClampBrakeClosed;
   pod->manual.vent = kSolenoidClosed;
   pod->manual.fill = kSolenoidClosed;
   pod->manual.battery_a = kSolenoidOpen;
@@ -637,8 +637,8 @@ float update_sensor(sensor_t *sensor) {
     return x;
   }
 
-  // Dequeue the raw sensor reading
-  set_value(&(sensor->raw), -1);;
+  // Dequeue / Invalidate the raw sensor reading
+  set_value_f(&(sensor->raw), -1.0f);;
 
   float calibrated = ((float)sensor->cal_a * x * x) +
                      ((float)sensor->cal_b * x) + (float)sensor->cal_c;

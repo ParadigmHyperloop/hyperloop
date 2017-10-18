@@ -270,8 +270,8 @@ void adjust_brakes(pod_t *pod) {
       }
       break;
   case Manual:
-      ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, pod->manual.primary_brake, false);
-      ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, pod->manual.secondary_brake, false);
+      ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, pod->manual.front_brake, false);
+      ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, pod->manual.rear_brake, false);
       break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");

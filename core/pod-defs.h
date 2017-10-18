@@ -131,8 +131,8 @@ typedef enum pod_shutdown {
  * Defines the state of valves that a manual remote controller desires
  */
 typedef struct manual_config {
-  clamp_brake_state_t primary_brake;
-  clamp_brake_state_t secondary_brake;
+  clamp_brake_state_t front_brake;
+  clamp_brake_state_t rear_brake;
   solenoid_state_t vent;
   solenoid_state_t fill;
   solenoid_state_t battery_a;
