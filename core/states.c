@@ -176,6 +176,21 @@ int init_pod(void) {
 
   char name[MAX_NAME];
 
+  pod->manual.primary_brake = kClampBrakeClosed;
+  pod->manual.secondary_brake = kClampBrakeClosed;
+  pod->manual.vent = kSolenoidClosed;
+  pod->manual.fill = kSolenoidClosed;
+  pod->manual.battery_a = kSolenoidOpen;
+  pod->manual.battery_b = kSolenoidOpen;
+  pod->manual.skate_a = kSolenoidClosed;
+  pod->manual.skate_b = kSolenoidClosed;
+  pod->manual.skate_c = kSolenoidClosed;
+  pod->manual.skate_d = kSolenoidClosed;
+  pod->manual.mpye_a = MPYE_CLOSED_SETPOINT;
+  pod->manual.mpye_b = MPYE_CLOSED_SETPOINT;
+  pod->manual.mpye_c = MPYE_CLOSED_SETPOINT;
+  pod->manual.mpye_d = MPYE_CLOSED_SETPOINT;
+
   // ----------------
   // INITIALIZE MPYES
   // ----------------

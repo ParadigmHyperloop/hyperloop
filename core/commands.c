@@ -238,8 +238,78 @@ static int emergencyCommand(size_t argc, char *argv[], size_t outbufc, char outb
 }
 
 static int stateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+  pod_mode_t new_mode = NonState;
+  if (argc == 1) {
+    // Nothing, proceed to print
+  } else if (argc == 2) {
+    for (int i = 0; i < N_POD_STATES; i++) {
+      if (strncmp(pod_mode_names[i], argv[1], strlen(pod_mode_names[i]))) {
+        new_mode = (pod_mode_t)i;
+        break;
+      }
+    }
+
+    if (new_mode == NonState) {
+      errno = 0;
+      int m = (pod_mode_t)atoi(argv[1]);
+      if (errno != EINVAL) {
+        new_mode = (pod_mode_t)m;
+      }
+    }
+
+    if (new_mode < 0 && new_mode >= N_POD_STATES) {
+      return snprintf(outbuf, outbufc, "Invalid Mode: %s", argv[0]);
+    }
+
+    set_pod_mode(new_mode, "Remote Command Changed State");
+  } else {
+    return snprintf(outbuf, outbufc, "Usage: %s <state>", argv[0]);
+  }
+  
+  new_mode = get_pod_mode();
+  return snprintf(outbuf, outbufc, "Pod Mode: %d (%s)", new_mode, pod_mode_names[new_mode]);
+}
+
+static int manualCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   // TODO: Implement using set_pod_mode()
-  return snprintf(outbuf, outbufc, "Pod Mode: %d", get_pod_mode());
+  pod_t *pod = get_pod();
+  manual_config_t *c = &pod->manual;
+  if (argc == 1) {
+    // Nothing, just return the printout of the current manual setpoint
+  } else if (argc == 15) {
+    c->primary_brake = atoi(argv[1]);
+    c->secondary_brake = atoi(argv[2]);
+    c->vent = atoi(argv[3]);
+    c->fill = atoi(argv[4]);
+    c->battery_a = atoi(argv[5]);
+    c->battery_b = atoi(argv[6]);
+    c->skate_a = atoi(argv[7]);
+    c->skate_b = atoi(argv[8]);
+    c->skate_c = atoi(argv[9]);
+    c->skate_d = atoi(argv[10]);
+    c->mpye_a = atoi(argv[11]);
+    c->mpye_b = atoi(argv[12]);
+    c->mpye_c = atoi(argv[13]);
+    c->mpye_d = atoi(argv[14]);
+  } else {
+    return snprintf(outbuf, outbufc, "Usage: %s [setpoints]", argv[0]);
+  }
+  
+  return snprintf(outbuf, outbufc, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+                  c->primary_brake,
+                  c->secondary_brake,
+                  c->vent,
+                  c->fill,
+                  c->battery_a,
+                  c->battery_b,
+                  c->skate_a,
+                  c->skate_b,
+                  c->skate_c,
+                  c->skate_d,
+                  c->mpye_a,
+                  c->mpye_b,
+                  c->mpye_c,
+                  c->mpye_d);
 }
 
 static int exitCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
@@ -273,6 +343,7 @@ command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "override", .func = overrideCommand},
                         {.name = "standby", .func = standbyCommand},
                         {.name = "status", .func = statusCommand},
+                        {.name = "manual", .func = manualCommand},
                         {.name = "offset", .func = offsetCommand},
                         {.name = "ready", .func = readyCommand},
                         {.name = "state", .func = stateCommand},

@@ -11,6 +11,10 @@
 
 #include "hw.h"
 
+#define MPYE_A_SETPOINT 900
+#define MPYE_CLOSED_SETPOINT 2048
+#define MPYE_B_SETPOINT 3000
+
 typedef unsigned int mpye_value_t;
 
 typedef struct mpye {

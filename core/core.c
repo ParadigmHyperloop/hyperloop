@@ -219,7 +219,7 @@ int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override) {
   return 0;
 }
 
-void adjust_brakes(__unused pod_t *pod) {
+void adjust_brakes(pod_t *pod) {
   if (get_pod_mode() == Emergency && pod->manual_emergency == true) {
     for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
       ensure_clamp_brakes(i, kClampBrakeEngaged, false);
@@ -268,6 +268,10 @@ void adjust_brakes(__unused pod_t *pod) {
           }
         }
       }
+      break;
+  case Manual:
+      ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, pod->manual.primary_brake, false);
+      ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, pod->manual.secondary_brake, false);
       break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");
@@ -323,6 +327,16 @@ void adjust_skates(__unused pod_t *pod) {
       }
     }
     break;
+  case Manual:
+      set_mpye(&pod->mpye[0], pod->manual.mpye_a);
+      set_mpye(&pod->mpye[1], pod->manual.mpye_b);
+      set_mpye(&pod->mpye[2], pod->manual.mpye_c);
+      set_mpye(&pod->mpye[3], pod->manual.mpye_d);
+      set_solenoid(&pod->skate_solonoids[0], pod->manual.skate_a);
+      set_solenoid(&pod->skate_solonoids[1], pod->manual.skate_b);
+      set_solenoid(&pod->skate_solonoids[2], pod->manual.skate_c);
+      set_solenoid(&pod->skate_solonoids[3], pod->manual.skate_d);
+      break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");
   }
@@ -349,6 +363,9 @@ void adjust_vent(pod_t *pod) {
       open_solenoid(&(pod->vent_solenoid));
     }
     break;
+  case Manual:
+    set_solenoid(&pod->vent_solenoid, pod->manual.vent);
+    break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");
   }
@@ -373,9 +390,40 @@ void adjust_hp_fill(pod_t *pod) {
   case HPFill:
     open_solenoid(&(pod->hp_fill_valve));
     break;
+  case Manual:
+    set_solenoid(&pod->hp_fill_valve, pod->manual.fill);
+    break;
   default:
     panic(POD_CORE_SUBSYSTEM,
           "Pod Mode unknown, cannot make a hp fill decsion");
+  }
+}
+
+
+void adjust_batteries(pod_t *pod) {
+  switch (get_pod_mode()) {
+    case POST:
+    case Boot:
+    case HPFill:
+    case Load:
+    case Standby:
+    case Armed:
+    case Pushing:
+    case Coasting:
+    case Braking:
+    case Vent:
+    case Retrieval:
+    case Emergency:
+    case Shutdown:
+      // NOOP
+      break;
+    case Manual:
+      set_solenoid(&pod->battery_pack_relays[0], pod->manual.battery_a);
+      set_solenoid(&pod->battery_pack_relays[1], pod->manual.battery_b);
+      break;
+    default:
+      panic(POD_CORE_SUBSYSTEM,
+            "Pod Mode unknown, cannot make a hp fill decsion");
   }
 }
 
@@ -671,6 +719,9 @@ void *core_main(__unused void *arg) {
     case Shutdown:
       warn("pod in shutdown mode, but still running");
       break;
+    case Manual:
+      // Nothing
+      break;
     default:
       panic(POD_CORE_SUBSYSTEM, "Pod in unknown state!");
       break;
@@ -692,6 +743,9 @@ void *core_main(__unused void *arg) {
 
     // Set hp fill
     adjust_hp_fill(pod);
+    
+    // Set battery relays
+    adjust_batteries(pod);
 
     #pragma mark core-telemetry
 
