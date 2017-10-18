@@ -65,12 +65,21 @@ typedef enum {
  *
  * An illegal state change would be emergency -> coasting
  *
- * As a helper, this will also POST to a semaphore that will unlock any threads
- * waiting on a state change.
- *
  * @return Returns true in the event of a sucessful state change, false on error
  */
 bool set_pod_mode(pod_mode_t new_state, char *reason, ...);
+
+/**
+ * @brief Set the new state of the pod's control algorithms without validation
+ *
+ * The controller's state is changed to the given state even if it is not legal
+ * as defined by validate_transition().
+ *
+ * This is used to transition the pod to and from manual mode
+ *
+ * @return Returns true in the event of a sucessful state change, false on error
+ */
+bool force_pod_mode(pod_mode_t new_mode, char *reason, ...);
 
 /**
  * @brief Get the mode of the pod's control algorithms.

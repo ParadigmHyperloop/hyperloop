@@ -261,7 +261,7 @@ static int stateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]
       return snprintf(outbuf, outbufc, "Invalid Mode: %s", argv[0]);
     }
 
-    set_pod_mode(new_mode, "Remote Command Changed State");
+    force_pod_mode(new_mode, "Remote Command Changed State");
   } else {
     return snprintf(outbuf, outbufc, "Usage: %s <state>", argv[0]);
   }

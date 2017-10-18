@@ -562,6 +562,30 @@ pod_mode_t get_pod_mode(void) {
   return mode;
 }
 
+bool force_pod_mode(pod_mode_t new_mode, char *reason, ...) {
+  static char msg[MAX_LOG_LINE];
+  
+  va_list arg;
+  va_start(arg, reason);
+  vsnprintf(&msg[0], MAX_LOG_LINE, reason, arg);
+  va_end(arg);
+  pod_t *pod = get_pod();
+  pod_mode_t old_mode = get_pod_mode();
+  
+  warn("Forcing Mode Transition %s => %s. reason: %s", pod_mode_names[old_mode],
+       pod_mode_names[new_mode], msg);
+  
+  
+  pthread_rwlock_wrlock(&(pod->mode_mutex));
+  get_pod()->mode = new_mode;
+  pod->last_transition = get_time_usec();
+  pthread_rwlock_unlock(&(pod->mode_mutex));
+  warn("Request to set mode from %s to %s: approved",
+       pod_mode_names[old_mode], pod_mode_names[new_mode]);
+  strncpy(pod->state_reason, reason, MAX_STATE_REASON_MSG);
+  return true;
+}
+  
 bool set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   static char msg[MAX_LOG_LINE];
 
