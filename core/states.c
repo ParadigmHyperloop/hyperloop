@@ -68,7 +68,7 @@ bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
       {Retrieval, Manual, Shutdown, NonState},
       {Emergency, Manual, Vent, NonState},
       {Shutdown, Manual, NonState},
-      {Manual, POST, Boot, HPFill, Load, Standby, Armed, Pushing, Coasting, Braking, Vent, Retrieval, Emergency, Shutdown, NonState}
+      {Manual, NonState}
   };
 
   // Ensure that the pod's current state can always transition to itself
