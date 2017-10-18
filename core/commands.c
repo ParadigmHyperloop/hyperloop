@@ -147,16 +147,16 @@ static int standbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf
   }
 }
 
-static int returnToStandbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
-  if (argc < 2) {
-    return snprintf(outbuf, outbufc, "usage: returntostandby <0|1>");
-  }
-  
-  int value = atoi(argv[0]);
-  get_pod()->return_to_standby = value;
-  
-  return snprintf(outbuf, outbufc, "Set return_to_standby to %d", value);
-}
+//static int returnToStandbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+//  if (argc < 2) {
+//    return snprintf(outbuf, outbufc, "usage: returntostandby <0|1>");
+//  }
+//
+//  int value = atoi(argv[0]);
+//  get_pod()->return_to_standby = value;
+//
+//  return snprintf(outbuf, outbufc, "Set return_to_standby to %d", value);
+//}
 
 static int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (argc < 3) {

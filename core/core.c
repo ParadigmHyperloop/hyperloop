@@ -617,18 +617,16 @@ void *core_main(__unused void *arg) {
       if (imu_read(pod->imu, &imu_data) <= 0) {
         // Bad Read
         if (imu_score < IMU_SCORE_MAX) {
-//          warn("BAD IMU READ");
           imu_score += IMU_SCORE_STEP_UP;
         }
         if (imu_score >= IMU_SCORE_MAX) {
-//          DECLARE_EMERGENCY("IMU FAILED");
+          set_pod_mode(Emergency, "IMU Failed");
         }
       } else {
         add_imu_data(&imu_data, pod);
         if (imu_score > 0) {
           imu_score -= IMU_SCORE_STEP_DOWN;
         }
-
       }
     }
 
@@ -644,27 +642,24 @@ void *core_main(__unused void *arg) {
           int value = read_adc(&adc[a - 6], channel);
           if (value < 0) {
             if (mobo_score < MOBO_SCORE_MAX) {
-              warn("BAD MOBO READ");
               mobo_score += MOBO_SCORE_STEP_UP;
               //Todo Uncomment when IMU Reliability improves
               //        if (imu_score > IMU_SCORE_MAX) {
               //          set_pod_mode(Emergency, "Motherboard Communication Failure");
               //        }
             } else if (mobo_score > 0) {
-              imu_score -= MOBO_SCORE_STEP_DOWN;
+              mobo_score -= MOBO_SCORE_STEP_DOWN;
             }
-            
             continue;
           }
           
-        //  double voltage = value * 0.0012207;
-
-//          debug("Sensor %s: ADC%d Channel %02d: %d (%lf Volts)", s->name, a, channel, value, voltage);
+          // double voltage = value * 0.0012207;
+          // debug("Sensor %s: ADC%d Channel %02d: %d (%lf Volts)", s->name, a, channel, value, voltage);
 
           queue_sensor(s, value);
           update_sensor(s);
         } else {
-//          debug("No Sensor for ADC%d Channel %d", a, channel);
+          // debug("No Sensor for ADC%d Channel %d", a, channel);
         }
       }
     }
