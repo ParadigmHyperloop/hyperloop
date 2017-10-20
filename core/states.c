@@ -37,7 +37,7 @@ bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode);
 char *pod_mode_names[N_POD_STATES] = {
     "POST",    "Boot",      "HPFill",   "Load",
     "Standby", "Armed",     "Pushing",   "Coasting", "Braking",
-    "Vent",    "Retrieval", "Emergency", "Shutdown"};
+    "Vent",    "Retrieval", "Emergency", "Shutdown", "Manual"};
 
 /**
  * Global Pod Structure.  This stores the entire state of the pod
@@ -55,19 +55,20 @@ pod_t _pod;
  */
 bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   const static pod_mode_t transitions[N_POD_STATES][N_POD_STATES + 1] = {
-      {POST, Boot, Emergency, Shutdown, NonState},
-      {Boot, HPFill, Emergency, Shutdown, NonState},
-      {HPFill, Load, Standby, Emergency, NonState},
-      {Load, Standby, Emergency, NonState},
-      {Standby, Load, Armed, Emergency, NonState},
-      {Armed, Standby, Pushing, Coasting, Braking, Emergency, NonState},
-      {Pushing, Coasting, Braking, Emergency, NonState},
-      {Coasting, Braking, Pushing, Emergency, NonState},
-      {Braking, Pushing, Vent, Emergency, Standby, NonState},
-      {Vent, Retrieval, Emergency, NonState},
-      {Retrieval, Shutdown, NonState},
-      {Emergency, Vent, NonState},
-      {Shutdown, NonState},
+      {POST, Manual, Boot, Emergency, Shutdown, NonState},
+      {Boot, Manual, HPFill, Emergency, Shutdown, NonState},
+      {HPFill, Manual, Load, Standby, Emergency, NonState},
+      {Load, Manual, Standby, Emergency, NonState},
+      {Standby, Manual, Load, Armed, Emergency, NonState},
+      {Armed, Manual, Standby, Pushing, Coasting, Braking, Emergency, NonState},
+      {Pushing, Manual, Coasting, Braking, Emergency, NonState},
+      {Coasting, Manual, Braking, Pushing, Emergency, NonState},
+      {Braking, Manual, Pushing, Vent, Emergency, Standby, NonState},
+      {Vent, Manual, Retrieval, Emergency, NonState},
+      {Retrieval, Manual, Shutdown, NonState},
+      {Emergency, Manual, Vent, NonState},
+      {Shutdown, Manual, NonState},
+      {Manual, NonState}
   };
 
   // Ensure that the pod's current state can always transition to itself
@@ -78,8 +79,6 @@ bool validate_transition(pod_mode_t current_mode, pod_mode_t new_mode) {
   int i = 1;
 
   while ((i_state = transitions[current_mode][i]) != NonState) {
-    // debug("Checking %s == %s", pod_mode_names[i_state],
-    // pod_mode_names[new_mode]);
     if (i_state == new_mode) {
       return true;
     }
@@ -175,6 +174,24 @@ int init_pod(void) {
 
   char name[MAX_NAME];
 
+  // -----------------------
+  // INITIALIZE MANUAL STATE
+  // -----------------------
+  pod->manual.front_brake = kClampBrakeClosed;
+  pod->manual.rear_brake = kClampBrakeClosed;
+  pod->manual.vent = kSolenoidClosed;
+  pod->manual.fill = kSolenoidClosed;
+  pod->manual.battery_a = kSolenoidOpen;
+  pod->manual.battery_b = kSolenoidOpen;
+  pod->manual.skate_a = kSolenoidClosed;
+  pod->manual.skate_b = kSolenoidClosed;
+  pod->manual.skate_c = kSolenoidClosed;
+  pod->manual.skate_d = kSolenoidClosed;
+  pod->manual.mpye_a = MPYE_CLOSED_SETPOINT;
+  pod->manual.mpye_b = MPYE_CLOSED_SETPOINT;
+  pod->manual.mpye_c = MPYE_CLOSED_SETPOINT;
+  pod->manual.mpye_d = MPYE_CLOSED_SETPOINT;
+
   // ----------------
   // INITIALIZE MPYES
   // ----------------
@@ -224,7 +241,7 @@ int init_pod(void) {
 
   unsigned short clamp_release_pins[] = CLAMP_RELEASE_SOLONOIDS;
   for (i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
-    snprintf(name, MAX_NAME, "pack_%d", i);
+    snprintf(name, MAX_NAME, "clmp_rel_%d", i);
     
     solenoid_init(&pod->clamp_release_solonoids[i],
                   name,
@@ -546,6 +563,30 @@ pod_mode_t get_pod_mode(void) {
   return mode;
 }
 
+bool force_pod_mode(pod_mode_t new_mode, char *reason, ...) {
+  static char msg[MAX_LOG_LINE];
+  
+  va_list arg;
+  va_start(arg, reason);
+  vsnprintf(&msg[0], MAX_LOG_LINE, reason, arg);
+  va_end(arg);
+  pod_t *pod = get_pod();
+  pod_mode_t old_mode = get_pod_mode();
+  
+  warn("Forcing Mode Transition %s => %s. reason: %s", pod_mode_names[old_mode],
+       pod_mode_names[new_mode], msg);
+  
+  
+  pthread_rwlock_wrlock(&(pod->mode_mutex));
+  get_pod()->mode = new_mode;
+  pod->last_transition = get_time_usec();
+  pthread_rwlock_unlock(&(pod->mode_mutex));
+  warn("Request to set mode from %s to %s: approved",
+       pod_mode_names[old_mode], pod_mode_names[new_mode]);
+  strncpy(pod->state_reason, reason, MAX_STATE_REASON_MSG);
+  return true;
+}
+  
 bool set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   static char msg[MAX_LOG_LINE];
 
@@ -596,8 +637,8 @@ float update_sensor(sensor_t *sensor) {
     return x;
   }
 
-  // Dequeue the raw sensor reading
-  set_value(&(sensor->raw), -1);;
+  // Dequeue / Invalidate the raw sensor reading
+  set_value_f(&(sensor->raw), -1.0f);;
 
   float calibrated = ((float)sensor->cal_a * x * x) +
                      ((float)sensor->cal_b * x) + (float)sensor->cal_c;

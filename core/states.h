@@ -34,7 +34,7 @@
 #define PARADIGM_STATES_H
 #include "pod.h"
 
-#define N_POD_STATES 14
+#define N_POD_STATES 15
 
 typedef enum {
   NonState = -1, // NULL STATE, not a valid state, used to terminate arrays
@@ -50,7 +50,8 @@ typedef enum {
   Vent = 9,
   Retrieval = 10,
   Emergency = 11,
-  Shutdown = 12
+  Shutdown = 12,
+  Manual = 13
 } pod_mode_t;
 
 /**
@@ -64,12 +65,21 @@ typedef enum {
  *
  * An illegal state change would be emergency -> coasting
  *
- * As a helper, this will also POST to a semaphore that will unlock any threads
- * waiting on a state change.
- *
  * @return Returns true in the event of a sucessful state change, false on error
  */
 bool set_pod_mode(pod_mode_t new_state, char *reason, ...);
+
+/**
+ * @brief Set the new state of the pod's control algorithms without validation
+ *
+ * The controller's state is changed to the given state even if it is not legal
+ * as defined by validate_transition().
+ *
+ * This is used to transition the pod to and from manual mode
+ *
+ * @return Returns true in the event of a sucessful state change, false on error
+ */
+bool force_pod_mode(pod_mode_t new_mode, char *reason, ...);
 
 /**
  * @brief Get the mode of the pod's control algorithms.

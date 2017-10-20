@@ -128,6 +128,26 @@ typedef enum pod_shutdown {
 } pod_shutdown_t;
 
 /**
+ * Defines the state of valves that a manual remote controller desires
+ */
+typedef struct manual_config {
+  clamp_brake_state_t front_brake;
+  clamp_brake_state_t rear_brake;
+  solenoid_state_t vent;
+  solenoid_state_t fill;
+  solenoid_state_t battery_a;
+  solenoid_state_t battery_b;
+  solenoid_state_t skate_a;
+  solenoid_state_t skate_b;
+  solenoid_state_t skate_c;
+  solenoid_state_t skate_d;
+  mpye_value_t mpye_a;
+  mpye_value_t mpye_b;
+  mpye_value_t mpye_c;
+  mpye_value_t mpye_d;
+} manual_config_t;
+
+/**
  * Defines the master state of the pod
  */
 typedef struct pod {
@@ -195,6 +215,7 @@ typedef struct pod {
   sensor_t pusher_plate_distance[N_PUSHER_DISTANCE];
   sensor_t levitation_distance[N_LEVITATION_DISTANCE];
 
+  manual_config_t manual;
   // Pusher Plate
   pod_value_t pusher_plate;
   uint64_t last_pusher_seen;

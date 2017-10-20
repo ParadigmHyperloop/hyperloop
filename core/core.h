@@ -140,14 +140,12 @@ void retrieval_state_checks(__unused pod_t *pod);
  */
 void skate_sensor_checks(pod_t *pod);
 
-
 /**
  * A generic list of checks to perform relating to the lp packages
  *
  * @param pod A pointer to the pod structure
  */
 void lp_package_checks(pod_t *pod);
-
 
 /**
  * A generic list of checks to perform relating to the lateral distance sensors
@@ -176,6 +174,13 @@ void adjust_skates(__unused pod_t *pod);
  * @param pod A pointer to the pod structure
  */
 void adjust_hp_fill(pod_t *pod);
+
+/**
+ * Adjust the state of the battery pack relays
+ *
+ * @param pod A pointer to the pod structure
+ */
+void adjust_batteries(pod_t *pod);
 
 /**
  * Adjust the setpoints for the vent valve

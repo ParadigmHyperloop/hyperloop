@@ -219,7 +219,7 @@ int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override) {
   return 0;
 }
 
-void adjust_brakes(__unused pod_t *pod) {
+void adjust_brakes(pod_t *pod) {
   if (get_pod_mode() == Emergency && pod->manual_emergency == true) {
     for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
       ensure_clamp_brakes(i, kClampBrakeEngaged, false);
@@ -268,6 +268,10 @@ void adjust_brakes(__unused pod_t *pod) {
           }
         }
       }
+      break;
+  case Manual:
+      ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, pod->manual.front_brake, false);
+      ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, pod->manual.rear_brake, false);
       break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");
@@ -323,6 +327,16 @@ void adjust_skates(__unused pod_t *pod) {
       }
     }
     break;
+  case Manual:
+      set_mpye(&pod->mpye[0], pod->manual.mpye_a);
+      set_mpye(&pod->mpye[1], pod->manual.mpye_b);
+      set_mpye(&pod->mpye[2], pod->manual.mpye_c);
+      set_mpye(&pod->mpye[3], pod->manual.mpye_d);
+      set_solenoid(&pod->skate_solonoids[0], pod->manual.skate_a);
+      set_solenoid(&pod->skate_solonoids[1], pod->manual.skate_b);
+      set_solenoid(&pod->skate_solonoids[2], pod->manual.skate_c);
+      set_solenoid(&pod->skate_solonoids[3], pod->manual.skate_d);
+      break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");
   }
@@ -349,6 +363,9 @@ void adjust_vent(pod_t *pod) {
       open_solenoid(&(pod->vent_solenoid));
     }
     break;
+  case Manual:
+    set_solenoid(&pod->vent_solenoid, pod->manual.vent);
+    break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");
   }
@@ -373,9 +390,40 @@ void adjust_hp_fill(pod_t *pod) {
   case HPFill:
     open_solenoid(&(pod->hp_fill_valve));
     break;
+  case Manual:
+    set_solenoid(&pod->hp_fill_valve, pod->manual.fill);
+    break;
   default:
     panic(POD_CORE_SUBSYSTEM,
           "Pod Mode unknown, cannot make a hp fill decsion");
+  }
+}
+
+
+void adjust_batteries(pod_t *pod) {
+  switch (get_pod_mode()) {
+    case POST:
+    case Boot:
+    case HPFill:
+    case Load:
+    case Standby:
+    case Armed:
+    case Pushing:
+    case Coasting:
+    case Braking:
+    case Vent:
+    case Retrieval:
+    case Emergency:
+    case Shutdown:
+      // NOOP
+      break;
+    case Manual:
+      set_solenoid(&pod->battery_pack_relays[0], pod->manual.battery_a);
+      set_solenoid(&pod->battery_pack_relays[1], pod->manual.battery_b);
+      break;
+    default:
+      panic(POD_CORE_SUBSYSTEM,
+            "Pod Mode unknown, cannot make a hp fill decsion");
   }
 }
 
@@ -569,18 +617,16 @@ void *core_main(__unused void *arg) {
       if (imu_read(pod->imu, &imu_data) <= 0) {
         // Bad Read
         if (imu_score < IMU_SCORE_MAX) {
-//          warn("BAD IMU READ");
           imu_score += IMU_SCORE_STEP_UP;
         }
         if (imu_score >= IMU_SCORE_MAX) {
-//          DECLARE_EMERGENCY("IMU FAILED");
+          set_pod_mode(Emergency, "IMU Failed");
         }
       } else {
         add_imu_data(&imu_data, pod);
         if (imu_score > 0) {
           imu_score -= IMU_SCORE_STEP_DOWN;
         }
-
       }
     }
 
@@ -596,27 +642,24 @@ void *core_main(__unused void *arg) {
           int value = read_adc(&adc[a - 6], channel);
           if (value < 0) {
             if (mobo_score < MOBO_SCORE_MAX) {
-              warn("BAD MOBO READ");
               mobo_score += MOBO_SCORE_STEP_UP;
               //Todo Uncomment when IMU Reliability improves
               //        if (imu_score > IMU_SCORE_MAX) {
               //          set_pod_mode(Emergency, "Motherboard Communication Failure");
               //        }
             } else if (mobo_score > 0) {
-              imu_score -= MOBO_SCORE_STEP_DOWN;
+              mobo_score -= MOBO_SCORE_STEP_DOWN;
             }
-            
             continue;
           }
           
-        //  double voltage = value * 0.0012207;
-
-//          debug("Sensor %s: ADC%d Channel %02d: %d (%lf Volts)", s->name, a, channel, value, voltage);
+          // double voltage = value * 0.0012207;
+          // debug("Sensor %s: ADC%d Channel %02d: %d (%lf Volts)", s->name, a, channel, value, voltage);
 
           queue_sensor(s, value);
           update_sensor(s);
         } else {
-//          debug("No Sensor for ADC%d Channel %d", a, channel);
+          // debug("No Sensor for ADC%d Channel %d", a, channel);
         }
       }
     }
@@ -671,6 +714,9 @@ void *core_main(__unused void *arg) {
     case Shutdown:
       warn("pod in shutdown mode, but still running");
       break;
+    case Manual:
+      // Nothing
+      break;
     default:
       panic(POD_CORE_SUBSYSTEM, "Pod in unknown state!");
       break;
@@ -692,6 +738,9 @@ void *core_main(__unused void *arg) {
 
     // Set hp fill
     adjust_hp_fill(pod);
+    
+    // Set battery relays
+    adjust_batteries(pod);
 
     #pragma mark core-telemetry
 

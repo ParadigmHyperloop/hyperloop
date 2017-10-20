@@ -39,8 +39,8 @@ command_t commands[];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
-#pragma clang diagnostic ignored "-Wmissing-prototypes"
-int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+
+static int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   int count =
       snprintf(&outbuf[0], outbufc, "%s",
                "Pod CLI " POD_CLI_VERSION_STR ". Copyright " POD_COPY_YEAR
@@ -58,13 +58,13 @@ int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   return count;
 }
 
-int pingCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int pingCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   pod->last_ping = get_time_usec();
   return snprintf(&outbuf[0], outbufc, "PONG:%d", get_pod_mode());
 }
 
-int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   pod_calibrate();
   return snprintf(&outbuf[0], outbufc, "CALIBRATION SET\nX: %f\nY: %f\nZ: %f\n",
@@ -73,7 +73,7 @@ int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
                   get_value_f(&(pod->imu_calibration_z)));
 }
 
-int resetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int resetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (pod_reset()) {
     return snprintf(&outbuf[0], outbufc, "Reseting Pod %s", get_pod()->name);
   } else {
@@ -81,7 +81,7 @@ int resetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   }
 }
 
-int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
 
   int n;
@@ -98,7 +98,7 @@ int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   return n;
 }
 
-int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   if (get_value(&(pod->pusher_plate)) == 0) {
     return snprintf(outbuf, outbufc, "Pusher plate is not depressed. Cannot Arm.");
@@ -116,7 +116,7 @@ int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   }
 }
 
-int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   pod->return_to_standby = false;
   if (set_pod_mode(Vent, "Remote Command started Vent")) {
@@ -126,12 +126,12 @@ int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   }
 }
 
-int statusCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int statusCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   return status_dump(pod, outbuf, outbufc);
 }
 
-int fillCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int fillCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (start_hp_fill()) {
     return snprintf(outbuf, outbufc, "Entered HP Fill State");
   } else {
@@ -139,7 +139,7 @@ int fillCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   }
 }
 
-int standbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int standbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (start_standby()) {
     return snprintf(outbuf, outbufc, "Entered Standby");
   } else {
@@ -147,18 +147,18 @@ int standbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   }
 }
 
-int returnToStandbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
-  if (argc < 2) {
-    return snprintf(outbuf, outbufc, "usage: returntostandby <0|1>");
-  }
-  
-  int value = atoi(argv[0]);
-  get_pod()->return_to_standby = value;
-  
-  return snprintf(outbuf, outbufc, "Set return_to_standby to %d", value);
-}
+//static int returnToStandbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+//  if (argc < 2) {
+//    return snprintf(outbuf, outbufc, "usage: returntostandby <0|1>");
+//  }
+//
+//  int value = atoi(argv[0]);
+//  get_pod()->return_to_standby = value;
+//
+//  return snprintf(outbuf, outbufc, "Set return_to_standby to %d", value);
+//}
 
-int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (argc < 3) {
     return snprintf(outbuf, outbufc,
                     "Usage: override <surface> [<number>] <new_value>%d",
@@ -190,7 +190,7 @@ int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   return 0;
 }
 
-int offsetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int offsetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
 
   if (argc < 3) {
@@ -211,7 +211,7 @@ int offsetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
                   old_offset, offset, get_sensor(sensor));
 }
 
-int packCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int packCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
   
   if (argc < 3) {
@@ -231,13 +231,88 @@ int packCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   return snprintf(outbuf, outbufc, "Set %s to %d", s->name, on_off);
 }
 
-int emergencyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int emergencyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   set_pod_mode(Emergency, "Command Line Initialized Emergency");
   get_pod()->manual_emergency = true;
   return snprintf(outbuf, outbufc, "Pod Mode: %d", get_pod_mode());
 }
 
-int exitCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int stateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+  pod_mode_t new_mode = NonState;
+  if (argc == 1) {
+    // Nothing, proceed to print
+  } else if (argc == 2) {
+    for (int i = 0; i < N_POD_STATES - 1; i++) {
+      if (strncmp(pod_mode_names[i], argv[1], strlen(pod_mode_names[i])) == 0) {
+        new_mode = (pod_mode_t)i;
+        break;
+      }
+    }
+
+    if (new_mode == NonState) {
+      errno = 0;
+      int m = (pod_mode_t)atoi(argv[1]);
+      if (errno != EINVAL) {
+        new_mode = (pod_mode_t)m;
+      }
+    }
+
+    if (new_mode < 0 && new_mode >= N_POD_STATES) {
+      return snprintf(outbuf, outbufc, "Invalid Mode: %s", argv[0]);
+    }
+
+    force_pod_mode(new_mode, "Remote Command Changed State");
+  } else {
+    return snprintf(outbuf, outbufc, "Usage: %s <state>", argv[0]);
+  }
+  
+  new_mode = get_pod_mode();
+  return snprintf(outbuf, outbufc, "Pod Mode: %d (%s)", new_mode, pod_mode_names[new_mode]);
+}
+
+static int manualCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+  // TODO: Implement using set_pod_mode()
+  pod_t *pod = get_pod();
+  manual_config_t *c = &pod->manual;
+  if (argc == 1) {
+    // Nothing, just return the printout of the current manual setpoint
+  } else if (argc == 15) {
+    c->front_brake = atoi(argv[1]);
+    c->rear_brake = atoi(argv[2]);
+    c->vent = atoi(argv[3]);
+    c->fill = atoi(argv[4]);
+    c->battery_a = atoi(argv[5]);
+    c->battery_b = atoi(argv[6]);
+    c->skate_a = atoi(argv[7]);
+    c->skate_b = atoi(argv[8]);
+    c->skate_c = atoi(argv[9]);
+    c->skate_d = atoi(argv[10]);
+    c->mpye_a = (atoi(argv[11]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
+    c->mpye_b = (atoi(argv[12]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
+    c->mpye_c = (atoi(argv[13]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
+    c->mpye_d = (atoi(argv[14]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
+  } else {
+    return snprintf(outbuf, outbufc, "Usage: %s [setpoints]", argv[0]);
+  }
+  
+  return snprintf(outbuf, outbufc, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+                  c->front_brake,
+                  c->rear_brake,
+                  c->vent,
+                  c->fill,
+                  c->battery_a,
+                  c->battery_b,
+                  c->skate_a,
+                  c->skate_b,
+                  c->skate_c,
+                  c->skate_d,
+                  c->mpye_a,
+                  c->mpye_b,
+                  c->mpye_c,
+                  c->mpye_d);
+}
+
+static int exitCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   if (argc > 1) {
     pod_exit(atoi(argv[1]));
   } else {
@@ -246,12 +321,12 @@ int exitCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   return -1;
 }
 
-int killCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int killCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   panic(POD_COMMAND_SUBSYSTEM, "Command Line Initiated Kill Command");
   return -1;
 }
 
-int pushCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int pushCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   return snprintf(outbuf, outbufc, "Push Command Not Allowed");
   
 }
@@ -268,8 +343,10 @@ command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "override", .func = overrideCommand},
                         {.name = "standby", .func = standbyCommand},
                         {.name = "status", .func = statusCommand},
+                        {.name = "manual", .func = manualCommand},
                         {.name = "offset", .func = offsetCommand},
                         {.name = "ready", .func = readyCommand},
+                        {.name = "state", .func = stateCommand},
                         {.name = "reset", .func = resetCommand},
                         {.name = "vent", .func = ventCommand},
                         {.name = "pack", .func = packCommand},
