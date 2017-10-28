@@ -73,7 +73,7 @@ You will also need clang/LLVM and Python development environments installed.
 ### Linux
 
 ```
-sudo apt-get install build-esential python-pip clang llvm
+sudo apt-get install build-essential python-pip clang llvm
 ```
 
 ## Setup Influxdb and Grafana
