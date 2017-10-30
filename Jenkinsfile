@@ -8,8 +8,8 @@ pipeline {
             sh 'cmake .'
             sh 'make -d clean'
             sh 'make -d all'
-            sh 'mkdir -p ./ROOT'
-            sh 'make -d DESTDIR=./ROOT install'
+            sh 'mkdir -p ./BUILD/dst'
+            sh 'make -d DESTDIR=./BUILD/dst install'
           }
         )
       }
@@ -24,8 +24,8 @@ pipeline {
         sh 'cmake .'
         sh 'make -d clean'
         sh 'make -d CFLAGS=-m32 all'
-        sh 'mkdir -p ./ROOT'
-        sh 'make -d DESTDIR=./ROOT install'
+        sh 'mkdir -p ./BUILD/dst'
+        sh 'make -d DESTDIR=./BUILD/dst install'
       }
     }
     stage('Test-32') {

@@ -1,3 +1,5 @@
+set(_NAME core)
+
 set(_SRCS
   accel.c
   commander.c
@@ -44,7 +46,9 @@ set(_HDRS
   telemetry.h
 )
 
-add_executable (core ${_SRCS} ${_HDRS})
+add_executable (${_NAME} ${_SRCS} ${_HDRS})
 
-target_link_libraries (core LINK_PUBLIC libhw)
-target_link_libraries (core LINK_PUBLIC libimu)
+target_link_libraries (${_NAME} LINK_PUBLIC libhw)
+target_link_libraries (${_NAME} LINK_PUBLIC libimu)
+
+install(TARGETS ${_NAME} DESTINATION bin)
