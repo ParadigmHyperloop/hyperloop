@@ -20,7 +20,7 @@ void set_mpye(mpye_t *m, mpye_value_t val) {
 }
 
 int mpye_init(mpye_t *m, char *name, bus_t *bus, unsigned char address, unsigned char channel) {
-  strncpy(m->name, name, MAX_NAME);
+  strncpy(m->name, name, HW_MAX_NAME);
 
   m->bus = bus;
   m->address = address;

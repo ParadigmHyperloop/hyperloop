@@ -33,14 +33,18 @@
 #ifndef PARADIGM_HW_H
 #define PARADIGM_HW_H
 
-#include <config.h>
 #include <stdbool.h>
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
-#include "bus_manager.h"
+#include <errno.h>
+#include <Block.h>
 
+#define HW_MAX_NAME 64
+
+#include "realtime.h"
+#include "bus_manager.h"
 #include "bbb.h"
 #include "i2c.h"
 #include "libBBB.h"
@@ -50,7 +54,6 @@
 #include "relay.h"
 #include "shims.h"
 #include "pins.h"
-
 
 
 #ifndef __unused

@@ -38,14 +38,15 @@
 #include <sys/queue.h>
 
 #include "cdefs.h"
+#include "debug.h"
 #include "config.h"
 
 #include <libBBB.h>
 #include <hw.h>
 #include <imu.h>
-#include <log.h>
 #include <Block.h>
 
+#include "log.h"
 #include "bus_manager.h"
 #include "states.h"
 #include "pod-defs.h"

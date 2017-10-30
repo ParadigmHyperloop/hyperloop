@@ -54,7 +54,7 @@ typedef struct solenoid {
   // The Channel this solenoid is connected to (0-15)
   unsigned char channel;
   // The Human Readable name of the solenoid
-  char name[MAX_NAME];
+  char name[HW_MAX_NAME];
   // Prevent this solenoid from changing state without an explicit unlock
   bool locked;
   // The logic type of the solenoid (Normally Open or Normally Closed)

@@ -45,7 +45,7 @@ int ssr_board_init(__unused bus_t * b, __unused int address) {
 
 
 int solenoid_init(solenoid_t *s, char *name, bus_t *bus, unsigned char address, unsigned char channel, solenoid_type_t type) {
-  strncpy(s->name, name, MAX_NAME);
+  strncpy(s->name, name, HW_MAX_NAME);
   s->bus = bus;
   s->address = address;
   s->channel = channel;

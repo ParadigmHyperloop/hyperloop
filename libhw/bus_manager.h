@@ -35,7 +35,14 @@
 
 #include <semaphore.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <pthread.h>
+#include <stdint.h>
+#include <assert.h>
+#include <Block.h>
+#include <errno.h>
+
+#include "realtime.h"
 
 #define BUS_BUFFER_SIZE 8
 

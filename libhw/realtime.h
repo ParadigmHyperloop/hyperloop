@@ -34,7 +34,16 @@
 #ifndef PARADIGM_REALTIME_H
 #define PARADIGM_REALTIME_H
 
-#include "pod.h"
+#include <time.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <errno.h>
+
+#define USEC_PER_SEC 1000000ull
+#define NSEC_PER_SEC 1000000000ull
+#define NSEC_PER_USEC 1000ull
 
 /**
  * Get the current time of the pod in microseconds
@@ -60,7 +69,7 @@ void get_timespec(struct timespec *t);
 void timespec_add_us(struct timespec *t, long us);
 
 /**
- * @brief 
+ * @brief
  * Adds the given timespec t2 to t1
  *
  * @discussion
@@ -83,7 +92,7 @@ void timespec_add(struct timespec *t1, const struct timespec *t2);
  */
 void timespec_sub(struct timespec *t1, const struct timespec *t2);
 
-  
+
 /**
  * Compares two timespecs.
  *
