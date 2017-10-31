@@ -114,7 +114,7 @@ int prussdrv_init(void);
 int prussdrv_open(unsigned int host_interrupt);
 
 /** Return version of PRU.  This must be called after prussdrv_open. */
-int prussdrv_version();
+int prussdrv_version(void);
 
 /** Return string description of PRU version. */
 const char *prussdrv_strversion(int version);

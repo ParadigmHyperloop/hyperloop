@@ -34,6 +34,6 @@
 #ifndef PARADIGM_LOGGING_H
 #define PARADIGM_LOGGING_H
 
-#include <pod.h>
+#include "pod.h"
 
 #endif /* PARADIGM_LOGGING_H */

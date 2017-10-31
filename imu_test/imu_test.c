@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 
   int l = -1;
   int i = 0;
-  int poop = 0;
+  int invalid = 0;
 
   imu_datagram_t average;
   memset(&average, 0, sizeof(imu_datagram_t));
@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
         if (config.stop_on_fail) {
           finish(1, fd);
         } else {
-          poop++;
+          invalid++;
           i++;
           continue; // Skip the rest of the checks for this read
         }
@@ -176,7 +176,7 @@ int main(int argc, char *argv[]) {
         if (config.stop_on_fail) {
           finish(1, fd);
         } else {
-          poop++;
+          invalid++;
           i++;
           continue; // Skip the rest of the checks for this read
         }
@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
         if (config.stop_on_fail) {
           finish(1, fd);
         } else {
-          poop++;
+          invalid++;
         }
       }
 
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
         if (config.stop_on_fail) {
           finish(1, fd);
         } else {
-          poop++;
+          invalid++;
         }
       }
 
@@ -231,10 +231,10 @@ int main(int argc, char *argv[]) {
   printf("[TIME] %lf seconds. %d packets processed %lf packets / second",
          seconds, i, (double)i / seconds);
 
-  if (poop > 0) {
+  if (invalid > 0) {
     fprintf(stderr, "Found %d errors out of %d iterations, %d skipped. %f%%\n",
-            poop, config.iterations, config.spinup,
-            (float)poop / (float)(config.iterations - config.spinup));
+            invalid, config.iterations, config.spinup,
+            (float)invalid / (float)(config.iterations - config.spinup));
     finish(1, fd);
   } else {
     finish(0, fd);

@@ -30,45 +30,73 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-
-/**
- * Common C Definitions File for OPENLOOP pod controller
- *
- * This file is responsible for simply including system library headers
- */
-#ifndef _OPENLOOP_POD_CDEFS_
-#define _OPENLOOP_POD_CDEFS_
-
-#include <arpa/inet.h>
-#include <assert.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <semaphore.h>
-#include <signal.h>
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
+#ifndef OPENLOOP_POD_LOG_H
+#define OPENLOOP_POD_LOG_H
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <time.h>
+#include <stdint.h>
+#include <sys/queue.h>
 #include <unistd.h>
-
-#define WITHIN(__low, __val, __high) ((__low <= __val) && (__val <= __high))
-#define OUTSIDE(__low, __val, __high) (!(WITHIN((__low), (__val), (__high))))
-
-#define __STR__(s) #s
-#define __XSTR__(s) __STR__(s)
-
+#include <stdarg.h>
+#include "pod.h"
 #ifndef __unused
 #define __unused  __attribute__((unused))
 #endif
+#ifndef __printflike
+#define __printflike(a, b) __attribute__((format(printf, (a), (b))))
+#endif
+
+#include "ring_buffer.h"
+
+#ifndef PACKET_INTERVAL
+#define PACKET_INTERVAL USEC_PER_SEC / 10 // Delay between sending packets
+#endif
+
+#define MAX_LOGS 32
+#define MAX_LOG_SIZE 512
+
+#define LOG_FILE_PATH "./hyperloop-core.log"
+
+#define TELEMETRY_PACKET_VERSION 2
+
+typedef enum {
+  Message = 1,
+  Telemetry_float = 2,
+  Telemetry_int32 = 3,
+  Packet = 4
+} log_type_t;
+
+typedef struct {
+  char name[64];
+  float value;
+} log_float_data_t;
+
+typedef struct {
+  char name[64];
+  int32_t value;
+} log_int32_data_t;
+
+typedef struct log {
+  log_type_t type;
+  char data[MAX_LOG_SIZE];
+  size_t sz;
+  STAILQ_ENTRY(log) entries;
+} log_t;
+
+
+/**
+ * Enqueue a telemetry packet for network transmission of the current state
+ */
+int log_enqueue(log_t *l);
+
+/**
+ * Log a standard message to stdout and a log file
+ */
+__printflike(1, 2)
+int pod_log(char *fmt, ...);
+
+/**
+ * Main entry point into the logging server. Use with pthread_create
+ */
+void *logging_main(__unused void *arg);
 
 #endif

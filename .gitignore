@@ -6,3 +6,5 @@
 *.a
 *.log
 .DS_Store
+Makefile
+/proj/

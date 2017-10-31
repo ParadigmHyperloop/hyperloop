@@ -1,5 +1,5 @@
 #!/bin/bash
-./BUILD/dst/usr/local/bin/core -t -i - &
+$1 -t -i - &
 TESTPID=$!
 echo "Started $TESTPID"
 

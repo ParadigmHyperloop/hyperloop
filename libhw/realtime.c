@@ -35,7 +35,7 @@
 uint64_t get_time_usec() {
   struct timespec tc;
   clock_gettime(CLOCK_REALTIME, &tc);
-  
+
   return (tc.tv_sec * USEC_PER_SEC) + (tc.tv_nsec / NSEC_PER_USEC);
 }
 
@@ -43,7 +43,7 @@ void get_timespec(struct timespec *t) {
   static struct timespec cached;
   int rc = clock_gettime(CLOCK_REALTIME, t);
   if (rc < 0) {
-    DECLARE_EMERGENCY("clock_gettime failure: rc:%d errno:%d", rc, errno);
+    printf("clock_gettime failure: rc:%d errno:%d", rc, errno);
     memcpy(t, &cached, sizeof(struct timespec));
   }
 }
@@ -94,7 +94,7 @@ int timespec_cmp(struct timespec *a, struct timespec *b) {
     else
     return -1;
   }
-  
+
   return -1;
 }
 
@@ -102,6 +102,6 @@ int64_t timespec_to_nsec(struct timespec *t) {
 //  if (t->tv_sec >= (INT32_MAX - 1) / (long)NSEC_PER_SEC) {
 //    return -1;
 //  }
-  
+
   return (t->tv_sec * NSEC_PER_SEC) + t->tv_nsec;
 }

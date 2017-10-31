@@ -5,38 +5,32 @@ pipeline {
       steps {
         parallel(
           "Build": {
-            sh 'make -d'
-            sh 'make -d install'
-            
-          },
-          "Style": {
-            sh 'make style'
-            
+            sh 'cmake .'
+            sh 'make -d clean'
+            sh 'make -d all'
+            sh 'mkdir -p ./BUILD/dst'
+            sh 'make -d DESTDIR=./BUILD/dst install'
           }
         )
       }
     }
     stage('Test') {
       steps {
-        sh 'make test'
-      }
-    }
-    stage('Deploy') {
-      steps {
-        sh 'make deb'
-        sh 'make publish > secure.txt'
+        sh 'make integration'
       }
     }
     stage('Build-32bit') {
       steps {
+        sh 'cmake .'
         sh 'make -d clean'
-        sh 'make -d all'
-        sh 'make -d install'
+        sh 'make -d CFLAGS=-m32 all'
+        sh 'mkdir -p ./BUILD/dst'
+        sh 'make -d DESTDIR=./BUILD/dst install'
       }
     }
     stage('Test-32') {
       steps {
-        sh 'make test'
+        sh 'make integration'
       }
     }
   }

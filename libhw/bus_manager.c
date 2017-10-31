@@ -37,31 +37,31 @@ static void task_destroy(bus_task_t *task) {
 
 static bus_task_t * bus_dequeue(bus_t *bus) {
   assert(bus);
-  
+
   pthread_mutex_lock(&bus->mutex);
 
   bus_task_t * task = bus->head;
   if (task) {
     bus->head = task->next;
   }
-  
+
   pthread_mutex_unlock(&bus->mutex);
-  
-  
+
+
   return task;
 }
 
 static void *bus_main(bus_t *bus) {
-  
+
   bus->state = Run;
 
   uint64_t timestamp = get_time_usec();
   while (bus->state != Killed) {
     int rc = sem_wait(bus->sem);
-    errassert(rc == 0);
+    assert(rc == 0);
     bus_task_t *task = bus_dequeue(bus);
     if (task && bus->state != Killed) {
-      debug("Executing Task %p", (void *)bus->head);
+      printf("Executing Task %p", (void *)bus->head);
       timestamp = get_time_usec();
       if (task->mode != Cancelled) {
         task_run(task, bus);
@@ -72,7 +72,7 @@ static void *bus_main(bus_t *bus) {
           usleep(bus->throttle - elapsed);
         }
       }
-      
+
       pthread_mutex_lock(&bus->mutex);
 
       if (task->mode == Requeue) {
@@ -86,11 +86,11 @@ static void *bus_main(bus_t *bus) {
       pthread_mutex_unlock(&bus->mutex);
 
     } else {
-      note("Bus %s is empty or bus is being killed", bus->name);
+      printf("Bus %s is empty or bus is being killed", bus->name);
     }
   }
 
-  warn("Bus Manager %s is shutting down", bus->name);
+  printf("Bus Manager %s is shutting down", bus->name);
   return NULL;
 }
 
@@ -107,7 +107,7 @@ int bus_kill(bus_t *bus) {
 
   // Note: This sem_post() does NOT belong in the critical section
   int rc = sem_post(bus->sem);
-  errassert(rc == 0);
+  assert(rc == 0);
 
   return (rc != 0 ? -1 : 0);
 }
@@ -115,7 +115,7 @@ int bus_kill(bus_t *bus) {
 bus_task_t * bus_enqueue(bus_t *bus, bus_block_t block) {
   bus_task_t *task = task_create(block);
   if (!task) {
-    DECLARE_EMERGENCY("Task failed to schedule on bus %p", bus);
+    printf("Task failed to schedule on bus %p", bus);
     return NULL;
   }
 
@@ -142,7 +142,7 @@ bus_task_t * bus_enqueue(bus_t *bus, bus_block_t block) {
   assert(Block_copy(task->execute));
 
   int rc = sem_post(bus->sem);
-  errassert(rc == 0);
+  assert(rc == 0);
 
   return task;
 }
@@ -151,35 +151,35 @@ int bus_init(bus_t *bus, const char *name, int (^open_block)(void)) {
   bus->name = name;
 
   bus->fd = open_block();
-  
+
   if (bus->fd < 0) {
     perror("Bus Failed to open: ");
     return -1;
   }
-  
+
   bus->head = NULL;
   bus->throttle = TASK_THROTTLE;
   bus->state = Init;
 
   pthread_mutex_init(&bus->mutex, NULL);
   bus->sem = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP, 0);
-  errassert(bus->sem != SEM_FAILED);
-  
+  assert(bus->sem != SEM_FAILED);
+
   for (int i = 0; i < BUS_BUFFER_SIZE; i++) {
     bus->mem[i] = 0;
   }
-  
-  debug("Initialized bus: %s", bus->name);
+
+  printf("Initialized bus: %s", bus->name);
 
   return 0;
 }
 
 int bus_destroy(bus_t *bus) {
   int rc = bus_kill(bus);
-  errassert(rc == 0);
+  assert(rc == 0);
 
   rc = pthread_join(bus->thread, NULL);
-  errassert(rc == 0);
+  assert(rc == 0);
   bus_task_t *next, *head = bus->head;
   while (head) {
     next = head->next;

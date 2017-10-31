@@ -6,10 +6,13 @@ The code for the Paradigm Pod Control systems.
 
 # About
 
-The Core Control Software found in this repository is designed to run in a RealTime Linux environment on a high performance
-ARM core. Suitable platforms include the TI Sitara am335x series of processors, conveniently found in the consumer and
-industrial grade [BeagleBoard](http://beagleboard.org) Open Source Hardware. We utilize the BeagleBone black hardware
-and make extensive use of the onboard TI Sitara ARM core to manage the system level control loop for the Paradigm Pod
+The Core Control Software found in this repository is designed to run in a
+RealTime Linux environment on a high performance ARM core. Suitable platforms
+include the TI Sitara am335x series of processors, conveniently found in the
+consumer and industrial grade [BeagleBoard](http://beagleboard.org) Open Source
+Hardware. We utilize the BeagleBone black hardware and make extensive use of
+the onboard TI Sitara ARM core to manage the system level control loop for the
+Paradigm Pod.
 
 This breaks down into several responsibilities:
 
@@ -39,15 +42,15 @@ This breaks down into several responsibilities:
 
 # Documentation
 
-There is more documentation in this repository and on the internal Paradigm Google Drive.
-
-* [Core Control Program Documentation](core/README.md)
+There is more documentation in this repository and on the internal Paradigm
+Google Drive.
 
 # Getting Started
 
-- If you are new to Paradigm be sure to check and say hi to the Paradigm
+- If you are new to Paradigm be sure to check in and say hi to the Paradigm
 software team at one of our weekly meetings!
-- If you are interested in contributing to any of Paradigm's software initiatives, please feel get in touch with us via http://paradigm.team or at
+- If you are interested in contributing to any of Paradigm's software
+initiatives, please feel get in touch with us via https://paradigm.earth or at
 one of our meetings.  You can also jump right in and open a pull request if
 you already see something you like!
 
@@ -73,14 +76,19 @@ You will also need clang/LLVM and Python development environments installed.
 ### Linux
 
 ```
-sudo apt-get install build-essential python-pip clang llvm
+sudo apt-get install build-essential python-pip clang llvm cmake
 ```
 
 ## Setup Influxdb and Grafana
 
 Install influxdb and grafana per the instructions on their respective websites
 
-## Install Core
+## Install ODS
+
+Clone ODS in a new terminal window following the instructions on the
+[ODS README](https://github.com/ParadigmHyperloop/ODS)
+
+## Install & Build Core
 
 Clone this repo somewhere safe, then cd into it.
 
@@ -91,18 +99,40 @@ git clone git@github.com:ParadigmHyperloop/hyperloop.git
 cd hyperloop
 ```
 
-## Install ODS
+Now, core is a CMake project, meaning that you need to first build the build
+system, then build the project with the new build system. For example: There is
+no Xcode project stored in Git, but if you are going to use Xcode for your
+development, you should cd into the `proj` folder and run `cmake -G Xcode ..`
+which will give you a project at `./proj/hyperloop.xcodeproj`.  Alternatively,
+If you are using a BBB, linux environment, or otherwise want to use Makefiles
+all you need to do is cd to `./proj` and run `cmake ..`.  Then to build, just
+run `make` in the `./proj` folder.
 
-Clone ODS in a new terminal window following the instructions on the
-[ODS README](https://github.com/ParadigmHyperloop/ODS)
+For this tutorial, we will keep things simple and use a Makefile build system.
+cd into the empty `proj` folder and run `cmake ..`.  You should see something
+like this:
+
+```
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/edhurtig/dev/hyperloop/proj
+```
+
+Now if you run `make` you should get a built controller.
+
+```
+[ 94%] Building C object core/CMakeFiles/core.dir/telemetry.c.o
+[ 97%] Building C object core/CMakeFiles/core.dir/tests.c.o
+[100%] Linking C executable core
+[100%] Built target core
+```
 
 ## Core Startup
 
-You should now be running all 4 of the aforementioned services (InfluxDB, Grafana, ODS) on your dev machine.  Now it is time to start up core
+You should now be running all 3 of the aforementioned services (InfluxDB,
+Grafana, ODS) on your dev machine.  Now it is time to start up core
 
-- Clone this repo and then cd into it.
-- Run `make clean all install`
-- To start the core controller run `./BUILD/obj/core -i -`
+From the `./proj` folder in a terminal window, run `./core/core -i -`
 
 You should see the core controller start with output like this
 
@@ -124,10 +154,10 @@ You should see the core controller start with output like this
 [NOTE]  [cmd_server] {commander.c:239} === Waiting for first commander connection ===
 ```
 
-Start ODS, the ODS terminal window will start printing telemetry data.
-The telemetry data will be accessible in Grafana at http://localhost:3000 as
-well, but you will need to configure a data source and some dashboards (more on
-that later)
+Start ODS if not already, the ODS terminal window will start printing telemetry
+data. The telemetry data will be accessible in Grafana at
+http://localhost:3000 as well, but you will need to configure a data source and
+some dashboards (more on that later)
 
 # Glossary
 

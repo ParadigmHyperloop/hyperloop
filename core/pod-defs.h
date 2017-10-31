@@ -147,6 +147,8 @@ typedef struct manual_config {
   mpye_value_t mpye_d;
 } manual_config_t;
 
+typedef uint16_t relay_mask_t;
+
 /**
  * Defines the master state of the pod
  */
@@ -156,32 +158,32 @@ typedef struct pod {
   pod_value_t accel_x;
   pod_value_t accel_y;
   pod_value_t accel_z;
-  
+
   pod_value_t velocity_x;
   pod_value_t velocity_z;
   pod_value_t velocity_y;
-  
+
   pod_value_t position_x;
   pod_value_t position_y;
   pod_value_t position_z;
-  
+
   pod_value_t rotvel_x;
   pod_value_t rotvel_y;
   pod_value_t rotvel_z;
-  
+
   pod_value_t variance_x;
   pod_value_t variance_y;
   pod_value_t variance_z;
-  
+
   pod_value_t quaternion_real;
   pod_value_t quaternion_i;
   pod_value_t quaternion_j;
   pod_value_t quaternion_k;
-  
+
   pod_value_t imu_calibration_x;
   pod_value_t imu_calibration_y;
   pod_value_t imu_calibration_z;
-  
+
   // Solenoids
   solenoid_t skate_solonoids[N_SKATE_SOLONOIDS];
   solenoid_t clamp_engage_solonoids[N_CLAMP_ENGAGE_SOLONOIDS];
@@ -189,14 +191,14 @@ typedef struct pod {
   solenoid_t vent_solenoid;
   solenoid_t hp_fill_valve;
   solenoid_t battery_pack_relays[N_BATTERY_PACK_RELAYS];
-  
+
   // HP Fill Valve Limit Switches
   sensor_t hp_fill_valve_open;
   sensor_t hp_fill_valve_close;
-  
+
   // MPYEs
   mpye_t mpye[N_MPYES];
-  
+
   // Pressure Transducers
   sensor_t hp_pressure;
   sensor_t reg_pressure[N_REG_PRESSURE];
@@ -210,7 +212,7 @@ typedef struct pod {
   sensor_t reg_surf_thermo[N_REG_THERMO];
   sensor_t frame_thermo;
   sensor_t clamp_thermo[N_CLAMP_PAD_THERMO];
-  
+
   // Distance Sensors
   sensor_t pusher_plate_distance[N_PUSHER_DISTANCE];
   sensor_t levitation_distance[N_LEVITATION_DISTANCE];
@@ -220,41 +222,41 @@ typedef struct pod {
   pod_value_t pusher_plate;
   uint64_t last_pusher_seen;
   uint64_t launch_time;
-  
+
   // Batteries
   pod_battery_t battery[N_BATTERIES];
-  
+
   // Thread Tracking
   pthread_t core_thread;
   pthread_t logging_thread;
   pthread_t cmd_thread;
-  
+
   // Current Overall Pod Mode (Goal of the System)
   pod_mode_t mode;
   pthread_rwlock_t mode_mutex;
-  
+
   // Holds the pod in a boot state until set to 1 by an operator
   pod_value_t ready;
-  
+
   // Pointers to all the solenoids that are connected to the relays
   // (Don't think too much about this one, it is really just a convienience)
   solenoid_t *relays[N_RELAY_CHANNELS];
   sensor_t *sensors[N_ADC_CHANNELS * N_ADCS];
-  
+
   bus_t i2c[N_I2C_BUSSES];
 
   // fd of the IMU
   int imu;
-  
+
   // socket for the logging UDP socket
   int logging_socket;
-  
+
   // log file
   int logging_fd;
-  
+
   // log file name
   char logging_filename[PATH_MAX];
-  
+
   char state_reason[MAX_STATE_REASON_MSG];
 
   uint64_t last_ping;
@@ -263,7 +265,7 @@ typedef struct pod {
   pod_value_t core_speed;
   enum pod_caution cautions;
   enum pod_warning warnings;
-  
+
   bool calibrated;
   bool func_test;
   bool return_to_standby;
@@ -273,7 +275,7 @@ typedef struct pod {
   uint64_t start;
   uint64_t overrides;
   pthread_rwlock_t overrides_mutex;
-  
+
   pod_shutdown_t shutdown;
   bool initialized;
 } pod_t;
@@ -402,7 +404,7 @@ static inline void set_value_f(pod_value_t *pod_field, float newValue) {
     return;
   }
 #endif
-  
+
   pthread_rwlock_wrlock(&(pod_field->lock));
   pod_field->value.fl = newValue;
   pthread_rwlock_unlock(&(pod_field->lock));

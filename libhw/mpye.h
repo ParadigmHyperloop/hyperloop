@@ -23,7 +23,7 @@ typedef struct mpye {
   // The PWM pin used to control this solenoid
   unsigned char channel;
   // The Human Readable name of the solenoid
-  char name[MAX_NAME];
+  char name[HW_MAX_NAME];
   // The current value of this mpye (0 for closed, +100 full A, -100 full B)
   unsigned int value;
   // The current value of this mpye (0 for closed, +100 full A, -100 full B)
