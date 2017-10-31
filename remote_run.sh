@@ -1,3 +1,7 @@
 #!/bin/bash
+: "${BBB_USER:=root}"
+: "${BBB_HOST:=192.168.0.10}"
+: "${BBB_FOLDER:=~/hyperloop}"
 
-ssh root@192.168.0.10 'bash -c "cd hyperloop && make run"'
+
+ssh "$BBB_USER@$BBB_HOST" "bash -c 'cd $BBB_FOLDER && ./run_core.sh'"
