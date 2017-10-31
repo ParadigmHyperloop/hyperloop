@@ -41,6 +41,7 @@
 #include <assert.h>
 #include <Block.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #include "realtime.h"
 

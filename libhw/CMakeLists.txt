@@ -33,7 +33,21 @@ set(_HDRS
   gpio.h
 )
 
+find_package (Threads)
+
 add_library (${_NAME} ${_SRCS} ${_HDRS})
+
+# Find Blocks Support
+if(UNIX AND NOT APPLE)
+  find_library(BLOCKS_LIB BlocksRuntime)
+
+  if(NOT BLOCKS_LIB)
+    message(FATAL_ERROR "BlocksRuntime Not Found! https://goo.gl/zKS7jP")
+  endif()
+  target_link_libraries (${_NAME} ${BLOCKS_LIB})
+endif()
+
+target_link_libraries (${_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
 target_include_directories (${_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
