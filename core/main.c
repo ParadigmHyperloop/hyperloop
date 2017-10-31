@@ -126,7 +126,7 @@ void pod_exit(int code) {
 }
 
 /**
- * Panic Signal Handler.  This is only called if the shit has hit the fan
+ * Panic Signal Handler.  This is only called if immediate termination is required
  * This function fires whenever the controller looses complete control in itself
  *
  * The controller sets the CLAMP pins to LOW (engage) and then kills all it's
