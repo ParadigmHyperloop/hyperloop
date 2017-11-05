@@ -107,28 +107,47 @@ no Xcode project stored in Git, but if you are going to use Xcode for your
 development, you should cd into the `proj` folder and run `cmake -G Xcode ..`
 which will give you a project at `./proj/hyperloop.xcodeproj`.  Alternatively,
 If you are using a BBB, linux environment, or otherwise want to use Makefiles
-all you need to do is cd to `./proj` and run `cmake ..`.  Then to build, just
+all you need to do is cd to `./proj` and run cmake.  Then to actually build the project, just
 run `make` in the `./proj` folder.
 
-If you run into issues with `-fblocks` then you need to purge the proj folder
-and re-cmake `cmake -DCMAKE_C_COMPILER=$(which clang) ..`. This commonly 
-occurs if you are running Linux and you have GCC installed as the default C
-compiler. 
-([What is a C block?](https://en.wikipedia.org/wiki/Blocks_(C_language_extension)))
-
-For this tutorial, we will keep things simple and use a Makefile build system.
-cd into the empty `proj` folder and run `cmake ..`.  You should see something
-like this:
+For this, we will keep things simple and use a Makefile build system.
+cd into the empty `proj` folder and run 
+`cmake -DCMAKE_C_COMPILER=$(which clang) ..`.  You should see something like
+this (note that we are forcing the use of clang as the compiler):
 
 ```
+-- The C compiler identification is Clang 3.8.0
+-- The CXX compiler identification is GNU 5.4.0
+-- Check for working C compiler: /usr/bin/clang
+-- Check for working C compiler: /usr/bin/clang -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Looking for pthread_create
+-- Looking for pthread_create - not found
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE
 -- Configuring done
 -- Generating done
--- Build files have been written to: /Users/edhurtig/dev/hyperloop/proj
+-- Build files have been written to: /home/edhurtig/hyperloop-core/proj
 ```
 
 Now if you run `make` you should get a built controller.
 
 ```
+...
 [ 94%] Building C object core/CMakeFiles/core.dir/telemetry.c.o
 [ 97%] Building C object core/CMakeFiles/core.dir/tests.c.o
 [100%] Linking C executable core
