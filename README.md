@@ -172,7 +172,7 @@ some dashboards (more on that later)
 * **BBB**: Beagle Bone Black, an ARM micro-controller
 * **IMU**: Inertial Measurement Unit, a really sick accelerometer
 * **ODS**: OpenLoop Data Shuttle: the server that the pod sends telemetry data
-  and logs to. [Click here]((https://github.com/ParadigmHyperloop/ODS).
+  and logs to. [Click here](https://github.com/ParadigmHyperloop/ODS).
 
 # Jenkins
 
