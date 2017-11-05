@@ -108,6 +108,12 @@ If you are using a BBB, linux environment, or otherwise want to use Makefiles
 all you need to do is cd to `./proj` and run `cmake ..`.  Then to build, just
 run `make` in the `./proj` folder.
 
+If you run into issues with `-fblocks` then you need to purge the proj folder
+and re-cmake `cmake -DCMAKE_C_COMPILER=$(which clang) ..`. This commonly 
+occurs if you are running Linux and you have GCC installed as the default C
+compiler. 
+([What is a C block?](https://en.wikipedia.org/wiki/Blocks_(C_language_extension)))
+
 For this tutorial, we will keep things simple and use a Makefile build system.
 cd into the empty `proj` folder and run `cmake ..`.  You should see something
 like this:
