@@ -79,6 +79,8 @@ You will also need clang/LLVM and Python development environments installed.
 sudo apt-get install build-essential python-pip clang llvm cmake
 ```
 
+You will also need to build and install [LibBlocksRuntime](https://github.com/mackyle/blocksruntime)
+
 ## Setup Influxdb and Grafana
 
 Install influxdb and grafana per the instructions on their respective websites
