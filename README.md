@@ -1,4 +1,4 @@
-# Paradigm Hyperloop Pod Software
+# Paradigm Hyperloop Pod Software [![Build Status](https://ci.paradigmhyperloop.com/buildStatus/icon?job=ParadigmHyperloop/hyperloop/master&build=19)](https://ci.paradigmhyperloop.com/job/ParadigmHyperloop/job/hyperloop/job/master/19/)
 
 The code for the Paradigm Pod Control systems.
 
