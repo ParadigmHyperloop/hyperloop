@@ -5,7 +5,7 @@ pipeline {
       steps {
         parallel(
           "Build": {
-            sh 'cmake .'
+            sh 'cmake -DCMAKE_C_COMPILER=/usr/bin/clang .'
             sh 'make -d clean'
             sh 'make -d all'
             sh 'mkdir -p ./BUILD/dst'
@@ -21,7 +21,7 @@ pipeline {
     }
     stage('Build-32bit') {
       steps {
-        sh 'cmake .'
+        sh 'cmake -DCMAKE_C_COMPILER=/usr/bin/clang .'
         sh 'make -d clean'
         sh 'make -d CFLAGS=-m32 all'
         sh 'mkdir -p ./BUILD/dst'
