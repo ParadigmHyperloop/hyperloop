@@ -8,7 +8,8 @@ TCP_IP = "127.0.0.1"
 TCP_PORT = 7779
 BUFFER_SIZE = 4096
 COMMAND_WAITING_MESSAGE = 'Waiting for first commander connection'
-MAX_TCP_RETRIES = 5
+MAX_TCP_RETRIES = 10
+
 
 class ControllerInstance(object):
     def __init__(self, path, imu=None, POST=None):
@@ -47,6 +48,7 @@ class ControllerInstance(object):
                 if i == MAX_TCP_RETRIES - 1:
                     self.shutdown()
                     return False
+                time.sleep(0.1)
 
         print("Connected!")
 
