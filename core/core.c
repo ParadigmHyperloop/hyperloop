@@ -90,7 +90,8 @@ void standby_state_checks(pod_t *pod) {
 }
 
 void armed_state_checks(pod_t *pod) {
-  if (get_value_f(&(pod->accel_x)) > PUSHING_STATE_ACCEL_X && get_value(&(pod->pusher_plate)) == 1) {
+  flight_profile_t *profile = &pod->flight_profile;
+  if (get_value_f(&(pod->accel_x)) > get_pusher_state_accel_min(profile) && get_value(&(pod->pusher_plate)) == 1) {
     set_pod_mode(Pushing, "Positive Accel");
   }
 }
@@ -231,6 +232,7 @@ void adjust_brakes(pod_t *pod) {
     return;
   }
 
+  flight_profile_t *profile = &pod->flight_profile;
   switch (get_pod_mode()) {
   case POST:
   case Boot:
@@ -249,7 +251,6 @@ void adjust_brakes(pod_t *pod) {
     break;
   case Braking:
   case Emergency:
-      flight_profile_t *profile = &pod->flight_profile;
       if (get_value(&(pod->pusher_plate)) == 1) {
         debug("Pusher Plate Engaged, inhibiting brakes");
         for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
@@ -264,7 +265,6 @@ void adjust_brakes(pod_t *pod) {
         if (pod->engaged_brakes == 0) {
           pod->engaged_brakes = get_time_usec();
         }
-        flight_profile_t *profile = &pod->flight_profile;
         ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
         if ((get_time_usec() - pod->engaged_brakes) > get_braking_wait(profile)) {
           if (get_value_f(&(pod->accel_x)) > get_primary_braking_accel_min(profile)) {
@@ -285,6 +285,7 @@ void adjust_brakes(pod_t *pod) {
 }
 
 void adjust_skates(__unused pod_t *pod) {
+  flight_profile_t *profile = &pod->flight_profile;
   switch (get_pod_mode()) {
   case POST:
   case Boot:
@@ -314,7 +315,7 @@ void adjust_skates(__unused pod_t *pod) {
       for (int i = 0; i < N_MPYES; i++) {
         set_mpye(&(pod->mpye[i]), 0);
       }
-    } else if (get_value_f(&(pod->accel_x)) > PUSHING_STATE_ACCEL_X) {
+    } else if (get_value_f(&(pod->accel_x)) > get_pusher_state_accel_min(profile)) {
       debug("Accelerating via IMU, inhibiting skates");
       for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
         close_solenoid(&(pod->skate_solonoids[i]));
