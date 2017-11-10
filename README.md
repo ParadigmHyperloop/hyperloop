@@ -189,7 +189,7 @@ some dashboards (more on that later)
 * **ODS**: OpenLoop Data Shuttle: the server that the pod sends telemetry data
   and logs to. [Click here](https://github.com/ParadigmHyperloop/ODS).
 
-# Jenkins
+# Testing
 
 A Jenkins server builds and tests all changes made to this repository
 automatically.  Whenever you open a pull request, a build will be triggered and
@@ -201,6 +201,12 @@ Jenkins server catches them
 
 ```
 make clean all install integration
+```
+
+**Note:** You will need to install `pytest` for the integration target to work properly
+
+```
+sudo pip install pytest
 ```
 
 # License
