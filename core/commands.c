@@ -32,6 +32,7 @@
 
 #include "commands.h"
 #include "pod.h"
+#include <getopt.h>
 
 extern char *pod_mode_names[];
 
@@ -48,7 +49,7 @@ static int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[])
                "This tool allows you to control various aspects of the pod\n"
                " - TCP:" __XSTR__(CMD_SVR_PORT) "\n - STDIN\n\n"
                                                 "Available Commands:\n");
-  
+
   command_t *command = &commands[0];
   while (command->name) {
     count += snprintf(&outbuf[count], outbufc, " - %s\n", command->name);
@@ -213,21 +214,21 @@ static int offsetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[
 
 static int packCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   pod_t *pod = get_pod();
-  
+
   if (argc < 3) {
     return snprintf(outbuf, outbufc, "Usage: pack <pack> <0|1>");
   }
-  
+
   int pack = atoi(argv[1]);
   int on_off = atoi(argv[2]);
-  
+
   solenoid_t *s = &pod->battery_pack_relays[pack];
   if (on_off == 0) {
     close_solenoid(s);
   } else {
     open_solenoid(s);
   }
-  
+
   return snprintf(outbuf, outbufc, "Set %s to %d", s->name, on_off);
 }
 
@@ -265,7 +266,7 @@ static int stateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]
   } else {
     return snprintf(outbuf, outbufc, "Usage: %s <state>", argv[0]);
   }
-  
+
   new_mode = get_pod_mode();
   return snprintf(outbuf, outbufc, "Pod Mode: %d (%s)", new_mode, pod_mode_names[new_mode]);
 }
@@ -294,7 +295,7 @@ static int manualCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[
   } else {
     return snprintf(outbuf, outbufc, "Usage: %s [setpoints]", argv[0]);
   }
-  
+
   return snprintf(outbuf, outbufc, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d",
                   c->front_brake,
                   c->rear_brake,
@@ -328,9 +329,107 @@ static int killCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[])
 
 static int pushCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
   return snprintf(outbuf, outbufc, "Push Command Not Allowed");
-  
+
 }
 
+static int flightProfileGetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]){
+  //Returns flight profile information
+  pod_t *pod = get_pod();
+  flight_profile_t *profile = &pod->flight_profile;
+  return snprintf(outbuf, outbufc, "watchdog_timer: %i\n"
+                                   "emergency_hold: %i\n"
+                                   "braking_wait: %i\n"
+                                   "pusher_timeout: %i\n"
+                                   "pusher_state_accel_min: %f\n"
+                                   "pusher_state_min_timer: %i\n"
+                                   "pusher_distance_min: %f\n"
+                                   "primary_braking_accel_min: %f\n",
+                                    profile->watchdog_timer, profile->emergency_hold,
+                                    profile->braking_wait, profile->pusher_timeout,
+                                    profile->pusher_state_accel_min, profile->pusher_state_min_timer,
+                                    profile->pusher_distance_min, profile->primary_braking_accel_min);
+}
+
+static int flightProfileCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]){
+  //Allows user to configure flight profiles
+  pod_mode_t mode = get_pod_mode();
+  if(mode == 1){ //Only allowed in Boot mode
+    //get current profile
+    pod_t *pod = get_pod();
+    flight_profile_t *profile = &pod->flight_profile;
+
+    //Define options for getopt_long
+    int opt = 0;
+    static struct option long_options[] = {
+      {"watchdog_timer", optional_argument, NULL, 'w'},
+      {"emergency_hold", optional_argument, NULL, 'e'},
+      {"braking_wait", optional_argument, NULL, 'r'},
+      {"pusher_timeout", optional_argument, NULL, 't'},
+      {"pusher_state_accel_min", optional_argument, NULL, 'a'},
+      {"pusher_state_min_timer", optional_argument, NULL, 'm'},
+      {"pusher_distance_min", optional_argument, NULL, 'd'},
+      {"primary_braking_accel_min", optional_argument, NULL, 'b'},
+      {NULL, 0, NULL, 0}
+    };
+
+    //Parse arguments
+    int long_index = 0;
+    optind = 0; //Resets index of argument to parse
+    while ((opt = getopt_long(argc, argv, "w:e:r:t:a:m:d:b:",
+                  long_options, &long_index )) != -1){
+      switch (opt){
+        case 'w':
+          pthread_rwlock_wrlock(&profile->lock);
+          profile->watchdog_timer = atoi(optarg);
+          pthread_rwlock_unlock(&profile->lock);
+          break;
+        case 'e':
+          pthread_rwlock_wrlock(&profile->lock);
+          profile->emergency_hold = atoi(optarg);
+          pthread_rwlock_unlock(&profile->lock);
+          break;
+        case 'r':
+          pthread_rwlock_wrlock(&profile->lock);
+          profile->braking_wait = atoi(optarg);
+          pthread_rwlock_unlock(&profile->lock);
+          break;
+        case 't':
+          pthread_rwlock_wrlock(&profile->lock);
+          profile->pusher_timeout = atoi(optarg);
+          pthread_rwlock_unlock(&profile->lock);
+          break;
+        case 'a':
+          pthread_rwlock_wrlock(&profile->lock);
+          profile->pusher_state_accel_min = atof(optarg);
+          pthread_rwlock_unlock(&profile->lock);
+          break;
+        case 'm':
+          pthread_rwlock_wrlock(&profile->lock);
+          profile->pusher_state_min_timer = atoi(optarg);
+          pthread_rwlock_unlock(&profile->lock);
+          break;
+        case 'd':
+          pthread_rwlock_wrlock(&profile->lock);
+          profile->pusher_distance_min = atof(optarg);
+          pthread_rwlock_unlock(&profile->lock);
+          break;
+        case 'b':
+          pthread_rwlock_wrlock(&profile->lock);
+          profile->primary_braking_accel_min = atof(optarg);
+          pthread_rwlock_unlock(&profile->lock);
+          break;
+        default:
+          return snprintf(outbuf, outbufc, "Invalid Argument(s)\n");
+      }
+    }
+    return flightProfileGetCommand(argc, argv, outbufc, outbuf);
+
+  }else{
+    return snprintf(outbuf, outbufc,
+      "Cannot configure flight profiles in mode %d (%s). Pod must be in Boot mode.",
+      mode, pod_mode_names[mode]);
+  }
+}
 
 // battery_pack_relays
 
@@ -348,6 +447,7 @@ command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "ready", .func = readyCommand},
                         {.name = "state", .func = stateCommand},
                         {.name = "reset", .func = resetCommand},
+                        {.name = "fpget", .func = flightProfileGetCommand},
                         {.name = "vent", .func = ventCommand},
                         {.name = "pack", .func = packCommand},
                         {.name = "help", .func = helpCommand},
@@ -357,6 +457,7 @@ command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "push", .func = pushCommand},
                         {.name = "kill", .func = killCommand},
                         {.name = "arm", .func = armCommand},
+                        {.name = "fp", .func = flightProfileCommand},
                         {.name = "e", .func = emergencyCommand},
                         {.name = NULL}};
 #pragma clang diagnostic pop
