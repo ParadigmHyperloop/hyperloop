@@ -32,12 +32,12 @@
 
 
 /**
- * Common C Definitions File for OPENLOOP pod controller
+ * Common C Definitions File for PARADIGM pod controller
  *
  * This file is responsible for simply including system library headers
  */
-#ifndef _OPENLOOP_POD_CDEFS_
-#define _OPENLOOP_POD_CDEFS_
+#ifndef _PARADIGM_POD_CDEFS_
+#define _PARADIGM_POD_CDEFS_
 
 #include <arpa/inet.h>
 #include <assert.h>

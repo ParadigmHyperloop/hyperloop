@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef OPENLOOP_POD_LOG_H
-#define OPENLOOP_POD_LOG_H
+#ifndef PARADIGM_POD_LOG_H
+#define PARADIGM_POD_LOG_H
 #include <stdio.h>
 #include <stdint.h>
 #include <sys/queue.h>
