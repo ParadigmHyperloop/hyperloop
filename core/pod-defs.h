@@ -421,6 +421,54 @@ static inline void set_value_f(pod_value_t *pod_field, float newValue) {
   pthread_rwlock_unlock(&(pod_field->lock));
 }
 
+static inline void set_watchdog_timer(flight_profile_t *profile, useconds_t newValue){
+  pthread_rwlock_wrlock(&profile->lock);
+  profile->watchdog_timer = newValue;
+  pthread_rwlock_unlock(&profile->lock);
+}
+
+static inline void set_emergency_hold(flight_profile_t *profile, useconds_t newValue){
+  pthread_rwlock_wrlock(&profile->lock);
+  profile->emergency_hold = newValue;
+  pthread_rwlock_unlock(&profile->lock);
+}
+
+static inline void set_braking_wait(flight_profile_t *profile, useconds_t newValue){
+  pthread_rwlock_wrlock(&profile->lock);
+  profile->braking_wait = newValue;
+  pthread_rwlock_unlock(&profile->lock);
+}
+
+static inline void set_pusher_timeout(flight_profile_t *profile, useconds_t newValue){
+  pthread_rwlock_wrlock(&profile->lock);
+  profile->pusher_timeout = newValue;
+  pthread_rwlock_unlock(&profile->lock);
+}
+
+static inline void set_pusher_state_accel_min(flight_profile_t *profile, float newValue){
+  pthread_rwlock_wrlock(&profile->lock);
+  profile->pusher_state_accel_min = newValue;
+  pthread_rwlock_unlock(&profile->lock);
+}
+
+static inline void set_pusher_state_min_timer(flight_profile_t *profile, useconds_t newValue){
+  pthread_rwlock_wrlock(&profile->lock);
+  profile->pusher_state_min_timer = newValue;
+  pthread_rwlock_unlock(&profile->lock);
+}
+
+static inline void set_pusher_distance_min(flight_profile_t *profile, float newValue){
+  pthread_rwlock_wrlock(&profile->lock);
+  profile->pusher_distance_min = newValue;
+  pthread_rwlock_unlock(&profile->lock);
+}
+
+static inline void set_primary_braking_accel_min(flight_profile_t *profile, float newValue){
+  pthread_rwlock_wrlock(&profile->lock);
+  profile->primary_braking_accel_min = newValue;
+  pthread_rwlock_unlock(&profile->lock);
+}
+
 void queue_sensor(sensor_t *sensor, int32_t new_value);
 float get_sensor(sensor_t *sensor);
 void set_sensor(sensor_t *sensor, float val);

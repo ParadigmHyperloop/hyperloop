@@ -397,44 +397,27 @@ static int flightProfileCommand(size_t argc, char *argv[], size_t outbufc,
                               &long_index)) != -1) {
       switch (opt) {
       case 'w':
-        pthread_rwlock_wrlock(&profile->lock);
-        profile->watchdog_timer = atoi(optarg);
-        pthread_rwlock_unlock(&profile->lock);
+        set_watchdog_timer(profile, atoi(optarg));
         break;
       case 'e':
-        pthread_rwlock_wrlock(&profile->lock);
-        profile->emergency_hold = atoi(optarg);
-        pthread_rwlock_unlock(&profile->lock);
+        set_emergency_hold(profile, atoi(optarg));
         break;
       case 'r':
-        pthread_rwlock_wrlock(&profile->lock);
-        profile->braking_wait = atoi(optarg);
-        pthread_rwlock_unlock(&profile->lock);
+        set_braking_wait(profile, atoi(optarg));
         break;
       case 't':
-        pthread_rwlock_wrlock(&profile->lock);
-        profile->pusher_timeout = atoi(optarg);
-        pthread_rwlock_unlock(&profile->lock);
+        set_pusher_timeout(profile, atoi(optarg));
         break;
       case 'a':
-        pthread_rwlock_wrlock(&profile->lock);
-        profile->pusher_state_accel_min = atof(optarg);
-        pthread_rwlock_unlock(&profile->lock);
-        break;
+        set_pusher_state_accel_min(profile, atof(optarg));
       case 'm':
-        pthread_rwlock_wrlock(&profile->lock);
-        profile->pusher_state_min_timer = atoi(optarg);
-        pthread_rwlock_unlock(&profile->lock);
+        set_pusher_state_min_timer(profile, atoi(optarg));
         break;
       case 'd':
-        pthread_rwlock_wrlock(&profile->lock);
-        profile->pusher_distance_min = atof(optarg);
-        pthread_rwlock_unlock(&profile->lock);
+        set_pusher_distance_min(profile, atof(optarg));
         break;
       case 'b':
-        pthread_rwlock_wrlock(&profile->lock);
-        profile->primary_braking_accel_min = atof(optarg);
-        pthread_rwlock_unlock(&profile->lock);
+        set_primary_braking_accel_min(profile, atof(optarg));
         break;
       default:
         return snprintf(outbuf, outbufc, "Invalid Argument(s)\n");
