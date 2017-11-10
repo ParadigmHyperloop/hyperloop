@@ -8,7 +8,7 @@ TCP_IP = "127.0.0.1"
 TCP_PORT = 7779
 BUFFER_SIZE = 4096
 COMMAND_WAITING_MESSAGE = 'Waiting for first commander connection'
-
+MAX_TCP_RETRIES = 5
 
 class ControllerInstance(object):
     def __init__(self, path, imu=None, POST=None):
@@ -37,15 +37,16 @@ class ControllerInstance(object):
 
         print("Started Controller: {}".format(p.pid))
 
-        time.sleep(0.5)
-
         print("Connecting to {}:{}".format(TCP_IP, TCP_PORT))
 
-        try:
-            client = socket.create_connection((TCP_IP, TCP_PORT), 1)
-        except Exception as e:
-            self.shutdown()
-            return False
+        for i in range(0, MAX_TCP_RETRIES):
+            try:
+                client = socket.create_connection((TCP_IP, TCP_PORT), 1)
+            except Exception as e:
+                print("Connect Failure: {}".format(e))
+                if i == MAX_TCP_RETRIES - 1:
+                    self.shutdown()
+                    return False
 
         print("Connected!")
 
