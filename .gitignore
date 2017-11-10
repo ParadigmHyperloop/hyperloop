@@ -12,3 +12,5 @@ Makefile
 CMakeFiles
 *.build/
 Makefile
+hyperloop-telemetry.log.bin
+hyperloop-telemetry.log
