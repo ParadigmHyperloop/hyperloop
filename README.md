@@ -200,7 +200,7 @@ Jenkins server catches them
 
 
 ```
-make clean all install test
+make clean all install integration
 ```
 
 # License
