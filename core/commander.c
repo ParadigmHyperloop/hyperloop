@@ -57,9 +57,7 @@
 
 extern command_t commands[];
 
-
-static
-void commander_init(commander_t *commander) {
+static void commander_init(commander_t *commander) {
   memset(commander, 0, sizeof(commander_t));
   commander->first_client = true;
 }
@@ -217,7 +215,6 @@ int cmd_reject_client(int fd) {
   return 0;
 }
 
-
 /**
  * Given a server file descriptor, accept the new client and return the
  * client's filedescriptor
@@ -258,14 +255,16 @@ int cmd_process_request(int infd, int outfd, commander_t *commander) {
       inbuf[i] = '\0';
 
       // Process the command
-      nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, commander->cmdbuffer);
+      nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF,
+                                 commander->cmdbuffer);
       write(outfd, commander->cmdbuffer, nbytesout);
       base = i + 1;
     }
     i++;
   }
 
-  nbytesout = cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, commander->cmdbuffer);
+  nbytesout =
+      cmd_do_command(i - base, &inbuf[base], CMD_OUT_BUF, commander->cmdbuffer);
   commander->cmdbuffer[nbytesout] = '\n';
   nbytesout++;
   write(outfd, commander->cmdbuffer, nbytesout);
@@ -280,19 +279,22 @@ int cmd_server() {
   // being cleared or capped with a null terminator
   commander_t commander;
   commander_init(&commander);
+  pod_t *pod = get_pod()
 
-  debug("Starting TCP Network Command Server");
-  commander.serverfd = cmd_start_tcp_server(CMD_SVR_PORT);
+      debug("Starting TCP Network Command Server");
+  commander.serverfd = cmd_start_tcp_server(get_value(&pod->command_port));
 
   if (commander.serverfd < 0) {
     return -1;
   }
 
-  note("TCP Network Command Server Started on port: %d", CMD_SVR_PORT);
+  note("TCP Network Command Server Started on port: %d",
+       get_value(&pod->command_port));
 
   fd_set active_fd_set, read_fd_set;
 
-  note("=== Waiting for first commander connection (%d) ===", CMD_SVR_PORT);
+  note("=== Waiting for first commander connection (%d) ===",
+       get_value(&pod->command_port));
   bool disable_stdin = false;
   while (get_pod_mode() != Shutdown) {
     // Setup All File Descriptors we are going to read from
@@ -300,7 +302,7 @@ int cmd_server() {
     FD_SET(commander.serverfd, &active_fd_set);
 
     if (!disable_stdin) {
-        FD_SET(STDIN_FILENO, &active_fd_set);
+      FD_SET(STDIN_FILENO, &active_fd_set);
     }
 
     int i;
@@ -351,10 +353,12 @@ int cmd_server() {
     // Existing Clients
     for (i = 0; i < commander.nclients; i++) {
       if (FD_ISSET(commander.clients[i], &read_fd_set)) {
-        if (cmd_process_request(commander.clients[i], commander.clients[i], &commander) < 0) {
+        if (cmd_process_request(commander.clients[i], commander.clients[i],
+                                &commander) < 0) {
           // remove the client
-//          set_pod_mode(Emergency, "Operator Client %d (fd %d) disconnected", i,
-//                       commander.clients[i]);
+          //          set_pod_mode(Emergency, "Operator Client %d (fd %d)
+          //          disconnected", i,
+          //                       commander.clients[i]);
           close(commander.clients[i]);
           int j;
           for (j = i + 1; j < commander.nclients; j++) {

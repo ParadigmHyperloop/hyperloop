@@ -55,9 +55,9 @@
 #define POD_VERSION_MAJOR 1
 #define POD_VERSION_MIN 0
 #define POD_VERSION_PATCH 0
-#define POD_VERSION_STR "v" __XSTR__(POD_VERSION_MAJOR) "." \
-  __XSTR__(POD_VERSION_MIN) "." __XSTR__(POD_VERSION_PATCH) "-" \
-  __XSTR__(PD_GIT_SHA1_SHORT)
+#define POD_VERSION_STR                                                        \
+  "v" __XSTR__(POD_VERSION_MAJOR) "." __XSTR__(POD_VERSION_MIN) "." __XSTR__(  \
+      POD_VERSION_PATCH) "-" __XSTR__(PD_GIT_SHA1_SHORT)
 
 #define POD_CREDITS                                                            \
   "Eddie Hurtig - Software Engineering Lead\n"                                 \
@@ -86,11 +86,11 @@
 // IMU Device
 #define IMU_DEVICE "/dev/ttyUSB0"
 
-
 // Defines how much filtering should be done in the Exponential Moving Average
 // filter for the IMU input.
 // The formula used is:
-//   (new_accel = (1.0-IMU_FILTER_ALPHA)*old_accel + IMU_FILTER_ALPHA*accel_reading)
+//   (new_accel = (1.0-IMU_FILTER_ALPHA)*old_accel +
+//   IMU_FILTER_ALPHA*accel_reading)
 #define IMU_FILTER_ALPHA 0.95f
 
 #define EX_REBOOT 50
@@ -122,10 +122,10 @@
 #define LOGGING_THREAD_PRIORITY 10
 #define CMD_THREAD_PRIORITY 20
 
-#if ((CORE_THREAD_PRIORITY) + (LOGGING_THREAD_PRIORITY) + (CMD_THREAD_PRIORITY)) != 100
+#if ((CORE_THREAD_PRIORITY) + (LOGGING_THREAD_PRIORITY) +                      \
+     (CMD_THREAD_PRIORITY)) != 100
 #error "Thread priorities do not sum to 100"
 #endif
-
 
 // ------------------
 // Primary Braking Thresholds
@@ -162,7 +162,7 @@
 #define LOG_FILE_MODE S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
 #define MAX_PACKET_SIZE 1024
 #define LOG_SVR_NAME "pod-server.openloopalliance.com"
-#define LOG_SVR_PORT 7778
+#define DEFAULT_LOG_SVR_PORT 7778
 #define MAX_LOG_LINE 512
 #define LOG_BUF_SIZE MAX_LOG_LINE * 50
 #define MAX_ATTEMPTS_PER_LOG 5
@@ -171,7 +171,7 @@
 // Command Control
 // ---------------
 #define POD_CLI_VERSION_STR POD_VERSION_STR
-#define CMD_SVR_PORT 7779
+#define DEFAULT_CMD_SVR_PORT 7779
 #define CMD_MAX_ARGS 32
 #define POD_ETOOMANYCLIENTS_TXT "Too Many Clients are connected"
 
