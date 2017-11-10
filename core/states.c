@@ -123,6 +123,17 @@ bool is_surface_overriden(uint64_t surface) {
 int init_pod(void) {
   static pod_t _init_pod = (pod_t){
       .mode = Boot,
+      .flight_profile = (flight_profile_t){
+        .watchdog_timer = DEFAULT_WATCHDOG_TIMER,
+        .emergency_hold = DEFAULT_EMERGENCY_HOLD,
+        .braking_wait = DEFAULT_BRAKING_WAIT,
+        .braking_hold = DEFAULT_BRAKING_HOLD,
+        .pusher_timeout = DEFAULT_PUSHER_TIMEOUT,
+        .pusher_state_accel_min = DEFAULT_PUSHER_STATE_ACCEL_MIN,
+        .pusher_state_min_timer = DEFAULT_PUSHER_STATE_MIN_TIMER,
+        .pusher_distance_min = DEFAULT_PUSHER_DISTANCE_MIN,
+        .primary_braking_accel_min = DEFAULT_PRIMARY_BRAKING_ACCEL_MIN
+      },
       .name = POD_NAME,
       .initialized = false,
       .start = 0ULL,
@@ -165,11 +176,11 @@ int init_pod(void) {
       .return_to_standby = RETURN_TO_STANDBY,
       .engaged_brakes = 0,
       .manual_emergency = false};
-  
+
   memcpy(&_pod, &_init_pod, sizeof(_pod));
-  
+
   pod_t *pod = &_pod;
-  
+
   debug("Applied pod_t template to local_pod");
 
   char name[MAX_NAME];
@@ -197,7 +208,7 @@ int init_pod(void) {
   // ----------------
   int i;
   unsigned int mpye_pins[N_MPYES] = MPYE_CHANNELS;
-  
+
   debug("Initializing MPYEs");
   for (i = 0; i < N_MPYES; i++) {
     snprintf(name, MAX_NAME, "mpye_%c", (i * 2) + 'a');
@@ -211,7 +222,7 @@ int init_pod(void) {
   // --------------------
   // INITIALIZE SOLENOIDS
   // --------------------
-  
+
   debug("Initializing Skate Solenoids");
   unsigned short skate_pins[] = SKATE_SOLENOIDS;
   for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
@@ -230,7 +241,7 @@ int init_pod(void) {
   unsigned short clamp_engage_pins[] = CLAMP_ENGAGE_SOLONOIDS;
   for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
     snprintf(name, MAX_NAME, "clmp_eng_%d", i);
-    
+
     solenoid_init(&pod->clamp_engage_solonoids[i],
                   name,
                   &pod->i2c[SSR_I2C_BUS],
@@ -242,7 +253,7 @@ int init_pod(void) {
   unsigned short clamp_release_pins[] = CLAMP_RELEASE_SOLONOIDS;
   for (i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
     snprintf(name, MAX_NAME, "clmp_rel_%d", i);
-    
+
     solenoid_init(&pod->clamp_release_solonoids[i],
                   name,
                   &pod->i2c[SSR_I2C_BUS],
@@ -254,7 +265,7 @@ int init_pod(void) {
   unsigned short battery_pack_pins[] = BATTERY_PACK_RELAYS;
   for (i = 0; i < N_BATTERY_PACK_RELAYS; i++) {
     snprintf(name, MAX_NAME, "pack_%d", i);
-    
+
     solenoid_init(&pod->battery_pack_relays[i],
                   name,
                   &pod->i2c[SSR_I2C_BUS],
@@ -262,7 +273,7 @@ int init_pod(void) {
                   battery_pack_pins[i] % 16,
                   kSolenoidNormallyClosed);
   }
-  
+
   debug("Initializing Fill and Vent Valves");
 
   snprintf(name, MAX_NAME, "hp_fill");
@@ -273,17 +284,17 @@ int init_pod(void) {
                 HP_FILL_SOLENOID < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
                 HP_FILL_SOLENOID % 16,
                 kSolenoidNormallyClosed);
-  
-  
+
+
   snprintf(name, MAX_NAME, "vent");
-  
+
   solenoid_init(&pod->vent_solenoid,
                 name,
                 &pod->i2c[SSR_I2C_BUS],
                 VENT_SOLENOID < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
                 VENT_SOLENOID % 16,
                 kSolenoidNormallyOpen);
-  
+
 
   debug("Initializing Distance Sensors");
 
@@ -323,8 +334,8 @@ int init_pod(void) {
       .input = pusher_distance[i]};
     snprintf(pod->pusher_plate_distance[i].name, MAX_NAME, "pusher_%d", i);
   }
-  
-  
+
+
   int id;
   // --------------------
   // Pressure Transducers
@@ -380,7 +391,7 @@ int init_pod(void) {
                                         .input = clamp_pressure[i]};
     snprintf(pod->clamp_pressure[i].name, MAX_NAME, "clamp_pressure_%d", i);
   }
-  
+
   int brake_tank_pressure[] = BRAKE_TANK_PRESSURE_INPUTS;
   for (i = 0; i < N_BRAKE_TANK_PRESSURE; i++) {
     id = N_ADC_CHANNELS * BRAKE_TANK_PRESSURE_ADC + brake_tank_pressure[i];
@@ -412,8 +423,8 @@ int init_pod(void) {
     .adc_num = HP_FILL_VALVE_ADC,
     .input = HP_FILL_VALVE_OPEN_SWITCH};
   snprintf(pod->hp_fill_valve_open.name, MAX_NAME, "fill_open");
-  
-  
+
+
   id = N_ADC_CHANNELS * HP_FILL_VALVE_ADC + pusher_distance[i];
   pod->sensors[id] = &(_pod.hp_fill_valve_close);
   pod->hp_fill_valve_close = (sensor_t){.sensor_id = id,
@@ -427,9 +438,9 @@ int init_pod(void) {
     .adc_num = HP_FILL_VALVE_ADC,
     .input = HP_FILL_VALVE_OPEN_SWITCH};
   snprintf(pod->hp_fill_valve_close.name, MAX_NAME, "fill_close");
-  
 
-  
+
+
   debug("Initializing Thermocouples");
 
   // -------------
@@ -527,7 +538,7 @@ int init_pod(void) {
 
   // assert(sem_init(&(pod->boot_sem), 0, 0) == 0);
   pod->boot_sem = sem_open(POD_BOOT_SEM, O_CREAT, S_IRUSR | S_IWUSR, 0);
-  
+
   debug("Boot Sem is %p", (void*)pod->boot_sem);
 
   if (pod->boot_sem == SEM_FAILED) {
@@ -541,7 +552,7 @@ int init_pod(void) {
 
   // done
   debug("Global Pod struct is located at %p (wrote to %p)", (void *)&_pod, (void*)pod);
-  
+
   return 0;
 }
 
@@ -565,18 +576,18 @@ pod_mode_t get_pod_mode(void) {
 
 bool force_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   static char msg[MAX_LOG_LINE];
-  
+
   va_list arg;
   va_start(arg, reason);
   vsnprintf(&msg[0], MAX_LOG_LINE, reason, arg);
   va_end(arg);
   pod_t *pod = get_pod();
   pod_mode_t old_mode = get_pod_mode();
-  
+
   warn("Forcing Mode Transition %s => %s. reason: %s", pod_mode_names[old_mode],
        pod_mode_names[new_mode], msg);
-  
-  
+
+
   pthread_rwlock_wrlock(&(pod->mode_mutex));
   get_pod()->mode = new_mode;
   pod->last_transition = get_time_usec();
@@ -586,7 +597,7 @@ bool force_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   strncpy(pod->state_reason, reason, MAX_STATE_REASON_MSG);
   return true;
 }
-  
+
 bool set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   static char msg[MAX_LOG_LINE];
 

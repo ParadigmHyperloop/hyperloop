@@ -141,7 +141,6 @@ int cmd_do_command(size_t inputc, char *input, size_t outputc, char output[]) {
     }
     i++;
   }
-
   if (commands[i].name == NULL) {
     count = snprintf(output, outputc, "FAIL: Unknown Command, try 'help'");
     return count;
@@ -161,7 +160,6 @@ int cmd_do_command(size_t inputc, char *input, size_t outputc, char output[]) {
   }
 
   argv[argc] = NULL;
-
   int retval = commands[i].func(argc, argv, outputc, output);
 
   if (retval < 0) {
