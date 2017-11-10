@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef __OPENLOOPALLIANCE_IMU_H__
-#define __OPENLOOPALLIANCE_IMU_H__
+#ifndef __PARADIGMALLIANCE_IMU_H__
+#define __PARADIGMALLIANCE_IMU_H__
 
 #include <stdint.h>
 #include <unistd.h>
