@@ -41,7 +41,8 @@ command_t commands[];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 
-static int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int helpCommand(size_t argc, char *argv[], size_t outbufc,
+                       char outbuf[]) {
   int count =
       snprintf(&outbuf[0], outbufc, "%s",
                "Pod CLI " POD_CLI_VERSION_STR ". Copyright " POD_COPY_YEAR
@@ -59,13 +60,15 @@ static int helpCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[])
   return count;
 }
 
-static int pingCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int pingCommand(size_t argc, char *argv[], size_t outbufc,
+                       char outbuf[]) {
   pod_t *pod = get_pod();
   pod->last_ping = get_time_usec();
   return snprintf(&outbuf[0], outbufc, "PONG:%d", get_pod_mode());
 }
 
-static int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int calibrateCommand(size_t argc, char *argv[], size_t outbufc,
+                            char outbuf[]) {
   pod_t *pod = get_pod();
   pod_calibrate();
   return snprintf(&outbuf[0], outbufc, "CALIBRATION SET\nX: %f\nY: %f\nZ: %f\n",
@@ -74,15 +77,18 @@ static int calibrateCommand(size_t argc, char *argv[], size_t outbufc, char outb
                   get_value_f(&(pod->imu_calibration_z)));
 }
 
-static int resetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int resetCommand(size_t argc, char *argv[], size_t outbufc,
+                        char outbuf[]) {
   if (pod_reset()) {
     return snprintf(&outbuf[0], outbufc, "Reseting Pod %s", get_pod()->name);
   } else {
-    return snprintf(&outbuf[0], outbufc, "Reset Request Declined %s", get_pod()->name);
+    return snprintf(&outbuf[0], outbufc, "Reset Request Declined %s",
+                    get_pod()->name);
   }
 }
 
-static int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int readyCommand(size_t argc, char *argv[], size_t outbufc,
+                        char outbuf[]) {
   pod_t *pod = get_pod();
 
   int n;
@@ -99,14 +105,17 @@ static int readyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]
   return n;
 }
 
-static int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int armCommand(size_t argc, char *argv[], size_t outbufc,
+                      char outbuf[]) {
   pod_t *pod = get_pod();
   if (get_value(&(pod->pusher_plate)) == 0) {
-    return snprintf(outbuf, outbufc, "Pusher plate is not depressed. Cannot Arm.");
+    return snprintf(outbuf, outbufc,
+                    "Pusher plate is not depressed. Cannot Arm.");
   }
 
   if (!core_pod_checklist(pod)) {
-    return snprintf(outbuf, outbufc, "Pod not ready to arm. core checklist failed.");
+    return snprintf(outbuf, outbufc,
+                    "Pod not ready to arm. core checklist failed.");
   }
 
   if (set_pod_mode(Armed, "Remote Command Armed Pod")) {
@@ -117,7 +126,8 @@ static int armCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) 
   }
 }
 
-static int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int ventCommand(size_t argc, char *argv[], size_t outbufc,
+                       char outbuf[]) {
   pod_t *pod = get_pod();
   pod->return_to_standby = false;
   if (set_pod_mode(Vent, "Remote Command started Vent")) {
@@ -127,12 +137,14 @@ static int ventCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[])
   }
 }
 
-static int statusCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int statusCommand(size_t argc, char *argv[], size_t outbufc,
+                         char outbuf[]) {
   pod_t *pod = get_pod();
   return status_dump(pod, outbuf, outbufc);
 }
 
-static int fillCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int fillCommand(size_t argc, char *argv[], size_t outbufc,
+                       char outbuf[]) {
   if (start_hp_fill()) {
     return snprintf(outbuf, outbufc, "Entered HP Fill State");
   } else {
@@ -140,7 +152,8 @@ static int fillCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[])
   }
 }
 
-static int standbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int standbyCommand(size_t argc, char *argv[], size_t outbufc,
+                          char outbuf[]) {
   if (start_standby()) {
     return snprintf(outbuf, outbufc, "Entered Standby");
   } else {
@@ -148,7 +161,8 @@ static int standbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf
   }
 }
 
-//static int returnToStandbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+// static int returnToStandbyCommand(size_t argc, char *argv[], size_t outbufc,
+// char outbuf[]) {
 //  if (argc < 2) {
 //    return snprintf(outbuf, outbufc, "usage: returntostandby <0|1>");
 //  }
@@ -159,7 +173,8 @@ static int standbyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf
 //  return snprintf(outbuf, outbufc, "Set return_to_standby to %d", value);
 //}
 
-static int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int overrideCommand(size_t argc, char *argv[], size_t outbufc,
+                           char outbuf[]) {
   if (argc < 3) {
     return snprintf(outbuf, outbufc,
                     "Usage: override <surface> [<number>] <new_value>%d",
@@ -191,7 +206,8 @@ static int overrideCommand(size_t argc, char *argv[], size_t outbufc, char outbu
   return 0;
 }
 
-static int offsetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int offsetCommand(size_t argc, char *argv[], size_t outbufc,
+                         char outbuf[]) {
   pod_t *pod = get_pod();
 
   if (argc < 3) {
@@ -212,7 +228,8 @@ static int offsetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[
                   old_offset, offset, get_sensor(sensor));
 }
 
-static int packCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int packCommand(size_t argc, char *argv[], size_t outbufc,
+                       char outbuf[]) {
   pod_t *pod = get_pod();
 
   if (argc < 3) {
@@ -232,13 +249,15 @@ static int packCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[])
   return snprintf(outbuf, outbufc, "Set %s to %d", s->name, on_off);
 }
 
-static int emergencyCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int emergencyCommand(size_t argc, char *argv[], size_t outbufc,
+                            char outbuf[]) {
   set_pod_mode(Emergency, "Command Line Initialized Emergency");
   get_pod()->manual_emergency = true;
   return snprintf(outbuf, outbufc, "Pod Mode: %d", get_pod_mode());
 }
 
-static int stateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int stateCommand(size_t argc, char *argv[], size_t outbufc,
+                        char outbuf[]) {
   pod_mode_t new_mode = NonState;
   if (argc == 1) {
     // Nothing, proceed to print
@@ -268,10 +287,12 @@ static int stateCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]
   }
 
   new_mode = get_pod_mode();
-  return snprintf(outbuf, outbufc, "Pod Mode: %d (%s)", new_mode, pod_mode_names[new_mode]);
+  return snprintf(outbuf, outbufc, "Pod Mode: %d (%s)", new_mode,
+                  pod_mode_names[new_mode]);
 }
 
-static int manualCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int manualCommand(size_t argc, char *argv[], size_t outbufc,
+                         char outbuf[]) {
   // TODO: Implement using set_pod_mode()
   pod_t *pod = get_pod();
   manual_config_t *c = &pod->manual;
@@ -288,32 +309,26 @@ static int manualCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[
     c->skate_b = atoi(argv[8]);
     c->skate_c = atoi(argv[9]);
     c->skate_d = atoi(argv[10]);
-    c->mpye_a = (atoi(argv[11]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
-    c->mpye_b = (atoi(argv[12]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
-    c->mpye_c = (atoi(argv[13]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
-    c->mpye_d = (atoi(argv[14]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) + MPYE_A_SETPOINT;
+    c->mpye_a = (atoi(argv[11]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) +
+                MPYE_A_SETPOINT;
+    c->mpye_b = (atoi(argv[12]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) +
+                MPYE_A_SETPOINT;
+    c->mpye_c = (atoi(argv[13]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) +
+                MPYE_A_SETPOINT;
+    c->mpye_d = (atoi(argv[14]) * (MPYE_B_SETPOINT - MPYE_A_SETPOINT) / 255) +
+                MPYE_A_SETPOINT;
   } else {
     return snprintf(outbuf, outbufc, "Usage: %s [setpoints]", argv[0]);
   }
 
   return snprintf(outbuf, outbufc, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d",
-                  c->front_brake,
-                  c->rear_brake,
-                  c->vent,
-                  c->fill,
-                  c->battery_a,
-                  c->battery_b,
-                  c->skate_a,
-                  c->skate_b,
-                  c->skate_c,
-                  c->skate_d,
-                  c->mpye_a,
-                  c->mpye_b,
-                  c->mpye_c,
-                  c->mpye_d);
+                  c->front_brake, c->rear_brake, c->vent, c->fill, c->battery_a,
+                  c->battery_b, c->skate_a, c->skate_b, c->skate_c, c->skate_d,
+                  c->mpye_a, c->mpye_b, c->mpye_c, c->mpye_d);
 }
 
-static int exitCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int exitCommand(size_t argc, char *argv[], size_t outbufc,
+                       char outbuf[]) {
   if (argc > 1) {
     pod_exit(atoi(argv[1]));
   } else {
@@ -322,18 +337,20 @@ static int exitCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[])
   return -1;
 }
 
-static int killCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int killCommand(size_t argc, char *argv[], size_t outbufc,
+                       char outbuf[]) {
   panic(POD_COMMAND_SUBSYSTEM, "Command Line Initiated Kill Command");
   return -1;
 }
 
-static int pushCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]) {
+static int pushCommand(size_t argc, char *argv[], size_t outbufc,
+                       char outbuf[]) {
   return snprintf(outbuf, outbufc, "Push Command Not Allowed");
-
 }
 
-static int flightProfileGetCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]){
-  //Returns flight profile information
+static int flightProfileGetCommand(size_t argc, char *argv[], size_t outbufc,
+                                   char outbuf[]) {
+  // Returns flight profile information
   pod_t *pod = get_pod();
   flight_profile_t *profile = &pod->flight_profile;
   return snprintf(outbuf, outbufc, "watchdog_timer: %i\n"
@@ -344,90 +361,91 @@ static int flightProfileGetCommand(size_t argc, char *argv[], size_t outbufc, ch
                                    "pusher_state_min_timer: %i\n"
                                    "pusher_distance_min: %f\n"
                                    "primary_braking_accel_min: %f\n",
-                                    profile->watchdog_timer, profile->emergency_hold,
-                                    profile->braking_wait, profile->pusher_timeout,
-                                    profile->pusher_state_accel_min, profile->pusher_state_min_timer,
-                                    profile->pusher_distance_min, profile->primary_braking_accel_min);
+                  profile->watchdog_timer, profile->emergency_hold,
+                  profile->braking_wait, profile->pusher_timeout,
+                  profile->pusher_state_accel_min,
+                  profile->pusher_state_min_timer, profile->pusher_distance_min,
+                  profile->primary_braking_accel_min);
 }
 
-static int flightProfileCommand(size_t argc, char *argv[], size_t outbufc, char outbuf[]){
-  //Allows user to configure flight profiles
+static int flightProfileCommand(size_t argc, char *argv[], size_t outbufc,
+                                char outbuf[]) {
+  // Allows user to configure flight profiles
   pod_mode_t mode = get_pod_mode();
-  if(mode == 1){ //Only allowed in Boot mode
-    //get current profile
+  if (mode == Boot) { // Only allowed in Boot mode
+    // get current profile
     pod_t *pod = get_pod();
     flight_profile_t *profile = &pod->flight_profile;
 
-    //Define options for getopt_long
+    // Define options for getopt_long
     int opt = 0;
     static struct option long_options[] = {
-      {"watchdog_timer", optional_argument, NULL, 'w'},
-      {"emergency_hold", optional_argument, NULL, 'e'},
-      {"braking_wait", optional_argument, NULL, 'r'},
-      {"pusher_timeout", optional_argument, NULL, 't'},
-      {"pusher_state_accel_min", optional_argument, NULL, 'a'},
-      {"pusher_state_min_timer", optional_argument, NULL, 'm'},
-      {"pusher_distance_min", optional_argument, NULL, 'd'},
-      {"primary_braking_accel_min", optional_argument, NULL, 'b'},
-      {NULL, 0, NULL, 0}
-    };
+        {"watchdog_timer", optional_argument, NULL, 'w'},
+        {"emergency_hold", optional_argument, NULL, 'e'},
+        {"braking_wait", optional_argument, NULL, 'r'},
+        {"pusher_timeout", optional_argument, NULL, 't'},
+        {"pusher_state_accel_min", optional_argument, NULL, 'a'},
+        {"pusher_state_min_timer", optional_argument, NULL, 'm'},
+        {"pusher_distance_min", optional_argument, NULL, 'd'},
+        {"primary_braking_accel_min", optional_argument, NULL, 'b'},
+        {NULL, 0, NULL, 0}};
 
-    //Parse arguments
+    // Parse arguments
     int long_index = 0;
-    optind = 0; //Resets index of argument to parse
-    while ((opt = getopt_long(argc, argv, "w:e:r:t:a:m:d:b:",
-                  long_options, &long_index )) != -1){
-      switch (opt){
-        case 'w':
-          pthread_rwlock_wrlock(&profile->lock);
-          profile->watchdog_timer = atoi(optarg);
-          pthread_rwlock_unlock(&profile->lock);
-          break;
-        case 'e':
-          pthread_rwlock_wrlock(&profile->lock);
-          profile->emergency_hold = atoi(optarg);
-          pthread_rwlock_unlock(&profile->lock);
-          break;
-        case 'r':
-          pthread_rwlock_wrlock(&profile->lock);
-          profile->braking_wait = atoi(optarg);
-          pthread_rwlock_unlock(&profile->lock);
-          break;
-        case 't':
-          pthread_rwlock_wrlock(&profile->lock);
-          profile->pusher_timeout = atoi(optarg);
-          pthread_rwlock_unlock(&profile->lock);
-          break;
-        case 'a':
-          pthread_rwlock_wrlock(&profile->lock);
-          profile->pusher_state_accel_min = atof(optarg);
-          pthread_rwlock_unlock(&profile->lock);
-          break;
-        case 'm':
-          pthread_rwlock_wrlock(&profile->lock);
-          profile->pusher_state_min_timer = atoi(optarg);
-          pthread_rwlock_unlock(&profile->lock);
-          break;
-        case 'd':
-          pthread_rwlock_wrlock(&profile->lock);
-          profile->pusher_distance_min = atof(optarg);
-          pthread_rwlock_unlock(&profile->lock);
-          break;
-        case 'b':
-          pthread_rwlock_wrlock(&profile->lock);
-          profile->primary_braking_accel_min = atof(optarg);
-          pthread_rwlock_unlock(&profile->lock);
-          break;
-        default:
-          return snprintf(outbuf, outbufc, "Invalid Argument(s)\n");
+    optind = 0; // Resets index of argument to parse
+    while ((opt = getopt_long(argc, argv, "w:e:r:t:a:m:d:b:", long_options,
+                              &long_index)) != -1) {
+      switch (opt) {
+      case 'w':
+        pthread_rwlock_wrlock(&profile->lock);
+        profile->watchdog_timer = atoi(optarg);
+        pthread_rwlock_unlock(&profile->lock);
+        break;
+      case 'e':
+        pthread_rwlock_wrlock(&profile->lock);
+        profile->emergency_hold = atoi(optarg);
+        pthread_rwlock_unlock(&profile->lock);
+        break;
+      case 'r':
+        pthread_rwlock_wrlock(&profile->lock);
+        profile->braking_wait = atoi(optarg);
+        pthread_rwlock_unlock(&profile->lock);
+        break;
+      case 't':
+        pthread_rwlock_wrlock(&profile->lock);
+        profile->pusher_timeout = atoi(optarg);
+        pthread_rwlock_unlock(&profile->lock);
+        break;
+      case 'a':
+        pthread_rwlock_wrlock(&profile->lock);
+        profile->pusher_state_accel_min = atof(optarg);
+        pthread_rwlock_unlock(&profile->lock);
+        break;
+      case 'm':
+        pthread_rwlock_wrlock(&profile->lock);
+        profile->pusher_state_min_timer = atoi(optarg);
+        pthread_rwlock_unlock(&profile->lock);
+        break;
+      case 'd':
+        pthread_rwlock_wrlock(&profile->lock);
+        profile->pusher_distance_min = atof(optarg);
+        pthread_rwlock_unlock(&profile->lock);
+        break;
+      case 'b':
+        pthread_rwlock_wrlock(&profile->lock);
+        profile->primary_braking_accel_min = atof(optarg);
+        pthread_rwlock_unlock(&profile->lock);
+        break;
+      default:
+        return snprintf(outbuf, outbufc, "Invalid Argument(s)\n");
       }
     }
     return flightProfileGetCommand(argc, argv, outbufc, outbuf);
 
-  }else{
-    return snprintf(outbuf, outbufc,
-      "Cannot configure flight profiles in mode %d (%s). Pod must be in Boot mode.",
-      mode, pod_mode_names[mode]);
+  } else {
+    return snprintf(outbuf, outbufc, "Cannot configure flight profiles in mode "
+                                     "%d (%s). Pod must be in Boot mode.",
+                    mode, pod_mode_names[mode]);
   }
 }
 

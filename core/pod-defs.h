@@ -45,9 +45,9 @@ typedef struct pod_value {
 } pod_value_t;
 
 #define POD_VALUE_INITIALIZER_FL                                               \
-{ {.fl = 0.0}, PTHREAD_RWLOCK_INITIALIZER }
+  { {.fl = 0.0}, PTHREAD_RWLOCK_INITIALIZER }
 #define POD_VALUE_INITIALIZER_INT32                                            \
-{ {.int32 = 0}, PTHREAD_RWLOCK_INITIALIZER }
+  { {.int32 = 0}, PTHREAD_RWLOCK_INITIALIZER }
 
 typedef enum clamp_brake_state {
   kClampBrakeClosed,
@@ -87,10 +87,10 @@ typedef struct {
 } sensor_t;
 
 #define SENSOR_INITIALIZER                                                     \
-{                                                                            \
-.sensor_id = 0, .name = {0}, .value = POD_VALUE_INITIALIZER_INT32,         \
-.cal_a = 0.0, .cal_b = 0.0, .cal_c = 0.0, .alpha = 0.0, .offset = 0.0      \
-}
+  {                                                                            \
+    .sensor_id = 0, .name = {0}, .value = POD_VALUE_INITIALIZER_INT32,         \
+    .cal_a = 0.0, .cal_b = 0.0, .cal_c = 0.0, .alpha = 0.0, .offset = 0.0      \
+  }
 
 /**
  * Information from the battery control boards
@@ -147,18 +147,21 @@ typedef struct manual_config {
   mpye_value_t mpye_d;
 } manual_config_t;
 
-//Used to configure flight profiles
+// Used to configure flight profiles
 typedef struct flight_profile {
-    useconds_t watchdog_timer; // Main braking timeout initiated by pushing state // 5MPH 4300000
-    useconds_t emergency_hold; // time held in the emergency state
-    useconds_t braking_wait; // Time before engaging secondary brake, if needed
-    useconds_t braking_hold; // min time to hold brakes before vent
-    useconds_t pusher_timeout; // Timeout for the pusher plate debounce
-    float pusher_state_accel_min; // m/s/s Threshold for transitioning into the pushing state
-    useconds_t pusher_state_min_timer;  // Minimium time in the pushing state
-    float pusher_distance_min; // mm Distance to register the pusher as present
-    float primary_braking_accel_min; // m/s/s min acceptable acceleration while braking
-    pthread_rwlock_t lock;
+  useconds_t watchdog_timer; // Main braking timeout initiated by pushing state
+                             // // 5MPH 4300000
+  useconds_t emergency_hold; // time held in the emergency state
+  useconds_t braking_wait;   // Time before engaging secondary brake, if needed
+  useconds_t braking_hold;   // min time to hold brakes before vent
+  useconds_t pusher_timeout; // Timeout for the pusher plate debounce
+  float pusher_state_accel_min; // m/s/s Threshold for transitioning into the
+                                // pushing state
+  useconds_t pusher_state_min_timer; // Minimium time in the pushing state
+  float pusher_distance_min; // mm Distance to register the pusher as present
+  float primary_braking_accel_min; // m/s/s min acceptable acceleration while
+                                   // braking
+  pthread_rwlock_t lock;
 } flight_profile_t;
 
 typedef uint16_t relay_mask_t;
@@ -249,7 +252,7 @@ typedef struct pod {
   pod_mode_t mode;
   pthread_rwlock_t mode_mutex;
 
-  //Flight profile
+  // Flight profile
   flight_profile_t flight_profile;
 
   // Holds the pod in a boot state until set to 1 by an operator
@@ -296,7 +299,6 @@ typedef struct pod {
   pod_shutdown_t shutdown;
   bool initialized;
 } pod_t;
-
 
 /**
  * Sets the target flow through the skates on a scale of 0% to 100%
@@ -369,14 +371,6 @@ bool pod_reset(void);
  */
 void pod_exit(int code);
 
-
-
-
-
-
-
-
-
 ///////////////////
 
 /**
@@ -426,7 +420,6 @@ static inline void set_value_f(pod_value_t *pod_field, float newValue) {
   pod_field->value.fl = newValue;
   pthread_rwlock_unlock(&(pod_field->lock));
 }
-
 
 void queue_sensor(sensor_t *sensor, int32_t new_value);
 float get_sensor(sensor_t *sensor);
