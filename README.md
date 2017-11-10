@@ -101,19 +101,15 @@ git clone git@github.com:ParadigmHyperloop/hyperloop.git
 cd hyperloop
 ```
 
-Now, core is a CMake project, meaning that you need to first build the build
-system, then build the project with the new build system. For example: There is
-no Xcode project stored in Git, but if you are going to use Xcode for your
-development, you should cd into the `proj` folder and run `cmake -G Xcode ..`
-which will give you a project at `./proj/hyperloop.xcodeproj`.  Alternatively,
-If you are using a BBB, linux environment, or otherwise want to use Makefiles
-all you need to do is cd to `./proj` and run cmake.  Then to actually build the project, just
-run `make` in the `./proj` folder.
+This is a CMake project, meaning that you need to first build the build
+system, then build the project with the new build system.
 
-For this, we will keep things simple and use a Makefile build system.
-cd into the empty `proj` folder and run 
-`cmake -DCMAKE_C_COMPILER=$(which clang) ..`.  You should see something like
-this (note that we are forcing the use of clang as the compiler):
+```
+cd ./proj
+cmake -DCMAKE_C_COMPILER=$(which clang) ..
+```
+
+You should get something like this:
 
 ```
 -- The C compiler identification is Clang 3.8.0
