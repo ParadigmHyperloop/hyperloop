@@ -21,7 +21,7 @@ velocity, acceleration), and sensor readings (pressure, temperature, etc)
 Use `pod_t * pod = get_pod()` to get a pointer to the current pod
 state.
 
-### Pod mode
+## Pod mode
 The pod's mode, `pod_mode_t`, defines the behavior of the control loop.
 
 | V  | Enum Name | Description                         |
@@ -48,7 +48,7 @@ The pod's mode should be retrieved with `pod_mode_t * mode = get_pod_mode()`
 call `set_pod_mode(<new_mode>, <reason>)` to perform validation of the new
 state. `<reason>` describes why the state changed for debugging and tracing.
 
-### Pod Values
+## Pod Values
 
 Most values are wrapped in a `pod_value_t`. This struct has the sole purpose of
 wrapping the value in with a mutex to enable multithreaded read/write.
@@ -65,7 +65,7 @@ versions of the helper functions
  * `get_value` / `set_value` interpret the `pod_value_t` value as an int32
  * `get_value_f` / `set_value_f` interpret the `pod_value_t` value as an float
 
-### Sensors
+## Sensors
 
 Sensors are represented and processed by the `sensor_t`, and the various
 `*_sensor()` functions.  A `sensor_t` handles storage of the ADC and channel
@@ -73,7 +73,7 @@ numbers, raw and calibrated values as well as all the configuration for
 converting raw ADC readings to meaningful values (quadratic mapping function),
 and a bias for smoothing input.
 
-```
+```c
 typedef struct {
   int sensor_id; // The internal id number for the sensor
   char name[MAX_NAME]; // The Human readable name of the sensor
@@ -89,12 +89,12 @@ typedef struct {
 } sensor_t;
 ```
 
-### Batteries
+## Batteries
 
 Battery packs have many important metrics that must be collected.
 `battery_pack_t` struct bundles all this telemetry into a single structure
 
-```
+```c
 typedef struct {
   sensor_t voltage;
   sensor_t current;
@@ -104,14 +104,14 @@ typedef struct {
 } pod_battery_t;
 ```
 
-### Controller Resets
+## Controller Resets
 
 The software has 3 different shutdown modes:
 * Cold Shutdown - Exit and don't come back
 * Warm Reboot - Kill threads, Reinitialize the pod state, and start new threads
 * Cold Reboot - Exit w/ an exit status that a wrapper will read and restart
 
-```
+```c
 typedef enum pod_shutdown {
   Halt = 0,
   WarmReboot = 1,
@@ -119,13 +119,13 @@ typedef enum pod_shutdown {
 } pod_shutdown_t;
 ```
 
-### Flight Profiles
+## Flight Profiles
 
 This is subject to change as control strategies change.  A flight profile is
 provided over the remote command interface (See the Commands documentation) and
 stored in a `flight_profile_t`
 
-```
+```c
 // Used to configure flight profiles
 typedef struct flight_profile {
   useconds_t watchdog_timer; // Main braking timeout initiated by pushing state
@@ -146,7 +146,7 @@ typedef struct flight_profile {
 ```
 
 
-## Sensor Numbers / Naming conventions
+# Sensor Numbers / Naming conventions
 
 _See Pod Layout Below for orientation_
 
