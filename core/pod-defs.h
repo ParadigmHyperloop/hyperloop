@@ -147,6 +147,20 @@ typedef struct manual_config {
   mpye_value_t mpye_d;
 } manual_config_t;
 
+//Used to configure flight profiles
+typedef struct flight_profile {
+    useconds_t watchdog_timer; // Main braking timeout initiated by pushing state // 5MPH 4300000
+    useconds_t emergency_hold; // time held in the emergency state
+    useconds_t braking_wait; // Time before engaging secondary brake, if needed
+    useconds_t braking_hold; // min time to hold brakes before vent
+    useconds_t pusher_timeout; // Timeout for the pusher plate debounce
+    float pusher_state_accel_min; // m/s/s Threshold for transitioning into the pushing state
+    useconds_t pusher_state_min_timer;  // Minimium time in the pushing state
+    float pusher_distance_min; // mm Distance to register the pusher as present
+    float primary_braking_accel_min; // m/s/s min acceptable acceleration while braking
+    pthread_rwlock_t lock;
+} flight_profile_t;
+
 typedef uint16_t relay_mask_t;
 
 /**
@@ -234,6 +248,9 @@ typedef struct pod {
   // Current Overall Pod Mode (Goal of the System)
   pod_mode_t mode;
   pthread_rwlock_t mode_mutex;
+
+  //Flight profile
+  flight_profile_t flight_profile;
 
   // Holds the pod in a boot state until set to 1 by an operator
   pod_value_t ready;
