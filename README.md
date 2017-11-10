@@ -208,10 +208,10 @@ make clean all install integration
 See the [LICENSE](LICENSE) for full licensing details.
 
 In summary, (you still need to read the whole thing), this code is for
-OpenLoop and OpenLoop only. It is shared with the world for the benefit of
+Paradigm Hyperloop only. It is shared with the world for the benefit of
 observers and potential developers. If you wish to utilize this code in any
 way, you must contact us first and receive written permission to utilize the
 source for the purpose you require.
 
 Lastly, DON'T trust this code to work for your HyperLoop pod, or your project.
-This code is only being verified and tested on the OpenLoop platform.  
+This code is only being verified and tested on the Paradigm Hyperloop Pod.  
