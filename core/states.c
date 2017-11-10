@@ -127,12 +127,12 @@ int init_pod(void) {
         .watchdog_timer = DEFAULT_WATCHDOG_TIMER,
         .emergency_hold = DEFAULT_EMERGENCY_HOLD,
         .braking_wait = DEFAULT_BRAKING_WAIT,
-        .braking_hold = DEFAULT_BRAKING_TIMEOUT,
+        .braking_hold = DEFAULT_BRAKING_HOLD,
         .pusher_timeout = DEFAULT_PUSHER_TIMEOUT,
-        .pusher_state_accel_min = DEFAULT_PUSHING_STATE_ACCEL_X,
-        .pusher_state_min_timer = DEFAULT_PUSHING_STATE_MIN_TIMER,
-        .pusher_distance_min = DEFAULT_PUSHER_PRESENT_DISTANCE,
-        .primary_braking_accel_min = DEFAULT_PRIMARY_BRAKING_ACCEL_X_MIN
+        .pusher_state_accel_min = DEFAULT_PUSHER_STATE_ACCEL_MIN,
+        .pusher_state_min_timer = DEFAULT_PUSHER_STATE_MIN_TIMER,
+        .pusher_distance_min = DEFAULT_PUSHER_DISTANCE_MIN,
+        .primary_braking_accel_min = DEFAULT_PRIMARY_BRAKING_ACCEL_MIN
       },
       .name = POD_NAME,
       .initialized = false,
