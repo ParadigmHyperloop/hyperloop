@@ -383,6 +383,7 @@ static int flightProfileCommand(size_t argc, char *argv[], size_t outbufc,
         {"watchdog_timer", optional_argument, NULL, 'w'},
         {"emergency_hold", optional_argument, NULL, 'e'},
         {"braking_wait", optional_argument, NULL, 'r'},
+        {"braking_hold", optional_argument, NULL, 'h'},
         {"pusher_timeout", optional_argument, NULL, 't'},
         {"pusher_state_accel_min", optional_argument, NULL, 'a'},
         {"pusher_state_min_timer", optional_argument, NULL, 'm'},
@@ -393,7 +394,7 @@ static int flightProfileCommand(size_t argc, char *argv[], size_t outbufc,
     // Parse arguments
     int long_index = 0;
     optind = 0; // Resets index of argument to parse
-    while ((opt = getopt_long(argc, argv, "w:e:r:t:a:m:d:b:", long_options,
+    while ((opt = getopt_long(argc, argv, "w:e:r:t:a:m:d:b:h:", long_options,
                               &long_index)) != -1) {
       switch (opt) {
       case 'w':
@@ -418,6 +419,9 @@ static int flightProfileCommand(size_t argc, char *argv[], size_t outbufc,
         break;
       case 'b':
         set_primary_braking_accel_min(profile, atof(optarg));
+        break;
+      case 'h':
+
         break;
       default:
         return snprintf(outbuf, outbufc, "Invalid Argument(s)\n");

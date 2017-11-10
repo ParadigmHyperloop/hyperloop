@@ -36,7 +36,7 @@ bool start_hp_fill() {
   debug("start_hp_fill has been called, performing pre-transition checks");
   return set_pod_mode(HPFill, "Control Point Initiated HP Fill");
 //  if (pod_hp_safe_checklist(get_pod())) {
-//    
+//
 //  }
   return false;
 }
@@ -136,21 +136,21 @@ sensor_t *get_sensor_by_address(pod_t *pod, int adc_num, int input) {
 
 bool is_pusher_present(pod_t *pod) {
   int pp_active_count = 0;
-  
+  flight_profile_t *profile = &pod->flight_profile;
+
   for (int pp = 0; pp < N_PUSHER_DISTANCE; pp++) {
     float distance = get_sensor(&pod->pusher_plate_distance[pp]);
-    
-    if (distance < PUSHER_PRESENT_DISTANCE) {
+
+    if (distance < get_pusher_distance_min(profile)) {
       pp_active_count++;
     }
   }
-  
   if (pp_active_count >= 2) {
     pod->last_pusher_seen = get_time_usec();
     return true;
-  } else if (pod->last_pusher_seen + PUSHER_TIMEOUT > get_time_usec()) {
+  } else if (pod->last_pusher_seen + get_pusher_timeout(profile) > get_time_usec()) {
     return true;
   }
   return false;
-  
+
 }

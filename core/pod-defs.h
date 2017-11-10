@@ -150,10 +150,11 @@ typedef struct manual_config {
 // Used to configure flight profiles
 typedef struct flight_profile {
   useconds_t watchdog_timer; // Main braking timeout initiated by pushing state
-                             // // 5MPH 4300000
+                             // 5MPH 4300000
   useconds_t emergency_hold; // time held in the emergency state
   useconds_t braking_wait;   // Time before engaging secondary brake, if needed
   useconds_t braking_hold;   // min time to hold brakes before vent
+
   useconds_t pusher_timeout; // Timeout for the pusher plate debounce
   float pusher_state_accel_min; // m/s/s Threshold for transitioning into the
                                 // pushing state
@@ -440,6 +441,12 @@ static inline void set_braking_wait(flight_profile_t *profile, useconds_t newVal
   pthread_rwlock_unlock(&profile->lock);
 }
 
+static inline void set_braking_hold(flight_profile_t *profile, useconds_t newValue){
+  pthread_rwlock_wrlock(&profile->lock);
+  profile->braking_hold = newValue;
+  pthread_rwlock_unlock(&profile->lock);
+}
+
 static inline void set_pusher_timeout(flight_profile_t *profile, useconds_t newValue){
   pthread_rwlock_wrlock(&profile->lock);
   profile->pusher_timeout = newValue;
@@ -488,6 +495,13 @@ static inline useconds_t get_emergency_hold(flight_profile_t *profile){
 static inline useconds_t get_braking_wait(flight_profile_t *profile){
   pthread_rwlock_wrlock(&profile->lock);
   useconds_t output = profile->braking_wait;
+  pthread_rwlock_unlock(&profile->lock);
+  return output;
+}
+
+static inline useconds_t get_braking_hold(flight_profile_t *profile){
+  pthread_rwlock_wrlock(&profile->lock);
+  useconds_t output = profile->braking_hold;
   pthread_rwlock_unlock(&profile->lock);
   return output;
 }
