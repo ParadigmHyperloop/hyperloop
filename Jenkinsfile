@@ -6,10 +6,10 @@ pipeline {
         parallel(
           "Build": {
             sh 'cmake -DCMAKE_C_COMPILER=/usr/bin/clang .'
-            sh 'make -d clean'
-            sh 'make -d all'
+            sh 'make VERBOSE=1 clean'
+            sh 'make VERBOSE=1 all'
             sh 'mkdir -p ./BUILD/dst'
-            sh 'make -d DESTDIR=./BUILD/dst install'
+            sh 'make VERBOSE=1 DESTDIR=./BUILD/dst install'
           }
         )
       }
@@ -22,10 +22,10 @@ pipeline {
     stage('Build-32bit') {
       steps {
         sh 'cmake -DCMAKE_C_COMPILER=/usr/bin/clang .'
-        sh 'make -d clean'
-        sh 'make -d CFLAGS=-m32 all'
+        sh 'make VERBOSE=1 clean'
+        sh 'make VERBOSE=1 CFLAGS=-m32 all'
         sh 'mkdir -p ./BUILD/dst'
-        sh 'make -d DESTDIR=./BUILD/dst install'
+        sh 'make VERBOSE=1 DESTDIR=./BUILD/dst install'
       }
     }
     stage('Test-32') {
