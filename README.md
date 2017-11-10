@@ -168,8 +168,8 @@ You should see the core controller start with output like this
 [INFO]  [main] {main.c:76} Registering POSIX signal handlers
 [INFO]  [main] {main.c:83} Starting the Logging Client Connection
 [DEBUG] [logging_main] {logging.c:230} [logging_main] Thread Start
-[DEBUG] [log_connect] {logging.c:95} Connecting to logging server: pod-server.openloopalliance.com
-[NOTE]  [log_connect] {logging.c:130} Connected to pod-server.openloopalliance.com:7778 on fd 5
+[DEBUG] [log_connect] {logging.c:95} Connecting to logging server: controls.paradigmhyperloop.com
+[NOTE]  [log_connect] {logging.c:130} Connected to controls.paradigmhyperloop.com:7778 on fd 5
 [INFO]  [logging_main] {logging.c:244} punching boot_sem to proceed
 [INFO]  [main] {main.c:101} Booting Command and Control Server
 [DEBUG] [cmd_server] {commander.c:224} Starting TCP Network Command Server
