@@ -421,6 +421,7 @@ static inline void set_value_f(pod_value_t *pod_field, float newValue) {
   pthread_rwlock_unlock(&(pod_field->lock));
 }
 
+//Setters for flight_profile
 static inline void set_watchdog_timer(flight_profile_t *profile, useconds_t newValue){
   pthread_rwlock_wrlock(&profile->lock);
   profile->watchdog_timer = newValue;
@@ -467,6 +468,63 @@ static inline void set_primary_braking_accel_min(flight_profile_t *profile, floa
   pthread_rwlock_wrlock(&profile->lock);
   profile->primary_braking_accel_min = newValue;
   pthread_rwlock_unlock(&profile->lock);
+}
+
+//Getters for flight_profile
+static inline useconds_t get_watchdog_timer(flight_profile_t *profile){
+  pthread_rwlock_wrlock(&profile->lock);
+  useconds_t output = profile->watchdog_timer;
+  pthread_rwlock_unlock(&profile->lock);
+  return output;
+}
+
+static inline useconds_t get_emergency_hold(flight_profile_t *profile){
+  pthread_rwlock_wrlock(&profile->lock);
+  useconds_t output = profile->emergency_hold;
+  pthread_rwlock_unlock(&profile->lock);
+  return output;
+}
+
+static inline useconds_t get_braking_wait(flight_profile_t *profile){
+  pthread_rwlock_wrlock(&profile->lock);
+  useconds_t output = profile->braking_wait;
+  pthread_rwlock_unlock(&profile->lock);
+  return output;
+}
+
+static inline useconds_t get_pusher_timeout(flight_profile_t *profile){
+  pthread_rwlock_wrlock(&profile->lock);
+  useconds_t output = profile->pusher_timeout;
+  pthread_rwlock_unlock(&profile->lock);
+  return output;
+}
+
+static inline float get_pusher_state_accel_min(flight_profile_t *profile){
+  pthread_rwlock_wrlock(&profile->lock);
+  float output = profile->pusher_state_accel_min;
+  pthread_rwlock_unlock(&profile->lock);
+  return output;
+}
+
+static inline useconds_t get_pusher_state_min_timer(flight_profile_t *profile){
+  pthread_rwlock_wrlock(&profile->lock);
+  useconds_t output = profile->pusher_state_min_timer;
+  pthread_rwlock_unlock(&profile->lock);
+  return output;
+}
+
+static inline float get_pusher_distance_min(flight_profile_t *profile){
+  pthread_rwlock_wrlock(&profile->lock);
+  float output = profile->pusher_distance_min;
+  pthread_rwlock_unlock(&profile->lock);
+  return output;
+}
+
+static inline float get_primary_braking_accel_min(flight_profile_t *profile){
+  pthread_rwlock_wrlock(&profile->lock);
+  float output = profile->primary_braking_accel_min;
+  pthread_rwlock_unlock(&profile->lock);
+  return output;
 }
 
 void queue_sensor(sensor_t *sensor, int32_t new_value);

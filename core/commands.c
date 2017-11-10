@@ -361,11 +361,11 @@ static int flightProfileGetCommand(size_t argc, char *argv[], size_t outbufc,
                                    "pusher_state_min_timer: %i\n"
                                    "pusher_distance_min: %f\n"
                                    "primary_braking_accel_min: %f\n",
-                  profile->watchdog_timer, profile->emergency_hold,
-                  profile->braking_wait, profile->pusher_timeout,
-                  profile->pusher_state_accel_min,
-                  profile->pusher_state_min_timer, profile->pusher_distance_min,
-                  profile->primary_braking_accel_min);
+                  get_watchdog_timer(profile), get_emergency_hold(profile),
+                  get_braking_wait(profile), get_pusher_timeout(profile),
+                  get_pusher_state_accel_min(profile),
+                  get_pusher_state_min_timer(profile), get_pusher_distance_min(profile),
+                  get_primary_braking_accel_min(profile));
 }
 
 static int flightProfileCommand(size_t argc, char *argv[], size_t outbufc,
