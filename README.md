@@ -200,7 +200,7 @@ Jenkins server catches them
 
 
 ```
-make clean all install integration
+make DESTDIR="./BUILD" clean all install integration
 ```
 
 **Note:** You will need to install `pytest` for the integration target to work properly
