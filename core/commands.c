@@ -343,11 +343,6 @@ static int killCommand(size_t argc, char *argv[], size_t outbufc,
   return -1;
 }
 
-static int pushCommand(size_t argc, char *argv[], size_t outbufc,
-                       char outbuf[]) {
-  return snprintf(outbuf, outbufc, "Push Command Not Allowed");
-}
-
 static int flightProfileGetCommand(size_t argc, char *argv[], size_t outbufc,
                                    char outbuf[]) {
   // Returns flight profile information
@@ -459,7 +454,6 @@ command_t commands[] = {{.name = "emergency", .func = emergencyCommand},
                         {.name = "fill", .func = fillCommand},
                         {.name = "ping", .func = pingCommand},
                         {.name = "exit", .func = exitCommand},
-                        {.name = "push", .func = pushCommand},
                         {.name = "kill", .func = killCommand},
                         {.name = "arm", .func = armCommand},
                         {.name = "fp", .func = flightProfileCommand},
