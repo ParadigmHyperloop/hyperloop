@@ -2,39 +2,16 @@ import os
 import time
 import unittest
 
-from hyperloop import ControllerInstance
+from controller_tests import ControllerTests
 
 
-PATHS = [
-    os.environ.get("CORE_LOCATION", None),
-    "../../proj/BUILD/dst/usr/local/bin/core",
-    "../../proj/core/core",
-    "./BUILD/dst/usr/local/bin/core",
-    "./proj/BUILD/dst/usr/local/bin/core",
-    "./proj/core/core",
-]
-
-CONTROLLER_PATH = None
-
-for path in PATHS:
-    if path and os.path.exists(path):
-        CONTROLLER_PATH = path
-        break
-
-
-class TestFlightProfiles(unittest.TestCase):
+class TestFlightProfiles(ControllerTests):
 
     def setUp(self):
-        if CONTROLLER_PATH is None:
-            self.fail("Could not find core: ".format(PATHS))
-
-        self.controller = ControllerInstance(CONTROLLER_PATH, imu="-",
-                                             POST=True)
-
-        self.assertTrue(self.controller.start())
+        super(TestFlightProfiles, self).setUp()
 
     def tearDown(self):
-        self.controller.shutdown()
+        super(TestFlightProfiles, self).tearDown()
 
     def test_fpget(self):
         self.controller.command(['state', '1'])
