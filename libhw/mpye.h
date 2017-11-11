@@ -36,7 +36,8 @@ typedef struct mpye {
   bus_t *bus;
 } mpye_t;
 
-int mpye_init(mpye_t *m, char *name, bus_t *bus, unsigned char address, unsigned char channel);
+int mpye_init(mpye_t *m, char *name, bus_t *bus, unsigned char address,
+              unsigned char channel);
 
 /**
  * Sets the desired solenoid state

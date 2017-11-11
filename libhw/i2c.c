@@ -22,7 +22,6 @@
 #include <sys/ioctl.h>
 #include <time.h>
 
-
 int i2c_open(unsigned char bus, unsigned char addr) {
   int file;
   char filename[16];
@@ -165,7 +164,7 @@ void i2c_read_reg(int handle, int addr, unsigned char reg, unsigned char *buf,
 }
 
 int i2c_write_reg(int handle, int addr, int reg, int val) {
-//  printf("[0x%X] Writing 0x%X to register 0x%X\n", addr, val, reg);
+  //  printf("[0x%X] Writing 0x%X to register 0x%X\n", addr, val, reg);
   fflush(stdout);
   if (ioctl(handle, I2C_SLAVE, addr) < 0) {
     perror("Failed to change I2C Address: ");
@@ -193,7 +192,8 @@ int set_ssr(int handle, int addr, int channel, int value) {
     return -1;
   }
 
-  if (i2c_write_reg(handle, addr, 0x09 + 4 * channel, (value >> 8) & 0xFF) < 0) {
+  if (i2c_write_reg(handle, addr, 0x09 + 4 * channel, (value >> 8) & 0xFF) <
+      0) {
     printf("i2c_write_reg Failed");
     return -1;
   }
@@ -241,8 +241,6 @@ void i2c_read_reg(int handle, int addr, unsigned char reg, unsigned char *buf,
 
 int i2c_write_reg(int handle, int addr, int reg, int val) { return -1; }
 
-int set_ssr(int handle, int addr, int channel, int value) {
-  return 0;
-}
+int set_ssr(int handle, int addr, int channel, int value) { return 0; }
 #pragma clang diagnostic pop
 #endif

@@ -30,7 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-
 #ifndef PARADIGM_LOGGING_H
 #define PARADIGM_LOGGING_H
 

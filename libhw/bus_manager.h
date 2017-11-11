@@ -33,15 +33,15 @@
 #ifndef PARADIGM_BUS_MANAGER_H
 #define PARADIGM_BUS_MANAGER_H
 
-#include <semaphore.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include <stdint.h>
-#include <assert.h>
 #include <Block.h>
+#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include "realtime.h"
 
@@ -76,11 +76,7 @@ typedef struct bus {
 
 typedef void (^bus_block_t)(bus_t *bus);
 
-typedef enum bus_task_mode {
-  Single,
-  Requeue,
-  Cancelled
-} bus_task_mode_t;
+typedef enum bus_task_mode { Single, Requeue, Cancelled } bus_task_mode_t;
 
 typedef struct bus_task {
   struct bus_task *next;
@@ -100,7 +96,7 @@ int bus_destroy(bus_t *bus);
  * is returned to the user.  This pointer shall not be free'd by the user, but
  * may be used to cancel the task.
  */
-bus_task_t * bus_enqueue(bus_t *bus, bus_block_t block);
+bus_task_t *bus_enqueue(bus_t *bus, bus_block_t block);
 
 /**
  * Sends an asyncronous kill command to the bus, which will stop the thread and

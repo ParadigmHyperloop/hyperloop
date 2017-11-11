@@ -66,10 +66,10 @@ int pod_log(char *fmt, ...) {
   return 0; // log_enqueue(&l);
 }
 
-
 int log_enqueue(log_t *l) {
   if (!logbuf.initialized) {
-    ring_buf_init(&logbuf, &logbuf_data, sizeof(logbuf_data)/sizeof(logbuf_data[0]), sizeof(log_t));
+    ring_buf_init(&logbuf, &logbuf_data,
+                  sizeof(logbuf_data) / sizeof(logbuf_data[0]), sizeof(log_t));
   }
 
   ring_buf_append(l, sizeof(log_t), &logbuf);

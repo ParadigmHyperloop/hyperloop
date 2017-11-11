@@ -50,7 +50,8 @@ static int helpCommand(size_t argc, char *argv[], size_t outbufc,
                " " POD_COPY_OWNER "\n" POD_CREDITS
                "This tool allows you to control various aspects of the pod\n"
                " - TCP: %d\n - STDIN\n\n"
-                                                  "Available Commands:\n", get_value(&pod->command_port));
+               "Available Commands:\n",
+               get_value(&pod->command_port));
 
   command_t *command = &commands[0];
   while (command->name) {

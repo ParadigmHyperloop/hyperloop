@@ -43,5 +43,4 @@
  */
 void add_imu_data(imu_datagram_t *data, pod_t *s);
 
-
 #endif /* PARADIGM_ACCEL_H */

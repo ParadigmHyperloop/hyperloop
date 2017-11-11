@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include <stdbool.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include <string.h>
 
 #ifndef PARADIGM_RING_BUFFER_H

@@ -271,11 +271,11 @@ int main(int argc, char *argv[]) {
       pod->imu = -1;
     }
 
-    //Set Ports
-    if(args.command_port != -1){
+    // Set Ports
+    if (args.command_port != -1) {
       set_value(&pod->command_port, args.command_port);
     }
-    if(args.logging_port != -1){
+    if (args.logging_port != -1) {
       set_value(&pod->logging_port, args.logging_port);
     }
 

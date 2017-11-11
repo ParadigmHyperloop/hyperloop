@@ -34,7 +34,6 @@
 #ifndef PARADIGM_SOLENOID_H
 #define PARADIGM_SOLENOID_H
 
-
 typedef enum solenoid_state {
   kSolenoidError,
   kSolenoidOpen,
@@ -68,15 +67,13 @@ typedef struct solenoid {
 /**
  * Initialize an SSR Board
  */
-int ssr_board_init(bus_t * bus, int address);
+int ssr_board_init(bus_t *bus, int address);
 
 /**
  * Initializes a solenoid_t
  */
-int solenoid_init(solenoid_t *s, char *name, bus_t *bus,
-                  unsigned char address,
-                  unsigned char channel,
-                  solenoid_type_t type);
+int solenoid_init(solenoid_t *s, char *name, bus_t *bus, unsigned char address,
+                  unsigned char channel, solenoid_type_t type);
 
 /**
  * Sets the desired solenoid state
@@ -145,7 +142,6 @@ bool is_solenoid_closed(solenoid_t *s);
  * Determines if a solenoid is in the process of closing
  */
 bool is_solenoid_closing(solenoid_t *solenoid);
-
 
 /**
  * Determines if a solenoid is in a locked out state

@@ -37,21 +37,21 @@ bool core_pod_checklist(pod_t *pod) {
   // TODO: is_rpm_ok()            // less than 6000 @akeating
   // TODO: is_imu_ok()            // temp (-40°C to +75°C) VERIFIED
   // TODO: is_velocity_too_fast() // 95 m/s (roughly 215 mph) @akeating
-  
+
   // TODO: is_reg_temp_ok()       // 0 -> 50 @akeating
   // TODO: is_clamp_temp_ok()     // 0 -> 100something @akeating
   // TODO: is_battery_temp_ok()   // 0 -> 60something @james
   // TODO: is_caliper_temp_ok()   // 0 -> 100something @akeating
   // TODO: is_frame_temp_ok()     // 0 -> 40 C @edhurtig
-  
+
   // TODO: is_frame_pressure_ok() // 0 -> 20 PSIA VERIFIED
   // TODO: is_hp_pressure_ok()    // 0 -> 1770 PSI... @akeating
   // TODO: is_lp_pressure_ok()    // 0 -> 150 PSI... @akeating
-  
+
   if (is_solenoid_open(&(pod->hp_fill_valve))) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -73,6 +73,4 @@ bool pod_safe_checklist(pod_t *pod) {
 /**
  * Is the pod safe to proceed to an HP Fill
  */
-bool pod_hp_safe_checklist(pod_t *pod) {
-  return pod_safe_checklist(pod);
-}
+bool pod_hp_safe_checklist(pod_t *pod) { return pod_safe_checklist(pod); }
