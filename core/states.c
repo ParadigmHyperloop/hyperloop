@@ -134,7 +134,7 @@ int init_pod(void) {
               .pusher_distance_min = DEFAULT_PUSHER_DISTANCE_MIN,
               .primary_braking_accel_min = DEFAULT_PRIMARY_BRAKING_ACCEL_MIN},
       .command_port = DEFAULT_CMD_SVR_PORT,
-      .logging_port = LOG_SVR_PORT,
+      .logging_port = DEFAULT_LOG_SVR_PORT,
       .name = POD_NAME,
       .initialized = false,
       .start = 0ULL,
