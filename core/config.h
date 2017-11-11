@@ -162,7 +162,7 @@
 #define LOG_FILE_MODE S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
 #define MAX_PACKET_SIZE 1024
 #define LOG_SVR_NAME "pod-server.openloopalliance.com"
-#define DEFAULT_LOG_SVR_PORT 7778
+#define LOG_SVR_PORT 7778
 #define MAX_LOG_LINE 512
 #define LOG_BUF_SIZE MAX_LOG_LINE * 50
 #define MAX_ATTEMPTS_PER_LOG 5
