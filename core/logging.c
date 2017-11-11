@@ -40,9 +40,8 @@ static int log_open(char *filename) {
 }
 
 static int log_connect() {
-  info("Connecting to logging server: " LOG_SVR_NAME);
-
   pod_t *pod = get_pod();
+  info("Connecting to logging server: %d", get_value(&pod->logging_port));
   int fd, portno = get_value(&pod->logging_port);
   struct sockaddr_in serveraddr;
   struct hostent *server;
@@ -78,8 +77,8 @@ static int log_connect() {
   }
 
   note("Connected to " LOG_SVR_NAME
-       ":" __XSTR__(get_value(&pod->logging_port)) " fd %d",
-       fd);
+       ": %d fd %d",
+       get_value(&pod->logging_port), fd);
 
   return fd;
 }

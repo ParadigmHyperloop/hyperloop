@@ -288,7 +288,7 @@ int cmd_server() {
     return -1;
   }
 
-  note("TCP Network Command Server Started on port: %d",
+  note("TCP Network Command Server Started on port:%d",
        get_value(&pod->command_port));
 
   fd_set active_fd_set, read_fd_set;

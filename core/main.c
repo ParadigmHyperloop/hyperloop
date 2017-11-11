@@ -39,12 +39,16 @@ struct arguments {
   bool ready;
   char *imu_device;
   char *telemetry_dump;
+  int command_port;
+  int logging_port;
 };
 
 struct arguments args = {.tests = false,
                          .ready = false,
                          .imu_device = IMU_DEVICE,
-                         .telemetry_dump = NULL};
+                         .telemetry_dump = NULL,
+                         .command_port = -1,
+                         .logging_port = -1};
 
 const char *BUS_NAMES[] = {"/sem-i2c-0", "/sem-i2c-1"};
 const char *BUS_FILES[] = {"/dev/i2c-0", "/dev/i2c-1"};
@@ -67,8 +71,6 @@ void usage() {
 
 void parse_args(int argc, char *argv[]) {
   int ch;
-
-  pod_t *pod = get_pod();
   while ((ch = getopt(argc, argv, "rti:T:bp")) != -1) {
     switch (ch) {
     case 'r':
@@ -84,10 +86,10 @@ void parse_args(int argc, char *argv[]) {
       args.telemetry_dump = optarg;
       break;
     case 'b':
-      set_value(&pod->command_port, atoi(optarg));
+      args.command_port = atoi(optarg);
       break;
     case 'p':
-      set_value(&pod->logging_port, atoi(optarg));
+      args.logging_port = atoi(optarg);
     default:
       usage();
     }
@@ -267,6 +269,14 @@ int main(int argc, char *argv[]) {
       }
     } else {
       pod->imu = -1;
+    }
+
+    //Set Ports
+    if(args.command_port != -1){
+      set_value(&pod->command_port, args.command_port);
+    }
+    if(args.logging_port != -1){
+      set_value(&pod->logging_port, args.logging_port);
     }
 
 #ifdef HAS_PRU

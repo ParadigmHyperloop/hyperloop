@@ -49,9 +49,8 @@ static int helpCommand(size_t argc, char *argv[], size_t outbufc,
                "Pod CLI " POD_CLI_VERSION_STR ". Copyright " POD_COPY_YEAR
                " " POD_COPY_OWNER "\n" POD_CREDITS
                "This tool allows you to control various aspects of the pod\n"
-               " - TCP:" __XSTR__(
-                   get_value(&pod->command_port)) "\n - STDIN\n\n"
-                                                  "Available Commands:\n");
+               " - TCP: %d\n - STDIN\n\n"
+                                                  "Available Commands:\n", get_value(&pod->command_port));
 
   command_t *command = &commands[0];
   while (command->name) {
