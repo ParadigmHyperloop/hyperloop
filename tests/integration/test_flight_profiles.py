@@ -79,6 +79,21 @@ primary_braking_accel_min: -6.250000
         correct_res = "Invalid Argument(s)\n"
         self.assertTrue(res == correct_res)
 
+    def test_fp_invalid_arg(self):
+        self.controller.command(['state', '1'])
+        res = self.controller.command('fp', '-w', 'alfkjal'])
+        correct_res = """watchdog_timer: 0
+emergency_hold: 30000000
+braking_wait: 2000000
+pusher_timeout: 1000000
+pusher_state_accel_min: 0.250000
+pusher_state_min_timer: 24000000
+pusher_distance_min: 70.000000
+primary_braking_accel_min: -6.250000
+
+"""
+        self.assertTrue(res == correct_res)
+
 
 if __name__ == '__main__':
     unittest.main()
