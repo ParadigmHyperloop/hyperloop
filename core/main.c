@@ -303,7 +303,6 @@ int main(int argc, char *argv[]) {
     // -----------------------------------------
     info("Starting the Logging Client Connection");
     pthread_create(&(pod->logging_thread), NULL, logging_main, NULL);
-    sleep(2);
 
     // Wait for logging thread to connect to the logging server
     if (!args.ready) {

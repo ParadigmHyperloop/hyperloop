@@ -34,8 +34,8 @@
 #include <pthread.h>
 #include <string.h>
 
-#ifndef OPENLOOP_RING_BUFFER_H
-#define OPENLOOP_RING_BUFFER_H
+#ifndef PARADIGM_RING_BUFFER_H
+#define PARADIGM_RING_BUFFER_H
 
 /**
  * A basic statically sized ring buffer for fast, multithreaded access to data

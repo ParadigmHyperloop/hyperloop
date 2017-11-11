@@ -184,6 +184,6 @@
 #define SSR_I2C_BUS 1
 
 // Misc
-#define POD_BOOT_SEM "/openloop.pod.boot"
+#define POD_BOOT_SEM "/paradigm.pod.boot"
 
 #endif /* PARADIGM_CONFIG_H */

@@ -67,7 +67,7 @@ but it is a pretty useless command without knowing what those arguments are.
 To find this information, check the `manualCommand()` functtion in [core/commands.c](core/commands.c) where you can figure out how the command is
 interpretted.
 
-```
+```c
 c->front_brake = atoi(argv[1]);
 c->rear_brake = atoi(argv[2]);
 c->vent = atoi(argv[3]);

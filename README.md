@@ -101,19 +101,15 @@ git clone git@github.com:ParadigmHyperloop/hyperloop.git
 cd hyperloop
 ```
 
-Now, core is a CMake project, meaning that you need to first build the build
-system, then build the project with the new build system. For example: There is
-no Xcode project stored in Git, but if you are going to use Xcode for your
-development, you should cd into the `proj` folder and run `cmake -G Xcode ..`
-which will give you a project at `./proj/hyperloop.xcodeproj`.  Alternatively,
-If you are using a BBB, linux environment, or otherwise want to use Makefiles
-all you need to do is cd to `./proj` and run cmake.  Then to actually build the project, just
-run `make` in the `./proj` folder.
+This is a CMake project, meaning that you need to first build the build
+system, then build the project with the new build system.
 
-For this, we will keep things simple and use a Makefile build system.
-cd into the empty `proj` folder and run 
-`cmake -DCMAKE_C_COMPILER=$(which clang) ..`.  You should see something like
-this (note that we are forcing the use of clang as the compiler):
+```
+cd ./proj
+cmake -DCMAKE_C_COMPILER=$(which clang) ..
+```
+
+You should get something like this:
 
 ```
 -- The C compiler identification is Clang 3.8.0
@@ -172,8 +168,8 @@ You should see the core controller start with output like this
 [INFO]  [main] {main.c:76} Registering POSIX signal handlers
 [INFO]  [main] {main.c:83} Starting the Logging Client Connection
 [DEBUG] [logging_main] {logging.c:230} [logging_main] Thread Start
-[DEBUG] [log_connect] {logging.c:95} Connecting to logging server: pod-server.openloopalliance.com
-[NOTE]  [log_connect] {logging.c:130} Connected to pod-server.openloopalliance.com:7778 on fd 5
+[DEBUG] [log_connect] {logging.c:95} Connecting to logging server: controls.paradigmhyperloop.com
+[NOTE]  [log_connect] {logging.c:130} Connected to controls.paradigmhyperloop.com:7778 on fd 5
 [INFO]  [logging_main] {logging.c:244} punching boot_sem to proceed
 [INFO]  [main] {main.c:101} Booting Command and Control Server
 [DEBUG] [cmd_server] {commander.c:224} Starting TCP Network Command Server
@@ -193,7 +189,7 @@ some dashboards (more on that later)
 * **ODS**: OpenLoop Data Shuttle: the server that the pod sends telemetry data
   and logs to. [Click here](https://github.com/ParadigmHyperloop/ODS).
 
-# Jenkins
+# Testing
 
 A Jenkins server builds and tests all changes made to this repository
 automatically.  Whenever you open a pull request, a build will be triggered and
@@ -204,7 +200,13 @@ Jenkins server catches them
 
 
 ```
-make clean all install test
+make clean all install integration
+```
+
+**Note:** You will need to install `pytest` for the integration target to work properly
+
+```
+sudo pip install pytest
 ```
 
 # License
@@ -212,10 +214,10 @@ make clean all install test
 See the [LICENSE](LICENSE) for full licensing details.
 
 In summary, (you still need to read the whole thing), this code is for
-OpenLoop and OpenLoop only. It is shared with the world for the benefit of
+Paradigm Hyperloop only. It is shared with the world for the benefit of
 observers and potential developers. If you wish to utilize this code in any
 way, you must contact us first and receive written permission to utilize the
 source for the purpose you require.
 
 Lastly, DON'T trust this code to work for your HyperLoop pod, or your project.
-This code is only being verified and tested on the OpenLoop platform.  
+This code is only being verified and tested on the Paradigm Hyperloop Pod.  

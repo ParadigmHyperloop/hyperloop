@@ -15,4 +15,6 @@ add_subdirectory (imu_test)
 add_subdirectory (imu_config)
 
 
-add_custom_target(integration COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/test.sh ${PROJECT_BINARY_DIR}/core/core)
+add_custom_target(integration
+                  COMMAND ${CMAKE_COMMAND} -E env CORE_LOCATION=${PROJECT_BINARY_DIR}/core/core pytest
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
