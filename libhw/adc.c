@@ -159,17 +159,17 @@ int init_adc(adc_t *adc, int fd, const char *name, int num) {
 
 int set_gpio_for_adc(adc_t *adc) {
   int rc = 0;
-  
+
   rc = (int)set_pin_value(ADC_DEMUX_A, (adc->num >> 0) & 0x1);
   if (rc < 0) {
     return rc;
   }
-  
+
   rc = (int)set_pin_value(ADC_DEMUX_B, (adc->num >> 1) & 0x1);
   if (rc < 0) {
     return rc;
   }
-  
+
   rc = (int)set_pin_value(ADC_DEMUX_C, (adc->num >> 2) & 0x1);
   if (rc < 0) {
     return rc;
@@ -177,9 +177,10 @@ int set_gpio_for_adc(adc_t *adc) {
   return 0;
 }
 
-int read_adc(__unused adc_t *adc, __unused uint8_t channel) {
-  assert(BUS_BUFFER_SIZE >= 4);
 #ifdef BBB
+int read_adc(adc_t *adc, uint8_t channel) {
+  assert(BUS_BUFFER_SIZE >= 4);
+
   int new_channel = -1, attempts = 0;
   do {
 
@@ -219,7 +220,13 @@ int read_adc(__unused adc_t *adc, __unused uint8_t channel) {
   } while (attempts < 4);
 
   return -1;
-#endif
-
-  return 0;
 }
+
+#else
+
+int read_adc(__unused adc_t *adc, __unused uint8_t channel) {
+  // TODO: Simulate Sensor Readings based on adc and channel
+  return 500; // Roughly 0.61 Volts (5 * 500 / 4095)
+}
+
+#endif
