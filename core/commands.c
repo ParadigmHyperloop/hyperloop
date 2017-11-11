@@ -407,6 +407,7 @@ static int flightProfileCommand(size_t argc, char *argv[], size_t outbufc,
         break;
       case 'a':
         set_pusher_state_accel_min(profile, atof(optarg));
+        break;
       case 'm':
         set_pusher_state_min_timer(profile, atoi(optarg));
         break;
