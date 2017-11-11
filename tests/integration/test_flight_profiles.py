@@ -81,7 +81,7 @@ primary_braking_accel_min: -6.250000
 
     def test_fp_invalid_arg(self):
         self.controller.command(['state', '1'])
-        res = self.controller.command('fp', '-w', 'alfkjal'])
+        res = self.controller.command(['fp', '-w', 'alfkjal'])
         correct_res = """watchdog_timer: 0
 emergency_hold: 30000000
 braking_wait: 2000000
