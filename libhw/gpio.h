@@ -33,10 +33,10 @@
 #ifndef PARADIGM_GPIO_H
 #define PARADIGM_GPIO_H
 
-#include <stdio.h>
-#include <unistd.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #define SYSFS_GPIO_MAX_PATH 64
 
@@ -60,15 +60,15 @@ typedef int gpio_t;
 // TODO: Determine if it's C99 standard to store enums as (un)signed ints...
 // then assign explicit values to each enum case
 typedef enum gpio_value {
- kGpioValError = -1,
- kGpioLow = 0,
- kGpioHigh = 1
+  kGpioValError = -1,
+  kGpioLow = 0,
+  kGpioHigh = 1
 } gpio_value_t;
 
 typedef enum gpio_dir {
- kGpioDirError = -1,
- kGpioIn = 0,
- kGpioOut = 1
+  kGpioDirError = -1,
+  kGpioIn = 0,
+  kGpioOut = 1
 } gpio_dir_t;
 
 // SYSFS Helpers

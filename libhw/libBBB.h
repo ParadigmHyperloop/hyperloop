@@ -40,18 +40,18 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define _libBBB_H_
 
 // Includes
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <termios.h>
-#include <fcntl.h>
+#include <time.h>
 #include <unistd.h>
 #ifdef POD_DEBUG
 //#include <linux/i2c-dev.h>
 #endif
-#include <sys/ioctl.h>
 #include "hw.h"
+#include <sys/ioctl.h>
 // Type definitions
 typedef struct { struct termios u; } UART;
 

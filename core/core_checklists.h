@@ -39,7 +39,8 @@
  * An aggregated checklist that should always be run on every control loop
  *
  * @param pod A pointer to the pod structure
- * @return true if the checklist passes, false if one or more of the checks failed
+ * @return true if the checklist passes, false if one or more of the checks
+ * failed
  * TODO: A failure of a checklist item should be indicated by a bit flipped to
  *       1 in a global field (much like errno)
  */
@@ -50,7 +51,8 @@ bool core_pod_checklist(pod_t *pod);
  * stopped (but could still be charged)
  *
  * @param pod A pointer to the pod structure
- * @return true if the checklist passes, false if one or more of the checks failed
+ * @return true if the checklist passes, false if one or more of the checks
+ * failed
  */
 bool pod_safe_checklist(pod_t *pod);
 
@@ -59,9 +61,9 @@ bool pod_safe_checklist(pod_t *pod);
  * completely deenergized.
  *
  * @param pod A pointer to the pod structure
- * @return true if the checklist passes, false if one or more of the checks failed
+ * @return true if the checklist passes, false if one or more of the checks
+ * failed
  */
 bool pod_hp_safe_checklist(pod_t *pod);
-
 
 #endif /* PARADIGM_CHECKLISTS_H */

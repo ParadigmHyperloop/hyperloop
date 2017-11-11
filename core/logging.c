@@ -76,9 +76,8 @@ static int log_connect() {
     return -1;
   }
 
-  note("Connected to " LOG_SVR_NAME
-       ": %d fd %d",
-       get_value(&pod->logging_port), fd);
+  note("Connected to " LOG_SVR_NAME ": %d fd %d", get_value(&pod->logging_port),
+       fd);
 
   return fd;
 }

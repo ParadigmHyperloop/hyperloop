@@ -32,14 +32,14 @@
 
 #ifndef PARADIGM_POD_LOG_H
 #define PARADIGM_POD_LOG_H
-#include <stdio.h>
+#include "pod.h"
+#include <stdarg.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <sys/queue.h>
 #include <unistd.h>
-#include <stdarg.h>
-#include "pod.h"
 #ifndef __unused
-#define __unused  __attribute__((unused))
+#define __unused __attribute__((unused))
 #endif
 #ifndef __printflike
 #define __printflike(a, b) __attribute__((format(printf, (a), (b))))
@@ -82,7 +82,6 @@ typedef struct log {
   STAILQ_ENTRY(log) entries;
 } log_t;
 
-
 /**
  * Enqueue a telemetry packet for network transmission of the current state
  */
@@ -91,8 +90,7 @@ int log_enqueue(log_t *l);
 /**
  * Log a standard message to stdout and a log file
  */
-__printflike(1, 2)
-int pod_log(char *fmt, ...);
+__printflike(1, 2) int pod_log(char *fmt, ...);
 
 /**
  * Main entry point into the logging server. Use with pthread_create

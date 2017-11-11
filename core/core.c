@@ -91,7 +91,8 @@ void standby_state_checks(pod_t *pod) {
 
 void armed_state_checks(pod_t *pod) {
   flight_profile_t *profile = &pod->flight_profile;
-  if (get_value_f(&(pod->accel_x)) > get_pusher_state_accel_min(profile) && get_value(&(pod->pusher_plate)) == 1) {
+  if (get_value_f(&(pod->accel_x)) > get_pusher_state_accel_min(profile) &&
+      get_value(&(pod->pusher_plate)) == 1) {
     set_pod_mode(Pushing, "Positive Accel");
   }
 }
@@ -113,7 +114,8 @@ void emergency_state_checks(pod_t *pod) {
  */
 void pushing_state_checks(pod_t *pod) {
   flight_profile_t *profile = &pod->flight_profile;
-  if (get_value_f(&(pod->accel_x)) <= COASTING_MIN_ACCEL_TRIGGER && get_value(&(pod->pusher_plate)) == 0) {
+  if (get_value_f(&(pod->accel_x)) <= COASTING_MIN_ACCEL_TRIGGER &&
+      get_value(&(pod->pusher_plate)) == 0) {
     if (time_in_state() > get_pusher_state_min_timer(profile)) {
       set_pod_mode(Coasting, "Pod has negative acceleration in the X dir");
     }
@@ -128,21 +130,21 @@ void pushing_state_checks(pod_t *pod) {
  * Checks to be performed when the pod's state is Coasting
  */
 void coasting_state_checks(__unused pod_t *pod) {
-//  if (get_value_f(&(pod->position_x)) > START_BRAKING) {
-//    set_pod_mode(Braking, "Pod has entered braking range of travel");
-//  }
+  //  if (get_value_f(&(pod->position_x)) > START_BRAKING) {
+  //    set_pod_mode(Braking, "Pod has entered braking range of travel");
+  //  }
   if (pod->launch_time == 0) {
     pod->launch_time = get_time_usec();
   }
 }
-
 
 /**
  * Checks to be performed when the pod's state is Braking
  */
 void braking_state_checks(__unused pod_t *pod) {
   flight_profile_t *profile = &pod->flight_profile;
-  if (pod->engaged_brakes > 0 && get_time_usec() - pod->engaged_brakes > get_braking_hold(profile)) {
+  if (pod->engaged_brakes > 0 &&
+      get_time_usec() - pod->engaged_brakes > get_braking_hold(profile)) {
     set_pod_mode(Vent, "Braking Time Expired");
   }
 }
@@ -155,9 +157,7 @@ void vent_state_checks(pod_t *pod) {
   }
 }
 
-void retrieval_state_checks(__unused pod_t *pod) {
-
-}
+void retrieval_state_checks(__unused pod_t *pod) {}
 
 void skate_sensor_checks(__unused pod_t *pod) {
   // PASS
@@ -174,7 +174,7 @@ void lp_package_checks(pod_t *pod) {
 }
 
 void lateral_sensor_checks(__unused pod_t *pod) {
- // PASS
+  // PASS
 }
 
 int set_skate_target(int no, mpye_value_t val, bool override) {
@@ -251,37 +251,39 @@ void adjust_brakes(pod_t *pod) {
     break;
   case Braking:
   case Emergency:
-      if (get_value(&(pod->pusher_plate)) == 1) {
-        debug("Pusher Plate Engaged, inhibiting brakes");
-        for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
-          ensure_clamp_brakes(i, kClampBrakeReleased, false);
-        }
-      } else if (get_value_f(&(pod->accel_x)) > get_pusher_state_accel_min(profile)) {
-        debug("Accelerating via IMU, inhibiting brakes");
-        for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
-          ensure_clamp_brakes(i, kClampBrakeReleased, false);
-        }
-      } else {
-        if (pod->engaged_brakes == 0) {
-          pod->engaged_brakes = get_time_usec();
-        }
-        ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
-        if ((get_time_usec() - pod->engaged_brakes) > get_braking_wait(profile)) {
-          if (get_value_f(&(pod->accel_x)) > get_primary_braking_accel_min(profile)) {
-            debug("Suboptimal Braking");
-            ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
-          }
+    if (get_value(&(pod->pusher_plate)) == 1) {
+      debug("Pusher Plate Engaged, inhibiting brakes");
+      for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+        ensure_clamp_brakes(i, kClampBrakeReleased, false);
+      }
+    } else if (get_value_f(&(pod->accel_x)) >
+               get_pusher_state_accel_min(profile)) {
+      debug("Accelerating via IMU, inhibiting brakes");
+      for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+        ensure_clamp_brakes(i, kClampBrakeReleased, false);
+      }
+    } else {
+      if (pod->engaged_brakes == 0) {
+        pod->engaged_brakes = get_time_usec();
+      }
+      ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, kClampBrakeEngaged, false);
+      if ((get_time_usec() - pod->engaged_brakes) > get_braking_wait(profile)) {
+        if (get_value_f(&(pod->accel_x)) >
+            get_primary_braking_accel_min(profile)) {
+          debug("Suboptimal Braking");
+          ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, kClampBrakeEngaged,
+                              false);
         }
       }
-      break;
+    }
+    break;
   case Manual:
-      ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, pod->manual.front_brake, false);
-      ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, pod->manual.rear_brake, false);
-      break;
+    ensure_clamp_brakes(PRIMARY_BRAKING_CLAMP, pod->manual.front_brake, false);
+    ensure_clamp_brakes(SECONDARY_BRAKING_CLAMP, pod->manual.rear_brake, false);
+    break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");
   }
-
 }
 
 void adjust_skates(__unused pod_t *pod) {
@@ -315,7 +317,8 @@ void adjust_skates(__unused pod_t *pod) {
       for (int i = 0; i < N_MPYES; i++) {
         set_mpye(&(pod->mpye[i]), 0);
       }
-    } else if (get_value_f(&(pod->accel_x)) > get_pusher_state_accel_min(profile)) {
+    } else if (get_value_f(&(pod->accel_x)) >
+               get_pusher_state_accel_min(profile)) {
       debug("Accelerating via IMU, inhibiting skates");
       for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
         close_solenoid(&(pod->skate_solonoids[i]));
@@ -334,15 +337,15 @@ void adjust_skates(__unused pod_t *pod) {
     }
     break;
   case Manual:
-      set_mpye(&pod->mpye[0], pod->manual.mpye_a);
-      set_mpye(&pod->mpye[1], pod->manual.mpye_b);
-      set_mpye(&pod->mpye[2], pod->manual.mpye_c);
-      set_mpye(&pod->mpye[3], pod->manual.mpye_d);
-      set_solenoid(&pod->skate_solonoids[0], pod->manual.skate_a);
-      set_solenoid(&pod->skate_solonoids[1], pod->manual.skate_b);
-      set_solenoid(&pod->skate_solonoids[2], pod->manual.skate_c);
-      set_solenoid(&pod->skate_solonoids[3], pod->manual.skate_d);
-      break;
+    set_mpye(&pod->mpye[0], pod->manual.mpye_a);
+    set_mpye(&pod->mpye[1], pod->manual.mpye_b);
+    set_mpye(&pod->mpye[2], pod->manual.mpye_c);
+    set_mpye(&pod->mpye[3], pod->manual.mpye_d);
+    set_solenoid(&pod->skate_solonoids[0], pod->manual.skate_a);
+    set_solenoid(&pod->skate_solonoids[1], pod->manual.skate_b);
+    set_solenoid(&pod->skate_solonoids[2], pod->manual.skate_c);
+    set_solenoid(&pod->skate_solonoids[3], pod->manual.skate_d);
+    break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");
   }
@@ -405,31 +408,30 @@ void adjust_hp_fill(pod_t *pod) {
   }
 }
 
-
 void adjust_batteries(pod_t *pod) {
   switch (get_pod_mode()) {
-    case POST:
-    case Boot:
-    case HPFill:
-    case Load:
-    case Standby:
-    case Armed:
-    case Pushing:
-    case Coasting:
-    case Braking:
-    case Vent:
-    case Retrieval:
-    case Emergency:
-    case Shutdown:
-      // NOOP
-      break;
-    case Manual:
-      set_solenoid(&pod->battery_pack_relays[0], pod->manual.battery_a);
-      set_solenoid(&pod->battery_pack_relays[1], pod->manual.battery_b);
-      break;
-    default:
-      panic(POD_CORE_SUBSYSTEM,
-            "Pod Mode unknown, cannot make a hp fill decsion");
+  case POST:
+  case Boot:
+  case HPFill:
+  case Load:
+  case Standby:
+  case Armed:
+  case Pushing:
+  case Coasting:
+  case Braking:
+  case Vent:
+  case Retrieval:
+  case Emergency:
+  case Shutdown:
+    // NOOP
+    break;
+  case Manual:
+    set_solenoid(&pod->battery_pack_relays[0], pod->manual.battery_a);
+    set_solenoid(&pod->battery_pack_relays[1], pod->manual.battery_b);
+    break;
+  default:
+    panic(POD_CORE_SUBSYSTEM,
+          "Pod Mode unknown, cannot make a hp fill decsion");
   }
 }
 
@@ -439,10 +441,10 @@ static void setup(void) {
   debug("=== Begin Setup ===");
   for (int i = 0; i < N_MPYES; i++) {
     mpye_t *m = &(pod->mpye[i]);
-    debug("%p\n", (void*)m);
+    debug("%p\n", (void *)m);
     debug("%d\n", m->address);
     debug("%d\n", m->channel);
-    debug("%p\n", (void*)m->bus);
+    debug("%p\n", (void *)m->bus);
     debug("%d\n", m->bus->fd);
     set_ssr(m->bus->fd, m->address, m->channel, 0);
   }
@@ -456,7 +458,6 @@ static void setup(void) {
     solenoid_t *s = &(pod->clamp_engage_solonoids[i]);
     set_ssr(s->bus->fd, s->address, s->channel, 0);
   }
-
 
   for (int i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
     solenoid_t *s = &(pod->clamp_release_solonoids[i]);
@@ -478,7 +479,6 @@ static void setup(void) {
   sleep(1);
   debug("=== End Setup ===");
 }
-
 
 static void functional_check(void) {
   pod_t *pod = get_pod();
@@ -571,7 +571,6 @@ static void functional_check(void) {
   debug("=== End Functional Test ===");
 }
 
-
 /**
  * The Core Run Loop
  */
@@ -610,9 +609,9 @@ void *core_main(__unused void *arg) {
     clock_gettime(CLOCK_REALTIME, &now);
     timespec_add_us(&next, CORE_PERIOD_USEC);
     if (timespec_cmp(&now, &next) > 0) {
-//      fprintf(stderr, "Deadline miss for core thread\n");
-//      fprintf(stderr, "now: %ld.%ldns next: %ld.%ldns ()\n",
-//              now.tv_sec, now.tv_nsec, next.tv_sec, next.tv_nsec);
+      //      fprintf(stderr, "Deadline miss for core thread\n");
+      //      fprintf(stderr, "now: %ld.%ldns next: %ld.%ldns ()\n",
+      //              now.tv_sec, now.tv_nsec, next.tv_sec, next.tv_nsec);
     }
 
     // --------------------------------------------
@@ -649,9 +648,10 @@ void *core_main(__unused void *arg) {
           if (value < 0) {
             if (mobo_score < MOBO_SCORE_MAX) {
               mobo_score += MOBO_SCORE_STEP_UP;
-              //Todo Uncomment when IMU Reliability improves
+              // Todo Uncomment when IMU Reliability improves
               //        if (imu_score > IMU_SCORE_MAX) {
-              //          set_pod_mode(Emergency, "Motherboard Communication Failure");
+              //          set_pod_mode(Emergency, "Motherboard Communication
+              //          Failure");
               //        }
             } else if (mobo_score > 0) {
               mobo_score -= MOBO_SCORE_STEP_DOWN;
@@ -660,7 +660,8 @@ void *core_main(__unused void *arg) {
           }
 
           // double voltage = value * 0.0012207;
-          // debug("Sensor %s: ADC%d Channel %02d: %d (%lf Volts)", s->name, a, channel, value, voltage);
+          // debug("Sensor %s: ADC%d Channel %02d: %d (%lf Volts)", s->name, a,
+          // channel, value, voltage);
 
           queue_sensor(s, value);
           update_sensor(s);
@@ -748,17 +749,17 @@ void *core_main(__unused void *arg) {
     // Set battery relays
     adjust_batteries(pod);
 
-    #pragma mark core-telemetry
+#pragma mark core-telemetry
 
     // -------------------------------------------
     // SECTION: Telemetry dump
     // -------------------------------------------
     log_dump(pod);
 
-    #pragma mark core-heartbeat-check
-    // --------------------------------------------
-    // Heartbeat handling
-    // --------------------------------------------
+#pragma mark core-heartbeat-check
+// --------------------------------------------
+// Heartbeat handling
+// --------------------------------------------
 //    if (get_time_usec() - pod->last_ping > HEARTBEAT_TIMEOUT_USEC &&
 //        pod->last_ping > 0 && get_pod_mode() != Emergency) {
 //      set_pod_mode(Emergency, "Heartbeat timeout");

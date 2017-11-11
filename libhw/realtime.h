@@ -30,16 +30,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-
 #ifndef PARADIGM_REALTIME_H
 #define PARADIGM_REALTIME_H
 
-#include <time.h>
+#include <errno.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
-#include <stdint.h>
-#include <errno.h>
 
 #define USEC_PER_SEC 1000000ull
 #define NSEC_PER_SEC 1000000000ull
@@ -91,7 +90,6 @@ void timespec_add(struct timespec *t1, const struct timespec *t2);
  * @param t2 The timespec to subtrack from t1
  */
 void timespec_sub(struct timespec *t1, const struct timespec *t2);
-
 
 /**
  * Compares two timespecs.

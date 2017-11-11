@@ -35,14 +35,15 @@
 #define N_WALKS 2
 #define WAIT_USEC 50000
 
-#define CONFIRM(cond) do { \
-  if ((cond)) { \
-    printf("[TEST] [PASS] " __XSTR__(cond) "\n"); \
-  } else { \
-    printf("[TEST] [FAIL] " __XSTR__(cond) "\n"); \
-    return 1; \
-  } \
-} while (0);
+#define CONFIRM(cond)                                                          \
+  do {                                                                         \
+    if ((cond)) {                                                              \
+      printf("[TEST] [PASS] " __XSTR__(cond) "\n");                            \
+    } else {                                                                   \
+      printf("[TEST] [FAIL] " __XSTR__(cond) "\n");                            \
+      return 1;                                                                \
+    }                                                                          \
+  } while (0);
 
 #define TEST_BUS_NAME "earth.paradigm.tests.bus.bus_a"
 #define TEST_SEM_NAME "earth.paradigm.tests.bus.sem_a"
@@ -52,8 +53,7 @@
  *
  * @return 0 on success. -1 on failure
  */
-static
-int test_relays() {
+static int test_relays() {
   pod_t *pod = get_pod();
   solenoid_t *s;
   int i, prev = 0;
@@ -98,19 +98,13 @@ int test_relays() {
   return 0;
 }
 
-static
-int test_sensors () {
-  return 0;
-}
+static int test_sensors() { return 0; }
 
-
-static
-int test_bus_manager() {
+static int test_bus_manager() {
   bus_t test_bus;
-  sem_t *test_sem = sem_open(TEST_SEM_NAME, O_CREAT,
-                             S_IRUSR | S_IWUSR, 0);
+  sem_t *test_sem = sem_open(TEST_SEM_NAME, O_CREAT, S_IRUSR | S_IWUSR, 0);
   __block int test_fd = -1;
-  bus_init(&test_bus, TEST_BUS_NAME, ^ int {
+  bus_init(&test_bus, TEST_BUS_NAME, ^int {
     test_fd = open("/dev/random", O_RDONLY);
     return test_fd;
   });
@@ -118,13 +112,13 @@ int test_bus_manager() {
   CONFIRM(test_fd != -1);
   CONFIRM(test_bus.fd == test_fd);
   CONFIRM(strcmp(test_bus.name, TEST_BUS_NAME) == 0);
-  
+
   __block int running = 0;
   bus_enqueue(&test_bus, ^(bus_t *bus) {
     debug("Executing test block");
     sleep(1);
     running = 1;
-    
+
     if (strcmp(bus->name, TEST_BUS_NAME) != 0) {
       running = 2;
       return;
@@ -141,7 +135,7 @@ int test_bus_manager() {
   CONFIRM(running == 0);
   sleep(1);
   CONFIRM(running == 0);
-  
+
   // Start the bus
   bus_run(&test_bus);
   CONFIRM(running == 0);
@@ -152,16 +146,16 @@ int test_bus_manager() {
 
   running = 0;
 
-  for (int i =0; i < 100; i++) {
+  for (int i = 0; i < 100; i++) {
     bus_enqueue(&test_bus, ^(bus_t *bus) {
       debug("Executing block: %d", running);
       running++;
-      
+
       if (strcmp(bus->name, TEST_BUS_NAME) != 0) {
         running = -100;
         return;
       }
-      
+
       if (bus->fd != test_fd) {
         running = -1000;
         return;
@@ -169,7 +163,7 @@ int test_bus_manager() {
       sem_post(test_sem);
     });
   }
-  
+
   while (running < 100) {
     sem_wait(test_sem);
     if (running < 0) {
@@ -177,7 +171,7 @@ int test_bus_manager() {
       return -1;
     }
   }
-  
+
   CONFIRM(test_bus.head == NULL);
   int rc = bus_destroy(&test_bus);
   CONFIRM(rc == 0);
@@ -204,7 +198,6 @@ int self_tests(__unused pod_t *state) {
     error("Relay Walk Test Failed");
     return 1;
   }
-  
 
   info("Testing PASSED!");
   return 0;

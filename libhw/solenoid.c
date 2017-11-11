@@ -32,33 +32,33 @@
 
 #include "solenoid.h"
 
-int ssr_board_init(__unused bus_t * b, __unused int address) {
-//  bus_enqueue(b, ^(__unused bus_t *bus) {
-//    
-//    
-//    // Paste SSR Board Bringup Here
-//    
-//    printf("%d\n", address);
-//  });
+int ssr_board_init(__unused bus_t *b, __unused int address) {
+  //  bus_enqueue(b, ^(__unused bus_t *bus) {
+  //
+  //
+  //    // Paste SSR Board Bringup Here
+  //
+  //    printf("%d\n", address);
+  //  });
   return 0;
 }
 
-
-int solenoid_init(solenoid_t *s, char *name, bus_t *bus, unsigned char address, unsigned char channel, solenoid_type_t type) {
+int solenoid_init(solenoid_t *s, char *name, bus_t *bus, unsigned char address,
+                  unsigned char channel, solenoid_type_t type) {
   strncpy(s->name, name, HW_MAX_NAME);
   s->bus = bus;
   s->address = address;
   s->channel = channel;
   s->type = type;
-  
+
   // TODO: Read in from IC
   switch (s->type) {
-    case kSolenoidNormallyClosed:
-      s->state = kSolenoidClosed;
-      break;
-    case kSolenoidNormallyOpen:
-      s->state = kSolenoidOpen;
-      break;
+  case kSolenoidNormallyClosed:
+    s->state = kSolenoidClosed;
+    break;
+  case kSolenoidNormallyOpen:
+    s->state = kSolenoidOpen;
+    break;
   }
 
   s->locked = false;
@@ -73,11 +73,9 @@ bool is_solenoid_closed(solenoid_t *solenoid) {
   return solenoid->state == kSolenoidClosed;
 }
 
-
 bool is_solenoid_opening(solenoid_t *solenoid) {
   return solenoid->state == kSolenoidOpening;
 }
-
 
 bool is_solenoid_closing(solenoid_t *solenoid) {
   return solenoid->state == kSolenoidClosing;
@@ -85,17 +83,17 @@ bool is_solenoid_closing(solenoid_t *solenoid) {
 
 void set_solenoid(solenoid_t *s, solenoid_state_t val) {
   switch (val) {
-    case kSolenoidOpen:
-      open_solenoid(s);
-      break;
-    case kSolenoidClosed:
-      close_solenoid(s);
-      break;
-    case kSolenoidError:
-      // TOOD: Handle
-      break;
-    default:
-      abort();
+  case kSolenoidOpen:
+    open_solenoid(s);
+    break;
+  case kSolenoidClosed:
+    close_solenoid(s);
+    break;
+  case kSolenoidError:
+    // TOOD: Handle
+    break;
+  default:
+    abort();
   }
 }
 
@@ -108,7 +106,7 @@ bool open_solenoid(solenoid_t *s) {
   if (is_solenoid_locked(s)) {
     return is_solenoid_open(s);
   }
-  
+
   if (is_solenoid_opening(s)) {
     return true;
   }
@@ -116,18 +114,18 @@ bool open_solenoid(solenoid_t *s) {
   if (!is_solenoid_open(s)) {
     int value;
     switch (s->type) {
-      case kSolenoidNormallyOpen:
-        value = 0;
-        break;
-      case kSolenoidNormallyClosed:
-        value = 4095;
-        break;
-      default:
-        abort();
+    case kSolenoidNormallyOpen:
+      value = 0;
+      break;
+    case kSolenoidNormallyClosed:
+      value = 4095;
+      break;
+    default:
+      abort();
     }
-    
-    printf("Opening Solenoid %s (Addr: %d Ch: %d Val: %d)\n", s->name, s->address, s->channel, value);
 
+    printf("Opening Solenoid %s (Addr: %d Ch: %d Val: %d)\n", s->name,
+           s->address, s->channel, value);
 
     set_ssr(s->bus->fd, s->address, s->channel, value);
     s->state = kSolenoidOpen;
@@ -139,7 +137,7 @@ bool close_solenoid(solenoid_t *s) {
   if (is_solenoid_locked(s)) {
     return is_solenoid_closed(s) || is_solenoid_closing(s);
   }
-  
+
   if (is_solenoid_closing(s)) {
     return true;
   }
@@ -147,19 +145,19 @@ bool close_solenoid(solenoid_t *s) {
   if (is_solenoid_open(s)) {
     int value;
     switch (s->type) {
-      case kSolenoidNormallyOpen:
-        value = 4095;
-        break;
-      case kSolenoidNormallyClosed:
-        value = 0;
-        break;
-      default:
-        abort();
+    case kSolenoidNormallyOpen:
+      value = 4095;
+      break;
+    case kSolenoidNormallyClosed:
+      value = 0;
+      break;
+    default:
+      abort();
     }
-    
-    printf("Closing Solenoid %s (Addr: %d Ch: %d Val: %d)\n", s->name, s->address, s->channel, value);
 
-    
+    printf("Closing Solenoid %s (Addr: %d Ch: %d Val: %d)\n", s->name,
+           s->address, s->channel, value);
+
     set_ssr(s->bus->fd, s->address, s->channel, value);
     s->state = kSolenoidClosed;
   }

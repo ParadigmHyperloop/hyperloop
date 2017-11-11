@@ -279,7 +279,6 @@ int initPWM(int mgrnum, char *pin) {
   return 0;
 }
 
-
 int setPWMPeriod(int helpnum, char *pin, int period) {
   FILE *pwm;
   char buf[5];

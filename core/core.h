@@ -32,8 +32,8 @@
 
 #ifndef PARADIGM_CORE_H
 #define PARADIGM_CORE_H
-#include "pod.h"
 #include "core_checklists.h"
+#include "pod.h"
 
 /**
  * A list of common tasks that should be run on every control loop cycle

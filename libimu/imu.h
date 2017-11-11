@@ -66,20 +66,11 @@ typedef struct imu_datagram {
   uint32_t computed_crc;
 } imu_datagram_t;
 
-#define IMU_DATAGRAM_INIT { \
-.hd = 0.0, \
-.x = 0.0, \
-.y = 0.0, \
-.z = 0.0, \
-.wx = 0.0, \
-.wy = 0.0, \
-.wz = 0.0, \
-.sequence = 0, \
-.status = 0, \
-.temperature = 0, \
-.crc = 0, \
-.computed_crc = 0 \
-}
+#define IMU_DATAGRAM_INIT                                                      \
+  {                                                                            \
+    .hd = 0.0, .x = 0.0, .y = 0.0, .z = 0.0, .wx = 0.0, .wy = 0.0, .wz = 0.0,  \
+    .sequence = 0, .status = 0, .temperature = 0, .crc = 0, .computed_crc = 0  \
+  }
 
 /**
  * Connect to the IMU on the given device path

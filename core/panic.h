@@ -60,5 +60,4 @@
  */
 void pod_panic(int subsystem, char *file, int line, char *notes, ...);
 
-
 #endif /* PARADIGM_CORE_H */

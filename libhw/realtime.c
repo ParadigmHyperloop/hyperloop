@@ -80,28 +80,27 @@ void timespec_add_us(struct timespec *t, long us) {
   timespec_add_ns(t, us * 1000);
 }
 
-
 int timespec_cmp(struct timespec *a, struct timespec *b) {
   if (a->tv_sec > b->tv_sec)
-  return 1;
+    return 1;
   else if (a->tv_sec < b->tv_sec)
-  return -1;
+    return -1;
   else if (a->tv_sec == b->tv_sec) {
     if (a->tv_nsec > b->tv_nsec)
-    return 1;
+      return 1;
     else if (a->tv_nsec == b->tv_nsec)
-    return 0;
+      return 0;
     else
-    return -1;
+      return -1;
   }
 
   return -1;
 }
 
 int64_t timespec_to_nsec(struct timespec *t) {
-//  if (t->tv_sec >= (INT32_MAX - 1) / (long)NSEC_PER_SEC) {
-//    return -1;
-//  }
+  //  if (t->tv_sec >= (INT32_MAX - 1) / (long)NSEC_PER_SEC) {
+  //    return -1;
+  //  }
 
   return (t->tv_sec * NSEC_PER_SEC) + t->tv_nsec;
 }
