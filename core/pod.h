@@ -30,6 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
+
 #ifndef PARADIGM_POD_H
 #define PARADIGM_POD_H
 
@@ -37,25 +38,25 @@
 #include <sys/queue.h>
 
 #include "cdefs.h"
-#include "config.h"
 #include "debug.h"
+#include "config.h"
 
-#include <Block.h>
+#include <libBBB.h>
 #include <hw.h>
 #include <imu.h>
-#include <libBBB.h>
+#include <Block.h>
 
-#include "accel.h"
+#include "log.h"
 #include "bus_manager.h"
+#include "states.h"
+#include "pod-defs.h"
+#include "realtime.h"
+#include "telemetry.h"
 #include "commander.h"
 #include "core.h"
-#include "log.h"
 #include "panic.h"
-#include "pod-defs.h"
 #include "pod-helpers.h"
-#include "realtime.h"
 #include "ring_buffer.h"
-#include "states.h"
-#include "telemetry.h"
+#include "accel.h"
 
 #endif /* PARADIGM_POD_H */

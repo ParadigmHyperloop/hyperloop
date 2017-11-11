@@ -30,9 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef PARADIGM_HW_H
-#define PARADIGM_HW_H
-
 #include <Block.h>
 #include <assert.h>
 #include <errno.h>
@@ -40,6 +37,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+#ifndef PARADIGM_HW_H
+#define PARADIGM_HW_H
 
 #define HW_MAX_NAME 64
 
