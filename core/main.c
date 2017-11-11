@@ -34,20 +34,24 @@
 #include "pru.h"
 #include <sys/mount.h>
 
-
 struct arguments {
   bool tests;
   bool ready;
   char *imu_device;
   char *telemetry_dump;
+  int command_port;
+  int logging_port;
 };
 
-struct arguments args = {
-    .tests = false, .ready = false, .imu_device = IMU_DEVICE, .telemetry_dump = NULL};
+struct arguments args = {.tests = false,
+                         .ready = false,
+                         .imu_device = IMU_DEVICE,
+                         .telemetry_dump = NULL,
+                         .command_port = -1,
+                         .logging_port = -1};
 
-const char *BUS_NAMES[] = { "/sem-i2c-0", "/sem-i2c-1" };
-const char *BUS_FILES[] = { "/dev/i2c-0", "/dev/i2c-1" };
-
+const char *BUS_NAMES[] = {"/sem-i2c-0", "/sem-i2c-1"};
+const char *BUS_FILES[] = {"/dev/i2c-0", "/dev/i2c-1"};
 
 /**
  * WARNING: Do Not Directly Access this struct, use get_pod() instead to
@@ -67,8 +71,7 @@ void usage() {
 
 void parse_args(int argc, char *argv[]) {
   int ch;
-
-  while ((ch = getopt(argc, argv, "rti:T:")) != -1) {
+  while ((ch = getopt(argc, argv, "rti:T:bp")) != -1) {
     switch (ch) {
     case 'r':
       args.ready = true;
@@ -82,6 +85,11 @@ void parse_args(int argc, char *argv[]) {
     case 'T':
       args.telemetry_dump = optarg;
       break;
+    case 'b':
+      args.command_port = atoi(optarg);
+      break;
+    case 'p':
+      args.logging_port = atoi(optarg);
     default:
       usage();
     }
@@ -126,7 +134,8 @@ void pod_exit(int code) {
 }
 
 /**
- * Panic Signal Handler.  This is only called if immediate termination is required
+ * Panic Signal Handler.  This is only called if immediate termination is
+ * required
  * This function fires whenever the controller looses complete control in itself
  *
  * The controller sets the CLAMP pins to LOW (engage) and then kills all it's
@@ -136,8 +145,7 @@ void pod_exit(int code) {
  * This is a pretty low level function because it is attempting to cut out the
  * entire controller logic and just make the pod safe
  */
-static
-void panic_handler(int sig) {
+static void panic_handler(int sig) {
   if (sig == SIGTERM) {
 // Power button pulled low, power will be cut in < 1023ms
 // TODO: Sync the filesystem and unmount root to prevent corruption
@@ -158,8 +166,7 @@ void panic_handler(int sig) {
   exit(EXIT_FAILURE);
 }
 
-static
-void exit_signal_handler(__unused int sig) {
+static void exit_signal_handler(__unused int sig) {
   switch (_pod.mode) {
   case Boot:
   case Shutdown:
@@ -170,12 +177,9 @@ void exit_signal_handler(__unused int sig) {
   }
 }
 
-static
-void sigpipe_handler(__unused int sig) { error("SIGPIPE Recieved"); }
+static void sigpipe_handler(__unused int sig) { error("SIGPIPE Recieved"); }
 
-int pod_shutdown(pod_t *pod) {
-  return sem_post(pod->boot_sem);
-}
+int pod_shutdown(pod_t *pod) { return sem_post(pod->boot_sem); }
 
 int _pod_shutdown_main(pod_t *pod);
 
@@ -246,7 +250,7 @@ int main(int argc, char *argv[]) {
     pod_t *pod = get_pod();
 
     if (args.tests) {
-//      pod_exit(self_tests(pod));
+      //      pod_exit(self_tests(pod));
       pod->func_test = true;
     }
 
@@ -267,6 +271,14 @@ int main(int argc, char *argv[]) {
       pod->imu = -1;
     }
 
+    //Set Ports
+    if(args.command_port != -1){
+      set_value(&pod->command_port, args.command_port);
+    }
+    if(args.logging_port != -1){
+      set_value(&pod->logging_port, args.logging_port);
+    }
+
 #ifdef HAS_PRU
     pru_init();
 #endif
@@ -276,17 +288,16 @@ int main(int argc, char *argv[]) {
 #else
     pod->i2c[SSR_I2C_BUS].fd = open("/dev/zero", O_RDWR);
 #endif
-    
-    assert(pod->i2c[SSR_I2C_BUS].fd > 0);
-    
-    info("Initialized I2C-%d as fd %d", SSR_I2C_BUS, pod->i2c[SSR_I2C_BUS].fd);
-    
 
-//#ifdef BBB
-//    ssr_board_init(&pod->i2c[1], SSR_BOARD_1_ADDRESS);
-//    ssr_board_init(&pod->i2c[1], SSR_BOARD_2_ADDRESS);
-//#endif
-  
+    assert(pod->i2c[SSR_I2C_BUS].fd > 0);
+
+    info("Initialized I2C-%d as fd %d", SSR_I2C_BUS, pod->i2c[SSR_I2C_BUS].fd);
+
+    //#ifdef BBB
+    //    ssr_board_init(&pod->i2c[1], SSR_BOARD_1_ADDRESS);
+    //    ssr_board_init(&pod->i2c[1], SSR_BOARD_2_ADDRESS);
+    //#endif
+
     // -----------------------------------------
     // Logging - Remote Logging System
     // -----------------------------------------
@@ -303,9 +314,8 @@ int main(int argc, char *argv[]) {
         pod_exit(1);
       }
     }
-    
-    info("Logging Reported Started");
 
+    info("Logging Reported Started");
 
     if (get_pod_mode() != Boot) {
       error(
@@ -338,7 +348,7 @@ int main(int argc, char *argv[]) {
     info("Booting Core Controller Logic Thread");
 
     pthread_create(&(pod->core_thread), NULL, core_main, NULL);
-    
+
     // we're using the built-in linux Round Roboin scheduling
     // priorities are 1-99, higher is more important
     // important note: this is not hard real-time

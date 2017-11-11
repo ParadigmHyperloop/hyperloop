@@ -34,16 +34,15 @@
 
 extern ring_buf_t logbuf;
 
-static
-int log_open(char *filename) {
-  return open(filename, O_CREAT | O_WRONLY | O_APPEND, S_IRWXU | S_IRWXG | S_IROTH);
+static int log_open(char *filename) {
+  return open(filename, O_CREAT | O_WRONLY | O_APPEND,
+              S_IRWXU | S_IRWXG | S_IROTH);
 }
 
-static
-int log_connect() {
-  info("Connecting to logging server: " LOG_SVR_NAME);
-
-  int fd, portno = LOG_SVR_PORT;
+static int log_connect() {
+  pod_t *pod = get_pod();
+  info("Connecting to logging server: %d", get_value(&pod->logging_port));
+  int fd, portno = get_value(&pod->logging_port);
   struct sockaddr_in serveraddr;
   struct hostent *server;
   char *hostname = LOG_SVR_NAME;
@@ -77,16 +76,16 @@ int log_connect() {
     return -1;
   }
 
-  note("Connected to " LOG_SVR_NAME ":" __XSTR__(LOG_SVR_PORT) " fd %d", fd);
+  note("Connected to " LOG_SVR_NAME
+       ": %d fd %d",
+       get_value(&pod->logging_port), fd);
 
   return fd;
 }
 
-
 // Use of any output macro in this function could lead to stack overflow...
 // Do not use output macros in this function
-static
-int log_send(log_t *l) {
+static int log_send(log_t *l) {
   pod_t *pod = get_pod();
 
   if (pod->logging_socket < 0) {
@@ -114,11 +113,12 @@ int log_send(log_t *l) {
     fprintf(stderr, "ERROR writing to socket: %s\n", strerror(errno));
     return -1;
   }
-  
+
   if (pod->logging_fd > -1) {
     n = write(pod->logging_fd, buf, len);
     if (n <= 0) {
-      fprintf(stderr, "ERROR writing to binary log file: %s\n", strerror(errno));
+      fprintf(stderr, "ERROR writing to binary log file: %s\n",
+              strerror(errno));
       return -1;
     }
   }
@@ -144,7 +144,7 @@ void *logging_main(__unused void *arg) {
       break;
     }
   }
-  
+
   while (pod->logging_fd < 0) {
     debug("[logging_main] Opening Log File");
 
@@ -176,10 +176,12 @@ void *logging_main(__unused void *arg) {
       while (result < 0 && attempts < MAX_ATTEMPTS_PER_LOG) {
         attempts++;
         usleep(LOGGING_THREAD_SLEEP * attempts * attempts);
-        fprintf(stderr, "Log Retry %d of %d. rc: %d\n", attempts, MAX_ATTEMPTS_PER_LOG, result);
+        fprintf(stderr, "Log Retry %d of %d. rc: %d\n", attempts,
+                MAX_ATTEMPTS_PER_LOG, result);
         result = log_send(&l);
         if (result == 0) {
-          fprintf(stderr, "Log Retry %d of %d. Success!\n", attempts, MAX_ATTEMPTS_PER_LOG);
+          fprintf(stderr, "Log Retry %d of %d. Success!\n", attempts,
+                  MAX_ATTEMPTS_PER_LOG);
         }
       }
 
