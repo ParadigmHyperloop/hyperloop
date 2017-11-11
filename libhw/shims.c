@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#include "libBBB.h"
 #include "shims.h"
+#include "libBBB.h"
 // GPIO Prototypes
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -30,7 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-
 /**
  * Common C Definitions File for PARADIGM pod controller
  *
@@ -68,7 +67,7 @@
 #define __XSTR__(s) __STR__(s)
 
 #ifndef __unused
-#define __unused  __attribute__((unused))
+#define __unused __attribute__((unused))
 #endif
 
 #endif

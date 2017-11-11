@@ -301,18 +301,20 @@ int prussdrv_load_datafile(int prunum, const char *filename);
 
 #define PRUSS_INTC_INITDATA                                                    \
   {                                                                            \
-    {                                                                          \
-      PRU0_PRU1_INTERRUPT, PRU1_PRU0_INTERRUPT, PRU0_ARM_INTERRUPT,            \
-          PRU1_ARM_INTERRUPT, ARM_PRU0_INTERRUPT, ARM_PRU1_INTERRUPT,          \
-          (char) - 1                                                           \
-    }                                                                          \
-    , {{PRU0_PRU1_INTERRUPT, CHANNEL1},                                        \
-       {PRU1_PRU0_INTERRUPT, CHANNEL0},                                        \
-       {PRU0_ARM_INTERRUPT, CHANNEL2},                                         \
-       {PRU1_ARM_INTERRUPT, CHANNEL3},                                         \
-       {ARM_PRU0_INTERRUPT, CHANNEL0},                                         \
-       {ARM_PRU1_INTERRUPT, CHANNEL1},                                         \
-       {-1, -1}},                                                              \
+    {PRU0_PRU1_INTERRUPT,                                                      \
+     PRU1_PRU0_INTERRUPT,                                                      \
+     PRU0_ARM_INTERRUPT,                                                       \
+     PRU1_ARM_INTERRUPT,                                                       \
+     ARM_PRU0_INTERRUPT,                                                       \
+     ARM_PRU1_INTERRUPT,                                                       \
+     (char)-1},                                                                \
+        {{PRU0_PRU1_INTERRUPT, CHANNEL1},                                      \
+         {PRU1_PRU0_INTERRUPT, CHANNEL0},                                      \
+         {PRU0_ARM_INTERRUPT, CHANNEL2},                                       \
+         {PRU1_ARM_INTERRUPT, CHANNEL3},                                       \
+         {ARM_PRU0_INTERRUPT, CHANNEL0},                                       \
+         {ARM_PRU1_INTERRUPT, CHANNEL1},                                       \
+         {-1, -1}},                                                            \
         {{CHANNEL0, PRU0},                                                     \
          {CHANNEL1, PRU1},                                                     \
          {CHANNEL2, PRU_EVTOUT0},                                              \

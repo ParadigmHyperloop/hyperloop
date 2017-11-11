@@ -8,7 +8,7 @@
 
 #include "mpye.h"
 
-//static int mpye_to_ssr_setpoint(mpye_value_t val) {
+// static int mpye_to_ssr_setpoint(mpye_value_t val) {
 //  return 2000 + val * 12;
 //}
 
@@ -19,7 +19,8 @@ void set_mpye(mpye_t *m, mpye_value_t val) {
   pthread_mutex_unlock(&(m->mutex));
 }
 
-int mpye_init(mpye_t *m, char *name, bus_t *bus, unsigned char address, unsigned char channel) {
+int mpye_init(mpye_t *m, char *name, bus_t *bus, unsigned char address,
+              unsigned char channel) {
   strncpy(m->name, name, HW_MAX_NAME);
 
   m->bus = bus;

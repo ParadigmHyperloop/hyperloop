@@ -78,7 +78,7 @@ bool is_pod_vented(pod_t *pod);
  * Determine if the hp air supply system is vented
  *
  * @param pod A pointer to the pod structure
- * @return true if true if the hp air supply system is still energized above 
+ * @return true if true if the hp air supply system is still energized above
  *         20 PSIG
  */
 bool is_hp_vented(pod_t *pod);
@@ -97,16 +97,17 @@ bool is_lp_vented(pod_t *pod);
  * decceleration.
  *
  * @param pod A pointer to the pod structure
- * @return the estimated stopping distance of the pod at it's current 
+ * @return the estimated stopping distance of the pod at it's current
  *         deccelleration
  */
-// TODO: This function currently uses the globally deffined expected decelleration... not the current decelleration
+// TODO: This function currently uses the globally deffined expected
+// decelleration... not the current decelleration
 float get_stopping_distance(pod_t *pod);
 
 /**
  * Gets the remaining distance in the usable travel space in the tube
  *
- * @example If the TUBE_LENGTH is 1500 and the STOPPING_MARGIN is 300, this 
+ * @example If the TUBE_LENGTH is 1500 and the STOPPING_MARGIN is 300, this
  *          function will return 1200 - the pod's X position.
  *
  * @param pod A pointer to the pod structure
@@ -115,7 +116,7 @@ float get_stopping_distance(pod_t *pod);
 float get_remaining_distance(pod_t *pod);
 
 /**
- * Computes the minimium decelleration required for the pod to stop at the 
+ * Computes the minimium decelleration required for the pod to stop at the
  * end of the tube (minus the STOPPING_MARGIN)
  *
  * @param pod A pointer to the pod structure
@@ -129,7 +130,7 @@ float get_stopping_deccel(pod_t *pod);
  * @param pod A pointer to the pod_t to search
  * @param name The name of the sensor to find
  *
- * @return A pointer to the sensor_t in the given pod_t or NULL if the sensor 
+ * @return A pointer to the sensor_t in the given pod_t or NULL if the sensor
  *         is not found
  */
 sensor_t *get_sensor_by_name(pod_t *pod, char *name);

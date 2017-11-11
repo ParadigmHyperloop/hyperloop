@@ -35,18 +35,17 @@ static void task_destroy(bus_task_t *task) {
   free(task);
 }
 
-static bus_task_t * bus_dequeue(bus_t *bus) {
+static bus_task_t *bus_dequeue(bus_t *bus) {
   assert(bus);
 
   pthread_mutex_lock(&bus->mutex);
 
-  bus_task_t * task = bus->head;
+  bus_task_t *task = bus->head;
   if (task) {
     bus->head = task->next;
   }
 
   pthread_mutex_unlock(&bus->mutex);
-
 
   return task;
 }
@@ -112,7 +111,7 @@ int bus_kill(bus_t *bus) {
   return (rc != 0 ? -1 : 0);
 }
 
-bus_task_t * bus_enqueue(bus_t *bus, bus_block_t block) {
+bus_task_t *bus_enqueue(bus_t *bus, bus_block_t block) {
   bus_task_t *task = task_create(block);
   if (!task) {
     printf("Task failed to schedule on bus %p", bus);

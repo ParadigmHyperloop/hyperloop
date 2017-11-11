@@ -30,10 +30,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
+#include "bus_manager.h"
+#include "hw.h"
 #ifndef PARADIGM_ADC_H
 #define PARADIGM_ADC_H
-
-#include "hw.h"
 
 typedef struct adc {
   // The ID number for the ADC (Used to switch the demux)

@@ -39,9 +39,8 @@
 
 #define N_LEVITATION_DISTANCE 8
 #define LEVITATION_DISTANCE_ADC DISTANCE_ADC
-#define LEVITATION_DISTANCE_SENSORS                                                 \
+#define LEVITATION_DISTANCE_SENSORS                                            \
   { 5, 10, 4, 11, 3, 12, 2, 13 }
-
 
 // --------------------------
 // Pusher
@@ -49,11 +48,8 @@
 
 #define N_PUSHER_DISTANCE 4
 #define PUSHER_DISTANCE_ADC DISTANCE_ADC
-#define PUSHER_DISTANCE_INPUTS                                                \
+#define PUSHER_DISTANCE_INPUTS                                                 \
   { 9, 6, 8, 7 }
-
-
-
 
 // 12 Bit 5V ADC -> Distance (mm)
 #define DISTANCE_CALIBRATION_A 0.00008995

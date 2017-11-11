@@ -35,9 +35,13 @@
 #ifndef BBB
 
 ssize_t init_pin(__unused gpio_t pin) { return 0; }
-ssize_t set_pin_direction(__unused gpio_t pin, __unused gpio_dir_t value) { return 0; }
-gpio_dir_t get_pin_direction(__unused gpio_t pin)  { return kGpioDirError; }
-ssize_t set_pin_value(__unused gpio_t pin, __unused gpio_value_t value) { return 0; }
+ssize_t set_pin_direction(__unused gpio_t pin, __unused gpio_dir_t value) {
+  return 0;
+}
+gpio_dir_t get_pin_direction(__unused gpio_t pin) { return kGpioDirError; }
+ssize_t set_pin_value(__unused gpio_t pin, __unused gpio_value_t value) {
+  return 0;
+}
 gpio_value_t get_pin_value(__unused gpio_t pin) { return kGpioValError; }
 
 #endif

@@ -36,8 +36,8 @@
 #define front_brake_OVERRIDE_FRONT 0x0000000000000008
 #define front_brake_OVERRIDE_MID 0x0000000000000010
 #define front_brake_OVERRIDE_REAR 0x0000000000000020
-#define front_brake_OVERRIDE_ALL                                             \
-  (front_brake_OVERRIDE_FRONT) | (front_brake_OVERRIDE_MID) |              \
+#define front_brake_OVERRIDE_ALL                                               \
+  (front_brake_OVERRIDE_FRONT) | (front_brake_OVERRIDE_MID) |                  \
       (front_brake_OVERRIDE_REAR)
 
 #define CLAMP_OVERRIDE_FRONT 0x0000000000000001

@@ -36,42 +36,40 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
   int i;
   // NOTE: This is mildly dangerous if a field is never initialized in this func
   telemetry_packet_t packet = {.version = TELEMETRY_PACKET_VERSION,
-    .size = (uint16_t)sizeof(telemetry_packet_t),
-    .state = get_pod_mode(),
-    // Solenoids
-    .solenoids = get_relay_mask(pod),
-    .timestamp = get_time_usec(),
-    // IMU
-    .position_x = get_value_f(&(pod->position_x)),
-    .position_y = get_value_f(&(pod->position_y)),
-    .position_z = get_value_f(&(pod->position_z)),
-    .velocity_x = get_value_f(&(pod->velocity_x)),
-    .velocity_y = get_value_f(&(pod->velocity_y)),
-    .velocity_z = get_value_f(&(pod->velocity_z)),
-    .acceleration_x = get_value_f(&(pod->accel_x)),
-    .acceleration_y = get_value_f(&(pod->accel_y)),
-    .acceleration_z = get_value_f(&(pod->accel_z)),
-    // PSI
-    .hp_pressure = 0.0,
-    .reg_pressure = {0},
-    .clamp_pressure = {0},
+                               .size = (uint16_t)sizeof(telemetry_packet_t),
+                               .state = get_pod_mode(),
+                               // Solenoids
+                               .solenoids = get_relay_mask(pod),
+                               .timestamp = get_time_usec(),
+                               // IMU
+                               .position_x = get_value_f(&(pod->position_x)),
+                               .position_y = get_value_f(&(pod->position_y)),
+                               .position_z = get_value_f(&(pod->position_z)),
+                               .velocity_x = get_value_f(&(pod->velocity_x)),
+                               .velocity_y = get_value_f(&(pod->velocity_y)),
+                               .velocity_z = get_value_f(&(pod->velocity_z)),
+                               .acceleration_x = get_value_f(&(pod->accel_x)),
+                               .acceleration_y = get_value_f(&(pod->accel_y)),
+                               .acceleration_z = get_value_f(&(pod->accel_z)),
+                               // PSI
+                               .hp_pressure = 0.0,
+                               .reg_pressure = {0},
+                               .clamp_pressure = {0},
 
-    // Distance sensors
-    .pusher = {0},
-    .levitation = {0},
-    
-    // Thermo
-    .hp_thermo = 0.0,
-    .reg_thermo = {0},
-    .reg_surf_thermo = {0},
-    .power_thermo = {0},
-    .frame_thermo = 0.0,
+                               // Distance sensors
+                               .pusher = {0},
+                               .levitation = {0},
 
-    // batteries
-    .voltages = {0},
-    .currents = {0}
-  };
+                               // Thermo
+                               .hp_thermo = 0.0,
+                               .reg_thermo = {0},
+                               .reg_surf_thermo = {0},
+                               .power_thermo = {0},
+                               .frame_thermo = 0.0,
 
+                               // batteries
+                               .voltages = {0},
+                               .currents = {0}};
 
   // Distance sensors
   for (i = 0; i < N_LEVITATION_DISTANCE; i++) {
@@ -92,7 +90,7 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
   for (i = 0; i < N_CLAMP_PRESSURE; i++) {
     packet.clamp_pressure[i] = get_sensor(&(pod->clamp_pressure[i]));
   }
-  
+
   for (i = 0; i < N_CLAMP_PRESSURE; i++) {
     packet.brake_tank_pressure[i] = get_sensor(&(pod->brake_tank_pressure[i]));
   }
@@ -129,17 +127,21 @@ telemetry_packet_t make_telemetry(pod_t *pod) {
   return packet;
 }
 
-#define emit_one(_key, _packet, _out) do { \
-  _out(__XSTR__(_key), 0, 1, t->_key); \
-} while (0)
+#define emit_one(_key, _packet, _out)                                          \
+  do {                                                                         \
+    _out(__XSTR__(_key), 0, 1, t->_key);                                       \
+  } while (0)
 
-#define emit_all(_key, _packet, _out) do { \
-  for (size_t i = 0; i < sizeof(t->_key)/sizeof(*t->_key); i++) { \
-    _out(__XSTR__(_key), i, sizeof(t->_key)/sizeof(*t->_key), t->_key[i]); \
-  } \
-} while (0)
+#define emit_all(_key, _packet, _out)                                          \
+  do {                                                                         \
+    for (size_t i = 0; i < sizeof(t->_key) / sizeof(*t->_key); i++) {          \
+      _out(__XSTR__(_key), i, sizeof(t->_key) / sizeof(*t->_key), t->_key[i]); \
+    }                                                                          \
+  } while (0)
 
-void emit_telemetry(telemetry_packet_t *t, void (*outf)(char *key, size_t index, size_t total, float value)) {
+void emit_telemetry(telemetry_packet_t *t,
+                    void (*outf)(char *key, size_t index, size_t total,
+                                 float value)) {
   emit_one(version, t, outf);
   emit_one(size, t, outf);
   emit_one(state, t, outf);
@@ -154,7 +156,7 @@ void emit_telemetry(telemetry_packet_t *t, void (*outf)(char *key, size_t index,
   emit_one(acceleration_x, t, outf);
   emit_one(acceleration_y, t, outf);
   emit_one(acceleration_z, t, outf);
-  
+
   emit_one(hp_pressure, t, outf);
   emit_all(reg_pressure, t, outf);
   emit_all(clamp_pressure, t, outf);
@@ -208,20 +210,20 @@ void dump_telemetry_file(const char *filename) {
 
   size_t count = 0;
   ssize_t rd;
-  
+
   printf("[");
-  while ((rd = read(fd, buf, sizeof(telemetry_packet_t))) == sizeof(telemetry_packet_t)) {
+  while ((rd = read(fd, buf, sizeof(telemetry_packet_t))) ==
+         sizeof(telemetry_packet_t)) {
     if (count > 0) {
       printf(",");
     }
     printf("{");
-    
+
     first = true;
     emit_telemetry(buf, emit_json);
-    
+
     printf("}");
-    count ++;
+    count++;
   }
   printf("]");
-  
 }
