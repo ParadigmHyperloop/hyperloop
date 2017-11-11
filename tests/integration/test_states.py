@@ -2,39 +2,15 @@ import os
 import time
 import unittest
 
-from hyperloop import ControllerInstance
+from controller_tests import ControllerTests
 
-
-PATHS = [
-    os.environ.get("CORE_LOCATION", None),
-    "../../proj/BUILD/dst/usr/local/bin/core",
-    "../../proj/core/core",
-    "./BUILD/dst/usr/local/bin/core",
-    "./proj/BUILD/dst/usr/local/bin/core",
-    "./proj/core/core",
-]
-
-CONTROLLER_PATH = None
-
-for path in PATHS:
-    if path and os.path.exists(path):
-        CONTROLLER_PATH = path
-        break
-
-
-class TestStateMachine(unittest.TestCase):
+class TestStateMachine(ControllerTests):
 
     def setUp(self):
-        if CONTROLLER_PATH is None:
-            self.fail("Could not find core: ".format(PATHS))
-
-        self.controller = ControllerInstance(CONTROLLER_PATH, imu="-",
-                                             POST=True)
-
-        self.assertTrue(self.controller.start())
+        super(TestStateMachine, self).setUp()
 
     def tearDown(self):
-        self.controller.shutdown()
+        super(TestStateMachine, self).tearDown()
 
     def test_starts_in_boot(self):
         res = self.controller.command(['state'])
@@ -55,6 +31,7 @@ class TestStateMachine(unittest.TestCase):
     def test_can_e(self):
         res = self.controller.command(['e'])
         self.assertIn('Pod Mode: 11', res)
+
 
 
 if __name__ == '__main__':
