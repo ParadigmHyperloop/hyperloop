@@ -67,14 +67,14 @@ ssize_t sysfs_write(int pin, char *op, char *data) {
   }
 
   ssize_t rc = write(fd, data, strlen(data));
-  
+
   if (rc < 0) {
     perror("SYSFS write() failure");
     return -1;
   }
-  
+
   rc = close(fd);
-  
+
   if (rc < 0) {
     perror("SYSFS close() failure");
     return -1;
@@ -173,12 +173,10 @@ gpio_value_t get_pin_value(gpio_t pin) {
 }
 #else
 gpio_value_t get_pin_value(__unused gpio_t pin) {
-  printf("[SIM] get_pin_value(%d)\n", pin);
   return kGpioValError;
 }
 
 ssize_t set_pin_value(gpio_t pin, gpio_value_t value) {
-  printf("[SIM] set_pin_value(%d, %d)\n", pin, value);
-  return -1;
+  return 1;
 }
 #endif
