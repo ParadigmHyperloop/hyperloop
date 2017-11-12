@@ -92,10 +92,10 @@ ssize_t read_with_timeout(int fd, void *buf, int len, int t) {
 
   rv = select(fd + 1, &set, NULL, NULL, &timeout);
   if (rv == -1) {
-    perror("select: "); /* an error accured */
+    perror("select: "); /* an error occurred */
     printf("\n");
   } else if (rv == 0) {
-    fprintf(stderr, "read-timeout\n"); /* a timeout occured */
+    fprintf(stderr, "read-timeout\n"); /* a timeout occurred */
   } else {
     return read(fd, buf, len); /* there was data to read */
   }
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
 
     ssize_t nread = read_with_timeout(fd, buf, 4096, 1000);
     if (nread <= 0) {
-      printf("IMU Stopped spewwing, might be in config mode\n");
+      printf("IMU Stopped spewing, might be in config mode\n");
       break;
     }
 
