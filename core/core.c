@@ -185,9 +185,9 @@ int set_skate_target(int no, mpye_value_t val, bool override) {
   }
 
   if (val > 0) {
-    set_solenoid(&(pod->skate_solonoids[no]), kSolenoidOpen);
+    set_solenoid(&(pod->skate_solenoids[no]), kSolenoidOpen);
   } else {
-    set_solenoid(&(pod->skate_solonoids[no]), kSolenoidClosed);
+    set_solenoid(&(pod->skate_solenoids[no]), kSolenoidClosed);
   }
 
   set_mpye(&(pod->mpye[no]), val);
@@ -206,16 +206,16 @@ int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override) {
 
   switch (val) {
   case kClampBrakeClosed:
-    set_solenoid(&(pod->clamp_engage_solonoids[no]), kSolenoidClosed);
-    set_solenoid(&(pod->clamp_release_solonoids[no]), kSolenoidClosed);
+    set_solenoid(&(pod->clamp_engage_solenoids[no]), kSolenoidClosed);
+    set_solenoid(&(pod->clamp_release_solenoids[no]), kSolenoidClosed);
     break;
   case kClampBrakeEngaged:
-    set_solenoid(&(pod->clamp_engage_solonoids[no]), kSolenoidOpen);
-    set_solenoid(&(pod->clamp_release_solonoids[no]), kSolenoidClosed);
+    set_solenoid(&(pod->clamp_engage_solenoids[no]), kSolenoidOpen);
+    set_solenoid(&(pod->clamp_release_solenoids[no]), kSolenoidClosed);
     break;
   case kClampBrakeReleased:
-    set_solenoid(&(pod->clamp_engage_solonoids[no]), kSolenoidClosed);
-    set_solenoid(&(pod->clamp_release_solonoids[no]), kSolenoidOpen);
+    set_solenoid(&(pod->clamp_engage_solenoids[no]), kSolenoidClosed);
+    set_solenoid(&(pod->clamp_release_solenoids[no]), kSolenoidOpen);
     break;
   default:
     DECLARE_EMERGENCY("Invalid clamp_brake_state_t");
@@ -226,7 +226,7 @@ int ensure_clamp_brakes(int no, clamp_brake_state_t val, bool override) {
 
 void adjust_brakes(pod_t *pod) {
   if (get_pod_mode() == Emergency && pod->manual_emergency == true) {
-    for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+    for (int i = 0; i < N_CLAMP_SOLENOIDS; i++) {
       ensure_clamp_brakes(i, kClampBrakeEngaged, false);
     }
     return;
@@ -245,7 +245,7 @@ void adjust_brakes(pod_t *pod) {
   case Pushing:
   case Coasting:
   case Shutdown:
-    for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+    for (int i = 0; i < N_CLAMP_SOLENOIDS; i++) {
       ensure_clamp_brakes(i, kClampBrakeReleased, false);
     }
     break;
@@ -253,13 +253,13 @@ void adjust_brakes(pod_t *pod) {
   case Emergency:
     if (get_value(&(pod->pusher_plate)) == 1) {
       debug("Pusher Plate Engaged, inhibiting brakes");
-      for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+      for (int i = 0; i < N_CLAMP_SOLENOIDS; i++) {
         ensure_clamp_brakes(i, kClampBrakeReleased, false);
       }
     } else if (get_value_f(&(pod->accel_x)) >
                get_pusher_state_accel_min(profile)) {
       debug("Accelerating via IMU, inhibiting brakes");
-      for (int i = 0; i < N_CLAMP_SOLONOIDS; i++) {
+      for (int i = 0; i < N_CLAMP_SOLENOIDS; i++) {
         ensure_clamp_brakes(i, kClampBrakeReleased, false);
       }
     } else {
@@ -300,8 +300,8 @@ void adjust_skates(__unused pod_t *pod) {
   case Shutdown:
   case Armed:
   case Pushing:
-    for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      close_solenoid(&(pod->skate_solonoids[i]));
+    for (int i = 0; i < N_SKATE_SOLENOIDS; i++) {
+      close_solenoid(&(pod->skate_solenoids[i]));
     }
     for (int i = 0; i < N_MPYES; i++) {
       set_mpye(&(pod->mpye[i]), 0);
@@ -311,8 +311,8 @@ void adjust_skates(__unused pod_t *pod) {
   case Braking:
     if (get_value(&(pod->pusher_plate)) == 1) {
       debug("Pusher Plate Engaged, inhibiting skates");
-      for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
-        close_solenoid(&(pod->skate_solonoids[i]));
+      for (int i = 0; i < N_SKATE_SOLENOIDS; i++) {
+        close_solenoid(&(pod->skate_solenoids[i]));
       }
       for (int i = 0; i < N_MPYES; i++) {
         set_mpye(&(pod->mpye[i]), 0);
@@ -320,16 +320,16 @@ void adjust_skates(__unused pod_t *pod) {
     } else if (get_value_f(&(pod->accel_x)) >
                get_pusher_state_accel_min(profile)) {
       debug("Accelerating via IMU, inhibiting skates");
-      for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
-        close_solenoid(&(pod->skate_solonoids[i]));
+      for (int i = 0; i < N_SKATE_SOLENOIDS; i++) {
+        close_solenoid(&(pod->skate_solenoids[i]));
       }
       for (int i = 0; i < N_MPYES; i++) {
         set_mpye(&(pod->mpye[i]), 0);
       }
     } else {
       // Open Skates
-      for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
-        open_solenoid(&(pod->skate_solonoids[i]));
+      for (int i = 0; i < N_SKATE_SOLENOIDS; i++) {
+        open_solenoid(&(pod->skate_solenoids[i]));
       }
       for (int i = 0; i < N_MPYES; i++) {
         set_mpye(&(pod->mpye[i]), 3000);
@@ -341,10 +341,10 @@ void adjust_skates(__unused pod_t *pod) {
     set_mpye(&pod->mpye[1], pod->manual.mpye_b);
     set_mpye(&pod->mpye[2], pod->manual.mpye_c);
     set_mpye(&pod->mpye[3], pod->manual.mpye_d);
-    set_solenoid(&pod->skate_solonoids[0], pod->manual.skate_a);
-    set_solenoid(&pod->skate_solonoids[1], pod->manual.skate_b);
-    set_solenoid(&pod->skate_solonoids[2], pod->manual.skate_c);
-    set_solenoid(&pod->skate_solonoids[3], pod->manual.skate_d);
+    set_solenoid(&pod->skate_solenoids[0], pod->manual.skate_a);
+    set_solenoid(&pod->skate_solenoids[1], pod->manual.skate_b);
+    set_solenoid(&pod->skate_solenoids[2], pod->manual.skate_c);
+    set_solenoid(&pod->skate_solenoids[3], pod->manual.skate_d);
     break;
   default:
     panic(POD_CORE_SUBSYSTEM, "Pod Mode unknown, cannot make a skate decsion");
@@ -449,18 +449,18 @@ static void setup(void) {
     set_ssr(m->bus->fd, m->address, m->channel, 0);
   }
 
-  for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
-    solenoid_t *s = &(pod->skate_solonoids[i]);
+  for (int i = 0; i < N_SKATE_SOLENOIDS; i++) {
+    solenoid_t *s = &(pod->skate_solenoids[i]);
     set_ssr(s->bus->fd, s->address, s->channel, 0);
   }
 
-  for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-    solenoid_t *s = &(pod->clamp_engage_solonoids[i]);
+  for (int i = 0; i < N_CLAMP_ENGAGE_SOLENOIDS; i++) {
+    solenoid_t *s = &(pod->clamp_engage_solenoids[i]);
     set_ssr(s->bus->fd, s->address, s->channel, 0);
   }
 
-  for (int i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
-    solenoid_t *s = &(pod->clamp_release_solonoids[i]);
+  for (int i = 0; i < N_CLAMP_RELEASE_SOLENOIDS; i++) {
+    solenoid_t *s = &(pod->clamp_release_solenoids[i]);
     set_ssr(s->bus->fd, s->address, s->channel, 0);
   }
 
@@ -508,14 +508,14 @@ static void functional_check(void) {
   sleep(2);
 
   for (int iterations = 0; iterations < 1; iterations++) {
-    for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      solenoid_t *s = &(pod->skate_solonoids[i]);
+    for (int i = 0; i < N_SKATE_SOLENOIDS; i++) {
+      solenoid_t *s = &(pod->skate_solenoids[i]);
       open_solenoid(s);
       sleep(1);
     }
 
-    for (int i = 0; i < N_SKATE_SOLONOIDS; i++) {
-      solenoid_t *s = &(pod->skate_solonoids[i]);
+    for (int i = 0; i < N_SKATE_SOLENOIDS; i++) {
+      solenoid_t *s = &(pod->skate_solenoids[i]);
       close_solenoid(s);
       sleep(1);
     }
@@ -524,26 +524,26 @@ static void functional_check(void) {
   sleep(2);
 
   for (int iterations = 0; iterations < 1; iterations++) {
-    for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-      solenoid_t *s = &(pod->clamp_engage_solonoids[i]);
+    for (int i = 0; i < N_CLAMP_ENGAGE_SOLENOIDS; i++) {
+      solenoid_t *s = &(pod->clamp_engage_solenoids[i]);
       open_solenoid(s);
       sleep(1);
     }
 
-    for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-      solenoid_t *s = &(pod->clamp_engage_solonoids[i]);
+    for (int i = 0; i < N_CLAMP_ENGAGE_SOLENOIDS; i++) {
+      solenoid_t *s = &(pod->clamp_engage_solenoids[i]);
       close_solenoid(s);
       sleep(1);
     }
 
-    for (int i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
-      solenoid_t *s = &(pod->clamp_release_solonoids[i]);
+    for (int i = 0; i < N_CLAMP_RELEASE_SOLENOIDS; i++) {
+      solenoid_t *s = &(pod->clamp_release_solenoids[i]);
       open_solenoid(s);
       sleep(1);
     }
 
-    for (int i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
-      solenoid_t *s = &(pod->clamp_release_solonoids[i]);
+    for (int i = 0; i < N_CLAMP_RELEASE_SOLENOIDS; i++) {
+      solenoid_t *s = &(pod->clamp_release_solenoids[i]);
       close_solenoid(s);
       sleep(1);
     }

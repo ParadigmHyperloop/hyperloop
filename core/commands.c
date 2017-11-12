@@ -193,7 +193,7 @@ static int overrideCommand(size_t argc, char *argv[], size_t outbufc,
         int i;
         int val = atoi(argv[2]);
 
-        for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
+        for (i = 0; i < N_SKATE_SOLENOIDS; i++) {
           // Map -100 to 100 logic to raw MPYE setpoint.
           set_skate_target(i, (unsigned short)(val * 1275 / 1000) + 128, true);
         }

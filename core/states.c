@@ -161,12 +161,12 @@ int init_pod(void) {
       .logging_fd = -1,
       .logging_filename = TELEMETRY_LOG_BIN,
       .last_ping = 0,
-      .relays = {&(_pod.skate_solonoids[0]), &(_pod.skate_solonoids[1]),
-                 &(_pod.skate_solonoids[2]), &(_pod.skate_solonoids[3]),
-                 &(_pod.clamp_engage_solonoids[0]),
-                 &(_pod.clamp_release_solonoids[0]),
-                 &(_pod.clamp_engage_solonoids[1]),
-                 &(_pod.clamp_release_solonoids[1]), &(_pod.hp_fill_valve),
+      .relays = {&(_pod.skate_solenoids[0]), &(_pod.skate_solenoids[1]),
+                 &(_pod.skate_solenoids[2]), &(_pod.skate_solenoids[3]),
+                 &(_pod.clamp_engage_solenoids[0]),
+                 &(_pod.clamp_release_solenoids[0]),
+                 &(_pod.clamp_engage_solenoids[1]),
+                 &(_pod.clamp_release_solenoids[1]), &(_pod.hp_fill_valve),
                  &(_pod.vent_solenoid)},
       .sensors = {0},
       .launch_time = 0,
@@ -224,10 +224,10 @@ int init_pod(void) {
 
   debug("Initializing Skate Solenoids");
   unsigned short skate_pins[] = SKATE_SOLENOIDS;
-  for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
+  for (i = 0; i < N_SKATE_SOLENOIDS; i++) {
     snprintf(name, MAX_NAME, "skt_%c", (i * 2) + 'a');
 
-    solenoid_init(&pod->skate_solonoids[i], name, &pod->i2c[SSR_I2C_BUS],
+    solenoid_init(&pod->skate_solenoids[i], name, &pod->i2c[SSR_I2C_BUS],
                   skate_pins[i] < 16 ? SSR_BOARD_1_ADDRESS
                                      : SSR_BOARD_1_ADDRESS,
                   skate_pins[i] % 16, kSolenoidNormallyClosed);
@@ -235,22 +235,22 @@ int init_pod(void) {
 
   debug("Initializing Brake Solenoids");
 
-  unsigned short clamp_engage_pins[] = CLAMP_ENGAGE_SOLONOIDS;
-  for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+  unsigned short clamp_engage_pins[] = CLAMP_ENGAGE_SOLENOIDS;
+  for (i = 0; i < N_CLAMP_ENGAGE_SOLENOIDS; i++) {
     snprintf(name, MAX_NAME, "clmp_eng_%d", i);
 
-    solenoid_init(&pod->clamp_engage_solonoids[i], name, &pod->i2c[SSR_I2C_BUS],
+    solenoid_init(&pod->clamp_engage_solenoids[i], name, &pod->i2c[SSR_I2C_BUS],
                   clamp_engage_pins[i] < 16 ? SSR_BOARD_1_ADDRESS
                                             : SSR_BOARD_2_ADDRESS,
                   clamp_engage_pins[i] % 16, kSolenoidNormallyClosed);
   }
 
-  unsigned short clamp_release_pins[] = CLAMP_RELEASE_SOLONOIDS;
-  for (i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
+  unsigned short clamp_release_pins[] = CLAMP_RELEASE_SOLENOIDS;
+  for (i = 0; i < N_CLAMP_RELEASE_SOLENOIDS; i++) {
     snprintf(name, MAX_NAME, "clmp_rel_%d", i);
 
     solenoid_init(
-        &pod->clamp_release_solonoids[i], name, &pod->i2c[SSR_I2C_BUS],
+        &pod->clamp_release_solenoids[i], name, &pod->i2c[SSR_I2C_BUS],
         clamp_release_pins[i] < 16 ? SSR_BOARD_1_ADDRESS : SSR_BOARD_2_ADDRESS,
         clamp_release_pins[i] % 16, kSolenoidNormallyClosed);
   }
@@ -562,11 +562,11 @@ pod_mode_t get_pod_mode(void) {
 }
 
 bool force_pod_mode(pod_mode_t new_mode, char *reason, ...) {
-  static char msg[MAX_LOG_LINE];
+  char msg[MAX_LOG_LINE];
 
   va_list arg;
   va_start(arg, reason);
-  vsnprintf(&msg[0], MAX_LOG_LINE, reason, arg);
+  vsnprintf(msg, MAX_LOG_LINE, reason, arg);
   va_end(arg);
   pod_t *pod = get_pod();
   pod_mode_t old_mode = get_pod_mode();
@@ -575,12 +575,15 @@ bool force_pod_mode(pod_mode_t new_mode, char *reason, ...) {
        pod_mode_names[new_mode], msg);
 
   pthread_rwlock_wrlock(&(pod->mode_mutex));
-  get_pod()->mode = new_mode;
+
+  pod->mode = new_mode;
   pod->last_transition = get_time_usec();
-  pthread_rwlock_unlock(&(pod->mode_mutex));
   warn("Request to set mode from %s to %s: approved", pod_mode_names[old_mode],
        pod_mode_names[new_mode]);
   strncpy(pod->state_reason, reason, MAX_STATE_REASON_MSG);
+
+  pthread_rwlock_unlock(&(pod->mode_mutex));
+
   return true;
 }
 
@@ -591,6 +594,7 @@ bool set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
   va_start(arg, reason);
   vsnprintf(&msg[0], MAX_LOG_LINE, reason, arg);
   va_end(arg);
+
   pod_t *pod = get_pod();
   pod_mode_t old_mode = get_pod_mode();
 
@@ -599,12 +603,16 @@ bool set_pod_mode(pod_mode_t new_mode, char *reason, ...) {
 
   if (validate_transition(old_mode, new_mode)) {
     pthread_rwlock_wrlock(&(pod->mode_mutex));
+
     get_pod()->mode = new_mode;
     pod->last_transition = get_time_usec();
-    pthread_rwlock_unlock(&(pod->mode_mutex));
+
     warn("Request to set mode from %s to %s: approved",
          pod_mode_names[old_mode], pod_mode_names[new_mode]);
     strncpy(pod->state_reason, reason, MAX_STATE_REASON_MSG);
+
+    pthread_rwlock_unlock(&(pod->mode_mutex));
+
     return true;
   } else {
     warn("Request to set mode from %s to %s: denied", pod_mode_names[old_mode],
