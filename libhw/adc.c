@@ -26,7 +26,6 @@
 
 uint16_t int_to_spi_channel(uint8_t channel) {
   uint8_t send[2] = {0, 0};
-  // Copypasta fixed by Dan.
   switch (channel) {
     case 0:
       send[0] = 0x40;
@@ -94,55 +93,6 @@ uint16_t int_to_spi_channel(uint8_t channel) {
   }
   uint16_t ret = (uint16_t)((send[0] << 8) | send[1]);
   return ret;
-  // if (channel == 0) {
-  //   send[0] = 0x40;
-  //   send[1] = 0x18;
-  // } else if (channel == 1) {
-  //   send[0] = 0xC0;
-  //   send[1] = 0x18;
-  // } else if (channel == 2) {
-  //   send[0] = 0x40;
-  //   send[1] = 0x19;
-  // } else if (channel == 3) {
-  //   send[0] = 0xC0;
-  //   send[1] = 0x19;
-  // } else if (channel == 4) {
-  //   send[0] = 0x40;
-  //   send[1] = 0x1A;
-  // } else if (channel == 5) {
-  //   send[0] = 0xC0;
-  //   send[1] = 0x1A;
-  // } else if (channel == 6) {
-  //   send[0] = 0x40;
-  //   send[1] = 0x1B;
-  // } else if (channel == 7) {
-  //   send[0] = 0xC0;
-  //   send[1] = 0x1B;
-  // } else if (channel == 8) {
-  //   send[0] = 0x40;
-  //   send[1] = 0x1C;
-  // } else if (channel == 9) {
-  //   send[0] = 0xC0;
-  //   send[1] = 0x1C;
-  // } else if (channel == 10) {
-  //   send[0] = 0x40;
-  //   send[1] = 0x1D;
-  // } else if (channel == 11) {
-  //   send[0] = 0xC0;
-  //   send[1] = 0x1D;
-  // } else if (channel == 12) {
-  //   send[0] = 0x40;
-  //   send[1] = 0x1E;
-  // } else if (channel == 13) {
-  //   send[0] = 0xC0;
-  //   send[1] = 0x1E;
-  // } else if (channel == 14) {
-  //   send[0] = 0x40;
-  //   send[1] = 0x1F;
-  // } else {
-  //   send[0] = 0xC0;
-  //   send[1] = 0x1F;
-  // }
 }
 
 int open_spi() {
