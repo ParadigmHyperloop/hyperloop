@@ -47,8 +47,8 @@ bool start_standby() {
 }
 
 bool any_clamp_brakes(__unused pod_t *pod) {
-  for (int i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
-    if (is_solenoid_open(&pod->clamp_engage_solonoids[i])) {
+  for (int i = 0; i < N_CLAMP_ENGAGE_SOLENOIDS; i++) {
+    if (is_solenoid_open(&pod->clamp_engage_solenoids[i])) {
       return true;
     }
   }

@@ -120,7 +120,7 @@
 // --------------------------
 
 // Front, Mid, Rear
-#define N_SKATE_SOLONOIDS 4
+#define N_SKATE_SOLENOIDS 4
 #define SKATE_SOLENOIDS                                                        \
   { 0, 1, 2, 3 }
 
@@ -131,13 +131,13 @@
 // --------------------------
 // Clamp Brakes
 // --------------------------
-#define N_CLAMP_SOLONOIDS 2
-#define N_CLAMP_ENGAGE_SOLONOIDS N_CLAMP_SOLONOIDS
-#define CLAMP_ENGAGE_SOLONOIDS                                                 \
+#define N_CLAMP_SOLENOIDS 2
+#define N_CLAMP_ENGAGE_SOLENOIDS N_CLAMP_SOLENOIDS
+#define CLAMP_ENGAGE_SOLENOIDS                                                 \
   { 4, 6 }
 
-#define N_CLAMP_RELEASE_SOLONOIDS N_CLAMP_SOLONOIDS
-#define CLAMP_RELEASE_SOLONOIDS                                                \
+#define N_CLAMP_RELEASE_SOLENOIDS N_CLAMP_SOLENOIDS
+#define CLAMP_RELEASE_SOLENOIDS                                                \
   { 5, 7 }
 
 // Which solenoid (index) to use for primary braking

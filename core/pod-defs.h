@@ -203,9 +203,9 @@ typedef struct pod {
   pod_value_t imu_calibration_z;
 
   // Solenoids
-  solenoid_t skate_solonoids[N_SKATE_SOLONOIDS];
-  solenoid_t clamp_engage_solonoids[N_CLAMP_ENGAGE_SOLONOIDS];
-  solenoid_t clamp_release_solonoids[N_CLAMP_RELEASE_SOLONOIDS];
+  solenoid_t skate_solenoids[N_SKATE_SOLENOIDS];
+  solenoid_t clamp_engage_solenoids[N_CLAMP_ENGAGE_SOLENOIDS];
+  solenoid_t clamp_release_solenoids[N_CLAMP_RELEASE_SOLENOIDS];
   solenoid_t vent_solenoid;
   solenoid_t hp_fill_valve;
   solenoid_t battery_pack_relays[N_BATTERY_PACK_RELAYS];
