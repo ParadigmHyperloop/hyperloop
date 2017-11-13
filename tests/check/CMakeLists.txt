@@ -13,3 +13,5 @@ add_executable(${_NAME} ${TEST_SOURCES})
 target_link_libraries(${_NAME} libcore ${CHECK_LIBRARIES})
 
 install(TARGETS ${_NAME} DESTINATION bin)
+
+add_test(NAME ${_NAME} COMMAND ${_NAME})
