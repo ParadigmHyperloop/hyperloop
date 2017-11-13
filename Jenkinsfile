@@ -17,6 +17,7 @@ pipeline {
     stage('Test') {
       steps {
         sh 'make integration'
+        sh 'ctest'
       }
     }
     stage('Build-32bit') {
@@ -31,6 +32,7 @@ pipeline {
     stage('Test-32') {
       steps {
         sh 'make integration'
+        sh 'ctest'
       }
     }
   }
