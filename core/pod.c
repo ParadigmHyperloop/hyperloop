@@ -92,15 +92,15 @@ relay_mask_t get_relay_mask(pod_t *pod) {
 
   mask = 0x0000;
 
-  mask |= ((is_solenoid_open(&pod->skate_solonoids[0]) & 0x1) << 0);
-  mask |= ((is_solenoid_open(&pod->skate_solonoids[1]) & 0x1) << 1);
-  mask |= ((is_solenoid_open(&pod->skate_solonoids[2]) & 0x1) << 2);
-  mask |= ((is_solenoid_open(&pod->skate_solonoids[3]) & 0x1) << 3);
+  mask |= ((is_solenoid_open(&pod->skate_solenoids[0]) & 0x1) << 0);
+  mask |= ((is_solenoid_open(&pod->skate_solenoids[1]) & 0x1) << 1);
+  mask |= ((is_solenoid_open(&pod->skate_solenoids[2]) & 0x1) << 2);
+  mask |= ((is_solenoid_open(&pod->skate_solenoids[3]) & 0x1) << 3);
 
-  mask |= ((is_solenoid_open(&pod->clamp_engage_solonoids[0]) & 0x1) << 4);
-  mask |= ((is_solenoid_open(&pod->clamp_release_solonoids[0]) & 0x1) << 5);
-  mask |= ((is_solenoid_open(&pod->clamp_engage_solonoids[1]) & 0x1) << 6);
-  mask |= ((is_solenoid_open(&pod->clamp_release_solonoids[1]) & 0x1) << 7);
+  mask |= ((is_solenoid_open(&pod->clamp_engage_solenoids[0]) & 0x1) << 4);
+  mask |= ((is_solenoid_open(&pod->clamp_release_solenoids[0]) & 0x1) << 5);
+  mask |= ((is_solenoid_open(&pod->clamp_engage_solenoids[1]) & 0x1) << 6);
+  mask |= ((is_solenoid_open(&pod->clamp_release_solenoids[1]) & 0x1) << 7);
 
   mask |= ((is_solenoid_open(&pod->hp_fill_valve) & 0x1) << 8);
   mask |= ((is_solenoid_open(&pod->vent_solenoid) & 0x1) << 9);
@@ -112,13 +112,18 @@ relay_mask_t get_relay_mask(pod_t *pod) {
 int status_dump(pod_t *pod, char *buf, size_t len) {
   int c = 0;
   int i = 0;
+  char reason[MAX_STATE_REASON_MSG];
+
+  pthread_rwlock_rdlock(&(pod->mode_mutex));
+  strncpy(reason, MAX_STATE_REASON_MSG, pod->state_reason);
+  pthread_rwlock_unlock(&(pod->mode_mutex));
 
   c +=
       snprintf(&buf[c], len, "mode: %s\nreason: %s\n"
                              "acl m/s/s: x: %f, y: %f, z: %f\n"
                              "vel m/s  : x: %f, y: %f, z: %f\n"
                              "pos m    : x: %f, y: %f, z: %f\n",
-               pod_mode_names[get_pod_mode()], pod->state_reason,
+               pod_mode_names[get_pod_mode()], reason,
                get_value_f(&(pod->accel_x)), get_value_f(&(pod->accel_y)),
                get_value_f(&(pod->accel_z)), get_value_f(&(pod->velocity_x)),
                get_value_f(&(pod->velocity_y)), get_value_f(&(pod->velocity_z)),
@@ -128,22 +133,22 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
   c += snprintf(&buf[c], len - c, "Pusher Plate: \t%s\n",
                 (get_value(&(pod->pusher_plate)) ? "ACTIVE" : "INACTIVE"));
 
-  for (i = 0; i < N_SKATE_SOLONOIDS; i++) {
+  for (i = 0; i < N_SKATE_SOLENOIDS; i++) {
     c += snprintf(
         &buf[c], len - c, "Skate %d:\t%s\n", i,
-        (is_solenoid_open(&(pod->skate_solonoids[i])) ? "open" : "closed"));
+        (is_solenoid_open(&(pod->skate_solenoids[i])) ? "open" : "closed"));
   }
 
-  for (i = 0; i < N_CLAMP_ENGAGE_SOLONOIDS; i++) {
+  for (i = 0; i < N_CLAMP_ENGAGE_SOLENOIDS; i++) {
     c += snprintf(&buf[c], len - c, "Clamp Eng %d:\t%s\n", i,
-                  (is_solenoid_open(&(pod->clamp_engage_solonoids[i]))
+                  (is_solenoid_open(&(pod->clamp_engage_solenoids[i]))
                        ? "open"
                        : "closed"));
   }
 
-  for (i = 0; i < N_CLAMP_RELEASE_SOLONOIDS; i++) {
+  for (i = 0; i < N_CLAMP_RELEASE_SOLENOIDS; i++) {
     c += snprintf(&buf[c], len - c, "Clamp Rel %d:\t%s\n", i,
-                  (is_solenoid_open(&(pod->clamp_release_solonoids[i]))
+                  (is_solenoid_open(&(pod->clamp_release_solenoids[i]))
                        ? "open"
                        : "closed"));
   }

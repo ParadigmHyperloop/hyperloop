@@ -159,7 +159,7 @@ void *logging_main(__unused void *arg) {
   // Post to the boot sem to tell the main thread that we have initialized
   // Main thread will assert that pod mode is still Boot
 
-  info("Logging has connected, conntinuing with boot process");
+  info("Logging has connected, continuing with boot process");
   sem_post(pod->boot_sem);
 
   // Start the log forwarding loop until shutdown

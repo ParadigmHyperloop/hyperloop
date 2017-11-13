@@ -69,7 +69,7 @@ uint64_t getTime() {
 static
 void usage() {
   printf("Usage: imu_test [-i ITERATIONS] [-s SPINUP] [-d DEVICE] [-q] [-f]\n");
-  printf("  -i    The maximium number of iterations to read\n");
+  printf("  -i    The maximum number of iterations to read\n");
   printf("  -d    Path to the device (/dev/ttyUSB0)\n");
   printf("  -q    Disable printing of each datagram\n");
   printf("  -f    Stop immediately on failure\n");
@@ -210,11 +210,11 @@ int main(int argc, char *argv[]) {
                 i, data.temperature);
         finish(1, fd);
       }
-      
+
       fflush(stdout);
 
     } else if (i == (config.spinup - 1)) {
-      fprintf(stderr, "[NOTE] Spinup complete %d/%d\n", i, config.spinup);
+      fprintf(stderr, "[NOTE] Spin-up complete %d/%d\n", i, config.spinup);
       l = data.sequence;
     } else {
       if (i % 1000 == 0) {
