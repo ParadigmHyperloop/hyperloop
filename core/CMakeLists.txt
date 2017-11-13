@@ -1,4 +1,5 @@
 set(_NAME core)
+set(_LIB_NAME libcore)
 
 set(_SRCS
   accel.c
@@ -52,4 +53,17 @@ add_executable (${_NAME} ${_SRCS} ${_HDRS})
 target_link_libraries (${_NAME} LINK_PUBLIC libhw)
 target_link_libraries (${_NAME} LINK_PUBLIC libimu)
 
+# For libcore.a used for testing with ctest
+add_library (${_LIB_NAME} ${_SRCS} ${_HDRS})
+
+target_link_libraries (${_LIB_NAME} LINK_PUBLIC libhw)
+target_link_libraries (${_LIB_NAME} LINK_PUBLIC libimu)
+
+target_include_directories (${_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories (${_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+install(FILES ${_HDRS} DESTINATION include/${_LIB_NAME})
+install(FILES ${_HDRS} DESTINATION include/${_NAME})
+
 install(TARGETS ${_NAME} DESTINATION bin)
+install(TARGETS ${_LIB_NAME} DESTINATION lib)
