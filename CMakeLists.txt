@@ -13,7 +13,12 @@ add_subdirectory (libhw)
 add_subdirectory (libimu)
 add_subdirectory (imu_test)
 add_subdirectory (imu_config)
+add_subdirectory(tests/check)
 
+###############################################################################
+# Unit tests
+enable_testing()
+add_test(NAME check_money COMMAND check_money)
 
 add_custom_target(integration
                   COMMAND ${CMAKE_COMMAND} -E env CORE_LOCATION=${PROJECT_BINARY_DIR}/core/core pytest
