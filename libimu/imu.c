@@ -57,10 +57,6 @@
 #define IMU_STATUS_OK 0x77
 #endif
 
-#ifndef IMU_STATUS_Z_NOK
-#define IMU_STATUS_Z_NOK 0x57
-#endif
-
 union bytes_to_float {
   unsigned char b[4];
   float f;
@@ -118,9 +114,6 @@ ssize_t imu_read(int fd, imu_datagram_t *gram) {
       memset(gram, 0, sizeof(imu_datagram_t));
       return -1;
     } else if (r < remaining) {
-      for (i = 0; i < imubufc; i++) {
-        printf("%x ", imubuf[i]);
-      }
       assert(imubufc < 36);
       memset(gram, 0, sizeof(imu_datagram_t));
       return 0;
@@ -255,8 +248,7 @@ int imu_disconnect(int fd) {
 
 int imu_valid(imu_datagram_t *data) {
   return (data->crc == data->computed_crc) &&
-         ((data->status == IMU_STATUS_OK) ||
-          (data->status == IMU_STATUS_Z_NOK));
+         (data->status == IMU_STATUS_OK);
 }
 
 int imu_ok(imu_datagram_t *data) {

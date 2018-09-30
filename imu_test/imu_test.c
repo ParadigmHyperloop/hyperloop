@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
     average.wy = (average.wy + data.wy) / 2.0f;
     average.wz = (average.wz + data.wz) / 2.0f;
 
-    if (i >= config.spinup) {
+    if (i > config.spinup) {
       if (success < 0) {
         fprintf(stderr, "[FAIL] [%d] IMU Read Failed\n", i);
         if (config.stop_on_fail) {
@@ -213,7 +213,7 @@ int main(int argc, char *argv[]) {
 
       fflush(stdout);
 
-    } else if (i == (config.spinup - 1)) {
+    } else if (i == config.spinup) {
       fprintf(stderr, "[NOTE] Spin-up complete %d/%d\n", i, config.spinup);
       l = data.sequence;
     } else {
