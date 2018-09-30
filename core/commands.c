@@ -45,7 +45,7 @@ static int helpCommand(size_t argc, char *argv[], size_t outbufc,
                        char outbuf[]) {
   pod_t *pod = get_pod();
   int count =
-      snprintf(&outbuf[0], outbufc, "%s",
+      snprintf(&outbuf[0], outbufc,
                "Pod CLI " POD_CLI_VERSION_STR ". Copyright " POD_COPY_YEAR
                " " POD_COPY_OWNER "\n" POD_CREDITS
                "This tool allows you to control various aspects of the pod\n"

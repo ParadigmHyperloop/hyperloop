@@ -115,7 +115,7 @@ int status_dump(pod_t *pod, char *buf, size_t len) {
   char reason[MAX_STATE_REASON_MSG];
 
   pthread_rwlock_rdlock(&(pod->mode_mutex));
-  strncpy(reason, MAX_STATE_REASON_MSG, pod->state_reason);
+  strncpy(reason, pod->state_reason, MAX_STATE_REASON_MSG - 1);
   pthread_rwlock_unlock(&(pod->mode_mutex));
 
   c +=

@@ -36,49 +36,48 @@
 #include "pod.h"
 
 // TODO: Circle Back to this, not sure why this struct isn't aligning correctly
-#pragma pack(1)
-typedef struct telemetry_packet {
-  uint8_t version;
-  uint16_t size;
-  // state
-  uint8_t state;
-  // Solenoids
-  uint32_t solenoids;
-  uint64_t timestamp;
-  // IMU
-  float position_x;
-  float position_y;
-  float position_z;
+typedef struct __attribute__((__packed__)) telemetry_packet {
+    uint8_t version;
+    uint16_t size;
+    // state
+    uint8_t state;
+    // Solenoids
+    uint32_t solenoids;
+    uint64_t timestamp;
+    // IMU
+    float position_x;
+    float position_y;
+    float position_z;
 
-  float velocity_x;
-  float velocity_y;
-  float velocity_z;
+    float velocity_x;
+    float velocity_y;
+    float velocity_z;
 
-  float acceleration_x;
-  float acceleration_y;
-  float acceleration_z;
+    float acceleration_x;
+    float acceleration_y;
+    float acceleration_z;
 
-  // Distance sensors
-  float pusher[N_PUSHER_DISTANCE];         // 4
-  float levitation[N_LEVITATION_DISTANCE]; // 8
+    // Distance sensors
+    float pusher[N_PUSHER_DISTANCE];         // 4
+    float levitation[N_LEVITATION_DISTANCE]; // 8
 
-  // Pressures
-  float hp_pressure;                                // 1
-  float reg_pressure[N_REG_PRESSURE];               // 4
-  float clamp_pressure[N_CLAMP_PRESSURE];           // 2
-  float brake_tank_pressure[N_BRAKE_TANK_PRESSURE]; // 2
+    // Pressures
+    float hp_pressure;                                // 1
+    float reg_pressure[N_REG_PRESSURE];               // 4
+    float clamp_pressure[N_CLAMP_PRESSURE];           // 2
+    float brake_tank_pressure[N_BRAKE_TANK_PRESSURE]; // 2
 
-  // Thermocouples
-  float hp_thermo;                          // 1
-  float reg_thermo[N_REG_THERMO];           // 4
-  float reg_surf_thermo[N_REG_SURF_THERMO]; // 4
-  float power_thermo[N_POWER_THERMO];       // 4
-  float clamp_thermo[N_CLAMP_PAD_THERMO];   // 2
-  float frame_thermo;                       // 1
+    // Thermocouples
+    float hp_thermo;                          // 1
+    float reg_thermo[N_REG_THERMO];           // 4
+    float reg_surf_thermo[N_REG_SURF_THERMO]; // 4
+    float power_thermo[N_POWER_THERMO];       // 4
+    float clamp_thermo[N_CLAMP_PAD_THERMO];   // 2
+    float frame_thermo;                       // 1
 
-  // Batteries
-  float voltages[N_BATTERIES]; // 3
-  float currents[N_BATTERIES]; // 3
+    // Batteries
+    float voltages[N_BATTERIES]; // 3
+    float currents[N_BATTERIES]; // 3
 
 } telemetry_packet_t;
 
